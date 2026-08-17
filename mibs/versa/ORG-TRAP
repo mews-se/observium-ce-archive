@@ -1,0 +1,61 @@
+--
+-- @Description: MIB for ORG Traps
+-- @Date       : 2014-06-25
+--
+
+ORG-TRAP DEFINITIONS ::= BEGIN
+IMPORTS
+    MODULE-IDENTITY, OBJECT-TYPE, NOTIFICATION-TYPE,
+    IpAddress
+        FROM SNMPv2-SMI
+    alarmIndex, alarmType, alarmDevice, alarmObject,
+    alarmSpecificProblem, alarmEventType, alarmProbableCause,
+    alarmTime, alarmSeverity, alarmHasClear, alarmText,
+    tenantName, thresholdStatus, currentUtilization,
+    alarmClass
+        FROM TRAPS-COMMON
+    serviceNotification
+        FROM VERSA-MIB;
+
+orgtrapMIB MODULE-IDENTITY
+    LAST-UPDATED "201411190000Z"
+    ORGANIZATION "Versa Networks"
+    CONTACT-INFO "
+        2953 Bunker Hill Lane, Suite 210
+        Santa Clara, CA - 95035 (USA)
+        Email: support@versa-networks.com"
+    DESCRIPTION  "Versa Networks' Enterprise MIB for Org traps"
+    ::= { serviceNotification 5 }
+
+
+-- Root Object
+orgEntities OBJECT IDENTIFIER ::= { orgtrapMIB 1 }
+orgNotification OBJECT IDENTIFIER ::= { orgtrapMIB 2 }
+
+orgVSNId OBJECT-TYPE
+    SYNTAX      INTEGER
+    MAX-ACCESS  accessible-for-notify
+    STATUS      current
+    DESCRIPTION "VSN id"
+        ::= { orgEntities 1 }
+
+orgThreadId OBJECT-TYPE
+    SYNTAX      INTEGER
+    MAX-ACCESS  accessible-for-notify
+    STATUS      current
+    DESCRIPTION "Thread id"
+        ::= { orgEntities 2 }
+
+orgSessionUtilization NOTIFICATION-TYPE
+    OBJECTS {
+        alarmType, alarmDevice, alarmObject, alarmSpecificProblem,
+        alarmClass, alarmEventType, alarmProbableCause, alarmTime,
+        alarmSeverity, alarmHasClear, alarmText, tenantName,
+        thresholdStatus, orgVSNId, orgThreadId,
+        currentUtilization
+    }
+    STATUS  current
+    DESCRIPTION "Session threshold set/clear notification"
+        ::= { orgNotification 1 }
+
+END

@@ -1,0 +1,69 @@
+--
+-- @Description: MIB for LEF Traps
+-- @Date       : 2017-06-10
+--
+
+LEF-TRAP DEFINITIONS ::= BEGIN
+IMPORTS
+    MODULE-IDENTITY, OBJECT-TYPE, NOTIFICATION-TYPE,
+    IpAddress
+        FROM SNMPv2-SMI
+    alarmIndex, alarmType, alarmDevice, alarmObject,
+    alarmSpecificProblem, alarmEventType, alarmProbableCause,
+    alarmTime, alarmSeverity, alarmHasClear, alarmText,
+    tenantName, thresholdStatus, currentUtilization,
+    alarmClass
+        FROM TRAPS-COMMON
+    serviceNotification
+        FROM VERSA-MIB;
+
+leftrapMIB MODULE-IDENTITY
+    LAST-UPDATED "201706100000Z"
+    ORGANIZATION "Versa Networks"
+    CONTACT-INFO "
+        2953 Bunker Hill Lane, Suite 210
+        Santa Clara, CA - 95035 (USA)
+        Email: support@versa-networks.com"
+    DESCRIPTION  "Versa Networks' Enterprise MIB for LEF traps"
+    ::= { serviceNotification 10 }
+
+
+-- Root Object
+lefEntities OBJECT IDENTIFIER ::= { leftrapMIB 1 }
+lefNotification OBJECT IDENTIFIER ::= { leftrapMIB 2 }
+
+lefVSNId OBJECT-TYPE
+    SYNTAX      INTEGER
+    MAX-ACCESS  accessible-for-notify
+    STATUS      current
+    DESCRIPTION "VSN id"
+        ::= { lefEntities 1 }
+
+lefCollectorName OBJECT-TYPE
+    SYNTAX      OCTET STRING
+    MAX-ACCESS  accessible-for-notify
+    STATUS      current
+    DESCRIPTION "Collector Name"
+        ::= { lefEntities 2 }
+
+lefQueueName OBJECT-TYPE
+    SYNTAX      OCTET STRING
+    MAX-ACCESS  accessible-for-notify
+    STATUS      current
+    DESCRIPTION "Collector Queue Name"
+        ::= { lefEntities 3 }
+
+
+lefCollectorQueueUtilization NOTIFICATION-TYPE
+    OBJECTS {
+        alarmType, alarmDevice, alarmObject, alarmSpecificProblem,
+        alarmClass, alarmEventType, alarmProbableCause, alarmTime,
+        alarmSeverity, alarmHasClear, alarmText, tenantName,
+        lefVSNId, lefCollectorName, lefQueueName, 
+        thresholdStatus, currentUtilization
+    }
+    STATUS  current
+    DESCRIPTION "Pool threshold notification"
+        ::= { lefNotification 1 }
+
+END

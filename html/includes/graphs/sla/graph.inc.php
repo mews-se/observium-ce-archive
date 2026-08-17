@@ -1,0 +1,28 @@
+<?php
+
+/**
+ * Observium
+ *
+ *   This file is part of Observium.
+ *
+ * @package        observium
+ * @subpackage     graphs
+ * @copyright  (C) Adam Armstrong
+ *
+ */
+
+if (empty($sla['sla_graph'])) {
+    // Comparability
+    $sla['sla_graph'] = ((stripos($sla['rtt_type'], 'jitter') !== FALSE) ? 'jitter' : 'echo');
+}
+
+switch ($sla['sla_graph']) {
+    case 'jitter':
+        include("jitter.inc.php");
+        break;
+    default:
+        $subtype = "echo";
+        include($config['html_dir'] . "/includes/graphs/generic_definition.inc.php");
+}
+
+// EOF

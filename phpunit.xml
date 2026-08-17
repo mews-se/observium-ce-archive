@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/10.5/phpunit.xsd"
+         bootstrap="tests/bootstrap.php"
+         cacheResult="true"
+         cacheDirectory=".phpunit"
+         colors="true"
+         beStrictAboutOutputDuringTests="true"
+         failOnRisky="false"
+         failOnWarning="false"
+         backupGlobals="false">
+  <testsuites>
+    <testsuite name="Observium Test Suite">
+      <directory suffix="Test.php">tests</directory>
+      <!-- EXCLUDE specific files or folders. -->
+      <!--            <exclude>-->
+      <!--                <file>tests/SnmpData.php</file>-->
+      <!--                <file>tests/SnmpOsData.php</file>-->
+      <!--                <directory>tests/legacy/</directory>-->
+      <!--            </exclude>-->
+    </testsuite>
+  </testsuites>
+  <php>
+    <ini name="memory_limit" value="512M"/>
+    <ini name="opcache.enable" value="0"/>
+    <ini name="default_charset" value="UTF-8"/>
+    <ini name="precision" value="14"/>
+    <ini name="serialize_precision" value="17"/>
+  </php>
+  <source>
+    <include>
+      <directory suffix=".php">includes</directory>
+      <directory suffix=".php">html/includes</directory>
+    </include>
+    <exclude>
+      <directory>vendor</directory>
+      <directory>tests</directory>
+    </exclude>
+  </source>
+</phpunit>

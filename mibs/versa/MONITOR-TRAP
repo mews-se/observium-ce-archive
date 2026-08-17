@@ -1,0 +1,97 @@
+--
+-- @Description: MIB for NEXTHOP and MONITOR Traps
+-- @Date       : 2017-05-25
+--
+
+MONITOR-TRAP DEFINITIONS ::= BEGIN
+IMPORTS
+    MODULE-IDENTITY, OBJECT-TYPE, NOTIFICATION-TYPE
+        FROM SNMPv2-SMI
+    serviceNotification
+        FROM VERSA-MIB
+    alarmIndex, alarmType, alarmDevice, alarmObject,
+    alarmSpecificProblem, alarmEventType, alarmProbableCause,
+    alarmTime, alarmSeverity, alarmHasClear, alarmText,
+    tenantName, alarmClass
+        FROM TRAPS-COMMON;
+
+monitortrapMIB MODULE-IDENTITY
+    LAST-UPDATED "201706060000Z"
+    ORGANIZATION "Versa Networks"
+    CONTACT-INFO "
+        2953 Bunker Hill Lane, Suite 210
+        Santa Clara, CA - 95035 (USA)
+        Email: support@versa-networks.com"
+    DESCRIPTION  "Versa Networks' Entrprise MIB for MONITOR traps"
+    ::= { serviceNotification 3 }
+
+-- Root Object
+monitorEntities OBJECT IDENTIFIER ::= { monitortrapMIB 1 }
+monitorNotification OBJECT IDENTIFIER ::= { monitortrapMIB 2 }
+
+monitorName OBJECT-TYPE
+    SYNTAX      OCTET STRING
+    MAX-ACCESS  accessible-for-notify
+    STATUS      current
+    DESCRIPTION "Name of the monitor"
+        ::= { monitorEntities 1 }
+
+monitorIp OBJECT-TYPE
+    SYNTAX      OCTET STRING
+    MAX-ACCESS  accessible-for-notify
+    STATUS      current
+    DESCRIPTION "Peer IP address"
+        ::= { monitorEntities 2 }
+
+monitorRoutingInstance OBJECT-TYPE
+    SYNTAX      OCTET STRING
+    MAX-ACCESS  accessible-for-notify
+    STATUS      current
+    DESCRIPTION "Routing instance"
+        ::= { monitorEntities 3 }
+
+monitorDown NOTIFICATION-TYPE
+    OBJECTS {
+        alarmType, alarmDevice, alarmObject, alarmSpecificProblem,
+        alarmClass, alarmEventType, alarmProbableCause, alarmTime,
+        alarmSeverity, alarmHasClear, alarmText, tenantName,
+        monitorName, monitorIp, monitorRoutingInstance
+    }
+    STATUS  current
+    DESCRIPTION "Monitor down notification"
+        ::= { monitorNotification 1 }
+
+monitorUp NOTIFICATION-TYPE
+    OBJECTS {
+        alarmType, alarmDevice, alarmObject, alarmSpecificProblem,
+        alarmClass, alarmEventType, alarmProbableCause, alarmTime,
+        alarmSeverity, alarmHasClear, alarmText, tenantName,
+        monitorName, monitorIp, monitorRoutingInstance
+    }
+    STATUS  current
+    DESCRIPTION "Monitor up notification"
+        ::= { monitorNotification 2 }
+
+nexthopDown NOTIFICATION-TYPE
+    OBJECTS {
+        alarmType, alarmDevice, alarmObject, alarmSpecificProblem,
+        alarmClass, alarmEventType, alarmProbableCause, alarmTime,
+        alarmSeverity, alarmHasClear, alarmText, tenantName,
+        monitorIp, monitorRoutingInstance
+    }
+    STATUS  current
+    DESCRIPTION "Monitor down notification"
+        ::= { monitorNotification 3 }
+
+nexthopUp NOTIFICATION-TYPE
+    OBJECTS {
+        alarmType, alarmDevice, alarmObject, alarmSpecificProblem,
+        alarmClass, alarmEventType, alarmProbableCause, alarmTime,
+        alarmSeverity, alarmHasClear, alarmText, tenantName,
+        monitorIp, monitorRoutingInstance
+    }
+    STATUS  current
+    DESCRIPTION "Monitor up notification"
+        ::= { monitorNotification 4 }
+
+END

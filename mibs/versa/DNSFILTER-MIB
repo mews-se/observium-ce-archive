@@ -1,0 +1,371 @@
+DNSFILTER-MIB DEFINITIONS ::= BEGIN
+IMPORTS
+    MODULE-IDENTITY, OBJECT-TYPE,
+    Integer32, Unsigned32, Counter32, Counter64,
+    Gauge32, IpAddress
+        FROM SNMPv2-SMI
+    TEXTUAL-CONVENTION, RowStatus, DateAndTime,
+    TruthValue
+        FROM SNMPv2-TC
+    ngfw
+        FROM VERSA-MIB
+;
+
+dnsfilter MODULE-IDENTITY
+    LAST-UPDATED "201401050000Z"
+    ORGANIZATION "Versa Networks"
+    CONTACT-INFO "
+        2953 Bunker Hill Lane, Suite 210
+        Santa Clara, CA - 95035 (USA)
+        Email: support@versa-networks.com"
+    DESCRIPTION "Enterprise MIB for Versa Networks'
+DNSFilter solution"
+    REVISION "201401050000Z"
+    DESCRIPTION "Initial revision"
+    ::= { ngfw 9 }
+
+ConfdString ::= TEXTUAL-CONVENTION
+    DISPLAY-HINT "1t"
+    STATUS      current
+    DESCRIPTION "xs: and confd: types mapped to strings"
+    SYNTAX      OCTET STRING
+
+String ::= TEXTUAL-CONVENTION
+    DISPLAY-HINT "1t"
+    STATUS      current
+    DESCRIPTION "xs:string"
+    SYNTAX      OCTET STRING
+
+dnsfilterMibPredefinedTable OBJECT-TYPE
+    SYNTAX      SEQUENCE OF DnsfilterMibPredefinedEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "Display DNSfilter predefined profile statistics"
+    ::= { dnsfilter 1 }
+
+dnsfilterMibPredefinedEntry OBJECT-TYPE
+    SYNTAX      DnsfilterMibPredefinedEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION ""
+    INDEX { dfPredefOrgId, dfPredefProfileId }
+        ::= { dnsfilterMibPredefinedTable 1 }
+
+DnsfilterMibPredefinedEntry ::=
+    SEQUENCE {
+        dfPredefOrgId Unsigned32,
+        dfPredefProfileId Unsigned32,
+        dfPredefOrgName String,
+        dfPredefProfileName String,
+        dfPredefBlacklistStat ConfdString,
+        dfPredefWhitelistStat ConfdString,
+        dfPredefUrlfStat ConfdString,
+        dfPredefIpfStat ConfdString,
+        dfPredefNodStat ConfdString
+    }
+
+dfPredefOrgId OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "Organization id"
+    ::= { dnsfilterMibPredefinedEntry 1 }
+
+dfPredefProfileId OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "DNSF Profile Id"
+    ::= { dnsfilterMibPredefinedEntry 2 }
+
+dfPredefOrgName OBJECT-TYPE
+    SYNTAX      String
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Organization Name"
+    ::= { dnsfilterMibPredefinedEntry 3 }
+
+dfPredefProfileName OBJECT-TYPE
+    SYNTAX      String
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "DNSF Profile Name"
+    ::= { dnsfilterMibPredefinedEntry 4 }
+
+dfPredefBlacklistStat OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "DNS filtering predefined profile black list hit counter"
+    ::= { dnsfilterMibPredefinedEntry 5 }
+
+dfPredefWhitelistStat OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "DNS filtering predefined profile white list hit counter"
+    ::= { dnsfilterMibPredefinedEntry 6 }
+
+dfPredefUrlfStat OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "DNS filtering predefined profile url-filter hit counter"
+    ::= { dnsfilterMibPredefinedEntry 7 }
+
+dfPredefIpfStat OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "DNS filtering predefined profile ip-filter hit counter"
+    ::= { dnsfilterMibPredefinedEntry 8 }
+
+dfPredefNodStat OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "DNS filtering predefined profile newly observed domain hit counter"
+    ::= { dnsfilterMibPredefinedEntry 9 }
+
+dnsfilterMibPredefinedQueryActionRulesTable OBJECT-TYPE
+    SYNTAX      SEQUENCE OF DnsfilterMibPredefinedQueryActionRulesEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "Display DNSfilter predefined profile query action rule statistics"
+    ::= { dnsfilter 2 }
+
+dnsfilterMibPredefinedQueryActionRulesEntry OBJECT-TYPE
+    SYNTAX      DnsfilterMibPredefinedQueryActionRulesEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION ""
+    INDEX { dfPredefQarOrgId, dfPredefQarProfileId, dfPredefQarRuleId }
+        ::= { dnsfilterMibPredefinedQueryActionRulesTable 1 }
+
+DnsfilterMibPredefinedQueryActionRulesEntry ::=
+    SEQUENCE {
+        dfPredefQarOrgId Unsigned32,
+        dfPredefQarProfileId Unsigned32,
+        dfPredefQarRuleId Unsigned32,
+        dfPredefQarOrgName String,
+        dfPredefQarProfileName String,
+        dfPredefQarRuleName String,
+        dfPredefProfileRuleHitStat ConfdString
+    }
+
+dfPredefQarOrgId OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "Organization id"
+    ::= { dnsfilterMibPredefinedQueryActionRulesEntry 1 }
+
+dfPredefQarProfileId OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "DNSF Profile Id"
+    ::= { dnsfilterMibPredefinedQueryActionRulesEntry 2 }
+
+dfPredefQarRuleId OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "DNSF Profile Rule Id"
+    ::= { dnsfilterMibPredefinedQueryActionRulesEntry 3 }
+
+dfPredefQarOrgName OBJECT-TYPE
+    SYNTAX      String
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Organization Name"
+    ::= { dnsfilterMibPredefinedQueryActionRulesEntry 4 }
+
+dfPredefQarProfileName OBJECT-TYPE
+    SYNTAX      String
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "DNSF Profile Name"
+    ::= { dnsfilterMibPredefinedQueryActionRulesEntry 5 }
+
+dfPredefQarRuleName OBJECT-TYPE
+    SYNTAX      String
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "DNSF Profile Name"
+    ::= { dnsfilterMibPredefinedQueryActionRulesEntry 6 }
+
+dfPredefProfileRuleHitStat OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "DNS filtering predefined profile query action rule hit counter"
+    ::= { dnsfilterMibPredefinedQueryActionRulesEntry 7 }
+
+dnsfilterMibUserdefinedTable OBJECT-TYPE
+    SYNTAX      SEQUENCE OF DnsfilterMibUserdefinedEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "Display DNSfilter userdefined profile statistics."
+    ::= { dnsfilter 3 }
+
+dnsfilterMibUserdefinedEntry OBJECT-TYPE
+    SYNTAX      DnsfilterMibUserdefinedEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION ""
+    INDEX { dfUsrdefOrgId, dfUsrdefProfileId }
+        ::= { dnsfilterMibUserdefinedTable 1 }
+
+DnsfilterMibUserdefinedEntry ::=
+    SEQUENCE {
+        dfUsrdefOrgId Unsigned32,
+        dfUsrdefProfileId Unsigned32,
+        dfUsrdefOrgName String,
+        dfUsrdefProfileName String,
+        dfUserdefBlacklistStat ConfdString,
+        dfUserdefWhitelistStat ConfdString,
+        dfUserdefUrlfStat ConfdString,
+        dfUserdefIpfStat ConfdString,
+        dfUserdefNodStat ConfdString
+    }
+
+dfUsrdefOrgId OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "Organization id"
+    ::= { dnsfilterMibUserdefinedEntry 1 }
+
+dfUsrdefProfileId OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "DNSF Profile Id"
+    ::= { dnsfilterMibUserdefinedEntry 2 }
+
+dfUsrdefOrgName OBJECT-TYPE
+    SYNTAX      String
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Organization Name"
+    ::= { dnsfilterMibUserdefinedEntry 3 }
+
+dfUsrdefProfileName OBJECT-TYPE
+    SYNTAX      String
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "DNSF Profile Name"
+    ::= { dnsfilterMibUserdefinedEntry 4 }
+
+dfUserdefBlacklistStat OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "DNS filtering userdefined profile black list hit counter"
+    ::= { dnsfilterMibUserdefinedEntry 5 }
+
+dfUserdefWhitelistStat OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "DNS filtering userdefined profile white list hit counter"
+    ::= { dnsfilterMibUserdefinedEntry 6 }
+
+dfUserdefUrlfStat OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "DNS filtering userdefined profile url-filter hit counter"
+    ::= { dnsfilterMibUserdefinedEntry 7 }
+
+dfUserdefIpfStat OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "DNS filtering userdefined profile ip-filter hit counter"
+    ::= { dnsfilterMibUserdefinedEntry 8 }
+
+dfUserdefNodStat OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "DNS filtering userdefined profile newly observed domain hit counter"
+    ::= { dnsfilterMibUserdefinedEntry 9 }
+
+dnsfilterMibUserdefinedQueryActionRulesTable OBJECT-TYPE
+    SYNTAX      SEQUENCE OF DnsfilterMibUserdefinedQueryActionRulesEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "Display DNSfilter userdefined profile query action rule statistics"
+    ::= { dnsfilter 4 }
+
+dnsfilterMibUserdefinedQueryActionRulesEntry OBJECT-TYPE
+    SYNTAX      DnsfilterMibUserdefinedQueryActionRulesEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION ""
+    INDEX { dfUserdefQarOrgId, dfUserdefQarProfileId, dfUserdefQarRuleId }
+        ::= { dnsfilterMibUserdefinedQueryActionRulesTable 1 }
+
+DnsfilterMibUserdefinedQueryActionRulesEntry ::=
+    SEQUENCE {
+        dfUserdefQarOrgId Unsigned32,
+        dfUserdefQarProfileId Unsigned32,
+        dfUserdefQarRuleId Unsigned32,
+        dfUserdefQarOrgName String,
+        dfUserdefQarProfileName String,
+        dfUserdefQarRuleName String,
+        dfUserdefProfileRuleHitStat ConfdString
+    }
+
+dfUserdefQarOrgId OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "Organization id"
+    ::= { dnsfilterMibUserdefinedQueryActionRulesEntry 1 }
+
+dfUserdefQarProfileId OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "DNSF Profile Id"
+    ::= { dnsfilterMibUserdefinedQueryActionRulesEntry 2 }
+
+dfUserdefQarRuleId OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "DNSF Profile Id"
+    ::= { dnsfilterMibUserdefinedQueryActionRulesEntry 3 }
+
+dfUserdefQarOrgName OBJECT-TYPE
+    SYNTAX      String
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Organization Name"
+    ::= { dnsfilterMibUserdefinedQueryActionRulesEntry 4 }
+
+dfUserdefQarProfileName OBJECT-TYPE
+    SYNTAX      String
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "DNSF Profile Name"
+    ::= { dnsfilterMibUserdefinedQueryActionRulesEntry 5 }
+
+dfUserdefQarRuleName OBJECT-TYPE
+    SYNTAX      String
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "DNSF Profile Name"
+    ::= { dnsfilterMibUserdefinedQueryActionRulesEntry 6 }
+
+dfUserdefProfileRuleHitStat OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "DNS filtering userdefined profile query action rule hit counter"
+    ::= { dnsfilterMibUserdefinedQueryActionRulesEntry 7 }
+
+END

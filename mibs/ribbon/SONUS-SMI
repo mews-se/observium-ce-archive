@@ -1,0 +1,334 @@
+--
+-- Sonus Networks, Inc
+-- All Rights Reserved.
+-- 
+-- Sonus Networks Enterprise Mib
+-- 
+-- Copyright (c) 1998 Sonus Networks, Inc.
+-- All rights reserved.
+--
+-- 
+
+
+    SONUS-SMI
+
+--# Sonus Mib Includes
+--SMIB-DEPEND "rfc1902.smib"
+
+
+--@ Sonus Header Files
+--FORCE-INCLUDE "COMMON/sonus.h"
+--FORCE-INCLUDE "COMMON/system.h"
+--FORCE-INCLUDE "COMMON/list.h"
+--FORCE-INCLUDE "COMMON/icm.h"
+--FORCE-INCLUDE "COMMON/sysFile.h"
+--FORCE-INCLUDE "COMMON/hash.h"
+--FORCE-INCLUDE "TOOLS/SCC/cslVal.h"
+--FORCE-INCLUDE "TOOLS/SCC/cslApi.h"
+--FORCE-INCLUDE "CLI/cli.h"
+--FORCE-INCLUDE "COMMON/named.h"
+
+--@ ISI EPILOGUE Header Files
+--FORCE-INCLUDE "EPILOGUE/envoy/h/mib.h"
+--FORCE-INCLUDE "EPILOGUE/envoy/h/snmpdefs.h"
+
+--@ Sonus System Header Files
+--FORCE-INCLUDE "NCM/com.h"
+--FORCE-INCLUDE "NCMP/ncmpEnum.h"
+--FORCE-INCLUDE "NCMP/ncmParamPub.h"
+--FORCE-INCLUDE "mibDataRange.h"
+--FORCE-INCLUDE "mibDataOid.h"
+
+
+--DEFAULT    locator         OID_%n
+--DEFAULT    cookie          0
+--ATTR       MIB_FLAG_NONE
+--GET_FUNC   ComMibError
+--SET_FUNC   ComMibError
+--TEST_FUNC  ComMibError
+--NEXT_FUNC  ComMibError
+
+    DEFINITIONS ::= BEGIN
+
+    IMPORTS
+    	MODULE-IDENTITY,  OBJECT-IDENTITY, enterprises
+            FROM SNMPv2-SMI;
+    
+        sonus MODULE-IDENTITY
+    	LAST-UPDATED "202003090000Z"
+    	ORGANIZATION "Sonus Networks, Inc."
+    	CONTACT-INFO
+        "   Customer Support    
+            Sonus Networks, Inc.
+            4 Technology Park Drive
+            Westford, MA 01886
+            USA
+
+            Tel: 978-614-8100
+            Fax: 978-614-8609"
+    	DESCRIPTION
+    		"Initial version of this MIB module."
+    	::= { enterprises 2879 }	-- assigned by IANA
+
+
+    sonusProducts OBJECT-IDENTITY
+    	STATUS	current
+    	DESCRIPTION
+    		"sonusProducts is the root OBJECT IDENTIFIER from
+    		which sysObjectID values are assigned."
+    	::= { sonus 1 }
+
+    sonusMgmt OBJECT-IDENTITY
+    	STATUS	current
+    	DESCRIPTION
+    		"sonusMgmt is the main subtree for mib configuration."
+    	::= { sonus 2 }
+
+    sonusModules OBJECT-IDENTITY
+    	STATUS	current
+    	DESCRIPTION
+    		"sonusModules provides a root object identifier
+    		from which MODULE-IDENTITY values may be assigned."
+    	::= { sonus 3 }
+
+    sonusSystemMIBs OBJECT-IDENTITY
+    	STATUS	current
+    	DESCRIPTION
+    		"Root MIB node for all System-related Sonus MIBs."
+        ::= { sonusMgmt 1 }
+
+    sonusResourcesMIBs OBJECT-IDENTITY
+    	STATUS	current
+    	DESCRIPTION
+    		"Root MIB node for all Resource-related Sonus MIBs."
+        ::= { sonusMgmt 2 }
+
+    sonusPacketMIBs  OBJECT-IDENTITY
+    	STATUS	current
+    	DESCRIPTION
+    		"Root MIB node for all Packet-related Sonus MIBs."
+        ::= { sonusMgmt 3 }
+
+    sonusCircuitMIBs OBJECT-IDENTITY
+    	STATUS	current
+    	DESCRIPTION
+    		"Root MIB node for all Circuit-related Sonus MIBs."
+        ::= { sonusMgmt 4 }
+
+    sonusServicesMIBs OBJECT-IDENTITY
+    	STATUS	current
+    	DESCRIPTION
+    		"Root MIB node for all Services-related Sonus MIBs."
+        ::= { sonusMgmt 5 }
+
+    sonusSignallingMIBs OBJECT-IDENTITY
+    	STATUS	current
+    	DESCRIPTION
+    		"Root MIB node for all Signalling-related Sonus MIBs."
+        ::= { sonusMgmt 6 }
+
+    sonusToolsMIBs OBJECT-IDENTITY
+    	STATUS	current
+    	DESCRIPTION
+    		"Root MIB node for all Sonus development tools MIBs."
+        ::= { sonusMgmt 7 }
+
+    sonusCommonSoftwarePlatformServicesMIBs OBJECT-IDENTITY
+    	STATUS	current
+    	DESCRIPTION
+    		"Root MIB node for all Common Software Platform Services MIBs."
+        ::= { sonusMgmt 8 }
+
+	sonusCspsNotificationMIBs OBJECT-IDENTITY 
+        STATUS  current 
+        DESCRIPTION
+            "Root MIB node for all Sonus NextGen Notification MIBs."
+        ::= { sonusCommonSoftwarePlatformServicesMIBs 1 }
+
+    sonusSGX4000MIBs OBJECT-IDENTITY
+    	STATUS	current
+    	DESCRIPTION
+    		"Root MIB node for all SGX4000 MIBs."
+        ::= { sonusMgmt 9 }
+
+	sonusSGX4000NotificationMIBs OBJECT-IDENTITY 
+        STATUS  current 
+        DESCRIPTION
+            "Root MIB node for all Sonus SGX4000 Notification MIBs."
+        ::= { sonusSGX4000MIBs 1 }
+
+    sonusSBX5000MIBs OBJECT-IDENTITY
+    	STATUS	current
+    	DESCRIPTION
+    		"Root MIB node for all SBX5000 MIBs."
+        ::= { sonusMgmt 10 }
+
+	sonusSBX5000NotificationMIBs OBJECT-IDENTITY 
+        STATUS  current 
+        DESCRIPTION
+            "Root MIB node for all Sonus SBX5000 Notification MIBs."
+        ::= { sonusSBX5000MIBs 1 }
+
+    sonusGSXProducts OBJECT-IDENTITY
+    	STATUS	current
+    	DESCRIPTION
+    		"The Sonus GSX family of products."
+    	::= { sonusProducts 1 }
+
+    sonusGSX9000 OBJECT-IDENTITY
+    	STATUS	current
+    	DESCRIPTION
+    		"The Sonus GSX 9000."
+    	::= { sonusGSXProducts 1 }
+
+    sonusGSX9000HD OBJECT-IDENTITY
+    	STATUS	current
+    	DESCRIPTION
+    		"The Sonus GSX 9000HD."
+    	::= { sonusGSXProducts 2 }
+
+    sonusGSX4000 OBJECT-IDENTITY
+    	STATUS	current
+    	DESCRIPTION
+    		"The Sonus GSX 4000."
+    	::= { sonusGSXProducts 3 }
+
+    sonusPSXProducts OBJECT-IDENTITY
+    	STATUS	current
+    	DESCRIPTION
+    		"The Sonus GSX family of products."
+    	::= { sonusProducts 2 }
+
+    sonusPSX6000 OBJECT-IDENTITY
+    	STATUS	current
+    	DESCRIPTION
+    		"The Sonus PSX 6000."
+    	::= { sonusPSXProducts 1 }
+
+    sonusSGXProducts OBJECT-IDENTITY
+    	STATUS	current
+    	DESCRIPTION
+    		"The Sonus SGX family of products."
+    	::= { sonusProducts 3 }
+
+    sonusSGX2000 OBJECT-IDENTITY
+    	STATUS	current
+    	DESCRIPTION
+    		"The Sonus SGX 2000."
+    	::= { sonusSGXProducts 1 }
+
+    sonusSGX4000 OBJECT-IDENTITY
+    	STATUS	current
+    	DESCRIPTION
+    		"The Sonus SGX 4000."
+    	::= { sonusSGXProducts 2 }
+
+    sonusASXProducts OBJECT-IDENTITY
+    	STATUS	current
+    	DESCRIPTION
+    		"The Sonus ASX family of products."
+    	::= { sonusProducts 4 }
+
+    sonusASX OBJECT-IDENTITY
+    	STATUS	current
+    	DESCRIPTION
+    		"The Sonus Access Server (ASX.)"
+    	::= { sonusASXProducts 1 }
+
+    sonusADS OBJECT-IDENTITY
+    	STATUS	current
+    	DESCRIPTION
+    		"The Sonus Access Directory Server (ADS.)"
+    	::= { sonusASXProducts 2 }
+
+    sonusInsightProducts OBJECT-IDENTITY
+    	STATUS  current
+    	DESCRIPTION
+    		"The Sonus EMS family of products."
+    	::= { sonusProducts 5 }
+
+    sonusEMS OBJECT-IDENTITY
+    	STATUS  current
+    	DESCRIPTION
+    		"The Sonus Element Management System."
+    	::= { sonusInsightProducts 1 }
+
+    sonusDSI OBJECT-IDENTITY
+    	STATUS  current
+    	DESCRIPTION
+    		"The Sonus Data Stream Integrator."
+    	::= { sonusInsightProducts 2 }
+
+    sonusCommunicator OBJECT-IDENTITY
+    	STATUS  current
+    	DESCRIPTION
+    		"The Sonus Communicator."
+    	::= { sonusInsightProducts 3 }
+
+ sonusIAS OBJECT-IDENTITY
+        STATUS  current
+        DESCRIPTION
+            "The Sonus Insight Application Server."
+        ::= { sonusInsightProducts 4 }
+
+     sonusNFSProducts OBJECT-IDENTITY
+    	STATUS  current
+    	DESCRIPTION
+    		"The Sonus NFS family of products."
+    	::= { sonusProducts 6 }
+
+    sonusSolNFS OBJECT-IDENTITY
+    	STATUS  current
+    	DESCRIPTION
+    		"The Sonus NFS agent for Solaris."
+    	::= { sonusNFSProducts 1 }
+
+    sonusIMXProducts OBJECT-IDENTITY
+    	STATUS  current
+    	DESCRIPTION
+    		"The Sonus IMX family of products."
+    	::= { sonusProducts 7 }
+
+    sonusIMX OBJECT-IDENTITY
+    	STATUS  current
+    	DESCRIPTION
+    		"The Sonus Multimedia Application Platform."
+    	::= { sonusIMXProducts 1 }
+
+    sonusSRX OBJECT-IDENTITY
+    	STATUS  current
+    	DESCRIPTION
+    		"The Sonus Call Session Control Function."
+    	::= { sonusIMXProducts 2 }
+
+    sonusFMCAS OBJECT-IDENTITY
+    	STATUS  current
+    	DESCRIPTION
+    		"The Sonus FMC Application Server."
+    	::= { sonusIMXProducts 3 }
+
+    sonusSBXProducts OBJECT-IDENTITY
+    	STATUS  current
+    	DESCRIPTION
+    		"The Sonus SBX family of products."
+    	::= { sonusProducts 9 }
+
+    sonusSBX5000 OBJECT-IDENTITY
+    	STATUS  current
+    	DESCRIPTION
+    		"Sonus Session Border Control Application Platform."
+    	::= { sonusSBXProducts 1 }
+
+    sonusSBC5200 OBJECT-IDENTITY
+    	STATUS  current
+    	DESCRIPTION
+    		"Sonus Session Border Control 5200."
+    	::= { sonusSBXProducts 2 }
+
+    sonusSBC5100 OBJECT-IDENTITY
+    	STATUS  current
+    	DESCRIPTION
+    		"Sonus Session Border Control 5100."
+    	::= { sonusSBXProducts 3 }
+
+END

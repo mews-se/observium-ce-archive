@@ -1,0 +1,76 @@
+--
+-- @Description: MIB for SNAT Traps
+-- @Date       : 2016-04-25
+--
+
+SNAT-TRAP DEFINITIONS ::= BEGIN
+IMPORTS
+    MODULE-IDENTITY, OBJECT-TYPE, NOTIFICATION-TYPE,
+    IpAddress
+        FROM SNMPv2-SMI
+    alarmIndex, alarmType, alarmDevice, alarmObject,
+    alarmSpecificProblem, alarmEventType, alarmProbableCause,
+    alarmTime, alarmSeverity, alarmHasClear, alarmText,
+    tenantName, thresholdStatus, currentUtilization,
+    alarmClass
+        FROM TRAPS-COMMON
+    serviceNotification
+        FROM VERSA-MIB;
+
+snattrapMIB MODULE-IDENTITY
+    LAST-UPDATED "201604250000Z"
+    ORGANIZATION "Versa Networks"
+    CONTACT-INFO "
+        2953 Bunker Hill Lane, Suite 210
+        Santa Clara, CA - 95035 (USA)
+        Email: support@versa-networks.com"
+    DESCRIPTION  "Versa Networks' Enterprise MIB for SNAT traps"
+    ::= { serviceNotification 9 }
+
+
+-- Root Object
+snatEntities OBJECT IDENTIFIER ::= { snattrapMIB 1 }
+snatNotification OBJECT IDENTIFIER ::= { snattrapMIB 2 }
+
+snatVSNId OBJECT-TYPE
+    SYNTAX      INTEGER
+    MAX-ACCESS  accessible-for-notify
+    STATUS      current
+    DESCRIPTION "VSN id"
+        ::= { snatEntities 1 }
+
+snatThreadId OBJECT-TYPE
+    SYNTAX      INTEGER
+    MAX-ACCESS  accessible-for-notify
+    STATUS      current
+    DESCRIPTION "Thread id"
+        ::= { snatEntities 2 }
+
+snatNATAddress OBJECT-TYPE
+    SYNTAX      INTEGER
+    MAX-ACCESS  accessible-for-notify
+    STATUS      current
+    DESCRIPTION "NAT Address"
+        ::= { snatEntities 3 }
+
+snatPoolName OBJECT-TYPE
+    SYNTAX      OCTET STRING
+    MAX-ACCESS  accessible-for-notify
+    STATUS      current
+    DESCRIPTION "NAT Address"
+        ::= { snatEntities 4 }
+
+snatPoolUtilization NOTIFICATION-TYPE
+    OBJECTS {
+        alarmType, alarmDevice, alarmObject,
+        alarmSpecificProblem, alarmClass, alarmEventType,
+        alarmProbableCause, alarmTime, alarmSeverity,
+        alarmHasClear, alarmText, tenantName,
+        snatVSNId, snatThreadId, snatPoolName,
+        thresholdStatus, currentUtilization
+    }
+    STATUS  current
+    DESCRIPTION "Pool threshold notification"
+        ::= { snatNotification 1 }
+
+END

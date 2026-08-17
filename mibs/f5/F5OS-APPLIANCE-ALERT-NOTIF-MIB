@@ -1,0 +1,1990 @@
+F5OS-APPLIANCE-ALERT-NOTIF-MIB DEFINITIONS ::= BEGIN
+
+IMPORTS
+    MODULE-IDENTITY, NOTIFICATION-TYPE
+        FROM SNMPv2-SMI
+    NOTIFICATION-GROUP
+        FROM SNMPv2-CONF
+    f5Alerts, alertSource, alertEffect, alertSeverity,
+    alertTimeStamp, alertDescription, f5AlertNotificationGroup
+        FROM F5-ALERT-DEF-MIB
+    ;
+
+f5AlertNotification MODULE-IDENTITY
+    LAST-UPDATED "201908040941Z"
+    ORGANIZATION "F5 Networks, Inc."
+    CONTACT-INFO
+         "postal: F5 Networks, Inc.
+                  801 5th Ave
+                  Seattle,  WA 98104
+          phone:  (206) 272-5555
+          email:  support@f5.com"
+
+    DESCRIPTION
+        "Top-level infrastructure of the F5 Networks enterprise Alert MIB tree."
+
+    REVISION       "201908040941Z"
+    DESCRIPTION
+        "F5 Alert Notification Types."
+
+    ::= { f5Alerts 1 }
+
+--=====================================================================--
+-- F5 Alert Trap
+--=====================================================================--
+
+hardware-device-fault  NOTIFICATION-TYPE 
+    OBJECTS {
+              alertSource,
+              alertEffect,
+              alertSeverity,
+              alertTimeStamp,
+              alertDescription
+    }
+    STATUS    current
+    DESCRIPTION
+        "Hardware device fault detected"
+    ::= { f5AlertNotification 65536 }
+
+firmware-fault  NOTIFICATION-TYPE 
+    OBJECTS {
+              alertSource,
+              alertEffect,
+              alertSeverity,
+              alertTimeStamp,
+              alertDescription
+    }
+    STATUS    current
+    DESCRIPTION
+        "Firmware diagnostic state fault detected"
+    ::= { f5AlertNotification 65537 }
+
+unknown-alarm  NOTIFICATION-TYPE 
+    OBJECTS {
+              alertSource,
+              alertEffect,
+              alertSeverity,
+              alertTimeStamp,
+              alertDescription
+    }
+    STATUS    current
+    DESCRIPTION
+        "Unregistered alarm detected"
+    ::= { f5AlertNotification 65538 }
+
+memory-fault  NOTIFICATION-TYPE 
+    OBJECTS {
+              alertSource,
+              alertEffect,
+              alertSeverity,
+              alertTimeStamp,
+              alertDescription
+    }
+    STATUS    current
+    DESCRIPTION
+        "Fault in memory detected"
+    ::= { f5AlertNotification 65539 }
+
+drive-fault  NOTIFICATION-TYPE 
+    OBJECTS {
+              alertSource,
+              alertEffect,
+              alertSeverity,
+              alertTimeStamp,
+              alertDescription
+    }
+    STATUS    current
+    DESCRIPTION
+        "Fault in drive detected"
+    ::= { f5AlertNotification 65540 }
+
+cpu-fault  NOTIFICATION-TYPE 
+    OBJECTS {
+              alertSource,
+              alertEffect,
+              alertSeverity,
+              alertTimeStamp,
+              alertDescription
+    }
+    STATUS    current
+    DESCRIPTION
+        "CPU fault detected"
+    ::= { f5AlertNotification 65541 }
+
+pcie-fault  NOTIFICATION-TYPE 
+    OBJECTS {
+              alertSource,
+              alertEffect,
+              alertSeverity,
+              alertTimeStamp,
+              alertDescription
+    }
+    STATUS    current
+    DESCRIPTION
+        "Fault in PCIe device detected"
+    ::= { f5AlertNotification 65542 }
+
+aom-fault  NOTIFICATION-TYPE 
+    OBJECTS {
+              alertSource,
+              alertEffect,
+              alertSeverity,
+              alertTimeStamp,
+              alertDescription
+    }
+    STATUS    current
+    DESCRIPTION
+        "Fault detected in the AOM"
+    ::= { f5AlertNotification 65543 }
+
+drive-capacity-fault  NOTIFICATION-TYPE 
+    OBJECTS {
+              alertSource,
+              alertEffect,
+              alertSeverity,
+              alertTimeStamp,
+              alertDescription
+    }
+    STATUS    current
+    DESCRIPTION
+        "Running out of drive capacity"
+    ::= { f5AlertNotification 65544 }
+
+power-fault  NOTIFICATION-TYPE 
+    OBJECTS {
+              alertSource,
+              alertEffect,
+              alertSeverity,
+              alertTimeStamp,
+              alertDescription
+    }
+    STATUS    current
+    DESCRIPTION
+        "Power fault detected in hardware"
+    ::= { f5AlertNotification 65545 }
+
+thermal-fault  NOTIFICATION-TYPE 
+    OBJECTS {
+              alertSource,
+              alertEffect,
+              alertSeverity,
+              alertTimeStamp,
+              alertDescription
+    }
+    STATUS    current
+    DESCRIPTION
+        "Thermal fault detected in hardware"
+    ::= { f5AlertNotification 65546 }
+
+drive-thermal-throttle  NOTIFICATION-TYPE 
+    OBJECTS {
+              alertSource,
+              alertEffect,
+              alertSeverity,
+              alertTimeStamp,
+              alertDescription
+    }
+    STATUS    current
+    DESCRIPTION
+        "Drive has entered a thermal throttle condition"
+    ::= { f5AlertNotification 65547 }
+
+blade-thermal-fault  NOTIFICATION-TYPE 
+    OBJECTS {
+              alertSource,
+              alertEffect,
+              alertSeverity,
+              alertTimeStamp,
+              alertDescription
+    }
+    STATUS    current
+    DESCRIPTION
+        "Thermal fault detected in blade"
+    ::= { f5AlertNotification 65548 }
+
+blade-hardware-fault  NOTIFICATION-TYPE 
+    OBJECTS {
+              alertSource,
+              alertEffect,
+              alertSeverity,
+              alertTimeStamp,
+              alertDescription
+    }
+    STATUS    current
+    DESCRIPTION
+        "Hardware fault detected in blade"
+    ::= { f5AlertNotification 65549 }
+
+firmware-update-status  NOTIFICATION-TYPE 
+    OBJECTS {
+              alertSource,
+              alertEffect,
+              alertSeverity,
+              alertTimeStamp,
+              alertDescription
+    }
+    STATUS    current
+    DESCRIPTION
+        "Firmware update status"
+    ::= { f5AlertNotification 65550 }
+
+drive-utilization  NOTIFICATION-TYPE 
+    OBJECTS {
+              alertSource,
+              alertEffect,
+              alertSeverity,
+              alertTimeStamp,
+              alertDescription
+    }
+    STATUS    current
+    DESCRIPTION
+        "Drive utilization growth rate is high"
+    ::= { f5AlertNotification 65551 }
+
+partition1-image-volume-utilization  NOTIFICATION-TYPE 
+    OBJECTS {
+              alertSource,
+              alertEffect,
+              alertSeverity,
+              alertTimeStamp,
+              alertDescription
+    }
+    STATUS    current
+    DESCRIPTION
+        "Partition-1 image volume utilization growth rate is high"
+    ::= { f5AlertNotification 65553 }
+
+partition2-image-volume-utilization  NOTIFICATION-TYPE 
+    OBJECTS {
+              alertSource,
+              alertEffect,
+              alertSeverity,
+              alertTimeStamp,
+              alertDescription
+    }
+    STATUS    current
+    DESCRIPTION
+        "Partition-2 image volume utilization growth rate is high"
+    ::= { f5AlertNotification 65554 }
+
+partition3-image-volume-utilization  NOTIFICATION-TYPE 
+    OBJECTS {
+              alertSource,
+              alertEffect,
+              alertSeverity,
+              alertTimeStamp,
+              alertDescription
+    }
+    STATUS    current
+    DESCRIPTION
+        "Partition-3 image volume utilization growth rate is high"
+    ::= { f5AlertNotification 65555 }
+
+partition4-image-volume-utilization  NOTIFICATION-TYPE 
+    OBJECTS {
+              alertSource,
+              alertEffect,
+              alertSeverity,
+              alertTimeStamp,
+              alertDescription
+    }
+    STATUS    current
+    DESCRIPTION
+        "Partition-4 image volume utilization growth rate is high"
+    ::= { f5AlertNotification 65556 }
+
+partition5-image-volume-utilization  NOTIFICATION-TYPE 
+    OBJECTS {
+              alertSource,
+              alertEffect,
+              alertSeverity,
+              alertTimeStamp,
+              alertDescription
+    }
+    STATUS    current
+    DESCRIPTION
+        "Partition-5 image volume utilization growth rate is high"
+    ::= { f5AlertNotification 65557 }
+
+partition6-image-volume-utilization  NOTIFICATION-TYPE 
+    OBJECTS {
+              alertSource,
+              alertEffect,
+              alertSeverity,
+              alertTimeStamp,
+              alertDescription
+    }
+    STATUS    current
+    DESCRIPTION
+        "Partition-6 image volume utilization growth rate is high"
+    ::= { f5AlertNotification 65558 }
+
+partition7-image-volume-utilization  NOTIFICATION-TYPE 
+    OBJECTS {
+              alertSource,
+              alertEffect,
+              alertSeverity,
+              alertTimeStamp,
+              alertDescription
+    }
+    STATUS    current
+    DESCRIPTION
+        "Partition-7 image volume utilization growth rate is high"
+    ::= { f5AlertNotification 65559 }
+
+partition8-image-volume-utilization  NOTIFICATION-TYPE 
+    OBJECTS {
+              alertSource,
+              alertEffect,
+              alertSeverity,
+              alertTimeStamp,
+              alertDescription
+    }
+    STATUS    current
+    DESCRIPTION
+        "Partition-8 image volume utilization growth rate is high"
+    ::= { f5AlertNotification 65560 }
+
+partition1-shared-volume-utilization  NOTIFICATION-TYPE 
+    OBJECTS {
+              alertSource,
+              alertEffect,
+              alertSeverity,
+              alertTimeStamp,
+              alertDescription
+    }
+    STATUS    current
+    DESCRIPTION
+        "Partition-1 shared volume utilization growth rate is high"
+    ::= { f5AlertNotification 65561 }
+
+partition2-shared-volume-utilization  NOTIFICATION-TYPE 
+    OBJECTS {
+              alertSource,
+              alertEffect,
+              alertSeverity,
+              alertTimeStamp,
+              alertDescription
+    }
+    STATUS    current
+    DESCRIPTION
+        "Partition-2 shared volume utilization growth rate is high"
+    ::= { f5AlertNotification 65562 }
+
+partition3-shared-volume-utilization  NOTIFICATION-TYPE 
+    OBJECTS {
+              alertSource,
+              alertEffect,
+              alertSeverity,
+              alertTimeStamp,
+              alertDescription
+    }
+    STATUS    current
+    DESCRIPTION
+        "Partition-3 shared volume utilization growth rate is high"
+    ::= { f5AlertNotification 65563 }
+
+partition4-shared-volume-utilization  NOTIFICATION-TYPE 
+    OBJECTS {
+              alertSource,
+              alertEffect,
+              alertSeverity,
+              alertTimeStamp,
+              alertDescription
+    }
+    STATUS    current
+    DESCRIPTION
+        "Partition-4 shared volume utilization growth rate is high"
+    ::= { f5AlertNotification 65564 }
+
+partition5-shared-volume-utilization  NOTIFICATION-TYPE 
+    OBJECTS {
+              alertSource,
+              alertEffect,
+              alertSeverity,
+              alertTimeStamp,
+              alertDescription
+    }
+    STATUS    current
+    DESCRIPTION
+        "Partition-5 shared volume utilization growth rate is high"
+    ::= { f5AlertNotification 65565 }
+
+partition6-shared-volume-utilization  NOTIFICATION-TYPE 
+    OBJECTS {
+              alertSource,
+              alertEffect,
+              alertSeverity,
+              alertTimeStamp,
+              alertDescription
+    }
+    STATUS    current
+    DESCRIPTION
+        "Partition-6 shared volume utilization growth rate is high"
+    ::= { f5AlertNotification 65566 }
+
+partition7-shared-volume-utilization  NOTIFICATION-TYPE 
+    OBJECTS {
+              alertSource,
+              alertEffect,
+              alertSeverity,
+              alertTimeStamp,
+              alertDescription
+    }
+    STATUS    current
+    DESCRIPTION
+        "Partition-7 shared volume utilization growth rate is high"
+    ::= { f5AlertNotification 65567 }
+
+partition8-shared-volume-utilization  NOTIFICATION-TYPE 
+    OBJECTS {
+              alertSource,
+              alertEffect,
+              alertSeverity,
+              alertTimeStamp,
+              alertDescription
+    }
+    STATUS    current
+    DESCRIPTION
+        "Partition-8 shared volume utilization growth rate is high"
+    ::= { f5AlertNotification 65568 }
+
+partition1-config-volume-utilization  NOTIFICATION-TYPE 
+    OBJECTS {
+              alertSource,
+              alertEffect,
+              alertSeverity,
+              alertTimeStamp,
+              alertDescription
+    }
+    STATUS    current
+    DESCRIPTION
+        "Partition-1 config volume utilization growth rate is high"
+    ::= { f5AlertNotification 65569 }
+
+partition2-config-volume-utilization  NOTIFICATION-TYPE 
+    OBJECTS {
+              alertSource,
+              alertEffect,
+              alertSeverity,
+              alertTimeStamp,
+              alertDescription
+    }
+    STATUS    current
+    DESCRIPTION
+        "Partition-2 config volume utilization growth rate is high"
+    ::= { f5AlertNotification 65570 }
+
+partition3-config-volume-utilization  NOTIFICATION-TYPE 
+    OBJECTS {
+              alertSource,
+              alertEffect,
+              alertSeverity,
+              alertTimeStamp,
+              alertDescription
+    }
+    STATUS    current
+    DESCRIPTION
+        "Partition-3 config volume utilization growth rate is high"
+    ::= { f5AlertNotification 65571 }
+
+partition4-config-volume-utilization  NOTIFICATION-TYPE 
+    OBJECTS {
+              alertSource,
+              alertEffect,
+              alertSeverity,
+              alertTimeStamp,
+              alertDescription
+    }
+    STATUS    current
+    DESCRIPTION
+        "Partition-4 config volume utilization growth rate is high"
+    ::= { f5AlertNotification 65572 }
+
+partition5-config-volume-utilization  NOTIFICATION-TYPE 
+    OBJECTS {
+              alertSource,
+              alertEffect,
+              alertSeverity,
+              alertTimeStamp,
+              alertDescription
+    }
+    STATUS    current
+    DESCRIPTION
+        "Partition-5 config volume utilization growth rate is high"
+    ::= { f5AlertNotification 65573 }
+
+partition6-config-volume-utilization  NOTIFICATION-TYPE 
+    OBJECTS {
+              alertSource,
+              alertEffect,
+              alertSeverity,
+              alertTimeStamp,
+              alertDescription
+    }
+    STATUS    current
+    DESCRIPTION
+        "Partition-6 config volume utilization growth rate is high"
+    ::= { f5AlertNotification 65574 }
+
+partition7-config-volume-utilization  NOTIFICATION-TYPE 
+    OBJECTS {
+              alertSource,
+              alertEffect,
+              alertSeverity,
+              alertTimeStamp,
+              alertDescription
+    }
+    STATUS    current
+    DESCRIPTION
+        "Partition-7 config volume utilization growth rate is high"
+    ::= { f5AlertNotification 65575 }
+
+partition8-config-volume-utilization  NOTIFICATION-TYPE 
+    OBJECTS {
+              alertSource,
+              alertEffect,
+              alertSeverity,
+              alertTimeStamp,
+              alertDescription
+    }
+    STATUS    current
+    DESCRIPTION
+        "Partition-8 config volume utilization growth rate is high"
+    ::= { f5AlertNotification 65576 }
+
+sensor-fault  NOTIFICATION-TYPE 
+    OBJECTS {
+              alertSource,
+              alertEffect,
+              alertSeverity,
+              alertTimeStamp,
+              alertDescription
+    }
+    STATUS    current
+    DESCRIPTION
+        "Sensor fault detected in hardware"
+    ::= { f5AlertNotification 65577 }
+
+datapath-fault  NOTIFICATION-TYPE 
+    OBJECTS {
+              alertSource,
+              alertEffect,
+              alertSeverity,
+              alertTimeStamp,
+              alertDescription
+    }
+    STATUS    current
+    DESCRIPTION
+        "Hardware datapath fault"
+    ::= { f5AlertNotification 65578 }
+
+boot-time-integrity-status  NOTIFICATION-TYPE 
+    OBJECTS {
+              alertSource,
+              alertEffect,
+              alertSeverity,
+              alertTimeStamp,
+              alertDescription
+    }
+    STATUS    current
+    DESCRIPTION
+        "Boot time integrity failure detected"
+    ::= { f5AlertNotification 65579 }
+
+partition9-image-volume-utilization  NOTIFICATION-TYPE 
+    OBJECTS {
+              alertSource,
+              alertEffect,
+              alertSeverity,
+              alertTimeStamp,
+              alertDescription
+    }
+    STATUS    current
+    DESCRIPTION
+        "Partition-9 image volume utilization growth rate is high"
+    ::= { f5AlertNotification 65580 }
+
+partition10-image-volume-utilization  NOTIFICATION-TYPE 
+    OBJECTS {
+              alertSource,
+              alertEffect,
+              alertSeverity,
+              alertTimeStamp,
+              alertDescription
+    }
+    STATUS    current
+    DESCRIPTION
+        "Partition-10 image volume utilization growth rate is high"
+    ::= { f5AlertNotification 65581 }
+
+partition11-image-volume-utilization  NOTIFICATION-TYPE 
+    OBJECTS {
+              alertSource,
+              alertEffect,
+              alertSeverity,
+              alertTimeStamp,
+              alertDescription
+    }
+    STATUS    current
+    DESCRIPTION
+        "Partition-11 image volume utilization growth rate is high"
+    ::= { f5AlertNotification 65582 }
+
+partition12-image-volume-utilization  NOTIFICATION-TYPE 
+    OBJECTS {
+              alertSource,
+              alertEffect,
+              alertSeverity,
+              alertTimeStamp,
+              alertDescription
+    }
+    STATUS    current
+    DESCRIPTION
+        "Partition-12 image volume utilization growth rate is high"
+    ::= { f5AlertNotification 65583 }
+
+partition13-image-volume-utilization  NOTIFICATION-TYPE 
+    OBJECTS {
+              alertSource,
+              alertEffect,
+              alertSeverity,
+              alertTimeStamp,
+              alertDescription
+    }
+    STATUS    current
+    DESCRIPTION
+        "Partition-13 image volume utilization growth rate is high"
+    ::= { f5AlertNotification 65584 }
+
+partition14-image-volume-utilization  NOTIFICATION-TYPE 
+    OBJECTS {
+              alertSource,
+              alertEffect,
+              alertSeverity,
+              alertTimeStamp,
+              alertDescription
+    }
+    STATUS    current
+    DESCRIPTION
+        "Partition-14 image volume utilization growth rate is high"
+    ::= { f5AlertNotification 65585 }
+
+partition15-image-volume-utilization  NOTIFICATION-TYPE 
+    OBJECTS {
+              alertSource,
+              alertEffect,
+              alertSeverity,
+              alertTimeStamp,
+              alertDescription
+    }
+    STATUS    current
+    DESCRIPTION
+        "Partition-15 image volume utilization growth rate is high"
+    ::= { f5AlertNotification 65586 }
+
+partition16-image-volume-utilization  NOTIFICATION-TYPE 
+    OBJECTS {
+              alertSource,
+              alertEffect,
+              alertSeverity,
+              alertTimeStamp,
+              alertDescription
+    }
+    STATUS    current
+    DESCRIPTION
+        "Partition-16 image volume utilization growth rate is high"
+    ::= { f5AlertNotification 65587 }
+
+partition17-image-volume-utilization  NOTIFICATION-TYPE 
+    OBJECTS {
+              alertSource,
+              alertEffect,
+              alertSeverity,
+              alertTimeStamp,
+              alertDescription
+    }
+    STATUS    current
+    DESCRIPTION
+        "Partition-17 image volume utilization growth rate is high"
+    ::= { f5AlertNotification 65588 }
+
+partition18-image-volume-utilization  NOTIFICATION-TYPE 
+    OBJECTS {
+              alertSource,
+              alertEffect,
+              alertSeverity,
+              alertTimeStamp,
+              alertDescription
+    }
+    STATUS    current
+    DESCRIPTION
+        "Partition-18 image volume utilization growth rate is high"
+    ::= { f5AlertNotification 65589 }
+
+partition19-image-volume-utilization  NOTIFICATION-TYPE 
+    OBJECTS {
+              alertSource,
+              alertEffect,
+              alertSeverity,
+              alertTimeStamp,
+              alertDescription
+    }
+    STATUS    current
+    DESCRIPTION
+        "Partition-19 image volume utilization growth rate is high"
+    ::= { f5AlertNotification 65590 }
+
+partition20-image-volume-utilization  NOTIFICATION-TYPE 
+    OBJECTS {
+              alertSource,
+              alertEffect,
+              alertSeverity,
+              alertTimeStamp,
+              alertDescription
+    }
+    STATUS    current
+    DESCRIPTION
+        "Partition-20 image volume utilization growth rate is high"
+    ::= { f5AlertNotification 65591 }
+
+partition21-image-volume-utilization  NOTIFICATION-TYPE 
+    OBJECTS {
+              alertSource,
+              alertEffect,
+              alertSeverity,
+              alertTimeStamp,
+              alertDescription
+    }
+    STATUS    current
+    DESCRIPTION
+        "Partition-21 image volume utilization growth rate is high"
+    ::= { f5AlertNotification 65592 }
+
+partition22-image-volume-utilization  NOTIFICATION-TYPE 
+    OBJECTS {
+              alertSource,
+              alertEffect,
+              alertSeverity,
+              alertTimeStamp,
+              alertDescription
+    }
+    STATUS    current
+    DESCRIPTION
+        "Partition-22 image volume utilization growth rate is high"
+    ::= { f5AlertNotification 65593 }
+
+partition23-image-volume-utilization  NOTIFICATION-TYPE 
+    OBJECTS {
+              alertSource,
+              alertEffect,
+              alertSeverity,
+              alertTimeStamp,
+              alertDescription
+    }
+    STATUS    current
+    DESCRIPTION
+        "Partition-23 image volume utilization growth rate is high"
+    ::= { f5AlertNotification 65594 }
+
+partition24-image-volume-utilization  NOTIFICATION-TYPE 
+    OBJECTS {
+              alertSource,
+              alertEffect,
+              alertSeverity,
+              alertTimeStamp,
+              alertDescription
+    }
+    STATUS    current
+    DESCRIPTION
+        "Partition-24 image volume utilization growth rate is high"
+    ::= { f5AlertNotification 65595 }
+
+partition25-image-volume-utilization  NOTIFICATION-TYPE 
+    OBJECTS {
+              alertSource,
+              alertEffect,
+              alertSeverity,
+              alertTimeStamp,
+              alertDescription
+    }
+    STATUS    current
+    DESCRIPTION
+        "Partition-25 image volume utilization growth rate is high"
+    ::= { f5AlertNotification 65596 }
+
+partition26-image-volume-utilization  NOTIFICATION-TYPE 
+    OBJECTS {
+              alertSource,
+              alertEffect,
+              alertSeverity,
+              alertTimeStamp,
+              alertDescription
+    }
+    STATUS    current
+    DESCRIPTION
+        "Partition-26 image volume utilization growth rate is high"
+    ::= { f5AlertNotification 65597 }
+
+partition27-image-volume-utilization  NOTIFICATION-TYPE 
+    OBJECTS {
+              alertSource,
+              alertEffect,
+              alertSeverity,
+              alertTimeStamp,
+              alertDescription
+    }
+    STATUS    current
+    DESCRIPTION
+        "Partition-27 image volume utilization growth rate is high"
+    ::= { f5AlertNotification 65598 }
+
+partition28-image-volume-utilization  NOTIFICATION-TYPE 
+    OBJECTS {
+              alertSource,
+              alertEffect,
+              alertSeverity,
+              alertTimeStamp,
+              alertDescription
+    }
+    STATUS    current
+    DESCRIPTION
+        "Partition-28 image volume utilization growth rate is high"
+    ::= { f5AlertNotification 65599 }
+
+partition29-image-volume-utilization  NOTIFICATION-TYPE 
+    OBJECTS {
+              alertSource,
+              alertEffect,
+              alertSeverity,
+              alertTimeStamp,
+              alertDescription
+    }
+    STATUS    current
+    DESCRIPTION
+        "Partition-29 image volume utilization growth rate is high"
+    ::= { f5AlertNotification 65600 }
+
+partition30-image-volume-utilization  NOTIFICATION-TYPE 
+    OBJECTS {
+              alertSource,
+              alertEffect,
+              alertSeverity,
+              alertTimeStamp,
+              alertDescription
+    }
+    STATUS    current
+    DESCRIPTION
+        "Partition-30 image volume utilization growth rate is high"
+    ::= { f5AlertNotification 65601 }
+
+partition31-image-volume-utilization  NOTIFICATION-TYPE 
+    OBJECTS {
+              alertSource,
+              alertEffect,
+              alertSeverity,
+              alertTimeStamp,
+              alertDescription
+    }
+    STATUS    current
+    DESCRIPTION
+        "Partition-31 image volume utilization growth rate is high"
+    ::= { f5AlertNotification 65602 }
+
+partition32-image-volume-utilization  NOTIFICATION-TYPE 
+    OBJECTS {
+              alertSource,
+              alertEffect,
+              alertSeverity,
+              alertTimeStamp,
+              alertDescription
+    }
+    STATUS    current
+    DESCRIPTION
+        "Partition-32 image volume utilization growth rate is high"
+    ::= { f5AlertNotification 65603 }
+
+partition9-shared-volume-utilization  NOTIFICATION-TYPE 
+    OBJECTS {
+              alertSource,
+              alertEffect,
+              alertSeverity,
+              alertTimeStamp,
+              alertDescription
+    }
+    STATUS    current
+    DESCRIPTION
+        "Partition-9 shared volume utilization growth rate is high"
+    ::= { f5AlertNotification 65604 }
+
+partition10-shared-volume-utilization  NOTIFICATION-TYPE 
+    OBJECTS {
+              alertSource,
+              alertEffect,
+              alertSeverity,
+              alertTimeStamp,
+              alertDescription
+    }
+    STATUS    current
+    DESCRIPTION
+        "Partition-10 shared volume utilization growth rate is high"
+    ::= { f5AlertNotification 65605 }
+
+partition11-shared-volume-utilization  NOTIFICATION-TYPE 
+    OBJECTS {
+              alertSource,
+              alertEffect,
+              alertSeverity,
+              alertTimeStamp,
+              alertDescription
+    }
+    STATUS    current
+    DESCRIPTION
+        "Partition-11 shared volume utilization growth rate is high"
+    ::= { f5AlertNotification 65606 }
+
+partition12-shared-volume-utilization  NOTIFICATION-TYPE 
+    OBJECTS {
+              alertSource,
+              alertEffect,
+              alertSeverity,
+              alertTimeStamp,
+              alertDescription
+    }
+    STATUS    current
+    DESCRIPTION
+        "Partition-12 shared volume utilization growth rate is high"
+    ::= { f5AlertNotification 65607 }
+
+partition13-shared-volume-utilization  NOTIFICATION-TYPE 
+    OBJECTS {
+              alertSource,
+              alertEffect,
+              alertSeverity,
+              alertTimeStamp,
+              alertDescription
+    }
+    STATUS    current
+    DESCRIPTION
+        "Partition-13 shared volume utilization growth rate is high"
+    ::= { f5AlertNotification 65608 }
+
+partition14-shared-volume-utilization  NOTIFICATION-TYPE 
+    OBJECTS {
+              alertSource,
+              alertEffect,
+              alertSeverity,
+              alertTimeStamp,
+              alertDescription
+    }
+    STATUS    current
+    DESCRIPTION
+        "Partition-14 shared volume utilization growth rate is high"
+    ::= { f5AlertNotification 65609 }
+
+partition15-shared-volume-utilization  NOTIFICATION-TYPE 
+    OBJECTS {
+              alertSource,
+              alertEffect,
+              alertSeverity,
+              alertTimeStamp,
+              alertDescription
+    }
+    STATUS    current
+    DESCRIPTION
+        "Partition-15 shared volume utilization growth rate is high"
+    ::= { f5AlertNotification 65610 }
+
+partition16-shared-volume-utilization  NOTIFICATION-TYPE 
+    OBJECTS {
+              alertSource,
+              alertEffect,
+              alertSeverity,
+              alertTimeStamp,
+              alertDescription
+    }
+    STATUS    current
+    DESCRIPTION
+        "Partition-16 shared volume utilization growth rate is high"
+    ::= { f5AlertNotification 65611 }
+
+partition17-shared-volume-utilization  NOTIFICATION-TYPE 
+    OBJECTS {
+              alertSource,
+              alertEffect,
+              alertSeverity,
+              alertTimeStamp,
+              alertDescription
+    }
+    STATUS    current
+    DESCRIPTION
+        "Partition-17 shared volume utilization growth rate is high"
+    ::= { f5AlertNotification 65612 }
+
+partition18-shared-volume-utilization  NOTIFICATION-TYPE 
+    OBJECTS {
+              alertSource,
+              alertEffect,
+              alertSeverity,
+              alertTimeStamp,
+              alertDescription
+    }
+    STATUS    current
+    DESCRIPTION
+        "Partition-18 shared volume utilization growth rate is high"
+    ::= { f5AlertNotification 65613 }
+
+partition19-shared-volume-utilization  NOTIFICATION-TYPE 
+    OBJECTS {
+              alertSource,
+              alertEffect,
+              alertSeverity,
+              alertTimeStamp,
+              alertDescription
+    }
+    STATUS    current
+    DESCRIPTION
+        "Partition-19 shared volume utilization growth rate is high"
+    ::= { f5AlertNotification 65614 }
+
+partition20-shared-volume-utilization  NOTIFICATION-TYPE 
+    OBJECTS {
+              alertSource,
+              alertEffect,
+              alertSeverity,
+              alertTimeStamp,
+              alertDescription
+    }
+    STATUS    current
+    DESCRIPTION
+        "Partition-20 shared volume utilization growth rate is high"
+    ::= { f5AlertNotification 65615 }
+
+partition21-shared-volume-utilization  NOTIFICATION-TYPE 
+    OBJECTS {
+              alertSource,
+              alertEffect,
+              alertSeverity,
+              alertTimeStamp,
+              alertDescription
+    }
+    STATUS    current
+    DESCRIPTION
+        "Partition-21 shared volume utilization growth rate is high"
+    ::= { f5AlertNotification 65616 }
+
+partition22-shared-volume-utilization  NOTIFICATION-TYPE 
+    OBJECTS {
+              alertSource,
+              alertEffect,
+              alertSeverity,
+              alertTimeStamp,
+              alertDescription
+    }
+    STATUS    current
+    DESCRIPTION
+        "Partition-22 shared volume utilization growth rate is high"
+    ::= { f5AlertNotification 65617 }
+
+partition23-shared-volume-utilization  NOTIFICATION-TYPE 
+    OBJECTS {
+              alertSource,
+              alertEffect,
+              alertSeverity,
+              alertTimeStamp,
+              alertDescription
+    }
+    STATUS    current
+    DESCRIPTION
+        "Partition-23 shared volume utilization growth rate is high"
+    ::= { f5AlertNotification 65618 }
+
+partition24-shared-volume-utilization  NOTIFICATION-TYPE 
+    OBJECTS {
+              alertSource,
+              alertEffect,
+              alertSeverity,
+              alertTimeStamp,
+              alertDescription
+    }
+    STATUS    current
+    DESCRIPTION
+        "Partition-24 shared volume utilization growth rate is high"
+    ::= { f5AlertNotification 65619 }
+
+partition25-shared-volume-utilization  NOTIFICATION-TYPE 
+    OBJECTS {
+              alertSource,
+              alertEffect,
+              alertSeverity,
+              alertTimeStamp,
+              alertDescription
+    }
+    STATUS    current
+    DESCRIPTION
+        "Partition-25 shared volume utilization growth rate is high"
+    ::= { f5AlertNotification 65620 }
+
+partition26-shared-volume-utilization  NOTIFICATION-TYPE 
+    OBJECTS {
+              alertSource,
+              alertEffect,
+              alertSeverity,
+              alertTimeStamp,
+              alertDescription
+    }
+    STATUS    current
+    DESCRIPTION
+        "Partition-26 shared volume utilization growth rate is high"
+    ::= { f5AlertNotification 65621 }
+
+partition27-shared-volume-utilization  NOTIFICATION-TYPE 
+    OBJECTS {
+              alertSource,
+              alertEffect,
+              alertSeverity,
+              alertTimeStamp,
+              alertDescription
+    }
+    STATUS    current
+    DESCRIPTION
+        "Partition-27 shared volume utilization growth rate is high"
+    ::= { f5AlertNotification 65622 }
+
+partition28-shared-volume-utilization  NOTIFICATION-TYPE 
+    OBJECTS {
+              alertSource,
+              alertEffect,
+              alertSeverity,
+              alertTimeStamp,
+              alertDescription
+    }
+    STATUS    current
+    DESCRIPTION
+        "Partition-28 shared volume utilization growth rate is high"
+    ::= { f5AlertNotification 65623 }
+
+partition29-shared-volume-utilization  NOTIFICATION-TYPE 
+    OBJECTS {
+              alertSource,
+              alertEffect,
+              alertSeverity,
+              alertTimeStamp,
+              alertDescription
+    }
+    STATUS    current
+    DESCRIPTION
+        "Partition-29 shared volume utilization growth rate is high"
+    ::= { f5AlertNotification 65624 }
+
+partition30-shared-volume-utilization  NOTIFICATION-TYPE 
+    OBJECTS {
+              alertSource,
+              alertEffect,
+              alertSeverity,
+              alertTimeStamp,
+              alertDescription
+    }
+    STATUS    current
+    DESCRIPTION
+        "Partition-30 shared volume utilization growth rate is high"
+    ::= { f5AlertNotification 65625 }
+
+partition31-shared-volume-utilization  NOTIFICATION-TYPE 
+    OBJECTS {
+              alertSource,
+              alertEffect,
+              alertSeverity,
+              alertTimeStamp,
+              alertDescription
+    }
+    STATUS    current
+    DESCRIPTION
+        "Partition-31 shared volume utilization growth rate is high"
+    ::= { f5AlertNotification 65626 }
+
+partition32-shared-volume-utilization  NOTIFICATION-TYPE 
+    OBJECTS {
+              alertSource,
+              alertEffect,
+              alertSeverity,
+              alertTimeStamp,
+              alertDescription
+    }
+    STATUS    current
+    DESCRIPTION
+        "Partition-32 shared volume utilization growth rate is high"
+    ::= { f5AlertNotification 65627 }
+
+partition9-config-volume-utilization  NOTIFICATION-TYPE 
+    OBJECTS {
+              alertSource,
+              alertEffect,
+              alertSeverity,
+              alertTimeStamp,
+              alertDescription
+    }
+    STATUS    current
+    DESCRIPTION
+        "Partition-9 config volume utilization growth rate is high"
+    ::= { f5AlertNotification 65628 }
+
+partition10-config-volume-utilization  NOTIFICATION-TYPE 
+    OBJECTS {
+              alertSource,
+              alertEffect,
+              alertSeverity,
+              alertTimeStamp,
+              alertDescription
+    }
+    STATUS    current
+    DESCRIPTION
+        "Partition-10 config volume utilization growth rate is high"
+    ::= { f5AlertNotification 65629 }
+
+partition11-config-volume-utilization  NOTIFICATION-TYPE 
+    OBJECTS {
+              alertSource,
+              alertEffect,
+              alertSeverity,
+              alertTimeStamp,
+              alertDescription
+    }
+    STATUS    current
+    DESCRIPTION
+        "Partition-11 config volume utilization growth rate is high"
+    ::= { f5AlertNotification 65630 }
+
+partition12-config-volume-utilization  NOTIFICATION-TYPE 
+    OBJECTS {
+              alertSource,
+              alertEffect,
+              alertSeverity,
+              alertTimeStamp,
+              alertDescription
+    }
+    STATUS    current
+    DESCRIPTION
+        "Partition-12 config volume utilization growth rate is high"
+    ::= { f5AlertNotification 65631 }
+
+partition13-config-volume-utilization  NOTIFICATION-TYPE 
+    OBJECTS {
+              alertSource,
+              alertEffect,
+              alertSeverity,
+              alertTimeStamp,
+              alertDescription
+    }
+    STATUS    current
+    DESCRIPTION
+        "Partition-13 config volume utilization growth rate is high"
+    ::= { f5AlertNotification 65632 }
+
+partition14-config-volume-utilization  NOTIFICATION-TYPE 
+    OBJECTS {
+              alertSource,
+              alertEffect,
+              alertSeverity,
+              alertTimeStamp,
+              alertDescription
+    }
+    STATUS    current
+    DESCRIPTION
+        "Partition-14 config volume utilization growth rate is high"
+    ::= { f5AlertNotification 65633 }
+
+partition15-config-volume-utilization  NOTIFICATION-TYPE 
+    OBJECTS {
+              alertSource,
+              alertEffect,
+              alertSeverity,
+              alertTimeStamp,
+              alertDescription
+    }
+    STATUS    current
+    DESCRIPTION
+        "Partition-15 config volume utilization growth rate is high"
+    ::= { f5AlertNotification 65634 }
+
+partition16-config-volume-utilization  NOTIFICATION-TYPE 
+    OBJECTS {
+              alertSource,
+              alertEffect,
+              alertSeverity,
+              alertTimeStamp,
+              alertDescription
+    }
+    STATUS    current
+    DESCRIPTION
+        "Partition-16 config volume utilization growth rate is high"
+    ::= { f5AlertNotification 65635 }
+
+partition17-config-volume-utilization  NOTIFICATION-TYPE 
+    OBJECTS {
+              alertSource,
+              alertEffect,
+              alertSeverity,
+              alertTimeStamp,
+              alertDescription
+    }
+    STATUS    current
+    DESCRIPTION
+        "Partition-17 config volume utilization growth rate is high"
+    ::= { f5AlertNotification 65636 }
+
+partition18-config-volume-utilization  NOTIFICATION-TYPE 
+    OBJECTS {
+              alertSource,
+              alertEffect,
+              alertSeverity,
+              alertTimeStamp,
+              alertDescription
+    }
+    STATUS    current
+    DESCRIPTION
+        "Partition-18 config volume utilization growth rate is high"
+    ::= { f5AlertNotification 65637 }
+
+partition19-config-volume-utilization  NOTIFICATION-TYPE 
+    OBJECTS {
+              alertSource,
+              alertEffect,
+              alertSeverity,
+              alertTimeStamp,
+              alertDescription
+    }
+    STATUS    current
+    DESCRIPTION
+        "Partition-19 config volume utilization growth rate is high"
+    ::= { f5AlertNotification 65638 }
+
+partition20-config-volume-utilization  NOTIFICATION-TYPE 
+    OBJECTS {
+              alertSource,
+              alertEffect,
+              alertSeverity,
+              alertTimeStamp,
+              alertDescription
+    }
+    STATUS    current
+    DESCRIPTION
+        "Partition-20 config volume utilization growth rate is high"
+    ::= { f5AlertNotification 65639 }
+
+partition21-config-volume-utilization  NOTIFICATION-TYPE 
+    OBJECTS {
+              alertSource,
+              alertEffect,
+              alertSeverity,
+              alertTimeStamp,
+              alertDescription
+    }
+    STATUS    current
+    DESCRIPTION
+        "Partition-21 config volume utilization growth rate is high"
+    ::= { f5AlertNotification 65640 }
+
+partition22-config-volume-utilization  NOTIFICATION-TYPE 
+    OBJECTS {
+              alertSource,
+              alertEffect,
+              alertSeverity,
+              alertTimeStamp,
+              alertDescription
+    }
+    STATUS    current
+    DESCRIPTION
+        "Partition-22 config volume utilization growth rate is high"
+    ::= { f5AlertNotification 65641 }
+
+partition23-config-volume-utilization  NOTIFICATION-TYPE 
+    OBJECTS {
+              alertSource,
+              alertEffect,
+              alertSeverity,
+              alertTimeStamp,
+              alertDescription
+    }
+    STATUS    current
+    DESCRIPTION
+        "Partition-23 config volume utilization growth rate is high"
+    ::= { f5AlertNotification 65642 }
+
+partition24-config-volume-utilization  NOTIFICATION-TYPE 
+    OBJECTS {
+              alertSource,
+              alertEffect,
+              alertSeverity,
+              alertTimeStamp,
+              alertDescription
+    }
+    STATUS    current
+    DESCRIPTION
+        "Partition-24 config volume utilization growth rate is high"
+    ::= { f5AlertNotification 65643 }
+
+partition25-config-volume-utilization  NOTIFICATION-TYPE 
+    OBJECTS {
+              alertSource,
+              alertEffect,
+              alertSeverity,
+              alertTimeStamp,
+              alertDescription
+    }
+    STATUS    current
+    DESCRIPTION
+        "Partition-25 config volume utilization growth rate is high"
+    ::= { f5AlertNotification 65644 }
+
+partition26-config-volume-utilization  NOTIFICATION-TYPE 
+    OBJECTS {
+              alertSource,
+              alertEffect,
+              alertSeverity,
+              alertTimeStamp,
+              alertDescription
+    }
+    STATUS    current
+    DESCRIPTION
+        "Partition-26 config volume utilization growth rate is high"
+    ::= { f5AlertNotification 65645 }
+
+partition27-config-volume-utilization  NOTIFICATION-TYPE 
+    OBJECTS {
+              alertSource,
+              alertEffect,
+              alertSeverity,
+              alertTimeStamp,
+              alertDescription
+    }
+    STATUS    current
+    DESCRIPTION
+        "Partition-27 config volume utilization growth rate is high"
+    ::= { f5AlertNotification 65646 }
+
+partition28-config-volume-utilization  NOTIFICATION-TYPE 
+    OBJECTS {
+              alertSource,
+              alertEffect,
+              alertSeverity,
+              alertTimeStamp,
+              alertDescription
+    }
+    STATUS    current
+    DESCRIPTION
+        "Partition-28 config volume utilization growth rate is high"
+    ::= { f5AlertNotification 65647 }
+
+partition29-config-volume-utilization  NOTIFICATION-TYPE 
+    OBJECTS {
+              alertSource,
+              alertEffect,
+              alertSeverity,
+              alertTimeStamp,
+              alertDescription
+    }
+    STATUS    current
+    DESCRIPTION
+        "Partition-29 config volume utilization growth rate is high"
+    ::= { f5AlertNotification 65648 }
+
+partition30-config-volume-utilization  NOTIFICATION-TYPE 
+    OBJECTS {
+              alertSource,
+              alertEffect,
+              alertSeverity,
+              alertTimeStamp,
+              alertDescription
+    }
+    STATUS    current
+    DESCRIPTION
+        "Partition-30 config volume utilization growth rate is high"
+    ::= { f5AlertNotification 65649 }
+
+partition31-config-volume-utilization  NOTIFICATION-TYPE 
+    OBJECTS {
+              alertSource,
+              alertEffect,
+              alertSeverity,
+              alertTimeStamp,
+              alertDescription
+    }
+    STATUS    current
+    DESCRIPTION
+        "Partition-31 config volume utilization growth rate is high"
+    ::= { f5AlertNotification 65650 }
+
+partition32-config-volume-utilization  NOTIFICATION-TYPE 
+    OBJECTS {
+              alertSource,
+              alertEffect,
+              alertSeverity,
+              alertTimeStamp,
+              alertDescription
+    }
+    STATUS    current
+    DESCRIPTION
+        "Partition-32 config volume utilization growth rate is high"
+    ::= { f5AlertNotification 65651 }
+
+module-present  NOTIFICATION-TYPE 
+    OBJECTS {
+              alertSource,
+              alertEffect,
+              alertSeverity,
+              alertTimeStamp,
+              alertDescription
+    }
+    STATUS    current
+    DESCRIPTION
+        "Change detected in appliance module presence"
+    ::= { f5AlertNotification 66304 }
+
+psu-fault  NOTIFICATION-TYPE 
+    OBJECTS {
+              alertSource,
+              alertEffect,
+              alertSeverity,
+              alertTimeStamp,
+              alertDescription
+    }
+    STATUS    current
+    DESCRIPTION
+        "PSU fault detected"
+    ::= { f5AlertNotification 66305 }
+
+lcd-fault  NOTIFICATION-TYPE 
+    OBJECTS {
+              alertSource,
+              alertEffect,
+              alertSeverity,
+              alertTimeStamp,
+              alertDescription
+    }
+    STATUS    current
+    DESCRIPTION
+        "Fault detected in LCD module"
+    ::= { f5AlertNotification 66306 }
+
+module-communication-error  NOTIFICATION-TYPE 
+    OBJECTS {
+              alertSource,
+              alertEffect,
+              alertSeverity,
+              alertTimeStamp,
+              alertDescription
+    }
+    STATUS    current
+    DESCRIPTION
+        "Module communication error detected"
+    ::= { f5AlertNotification 66307 }
+
+fips-fault  NOTIFICATION-TYPE 
+    OBJECTS {
+              alertSource,
+              alertEffect,
+              alertSeverity,
+              alertTimeStamp,
+              alertDescription
+    }
+    STATUS    current
+    DESCRIPTION
+        "Fault detected in FIPS module"
+    ::= { f5AlertNotification 66308 }
+
+fipsError  NOTIFICATION-TYPE 
+    OBJECTS {
+              alertSource,
+              alertEffect,
+              alertSeverity,
+              alertTimeStamp,
+              alertDescription
+    }
+    STATUS    current
+    DESCRIPTION
+        "FIPS error identified in one or more services"
+    ::= { f5AlertNotification 196608 }
+
+core-dump  NOTIFICATION-TYPE 
+    OBJECTS {
+              alertSource,
+              alertEffect,
+              alertSeverity,
+              alertTimeStamp,
+              alertDescription
+    }
+    STATUS    current
+    DESCRIPTION
+        "Detected process crash on the system"
+    ::= { f5AlertNotification 327680 }
+
+reboot  NOTIFICATION-TYPE 
+    OBJECTS {
+              alertSource,
+              alertEffect,
+              alertSeverity,
+              alertTimeStamp,
+              alertDescription
+    }
+    STATUS    current
+    DESCRIPTION
+        "Trap notification when the system or node reboot is triggered."
+    ::= { f5AlertNotification 327681 }
+
+incompatible-image  NOTIFICATION-TYPE 
+    OBJECTS {
+              alertSource,
+              alertEffect,
+              alertSeverity,
+              alertTimeStamp,
+              alertDescription
+    }
+    STATUS    current
+    DESCRIPTION
+        "Trap notification when the platform incompatible image is imported."
+    ::= { f5AlertNotification 327682 }
+
+login-failed  NOTIFICATION-TYPE 
+    OBJECTS {
+              alertSource,
+              alertEffect,
+              alertSeverity,
+              alertTimeStamp,
+              alertDescription
+    }
+    STATUS    current
+    DESCRIPTION
+        "Trap notification when a bad F5OS login is happened"
+    ::= { f5AlertNotification 327683 }
+
+raidEvent  NOTIFICATION-TYPE 
+    OBJECTS {
+              alertSource,
+              alertEffect,
+              alertSeverity,
+              alertTimeStamp,
+              alertDescription
+    }
+    STATUS    current
+    DESCRIPTION
+        "Notification of raid event"
+    ::= { f5AlertNotification 393216 }
+
+backplane  NOTIFICATION-TYPE 
+    OBJECTS {
+              alertSource,
+              alertEffect,
+              alertSeverity,
+              alertTimeStamp,
+              alertDescription
+    }
+    STATUS    current
+    DESCRIPTION
+        "Could not establish backplane link with one or more system controllers"
+    ::= { f5AlertNotification 262144 }
+
+txPwr  NOTIFICATION-TYPE 
+    OBJECTS {
+              alertSource,
+              alertEffect,
+              alertSeverity,
+              alertTimeStamp,
+              alertDescription
+    }
+    STATUS    current
+    DESCRIPTION
+        "Transmitter power"
+    ::= { f5AlertNotification 262400 }
+
+rxPwr  NOTIFICATION-TYPE 
+    OBJECTS {
+              alertSource,
+              alertEffect,
+              alertSeverity,
+              alertTimeStamp,
+              alertDescription
+    }
+    STATUS    current
+    DESCRIPTION
+        "Receiver power"
+    ::= { f5AlertNotification 262401 }
+
+txBias  NOTIFICATION-TYPE 
+    OBJECTS {
+              alertSource,
+              alertEffect,
+              alertSeverity,
+              alertTimeStamp,
+              alertDescription
+    }
+    STATUS    current
+    DESCRIPTION
+        "Transmitter bias"
+    ::= { f5AlertNotification 262402 }
+
+ddmTemp  NOTIFICATION-TYPE 
+    OBJECTS {
+              alertSource,
+              alertEffect,
+              alertSeverity,
+              alertTimeStamp,
+              alertDescription
+    }
+    STATUS    current
+    DESCRIPTION
+        "Optic temperature"
+    ::= { f5AlertNotification 262403 }
+
+ddmVcc  NOTIFICATION-TYPE 
+    OBJECTS {
+              alertSource,
+              alertEffect,
+              alertSeverity,
+              alertTimeStamp,
+              alertDescription
+    }
+    STATUS    current
+    DESCRIPTION
+        "Optic voltage"
+    ::= { f5AlertNotification 262404 }
+
+initialization  NOTIFICATION-TYPE 
+    OBJECTS {
+              alertSource,
+              alertEffect,
+              alertSeverity,
+              alertTimeStamp,
+              alertDescription
+    }
+    STATUS    current
+    DESCRIPTION
+        "Critical issue in fpga and datapath initialization process"
+    ::= { f5AlertNotification 262656 }
+
+ePVA  NOTIFICATION-TYPE 
+    OBJECTS {
+              alertSource,
+              alertEffect,
+              alertSeverity,
+              alertTimeStamp,
+              alertDescription
+    }
+    STATUS    current
+    DESCRIPTION
+        "Could not initialize ePVA"
+    ::= { f5AlertNotification 262912 }
+
+be2Training  NOTIFICATION-TYPE 
+    OBJECTS {
+              alertSource,
+              alertEffect,
+              alertSeverity,
+              alertTimeStamp,
+              alertDescription
+    }
+    STATUS    current
+    DESCRIPTION
+        "Critical Bandwidth Engine link training failure"
+    ::= { f5AlertNotification 262913 }
+
+up  NOTIFICATION-TYPE 
+    OBJECTS {
+              alertSource,
+              alertEffect,
+              alertSeverity,
+              alertTimeStamp,
+              alertDescription
+    }
+    STATUS    current
+    DESCRIPTION
+        "Interface up"
+    ::= { f5AlertNotification 263168 }
+
+down  NOTIFICATION-TYPE 
+    OBJECTS {
+              alertSource,
+              alertEffect,
+              alertSeverity,
+              alertTimeStamp,
+              alertDescription
+    }
+    STATUS    current
+    DESCRIPTION
+        "Interface down"
+    ::= { f5AlertNotification 263169 }
+
+speed  NOTIFICATION-TYPE 
+    OBJECTS {
+              alertSource,
+              alertEffect,
+              alertSeverity,
+              alertTimeStamp,
+              alertDescription
+    }
+    STATUS    current
+    DESCRIPTION
+        "Port speed change event"
+    ::= { f5AlertNotification 263170 }
+
+inaccessibleMemory  NOTIFICATION-TYPE 
+    OBJECTS {
+              alertSource,
+              alertEffect,
+              alertSeverity,
+              alertTimeStamp,
+              alertDescription
+    }
+    STATUS    current
+    DESCRIPTION
+        "Notification indicating unusable hugepage memory"
+    ::= { f5AlertNotification 458752 }
+
+f5AlertsNotifyGroup  NOTIFICATION-GROUP 
+    NOTIFICATIONS { 
+        hardware-device-fault,
+        firmware-fault,
+        unknown-alarm,
+        memory-fault,
+        drive-fault,
+        cpu-fault,
+        pcie-fault,
+        aom-fault,
+        drive-capacity-fault,
+        power-fault,
+        thermal-fault,
+        drive-thermal-throttle,
+        blade-thermal-fault,
+        blade-hardware-fault,
+        firmware-update-status,
+        drive-utilization,
+        partition1-image-volume-utilization,
+        partition2-image-volume-utilization,
+        partition3-image-volume-utilization,
+        partition4-image-volume-utilization,
+        partition5-image-volume-utilization,
+        partition6-image-volume-utilization,
+        partition7-image-volume-utilization,
+        partition8-image-volume-utilization,
+        partition1-shared-volume-utilization,
+        partition2-shared-volume-utilization,
+        partition3-shared-volume-utilization,
+        partition4-shared-volume-utilization,
+        partition5-shared-volume-utilization,
+        partition6-shared-volume-utilization,
+        partition7-shared-volume-utilization,
+        partition8-shared-volume-utilization,
+        partition1-config-volume-utilization,
+        partition2-config-volume-utilization,
+        partition3-config-volume-utilization,
+        partition4-config-volume-utilization,
+        partition5-config-volume-utilization,
+        partition6-config-volume-utilization,
+        partition7-config-volume-utilization,
+        partition8-config-volume-utilization,
+        sensor-fault,
+        datapath-fault,
+        boot-time-integrity-status,
+        partition9-image-volume-utilization,
+        partition10-image-volume-utilization,
+        partition11-image-volume-utilization,
+        partition12-image-volume-utilization,
+        partition13-image-volume-utilization,
+        partition14-image-volume-utilization,
+        partition15-image-volume-utilization,
+        partition16-image-volume-utilization,
+        partition17-image-volume-utilization,
+        partition18-image-volume-utilization,
+        partition19-image-volume-utilization,
+        partition20-image-volume-utilization,
+        partition21-image-volume-utilization,
+        partition22-image-volume-utilization,
+        partition23-image-volume-utilization,
+        partition24-image-volume-utilization,
+        partition25-image-volume-utilization,
+        partition26-image-volume-utilization,
+        partition27-image-volume-utilization,
+        partition28-image-volume-utilization,
+        partition29-image-volume-utilization,
+        partition30-image-volume-utilization,
+        partition31-image-volume-utilization,
+        partition32-image-volume-utilization,
+        partition9-shared-volume-utilization,
+        partition10-shared-volume-utilization,
+        partition11-shared-volume-utilization,
+        partition12-shared-volume-utilization,
+        partition13-shared-volume-utilization,
+        partition14-shared-volume-utilization,
+        partition15-shared-volume-utilization,
+        partition16-shared-volume-utilization,
+        partition17-shared-volume-utilization,
+        partition18-shared-volume-utilization,
+        partition19-shared-volume-utilization,
+        partition20-shared-volume-utilization,
+        partition21-shared-volume-utilization,
+        partition22-shared-volume-utilization,
+        partition23-shared-volume-utilization,
+        partition24-shared-volume-utilization,
+        partition25-shared-volume-utilization,
+        partition26-shared-volume-utilization,
+        partition27-shared-volume-utilization,
+        partition28-shared-volume-utilization,
+        partition29-shared-volume-utilization,
+        partition30-shared-volume-utilization,
+        partition31-shared-volume-utilization,
+        partition32-shared-volume-utilization,
+        partition9-config-volume-utilization,
+        partition10-config-volume-utilization,
+        partition11-config-volume-utilization,
+        partition12-config-volume-utilization,
+        partition13-config-volume-utilization,
+        partition14-config-volume-utilization,
+        partition15-config-volume-utilization,
+        partition16-config-volume-utilization,
+        partition17-config-volume-utilization,
+        partition18-config-volume-utilization,
+        partition19-config-volume-utilization,
+        partition20-config-volume-utilization,
+        partition21-config-volume-utilization,
+        partition22-config-volume-utilization,
+        partition23-config-volume-utilization,
+        partition24-config-volume-utilization,
+        partition25-config-volume-utilization,
+        partition26-config-volume-utilization,
+        partition27-config-volume-utilization,
+        partition28-config-volume-utilization,
+        partition29-config-volume-utilization,
+        partition30-config-volume-utilization,
+        partition31-config-volume-utilization,
+        partition32-config-volume-utilization,
+        module-present,
+        psu-fault,
+        lcd-fault,
+        module-communication-error,
+        fips-fault,
+        fipsError,
+        core-dump,
+        reboot,
+        incompatible-image,
+        login-failed,
+        raidEvent,
+        backplane,
+        txPwr,
+        rxPwr,
+        txBias,
+        ddmTemp,
+        ddmVcc,
+        initialization,
+        ePVA,
+        be2Training,
+        up,
+        down,
+        speed,
+        inaccessibleMemory
+    } 
+    STATUS    current 
+    DESCRIPTION
+       "The notifications related to the operation of the F5 System."
+    ::= { f5AlertNotificationGroup 1 }
+
+END

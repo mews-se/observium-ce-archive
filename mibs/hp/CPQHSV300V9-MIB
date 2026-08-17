@@ -1,0 +1,820 @@
+  CPQHSV300V9-MIB DEFINITIONS ::= BEGIN
+
+-- This MIB built using parse file: HSV300_event_CD1231_09006000.txt 081104
+
+-- ****************************************************************************
+--
+--         StorageWorks cpqHSV Management Information Base (MIB)
+--         Management Information Base for SNMP Network Management
+--
+--
+--      Copyright 1999, Compaq Computer Corporation.
+--      Copyright 2002, Hewlett-Packard Company.
+--      All Rights Reserved.
+--
+--      The information in this document is subject to change without notice.
+--
+--      COMPAQ COMPUTER CORPORATION SHALL NOT BE LIABLE FOR TECHNICAL
+--      OR EDITORIAL ERRORS OR OMISSIONS CONTAINED HEREIN; NOR FOR INCIDENTAL
+--      OR CONSEQUENTIAL DAMAGES RESULTING FROM THE FURNISHING, PERFORMANCE,
+--      OR USE OF THIS MATERIAL.
+--
+--      The HP StorageWorks maHSV1x0 MIB provides HSV Controller information,
+--      and HSV Management Agent information.
+--
+--      The Compaq Enterprise number is 232.
+--      The ASN.1 prefix to, and including the Compaq Enterprise is:
+--           1.3.6.1.4.1.232
+--      iso(1) org(3) dod(6) internet(1) private(4) enterprises(1) compaq(232)
+-- ****************************************************************************
+
+
+
+	 IMPORTS
+		 enterprises             FROM RFC1155-SMI
+		 OBJECT-TYPE		 FROM RFC-1212
+		 DisplayString           FROM RFC1213-MIB
+                 TRAP-TYPE           FROM RFC-1215;
+
+	compaq             OBJECT IDENTIFIER ::= { enterprises 232 } 
+	cpqElementManager  OBJECT IDENTIFIER ::= { compaq 136 }
+    cpqHSV             OBJECT IDENTIFIER ::= { cpqElementManager 1 }
+
+--  CPQELEMMNGR MIB
+	cpqHSVAgent        OBJECT IDENTIFIER ::= { cpqHSV 1 }
+	cpqHSVServer       OBJECT IDENTIFIER ::= { cpqHSV 2 }
+	hsvObject          OBJECT IDENTIFIER ::= { cpqHSV 3 }  
+    maHSVMibRev        OBJECT IDENTIFIER ::= { cpqHSV 4 }
+
+
+-- HSV SAN OBJECTS 
+	scell		 OBJECT IDENTIFIER ::= { hsvObject 1 }
+	agent		 OBJECT IDENTIFIER ::= { hsvObject 2 }
+	host		 OBJECT IDENTIFIER ::= { hsvObject 3 }
+	nsc		     OBJECT IDENTIFIER ::= { hsvObject 4 }
+	shelf        OBJECT IDENTIFIER ::= { hsvObject 8 }
+
+-- ********************************************************************	
+--      Agent Information Group          1.3.6.1.4.1.232.136.1.1
+
+--                                       1.3.6.1.4.1.232.136.1.1.1
+	agManufacturer OBJECT-TYPE
+	     SYNTAX  DisplayString
+	     ACCESS  read-only
+	     STATUS  mandatory
+	     DESCRIPTION
+		     "The name of the StorageWorks HSV Agent manufacturer."
+	     ::= { cpqHSVAgent 1 }
+
+--                                       1.3.6.1.4.1.232.136.1.1.2	
+	agMajVersion OBJECT-TYPE
+	     SYNTAX  INTEGER
+	     ACCESS  read-only
+	     STATUS  mandatory
+	     DESCRIPTION
+		     "StorageWorks HSV Agent Major Version Number (e.g., 3 
+		     for 3.0)."	      
+	     ::= { cpqHSVAgent 2 }
+
+--                                       1.3.6.1.4.1.232.136.1.1.3
+	agMinVersion OBJECT-TYPE
+	     SYNTAX  INTEGER
+	     ACCESS  read-only
+	     STATUS  mandatory
+	     DESCRIPTION
+		     "StorageWorks HSV Agent Minor Version Number (e.g., 0 
+		     for 3.0)."		      
+	     ::= { cpqHSVAgent 3 }
+
+--                                       1.3.6.1.4.1.232.136.1.1.4
+	agHostName OBJECT-TYPE
+	     SYNTAX  DisplayString
+	     ACCESS  read-only
+	     STATUS  mandatory
+	     DESCRIPTION
+		     "The Host System Network Name where the agent resides."		      
+	     ::= { cpqHSVAgent 4 }
+
+--                                       1.3.6.1.4.1.232.136.1.1.5
+	agEnterprise OBJECT-TYPE
+	     SYNTAX  OBJECT IDENTIFIER
+	     ACCESS  read-only
+	     STATUS  mandatory
+	     DESCRIPTION
+		     "The Enterprise ID subtree for StorageWorks HSV Agent MIB 
+		      is registered."
+		      
+	     ::= { cpqHSVAgent 5 }
+
+--                                       1.3.6.1.4.1.232.136.1.1.6
+	agDescription OBJECT-TYPE
+	     SYNTAX  DisplayString
+	     ACCESS  read-only
+	     STATUS  mandatory
+	     DESCRIPTION
+		     "The StorageWorks HSV Agent description."
+		      
+	     ::= { cpqHSVAgent 6 }
+
+--                                       1.3.6.1.4.1.232.136.1.1.7
+	agStatusTable OBJECT-TYPE                                  
+	     SYNTAX  SEQUENCE OF AgentEntry
+	     ACCESS  not-accessible
+	     STATUS  mandatory
+	     DESCRIPTION
+		     "This table holds the status information for
+		      each HSV Management Agent."
+		      
+	     ::= { cpqHSVAgent 7 }
+
+--                                       1.3.6.1.4.1.232.136.1.1.7.1
+	agentEntry OBJECT-TYPE
+	     SYNTAX  AgentEntry
+	     ACCESS  not-accessible
+	     STATUS  mandatory
+	     DESCRIPTION
+	     "The Agent information entry."
+	     INDEX   { agentEntryIndex }
+		      
+	     ::= { agStatusTable 1 }
+
+	AgentEntry ::=                                              
+	  SEQUENCE{
+		agentEntryIndex
+			INTEGER,
+		agentStatus         
+			INTEGER,
+		agentEventCode
+			INTEGER,
+		agentEventLevel
+			INTEGER,
+        agentEventTimeDate
+            DisplayString,
+		agentEventDescription
+			DisplayString
+	  }
+
+--                                       1.3.6.1.4.1.232.136.1.1.7.1.1
+	agentEntryIndex OBJECT-TYPE
+	     SYNTAX  INTEGER
+	     ACCESS  read-only
+	     STATUS  mandatory
+	     DESCRIPTION
+		     "The index into agentStatusTable ."
+	     ::= { agentEntry 1 }
+
+--                                       1.3.6.1.4.1.232.136.1.1.7.1.2
+	agentStatus OBJECT-TYPE
+             SYNTAX  INTEGER  {
+                          other(1),
+                          ok(2),
+                          degraded(3),
+                          failed(4)
+                      }
+ 	     ACCESS  read-only
+	     STATUS  mandatory
+	     DESCRIPTION
+		      "This variable reports the overall status of the
+		       Agent. 
+		       INFORMATIONAL: Normal Operating Condition
+		       MINOR: Warning Condition
+		       MAJOR: Failure or Failure Immanent
+                   CRITICAL: Agent condition is critical or unknown"
+	     ::= { agentEntry 2 }
+
+--                                       1.3.6.1.4.1.232.136.1.1.7.1.3
+	agentEventCode OBJECT-TYPE
+	     SYNTAX  INTEGER
+	     ACCESS  read-only
+	     STATUS  mandatory
+	     DESCRIPTION
+		     "The management agent event code."
+	     ::= { agentEntry 3 }
+
+--                                       1.3.6.1.4.1.232.136.1.1.7.1.4
+	agentEventLevel OBJECT-TYPE
+	     SYNTAX  INTEGER
+	     ACCESS  read-only
+	     STATUS  mandatory
+	     DESCRIPTION
+		     "The management event level."
+	     ::= { agentEntry 4 }
+
+--                                       1.3.6.1.4.1.232.136.1.1.7.1.5
+      agentEventTimeDate OBJECT-TYPE
+	     SYNTAX  DisplayString
+	     ACCESS  read-only
+	     STATUS  mandatory
+	     DESCRIPTION
+		     "The date and time the event occurred dd-mm-yyyy/hr:min:sec." 
+	     ::= { agentEntry 5 }
+--                                       1.3.6.1.4.1.232.136.1.1.7.1.6
+	agentEventDescription OBJECT-TYPE
+	     SYNTAX  DisplayString
+	     ACCESS  read-only
+	     STATUS  mandatory
+	     DESCRIPTION
+		     "The Description of the management agent event." 
+	     ::= { agentEntry 6 }
+
+
+-- Workstation Group *****************************************************
+
+	srvCPU OBJECT-TYPE
+	     SYNTAX  DisplayString
+	     ACCESS  read-only
+	     STATUS  mandatory
+	     DESCRIPTION
+		     "The server CPU type (e.g., 80486)."
+		      
+	     ::= { cpqHSVServer 1 }
+
+	srvComputerType OBJECT-TYPE
+	     SYNTAX  DisplayString
+	     ACCESS  read-only
+	     STATUS  mandatory
+	     DESCRIPTION
+		     "The server Computer type (e.g., PC/AT)."
+		      
+	     ::= { cpqHSVServer 2 }
+
+	srvModel OBJECT-TYPE
+	     SYNTAX  INTEGER
+	     ACCESS  read-only
+	     STATUS  mandatory
+	     DESCRIPTION
+		     "The server model number."
+		      
+	     ::= { cpqHSVServer 3 }
+
+	srvSubModel OBJECT-TYPE
+	     SYNTAX  INTEGER
+	     ACCESS  read-only
+	     STATUS  mandatory
+	     DESCRIPTION
+		     "The server submodel number."
+		      
+	     ::= { cpqHSVServer 4 }
+
+	srvBiosVersion OBJECT-TYPE
+	     SYNTAX  DisplayString
+	     ACCESS  read-only
+	     STATUS  mandatory
+	     DESCRIPTION
+		     "The server BIOS Version."
+		      
+	     ::= { cpqHSVServer 5 }
+
+	srvOS OBJECT-TYPE
+	     SYNTAX  DisplayString
+	     ACCESS  read-only
+	     STATUS  mandatory
+	     DESCRIPTION
+		     "The server operating system name (e.g., WINNT)."
+		      
+	     ::= { cpqHSVServer 6 }
+
+	srvOSMajVersion OBJECT-TYPE
+	     SYNTAX  INTEGER
+	     ACCESS  read-only
+	     STATUS  mandatory
+	     DESCRIPTION
+		     "The server OS major version number 
+		     (e.g., 3 for WINNT 3.51)."
+		      
+	     ::= { cpqHSVServer 7 }
+
+	srvOSMinVersion OBJECT-TYPE
+	     SYNTAX  INTEGER
+	     ACCESS  read-only
+	     STATUS  mandatory
+	     DESCRIPTION
+		     "The server OS minor version number (e.g., 51 for
+		     WINNT 3.51)."
+		      
+	     ::= { cpqHSVServer 8 }
+
+-- maHSVMibRev Group       1.3.6.1.4.1.232.136.1.4
+
+--                         1.3.6.1.4.1.232.136.1.4.1
+      maHSVMibRevMajor OBJECT-TYPE
+           SYNTAX  INTEGER
+           ACCESS  read-only
+           STATUS  mandatory
+           DESCRIPTION
+            "The Major Revision level.
+             A change in the major revision level represents a major change
+             in the architecture of the MIB.  A change in the major revision
+             level may indicate a significant change in the information
+             supported and/or the meaning of the supported information,
+             correct interpretation of data may require a MIB document with
+             the same major revision level."
+
+           ::= { maHSVMibRev 1 }
+
+--                         1.3.6.1.4.1.232.136.1.4.2
+     maHSVMibRevMinor OBJECT-TYPE	
+           SYNTAX  INTEGER
+           ACCESS  read-only
+           STATUS  mandatory
+           DESCRIPTION
+            "The Minor Revision level.
+             A change in the minor revision level may represent some minor
+             additional support, no changes to any pre-existing information
+             has occurred."
+
+           ::= { maHSVMibRev 2 }
+
+-- Object Groups          1.3.6.1.4.1.232.136.1.3
+
+-- *********************************************************************
+-- StorageCell  Group         1.3.6.1.4.1.232.136.1.3.1  = scell
+
+--                                  1.3.6.1.4.1.232.136.1.3.1.1
+	scellTotal OBJECT-TYPE
+	     SYNTAX  INTEGER 
+	     ACCESS  read-only
+	     STATUS  mandatory
+	     DESCRIPTION
+		     "The total number of StorageCells (storage pools) present 
+                  in the Fusion System."	      
+	     ::= { scell 1 }
+
+--                                  1.3.6.1.4.1.232.136.1.3.1.2
+	scellStatusTable OBJECT-TYPE                                  
+	     SYNTAX  SEQUENCE OF ScellEntry
+	     ACCESS  not-accessible
+	     STATUS  mandatory
+	     DESCRIPTION
+		     "This table holds the status information for
+		      each StorageCell."   
+	     ::= { scell 2 }
+
+--                                 1.3.6.1.4.1.232.136.1.3.1.2.1
+	scellEntry OBJECT-TYPE
+	     SYNTAX  ScellEntry
+	     ACCESS  not-accessible
+	     STATUS  mandatory
+	     DESCRIPTION
+	     "The StorageCell information entry."
+	     INDEX   { scellEntryIndex }
+	     ::= { scellStatusTable 1 }
+
+
+	ScellEntry ::=                                              
+	  SEQUENCE{
+		scellEntryIndex
+			INTEGER,
+		scellName           
+			DisplayString,
+		scellUUID           
+			DisplayString,
+		scellStatus         
+			INTEGER,
+            scellEventDescription
+                  DisplayString,
+            scellEventTimeDate
+                  DisplayString,
+            scellEventCode
+                  DisplayString,
+		scellSWComponent
+                  INTEGER,
+            scellECode
+			INTEGER,
+            scellCAC
+			INTEGER,
+		scellEIP
+			INTEGER,
+            scellNameDateTime
+                  DisplayString
+	  }
+
+--		1.3.6.1.4.1.232.136.1.3.1.2.1.1
+	scellEntryIndex OBJECT-TYPE
+	     SYNTAX  INTEGER
+	     ACCESS  read-only
+	     STATUS  mandatory
+	     DESCRIPTION
+		     "The index into scellStatusTable ."		      
+	     ::= { scellEntry 1 }
+
+--		1.3.6.1.4.1.232.136.1.3.1.2.1.2
+	scellName OBJECT-TYPE
+	     SYNTAX  DisplayString
+	     ACCESS  read-only
+	     STATUS  mandatory
+	     DESCRIPTION
+		     "The StorageCell Name."
+	     ::= { scellEntry 2 }
+
+--		1.3.6.1.4.1.232.136.1.3.1.2.1.3
+	scellUUID OBJECT-TYPE
+	     SYNTAX  DisplayString
+	     ACCESS  read-only
+	     STATUS  mandatory
+	     DESCRIPTION
+		     "The StorageCell unique ID."		      
+	     ::= { scellEntry 3 }
+
+--		1.3.6.1.4.1.232.136.1.3.1.2.1.4
+	scellStatus OBJECT-TYPE
+             SYNTAX  INTEGER  {
+                          informational(1),
+                          minor(2),
+                          major(3),
+                          failed(4)
+                      }
+ 	     ACCESS  read-only
+	     STATUS  mandatory
+	     DESCRIPTION
+		      "This variable reports the overall status of the
+		       StorageCell. 
+		       INFORMATIONAL: Normal Operating Condition
+		       MINOR: Warning Condition
+		       MAJOR: Failure or Failure Immanent
+                   CRITICAL: Condition is critical or unknown"
+	     ::= { scellEntry 4 }
+
+--		1.3.6.1.4.1.232.136.1.3.1.2.1.5
+	scellEventDescription OBJECT-TYPE
+	     SYNTAX  DisplayString
+	     ACCESS  read-only
+	     STATUS  mandatory
+	     DESCRIPTION
+		     "The StorageCell Event Description."		      
+	     ::= { scellEntry 5 }
+
+--		1.3.6.1.4.1.232.136.1.3.1.2.1.6
+      scellEventTimeDate OBJECT-TYPE
+	     SYNTAX  DisplayString
+	     ACCESS  read-only
+	     STATUS  mandatory
+	     DESCRIPTION
+		     "The StorageCell Event Time and Date."		      
+	     ::= { scellEntry 6 }
+
+--		1.3.6.1.4.1.232.136.1.3.1.2.1.7
+      scellEventCode OBJECT-TYPE
+	     SYNTAX  DisplayString
+	     ACCESS  read-only
+	     STATUS  mandatory
+	     DESCRIPTION
+		     "The StorageCell Event Code."		      
+	     ::= { scellEntry 7 }
+
+--		1.3.6.1.4.1.232.136.1.3.1.2.1.8
+	scellSWComponent OBJECT-TYPE
+	     SYNTAX  INTEGER
+	     ACCESS  read-only
+	     STATUS  mandatory
+	     DESCRIPTION
+		     "The Event Code Software Component ID."
+	     ::= { scellEntry 8 }
+
+--		1.3.6.1.4.1.232.136.1.3.1.2.1.9
+	scellECode OBJECT-TYPE
+	     SYNTAX  INTEGER
+	     ACCESS  read-only
+	     STATUS  mandatory
+	     DESCRIPTION
+		     "The StorageCell Event Code event number."	      
+	     ::= { scellEntry 9 }
+
+--		1.3.6.1.4.1.232.136.1.3.1.2.1.10
+	scellCAC OBJECT-TYPE
+	     SYNTAX  INTEGER
+	     ACCESS  read-only
+	     STATUS  mandatory
+	     DESCRIPTION
+		     "The event code Corrective Action Code."	      
+	     ::= { scellEntry 10 }
+
+--		1.3.6.1.4.1.232.136.1.3.1.2.1.11
+	scellEIP OBJECT-TYPE
+	     SYNTAX  INTEGER
+	     ACCESS  read-only
+	     STATUS  mandatory
+	     DESCRIPTION
+		     "The Event Code EIP Type." 
+	     ::= { scellEntry 11 }
+
+--		1.3.6.1.4.1.232.136.1.3.1.2.1.12
+	scellNameDateTime OBJECT-TYPE
+	     SYNTAX  DisplayString
+	     ACCESS  read-only
+	     STATUS  mandatory
+	     DESCRIPTION
+		     "The StorageCell Name: Date & Time of Event."
+	     ::= { scellEntry 12 }		
+
+-- /*****************************************************************/
+
+
+-- Host Group		1.3.6.1.4.1.232.136.1.3.3
+
+	hostTotal OBJECT-TYPE
+	     SYNTAX  INTEGER 
+	     ACCESS  read-only
+	     STATUS  mandatory
+	     DESCRIPTION
+		     "The total number of hosts attached the Fusion System."
+--                              1.3.6.1.4.1.232.136.1.3.3.3.1
+	     ::= { host 1 }
+
+	hostStatusTable OBJECT-TYPE                                  
+	     SYNTAX  SEQUENCE OF HostEntry
+	     ACCESS  not-accessible
+	     STATUS  mandatory
+	     DESCRIPTION
+		     "This table holds the status information for
+		      each Host."
+--                              1.3.6.1.4.1.232.136.1.3.3.3.2		      
+	     ::= { host 2 }
+
+	hostEntry OBJECT-TYPE
+	     SYNTAX  HostEntry
+	     ACCESS  not-accessible
+	     STATUS  mandatory
+	     DESCRIPTION
+	     "The Host information entry."
+	     INDEX   { hostEntryIndex }
+--                              1.3.6.1.4.1.232.136.1.3.3.3.2.1
+	     ::= { hostStatusTable 1 }
+
+	HostEntry ::=                                              
+	  SEQUENCE{
+		hostEntryIndex
+			INTEGER,
+		hostName           
+			DisplayString,
+		hostUUID           
+			DisplayString,
+		hostStatus         
+			INTEGER
+	  }
+
+
+
+	hostEntryIndex OBJECT-TYPE
+	     SYNTAX  INTEGER
+	     ACCESS  read-only
+	     STATUS  mandatory
+	     DESCRIPTION
+		     "The index into hostStatusTable ."
+--                              1.3.6.1.4.1.232.136.1.3.3.3.2.1.1
+	     ::= { hostEntry 1 }
+
+	hostName OBJECT-TYPE
+	     SYNTAX  DisplayString
+	     ACCESS  read-only
+	     STATUS  mandatory
+	     DESCRIPTION
+		     "The Host Name."
+--                              1.3.6.1.4.1.232.136.1.3.3.3.2.1.2
+	     ::= { hostEntry 2 }
+
+	hostUUID OBJECT-TYPE
+	     SYNTAX  DisplayString
+	     ACCESS  read-only
+	     STATUS  mandatory
+	     DESCRIPTION
+		     "The Host unique ID."
+--                              1.3.6.1.4.1.232.136.1.3.3.3.2.1.3		      
+	     ::= { hostEntry 3 }
+
+	hostStatus OBJECT-TYPE
+             SYNTAX  INTEGER  {
+                          informational(0),
+                          minor(1),
+                          major(2),
+                          critical(3)
+                      }
+ 	     ACCESS  read-only
+	     STATUS  mandatory
+	     DESCRIPTION
+		      "This variable reports the overall status of the Host. 
+		       INFORMATIONAL: Normal Operating Condition
+		       MINOR: Warning Condition
+		       MAJOR: Failure or Failure Immanent
+                   CRITICAL: Condition is critical or unknown"
+--                              1.3.6.1.4.1.232.136.1.3.3.3.2.1.4
+	     ::= { hostEntry 4 }
+
+
+-- Network Storage Controller Group   1.3.6.1.4.1.232.136.1.3.3.4
+
+	nscTotal OBJECT-TYPE
+	     SYNTAX  INTEGER 
+	     ACCESS  read-only
+	     STATUS  mandatory
+	     DESCRIPTION
+		     "The total number of Network Storage Controllers present in the Fusion System."
+--                              1.3.6.1.4.1.232.136.1.3.3.4.1
+	     ::= { nsc 1 }
+
+	nscStatusTable OBJECT-TYPE                                  
+	     SYNTAX  SEQUENCE OF NscEntry
+	     ACCESS  not-accessible
+	     STATUS  mandatory
+	     DESCRIPTION
+		     "This table holds the status information for
+		      each Network Storage Controller."
+--                              1.3.6.1.4.1.232.136.1.3.3.4.2
+	     ::= { nsc 2 }
+
+	nscEntry OBJECT-TYPE
+	     SYNTAX  NscEntry
+	     ACCESS  not-accessible
+	     STATUS  mandatory
+	     DESCRIPTION
+	     "The NSC information entry."
+	     INDEX   { nscEntryIndex }
+--                              1.3.6.1.4.1.232.136.1.3.3.4.2.1
+	     ::= { nscStatusTable 1 }
+
+	NscEntry ::=                                              
+	  SEQUENCE{
+		nscEntryIndex
+			INTEGER,
+		nscName           
+			DisplayString,
+		nscUUID           
+			DisplayString,
+		nscStatus         
+			INTEGER
+	  }
+
+
+
+	nscEntryIndex OBJECT-TYPE
+	     SYNTAX  INTEGER
+	     ACCESS  read-only
+	     STATUS  mandatory
+	     DESCRIPTION
+		     "The index into nscStatusTable ."
+--                              1.3.6.1.4.1.232.136.1.3.3.4.2.1.1
+	     ::= { nscEntry 1 }
+
+	nscName OBJECT-TYPE
+	     SYNTAX  DisplayString
+	     ACCESS  read-only
+	     STATUS  mandatory
+	     DESCRIPTION
+		     "The Network Storage Controller Name."
+--                              1.3.6.1.4.1.232.136.1.3.3.4.2.1.2
+	     ::= { nscEntry 2 }
+
+	nscUUID OBJECT-TYPE
+	     SYNTAX  DisplayString
+	     ACCESS  read-only
+	     STATUS  mandatory
+	     DESCRIPTION
+		     "The NSC unique ID."
+--                              1.3.6.1.4.1.232.136.1.3.3.4.2.1.3
+	     ::= { nscEntry 3 }
+
+	nscStatus OBJECT-TYPE
+             SYNTAX  INTEGER  {
+                          informational(0),
+                          minor(1),
+                          major(2),
+                          critical(3)
+                      }
+ 	     ACCESS  read-only
+	     STATUS  mandatory
+	     DESCRIPTION
+		      "This variable reports the overall status of the
+		       Network Storage Controller. 
+		       INFORMATIONAL: Normal Operating Condition
+		       MINOR: Warning Condition
+		       MAJOR: Failure or Failure Immanent
+                   CRITICAL: Condition is critical or unknown"
+--                              1.3.6.1.4.1.232.136.1.3.3.4.2.1.4      
+	     ::= { nscEntry 4 }
+
+-- Shelf Group                      1.3.6.1.4.1.232.136.1.3.8
+--                                  1.3.6.1.4.1.232.136.1.3.8.1
+	shelfTotal OBJECT-TYPE
+	     SYNTAX  INTEGER 
+	     ACCESS  read-only
+	     STATUS  mandatory
+	     DESCRIPTION
+		     "The total number of disk shelves present in the HSV system."
+	     ::= { shelf 1 }
+
+--                                  1.3.6.1.4.1.232.136.1.3.8.2
+	shelfStatusTable OBJECT-TYPE                                  
+	     SYNTAX  SEQUENCE OF ShelfEntry
+	     ACCESS  not-accessible
+	     STATUS  mandatory
+	     DESCRIPTION
+		     "This table holds the status information for
+		      each Shelf."
+	     ::= { shelf 2 }
+
+--                                  1.3.6.1.4.1.232.136.1.3.8.2.1
+	shelfEntry OBJECT-TYPE
+	     SYNTAX  ShelfEntry
+	     ACCESS  not-accessible
+	     STATUS  mandatory
+	     DESCRIPTION
+	     "The Shelf information entry."
+	     INDEX   { shelfEntryIndex }
+	     ::= { shelfStatusTable 1 }
+
+	ShelfEntry ::=
+	  SEQUENCE{
+		shelfEntryIndex
+			INTEGER,
+		shelfStatus
+			INTEGER,
+		shelfId	
+			INTEGER,
+		shelfElementType
+			INTEGER,
+		shelfElementNum
+			INTEGER,
+		shelfErrorCode
+			INTEGER
+	  }
+
+--                                  1.3.6.1.4.1.232.136.1.3.8.2.1.1
+	shelfEntryIndex OBJECT-TYPE
+	     SYNTAX  INTEGER
+	     ACCESS  read-only
+	     STATUS  mandatory
+	     DESCRIPTION
+		     "The index into shelfStatusTable ."		      
+	     ::= { shelfEntry 1 }
+
+--                                  1.3.6.1.4.1.232.136.1.3.8.2.1.2
+	shelfStatus OBJECT-TYPE
+             SYNTAX  INTEGER  {
+                          other(1),
+                          ok(2),
+                          degraded(3),
+                          failed(4)
+                      }
+ 	     ACCESS  read-only
+	     STATUS  mandatory
+	     DESCRIPTION
+		      "This variable reports the overall status of the
+		       Shelf. 
+                   OTHER: unknown or undeterminable
+		       OK: Normal Operating Condition
+		       DEGRADED: Warning Condition
+		       FAILED: Failure"		      
+	     ::= { shelfEntry 2 }
+
+--                                  1.3.6.1.4.1.232.136.1.3.8.2.1.3
+	shelfId OBJECT-TYPE
+	     SYNTAX  INTEGER
+	     ACCESS  read-only
+	     STATUS  mandatory
+	     DESCRIPTION
+		     "The Shelf Id (shelf number)."		      
+	     ::= { shelfEntry 3 }
+
+--                                  1.3.6.1.4.1.232.136.1.3.8.2.1.4
+	shelfElementType OBJECT-TYPE
+	     SYNTAX  INTEGER
+	     ACCESS  read-only
+	     STATUS  mandatory
+	     DESCRIPTION
+		     "The Shelf Element type.
+			01: Disk
+			02: Power Supply
+			03: Fan
+			04: Temp Sensor
+			06: Alarm Horn
+			07: EMU
+			12: LCD
+			15: GBIC
+			16: Language
+			17: Comm Port
+			18: Volt Sensor
+			19: Amp Sensor
+			128:Enclosure
+			130:Back plane
+			255:Host"
+	     ::= { shelfEntry 4 }
+
+--                                  1.3.6.1.4.1.232.136.1.3.8.2.1.5
+	shelfElementNum OBJECT-TYPE
+	     SYNTAX  INTEGER
+	     ACCESS  read-only
+	     STATUS  mandatory
+	     DESCRIPTION
+		     "Which particular Element of that type."
+	     ::= { shelfEntry 5 }
+
+--                                  1.3.6.1.4.1.232.136.1.3.8.2.1.6
+	shelfErrorCode OBJECT-TYPE
+	     SYNTAX  INTEGER
+	     ACCESS  read-only
+	     STATUS  mandatory
+	     DESCRIPTION
+		     "The Element Type's Error Code."
+	     ::= { shelfEntry 6 }
+
+END

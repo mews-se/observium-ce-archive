@@ -1,0 +1,241 @@
+ECI-QUEUE-ACCOUNTING-MIB
+
+DEFINITIONS ::= BEGIN
+
+    IMPORTS
+	DisplayString
+	    FROM SNMPv2-TC
+	ifIndex
+	    FROM IF-MIB
+	MODULE-IDENTITY, OBJECT-TYPE
+	    FROM SNMPv2-SMI
+	EciCounter48
+	    FROM ECI-TC
+	eciMibs
+	    FROM ECI-SMI;
+
+   eciQueueAccountingMIB MODULE-IDENTITY
+       LAST-UPDATED "0707170000Z"            -- 17 July 2007
+       ORGANIZATION "ECI Telecom"
+	    CONTACT-INFO
+		"ECI Telecom, Ltd.
+		 Postal: 30 Hasivim Street
+		         Petach Tikva 49157, Israel 
+		 Tel: +972-3-9266000
+		 Fax: +972-3-9266370
+		 email: on.support@ecitele.com"
+	    DESCRIPTION
+		""
+	::= { eciMibs 4 }
+
+    eciQueueAcctObjects       OBJECT IDENTIFIER ::= {eciQueueAccountingMIB 1}
+    eciQueueAcctIngressObjects
+			      OBJECT IDENTIFIER ::= {eciQueueAcctObjects 1}
+    eciQueueAcctEgressObjects OBJECT IDENTIFIER ::= {eciQueueAcctObjects 2}
+    eciQueueAcctServiceProfileObjects
+			      OBJECT IDENTIFIER ::= {eciQueueAcctObjects 3}
+
+    --
+    -- eciQueueAcctIngressTable
+    -- These are the configured counters based on the classification of
+    -- Ingress traffic. Counters are collected based on compliant and
+    -- non-compliant traffic after policing.
+    --
+
+    eciQueueAcctIngressTable    OBJECT-TYPE
+	SYNTAX         SEQUENCE OF EciQueueAcctIngressEntry
+	MAX-ACCESS     not-accessible
+	STATUS         current
+	DESCRIPTION
+	    "The eciQueueAcctIngressTable provides statistics about the ingress
+	     traffic on an interface. Statistics are provided per counter name
+	     per counter type."
+	::= { eciQueueAcctIngressObjects 1 }
+
+    eciQueueAcctIngressEntry    OBJECT-TYPE
+	SYNTAX         EciQueueAcctIngressEntry
+	MAX-ACCESS     not-accessible
+	STATUS         current
+	DESCRIPTION
+	    ""
+	INDEX { ifIndex,
+		eciIngressCounterName,
+		eciIngressCounterType }
+	::= { eciQueueAcctIngressTable 1 }
+
+    EciQueueAcctIngressEntry ::= SEQUENCE {
+	eciIngressCounterName	DisplayString,
+	eciIngressCounterType   INTEGER,
+	eciIngressInterfaceName	DisplayString, -- same as ifName from IfMIB
+	eciIngressPackets	EciCounter48,
+	eciIngressBytes		EciCounter48
+    }
+
+   eciIngressCounterName OBJECT-TYPE
+       SYNTAX      DisplayString
+       MAX-ACCESS  not-accessible
+       STATUS      current
+       DESCRIPTION
+	    "Counter name configured in the Classifier"
+       ::= { eciQueueAcctIngressEntry 1 }
+
+   eciIngressCounterType OBJECT-TYPE
+       SYNTAX      INTEGER {
+			compliant(1),
+			nonCompliant1(2),
+			nonCompliant2(3)
+	   }
+       MAX-ACCESS  not-accessible
+       STATUS      current
+       DESCRIPTION
+	    "Policer results into compliant or non-compliant traffic"
+       ::= { eciQueueAcctIngressEntry 2 }
+
+   eciIngressInterfaceName OBJECT-TYPE
+       SYNTAX      DisplayString
+       MAX-ACCESS  read-only
+       STATUS      current
+       DESCRIPTION
+	    "Corresponding ifName from IfMIB"
+       ::= { eciQueueAcctIngressEntry 3 }
+
+   eciIngressPackets OBJECT-TYPE
+       SYNTAX      EciCounter48
+       MAX-ACCESS  read-only
+       STATUS      current
+       DESCRIPTION
+	    "Number of packets received"
+       ::= { eciQueueAcctIngressEntry 4 }
+
+   eciIngressBytes OBJECT-TYPE
+       SYNTAX      EciCounter48
+       MAX-ACCESS  read-only
+       STATUS      current
+       DESCRIPTION
+	    "Number of bytes received"
+       ::= { eciQueueAcctIngressEntry 5 }
+
+    --
+    -- eciQueueAcctEgressTable
+    -- These counters are obtained from various output queues configured
+    -- on the interface
+    --
+    eciQueueAcctEgressTable    OBJECT-TYPE
+	SYNTAX         SEQUENCE OF EciQueueAcctEgressEntry
+	MAX-ACCESS     not-accessible
+	STATUS         current
+	DESCRIPTION
+	    ""
+	::= { eciQueueAcctEgressObjects 1 }
+
+    eciQueueAcctEgressEntry    OBJECT-TYPE
+	SYNTAX         EciQueueAcctEgressEntry
+	MAX-ACCESS     not-accessible
+	STATUS         current
+	DESCRIPTION
+	    ""
+	INDEX { ifIndex,
+		eciEgressQueueBlockName,
+		eciEgressOutputQueueName }
+	::= { eciQueueAcctEgressTable 1 }
+
+    EciQueueAcctEgressEntry ::= SEQUENCE {
+	eciEgressQueueBlockName	  DisplayString,
+	eciEgressOutputQueueName  DisplayString,
+	eciEgressInterfaceName	  DisplayString, -- same as ifName from IfMIB
+	eciEgressDropPackets	  EciCounter48
+    }
+
+   eciEgressQueueBlockName OBJECT-TYPE
+       SYNTAX      DisplayString
+       MAX-ACCESS  not-accessible
+       STATUS      current
+       DESCRIPTION
+	    "Configured queue block name"
+       ::= { eciQueueAcctEgressEntry 1 }
+
+   eciEgressOutputQueueName OBJECT-TYPE
+       SYNTAX      DisplayString
+       MAX-ACCESS  not-accessible
+       STATUS      current
+       DESCRIPTION
+	    "Configured ouput queue name"
+       ::= { eciQueueAcctEgressEntry 2 }
+
+   eciEgressInterfaceName OBJECT-TYPE
+       SYNTAX      DisplayString
+       MAX-ACCESS  read-only
+       STATUS      current
+       DESCRIPTION
+	    "Corresponding ifName from IfMIB"
+       ::= { eciQueueAcctEgressEntry 3 }
+
+   eciEgressDropPackets OBJECT-TYPE
+       SYNTAX      EciCounter48
+       MAX-ACCESS  read-only
+       STATUS      current
+       DESCRIPTION
+	    "Number of packets dropped from this queue"
+       ::= { eciQueueAcctEgressEntry 4 }
+
+    --
+    -- eciQueueAcctServiceProfileTable
+    -- Table of egress counters per service profile per Logical Interface
+    --
+    eciQueueAcctServiceProfileTable    OBJECT-TYPE
+	SYNTAX         SEQUENCE OF EciQueueAcctServiceProfileEntry
+	MAX-ACCESS     not-accessible
+	STATUS         current
+	DESCRIPTION
+	    ""
+	::= { eciQueueAcctServiceProfileObjects 1 }
+
+    eciQueueAcctServiceProfileEntry    OBJECT-TYPE
+	SYNTAX         EciQueueAcctServiceProfileEntry
+	MAX-ACCESS     not-accessible
+	STATUS         current
+	DESCRIPTION
+	    ""
+	INDEX { ifIndex,
+		eciEgressSPName }
+	::= { eciQueueAcctServiceProfileTable 1 }
+
+    EciQueueAcctServiceProfileEntry ::= SEQUENCE {
+	eciEgressSPName			DisplayString,
+	eciEgressSPInterfaceName	DisplayString, -- same as ifName (IfMIB)
+	eciEgressSPPackets              EciCounter48,
+	eciEgressSPBytes                EciCounter48
+    }
+
+   eciEgressSPName OBJECT-TYPE
+       SYNTAX      DisplayString
+       MAX-ACCESS  not-accessible
+       STATUS      current
+       DESCRIPTION
+	    "Configured service profile name"
+       ::= { eciQueueAcctServiceProfileEntry 1 }
+
+   eciEgressSPInterfaceName OBJECT-TYPE
+       SYNTAX      DisplayString
+       MAX-ACCESS  read-only
+       STATUS      current
+       DESCRIPTION
+	    "Corresponding ifName from IfMIB"
+       ::= { eciQueueAcctServiceProfileEntry 2 }
+
+   eciEgressSPPackets OBJECT-TYPE
+       SYNTAX      EciCounter48
+       MAX-ACCESS  read-only
+       STATUS      current
+       DESCRIPTION
+	    "Number of packets transmitted"
+       ::= { eciQueueAcctServiceProfileEntry 3 }
+
+   eciEgressSPBytes OBJECT-TYPE
+       SYNTAX      EciCounter48
+       MAX-ACCESS  read-only
+       STATUS      current
+       DESCRIPTION
+	    "Number of bytes transmitted"
+       ::= { eciQueueAcctServiceProfileEntry 4 }
+END

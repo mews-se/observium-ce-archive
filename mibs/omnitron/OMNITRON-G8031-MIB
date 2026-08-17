@@ -1,0 +1,1294 @@
+OMNITRON-G8031-MIB DEFINITIONS ::= BEGIN
+
+IMPORTS
+    MODULE-IDENTITY, OBJECT-TYPE, Unsigned32
+        FROM SNMPv2-SMI           -- RFC-2578
+    RowStatus, TruthValue, DateAndTime, TimeStamp
+        FROM SNMPv2-TC            -- RFC-2579
+    MODULE-COMPLIANCE, OBJECT-GROUP
+        FROM SNMPv2-CONF          -- RFC-2580
+    Dot1agCfmMepIdOrZero
+        FROM IEEE8021-CFM-MIB     -- IEEE 802.1ag
+    IEEE8021PriorityValue
+        FROM IEEE8021-TC-MIB      -- IEEE 802.1ap
+    omnitron, OstVlanId, OstPortNumber,
+    OstEvcNameStringOrNone, OstElpsProtectType,  OstElpsRequestStates, 
+    OstElpsSignalStates, OstIndexIntegerNextFree, OstProfileNameString
+        FROM OMNITRON-TC-MIB;     -- Omnitron Textual Convention MIB
+
+omnitronG8031Mib MODULE-IDENTITY
+    LAST-UPDATED "201702161200Z"  -- February 16, 2017
+    ORGANIZATION "Omnitron Systems Technology, Inc."
+    CONTACT-INFO "Omnitron Systems Technology, Inc.
+                  38 Tesla
+                  Irvine, CA 92618-4670
+                  USA
+
+             Tel: (949) 250 6510
+             Fax: (949) 250 6514
+          E-mail: info@omnitron-systems.com
+   International: +1 949 250 6510
+
+                  Technical Support and Customer Service
+             Tel: (800) 675 8410
+          E-mail: support@omnitron-systems.com
+   International: +1 949 250 6510"
+
+    DESCRIPTION
+            "Omnitron ITU-T G.8031 MIB for use with iConverter Management
+             Modules v5.3 and NetOutlook.
+
+             Copyright 2017 Omnitron Systems Technology, Inc.
+             All rights reserved.
+            "
+
+    REVISION    "201702161200Z"  -- February 16, 2017
+    DESCRIPTION "Modified size syntax ostElpsInstanceCfgEvc, 
+                   ostElpsInstanceCfgEvcProtected  
+                "
+                
+    REVISION    "201603171200Z"     -- March 17, 2016
+    DESCRIPTION
+            "Initial version of v5.3 MIB.
+            "
+    ::= { omnitron protocols(10) protocolobjects(1) 3 }
+
+
+--------------------------------------------------------------------------------
+-- Ethernet Link Protection Switching (ELPS) Global Configuration Table
+--------------------------------------------------------------------------------
+
+ostElpsGlobalCfgTable  OBJECT IDENTIFIER ::= { omnitronG8031Mib 1 }
+
+ostElpsGlobalCfgEnable OBJECT-TYPE
+    SYNTAX      TruthValue
+    MAX-ACCESS  read-write
+    STATUS      current
+    DESCRIPTION
+       "This object specifies whether the ELPS function is enabled.
+
+        The value 'true' indicates that ELPS protocol is enabled.
+
+        The value 'false' indicates that ELPS protocol is disabled.
+       "
+    DEFVAL { false }
+    ::= { ostElpsGlobalCfgTable 1 }
+
+ostElpsGlobalCfgNextIndex OBJECT-TYPE
+    SYNTAX      OstIndexIntegerNextFree
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+       "This object contains an unused value for a ELPS instance on a module
+        that can be used to implement the ELPS protocol, or a zero to indicate
+        that none exist.
+
+        This value needs to be read in order to find an available index for
+        row-creation of a ELPS instance and then used when a row is created.
+        This value is automatically updated by the SNMP Agent after the row
+        is created.
+       "
+    DEFVAL { 1 }
+    ::= { ostElpsGlobalCfgTable 2 }
+
+
+--------------------------------------------------------------------------------
+-- Ethernet Link Protection Switching (ELPS) Instance Configuration Table
+--------------------------------------------------------------------------------
+
+ostElpsInstanceCfgTable OBJECT-TYPE
+    SYNTAX      SEQUENCE OF OstElpsInstanceCfgEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION
+       "This table supports ELPS instance configurations."
+    ::= { omnitronG8031Mib 2 }
+
+ostElpsInstanceCfgEntry OBJECT-TYPE
+    SYNTAX      OstElpsInstanceCfgEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION
+       "This is a ELPS instance configuration table entry."
+    INDEX { ostElpsInstanceCfgIndex }
+    ::= { ostElpsInstanceCfgTable 1 }
+
+OstElpsInstanceCfgEntry ::= SEQUENCE {
+    ostElpsInstanceCfgIndex                 Unsigned32,
+    ostElpsInstanceCfgRowStatus             RowStatus,
+    ostElpsInstanceCfgProfileEnable         TruthValue,
+    ostElpsInstanceCfgHoldOffEnable         TruthValue,
+    ostElpsInstanceCfgWaitToRestoreEnable   TruthValue,
+
+    ostElpsInstanceCfgProtectionName        OstProfileNameString,
+    ostElpsInstanceCfgProtectionPortNumber  OstPortNumber,
+    ostElpsInstanceCfgWorkingPortNumber     OstPortNumber,
+
+    ostElpsInstanceCfgHoldOffTime           Unsigned32,
+    ostElpsInstanceCfgWaitToRestoreTime     Unsigned32,
+    ostElpsInstanceCfgApsRate               Unsigned32,
+    ostElpsInstanceCfgApsToSend             Unsigned32,
+
+    ostElpsInstanceCfgScopeType             INTEGER,
+    ostElpsInstanceCfgEvc                   OstEvcNameStringOrNone,
+    ostElpsInstanceCfgVid                   OstVlanId,
+    ostElpsInstanceCfgPriority              IEEE8021PriorityValue,
+
+    ostElpsInstanceCfgWorkingMdIndex        Unsigned32,
+    ostElpsInstanceCfgWorkingMaIndex        Unsigned32,
+    ostElpsInstanceCfgWorkingMepId          Dot1agCfmMepIdOrZero,
+    ostElpsInstanceCfgProtectionMdIndex     Unsigned32,
+    ostElpsInstanceCfgProtectionMaIndex     Unsigned32,
+    ostElpsInstanceCfgProtectionMepId       Dot1agCfmMepIdOrZero,
+
+    ostElpsInstanceCfgProtectionType        OstElpsProtectType,
+    ostElpsInstanceCfgRevertive             TruthValue,
+    ostElpsInstanceCfgManualMode            INTEGER,
+    ostElpsInstanceCfgClearStatistics       TruthValue,
+    ostElpsInstanceCfgEvcProtected          OstEvcNameStringOrNone
+    }
+
+ostElpsInstanceCfgIndex
+OBJECT-TYPE
+    SYNTAX      Unsigned32(1..16)
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION
+       "An index to the ELPS Instance Configuration table which indicates
+        the specific ELPS instance for the module.
+
+        ostElpsGlobalCfgNextIndex needs to be inspected to find an
+        available index for row-creation.
+       "
+    ::= { ostElpsInstanceCfgEntry 1 }
+
+ostElpsInstanceCfgRowStatus OBJECT-TYPE
+    SYNTAX      RowStatus
+    MAX-ACCESS  read-create
+    STATUS      current
+    DESCRIPTION
+       "The status of the row.
+
+        The writable columns in a row cannot be changed if the row
+        is active. All columns must have a valid value before a row
+        can be activated.
+       "
+   ::= { ostElpsInstanceCfgEntry 2 }
+
+ostElpsInstanceCfgProfileEnable OBJECT-TYPE
+    SYNTAX      TruthValue
+    MAX-ACCESS  read-create
+    STATUS      current
+    DESCRIPTION
+       "This object specifies whether the ELPS profile is enabled for
+        the ELPS instance.
+
+        The value 'true' indicates the ELPS profile instance is enabled.
+
+        The value 'false' indicates the ELPS profile instance is disabled.
+
+        This object can be written/modified after row creation time.
+       "
+    DEFVAL { true }
+    ::= { ostElpsInstanceCfgEntry 3 }
+
+ostElpsInstanceCfgHoldOffEnable OBJECT-TYPE
+    SYNTAX      TruthValue
+    MAX-ACCESS  read-create
+    STATUS      current
+    DESCRIPTION
+       "This object specifies whether the ELPS holdoff function is
+        enabled for the ELPS instance.
+
+        The value 'true' indicates the ELPS holdoff instance function is
+        enabled.
+
+        The value 'false' indicates the ELPS holdoff instance function is
+        disabled.
+
+        This object can be written/modified after row creation time.
+       "
+    DEFVAL { true }
+    ::= { ostElpsInstanceCfgEntry 4 }
+
+ostElpsInstanceCfgWaitToRestoreEnable OBJECT-TYPE
+    SYNTAX      TruthValue
+    MAX-ACCESS  read-create
+    STATUS      current
+    DESCRIPTION
+       "This object specifies whether the ELPS wait to restore function is
+        enabled for the ELPS instance.
+
+        The value 'true' indicates the ELPS wait to restore instance function
+        is enabled.
+
+        The value 'false' indicates the ELPS wait to restore instance function
+        is disabled.
+
+        This object can be written/modified after row creation time.
+       "
+    DEFVAL { true }
+    ::= { ostElpsInstanceCfgEntry 5 }
+
+ostElpsInstanceCfgProtectionName OBJECT-TYPE
+    SYNTAX      OstProfileNameString
+    MAX-ACCESS  read-create
+    STATUS      current
+    DESCRIPTION
+        "ELPS instance profile name.
+
+         This object may not be modified after creation.
+        "
+    ::= { ostElpsInstanceCfgEntry 6 }
+
+ostElpsInstanceCfgProtectionPortNumber OBJECT-TYPE
+    SYNTAX      OstPortNumber
+    MAX-ACCESS  read-create
+    STATUS      current
+    DESCRIPTION
+       "This object selects the protection port number for the specific ELPS
+        instance that is configured.
+
+        This object can only be written at row creation time and cannot be
+        modified once it has been created.
+       "
+    ::= { ostElpsInstanceCfgEntry 7 }
+
+ostElpsInstanceCfgWorkingPortNumber OBJECT-TYPE
+    SYNTAX      OstPortNumber
+    MAX-ACCESS  read-create
+    STATUS      current
+    DESCRIPTION
+       "This object selects the working port number for the specific ELPS
+        instance that is configured.
+
+        This object can only be written at row creation time and cannot be
+        modified once it has been created.
+       "
+    ::= { ostElpsInstanceCfgEntry 8 }
+
+ostElpsInstanceCfgHoldOffTime OBJECT-TYPE
+    SYNTAX      Unsigned32 (0..100)
+    MAX-ACCESS  read-create
+    STATUS      current
+    DESCRIPTION
+       "This object specifies the hold-off time in 0.1 seconds.
+
+        A value of 0 indicates there is no hold-off time.
+
+        This object can be written/modified after row creation time.
+       "
+    DEFVAL { 0 }
+    ::= { ostElpsInstanceCfgEntry 9 }
+
+ostElpsInstanceCfgWaitToRestoreTime OBJECT-TYPE
+    SYNTAX      Unsigned32 (1..12)
+    MAX-ACCESS  read-create
+    STATUS      current
+    DESCRIPTION
+       "This object specifies the wait to restore time in minutes.
+
+        This object can be written/modified after row creation time.
+       "
+    DEFVAL { 5 }
+    ::= { ostElpsInstanceCfgEntry 10 }
+
+ostElpsInstanceCfgApsRate OBJECT-TYPE
+    SYNTAX      Unsigned32 (1..10)
+    MAX-ACCESS  read-create
+    STATUS      current
+    DESCRIPTION
+       "This object specifies the time between APS frames in seconds.
+
+        This object is only used when the APS frame transmission is enabled.
+
+        This object can be written/modified after row creation time.
+       "
+    DEFVAL { 5 }
+    ::= { ostElpsInstanceCfgEntry 11 }
+
+ostElpsInstanceCfgApsToSend OBJECT-TYPE
+    SYNTAX      Unsigned32 (1..10)
+    MAX-ACCESS  read-create
+    STATUS      current
+    DESCRIPTION
+       "This object specifies the number of APS frames to send that are
+        separated by a minimum delay when a protection switch occurs.
+
+        This object is only used when the APS frame transmission is enabled.
+
+        This object can be written/modified after row creation time.
+       "
+    DEFVAL { 3 }
+    ::= { ostElpsInstanceCfgEntry 12 }
+
+ostElpsInstanceCfgScopeType OBJECT-TYPE
+    SYNTAX      INTEGER {
+        port   (1),
+        evc    (2),
+        mep    (3)
+    }
+    MAX-ACCESS  read-create
+    STATUS      current
+    DESCRIPTION
+       "This object selects the specific scope type of the ELPS instance.
+
+        port(1)       ELPS instance is port based
+        evc(2)        ELPS instance is EVC based
+        mep(3)        ELPS instance is MEP based
+
+        This object can only be written at row creation time and cannot be
+        modified once it has been created.
+       "
+    ::= { ostElpsInstanceCfgEntry 13 }
+
+ostElpsInstanceCfgEvc OBJECT-TYPE
+    SYNTAX      OstEvcNameStringOrNone
+    MAX-ACCESS  read-create
+    STATUS      current
+    DESCRIPTION
+       "This object defines which EVC the ELPS instance is associated with.
+        It must be configured if ostElpsInstanceCfgScopeType is 'evc', 'mep'.
+        It is ignored for other instance types.
+
+        This object can only be written at row creation time and cannot be
+        modified once it has been created.
+       "
+    DEFVAL { "DEFAULT" }
+    ::= { ostElpsInstanceCfgEntry 14 }
+
+ostElpsInstanceCfgVid OBJECT-TYPE
+    SYNTAX      OstVlanId
+    MAX-ACCESS  read-create
+    STATUS      current
+    DESCRIPTION
+       "This object defines which specific VID the ELPS instance is associated
+        with. It is deprecated and should not be used.
+
+        This object can only be written at row creation time and cannot be
+        modified once it has been created.
+       "
+    DEFVAL { 0 }
+    ::= { ostElpsInstanceCfgEntry 15 }
+
+ostElpsInstanceCfgPriority OBJECT-TYPE
+    SYNTAX       IEEE8021PriorityValue
+    MAX-ACCESS  read-create
+    STATUS      current
+    DESCRIPTION
+       "This object specifies the ELPS instance PCP value (tag priority) on
+        the generated APS PDU.
+
+        This object can only be written at row creation time and cannot be
+        modified once it has been created.
+       "
+    DEFVAL { 0 }
+    ::= { ostElpsInstanceCfgEntry 16 }
+
+ostElpsInstanceCfgWorkingMdIndex OBJECT-TYPE
+    SYNTAX Unsigned32
+    MAX-ACCESS  read-create
+    STATUS      current
+    DESCRIPTION
+       "This object specifies the Working MEP ELPS instance maintenance
+        domain index.
+
+        The value is ignored for ostElpsInstanceCfgScopeType 'port' or 'evc'.
+
+        It is mandatory to be configured with a valid value if
+        ostElpsInstanceCfgScopeType is 'mep'.
+
+        This object can only be written at row creation time and cannot be
+        modified once it has been created.
+       "
+    DEFVAL { 0 }
+    ::= { ostElpsInstanceCfgEntry 17 }
+
+ostElpsInstanceCfgWorkingMaIndex OBJECT-TYPE
+    SYNTAX Unsigned32
+    MAX-ACCESS  read-create
+    STATUS      current
+    DESCRIPTION
+       "This object specifies the Working MEP ELPS instance maintenance
+        association index.
+
+        It is mandatory to be configured with a valid value if
+        ostElpsInstanceCfgScopeType is 'mep'.
+
+        The value is ignored for ostElpsInstanceCfgScopeType 'port' or 'evc'.
+
+        This object can only be written at row creation time and cannot be
+        modified once it has been created.
+       "
+    DEFVAL { 0 }
+    ::= { ostElpsInstanceCfgEntry 18 }
+
+ostElpsInstanceCfgWorkingMepId OBJECT-TYPE
+    SYNTAX      Dot1agCfmMepIdOrZero
+    MAX-ACCESS  read-create
+    STATUS      current
+    DESCRIPTION
+       "This object specifies the Working MEP ELPS instance Maintenance End
+        Point Identifier.
+
+        It is mandatory to be configured with a valid value if
+        ostElpsInstanceCfgScopeType is 'mep'.
+
+        The value is ignored for ostElpsInstanceCfgScopeType 'port' or 'evc'.
+
+        This object can only be written at row creation time and cannot be
+        modified once it has been created.
+       "
+    DEFVAL { 0 }
+    ::= { ostElpsInstanceCfgEntry 19 }
+
+ostElpsInstanceCfgProtectionMdIndex OBJECT-TYPE
+    SYNTAX Unsigned32
+    MAX-ACCESS  read-create
+    STATUS      current
+    DESCRIPTION
+       "This object specifies the Protection MEP ELPS instance maintenance
+        domain index.
+
+        The value is ignored for ostElpsInstanceCfgScopeType 'port' or 'evc'.
+
+        It is mandatory to be configured with a valid value if
+        ostElpsInstanceCfgScopeType is 'mep'.
+
+        This object can only be written at row creation time and cannot be
+        modified once it has been created.
+       "
+    DEFVAL { 0 }
+    ::= { ostElpsInstanceCfgEntry 20 }
+
+ostElpsInstanceCfgProtectionMaIndex OBJECT-TYPE
+    SYNTAX Unsigned32
+    MAX-ACCESS  read-create
+    STATUS      current
+    DESCRIPTION
+       "This object specifies the Protection MEP ELPS instance maintenance
+        association index.
+
+        It is mandatory to be configured with a valid value if
+        ostElpsInstanceCfgScopeType is 'mep'.
+
+        The value is ignored for ostElpsInstanceCfgScopeType 'port' or 'evc'.
+
+        This object can only be written at row creation time and cannot be
+        modified once it has been created.
+       "
+    DEFVAL { 0 }
+    ::= { ostElpsInstanceCfgEntry 21 }
+
+ostElpsInstanceCfgProtectionMepId OBJECT-TYPE
+    SYNTAX      Dot1agCfmMepIdOrZero
+    MAX-ACCESS  read-create
+    STATUS      current
+    DESCRIPTION
+       "This object specifies the Protection MEP ELPS instance Maintenance End
+        Point Identifier.
+
+        It is mandatory to be configured with a valid value if
+        ostElpsInstanceCfgScopeType is 'mep'.
+
+        The value is ignored for ostElpsInstanceCfgScopeType 'port' or 'evc'.
+
+        This object can only be written at row creation time and cannot be
+        modified once it has been created.
+       "
+    DEFVAL { 0 }
+    ::= { ostElpsInstanceCfgEntry 22 }
+
+ostElpsInstanceCfgProtectionType OBJECT-TYPE
+    SYNTAX      OstElpsProtectType
+    MAX-ACCESS  read-create
+    STATUS      current
+    DESCRIPTION
+       "This object selects the protection type of the ELPS instance.
+
+        This object can only be written at row creation time and cannot be
+        modified once it has been created.
+       "
+    DEFVAL { e1plus1UniNoAps }
+    ::= { ostElpsInstanceCfgEntry 23 }
+
+ostElpsInstanceCfgRevertive OBJECT-TYPE
+    SYNTAX      TruthValue
+    MAX-ACCESS  read-create
+    STATUS      current
+    DESCRIPTION
+       "This object specifies whether the ELPS instance is revertive or
+        non-revertive. Revertive indicates whether the working link becomes
+        active after it is restored.
+
+        The value 'true' indicates the ELPS instance is revertive.
+
+        The value 'false' indicates the ELPS instance is non-revertive
+
+        This object can only be written at row creation time and cannot be
+        modified once it has been created.
+       "
+    DEFVAL { false }
+    ::= { ostElpsInstanceCfgEntry 24 }
+
+ostElpsInstanceCfgManualMode OBJECT-TYPE
+    SYNTAX      INTEGER {
+        nocommand   (0),
+        lockout     (1),
+        freeze      (2),
+        clearfreeze (3),
+        force       (4),
+        protect     (5),
+        working     (6),
+        exercise    (7),
+        clear       (8)
+    }
+    MAX-ACCESS  read-create
+    STATUS      current
+    DESCRIPTION
+       "This object selects the protection instance manual mode. When written the
+        indicated manual mode is selected.
+
+        nocommand(0)   no command is indicated, read-only value only, write of
+                       this value returns an error
+        lockout(1)     sets lockout of protection
+        freeze(2)      sets freeze state
+        clearfreeze(3) clears freeze state
+        force(4)       force switch from normal working link to protection link
+        protect(5)     manual switch from working to protection link
+        working(6)     manual switch from protection to working link
+        exercise(7)    exercise APS protocol
+        clear(8)       clear to normal operation
+
+        This object can be written/modified after row creation time.
+       "
+    DEFVAL { clear }
+    ::= { ostElpsInstanceCfgEntry 25 }
+
+ostElpsInstanceCfgClearStatistics OBJECT-TYPE
+    SYNTAX      TruthValue
+    MAX-ACCESS  read-create
+    STATUS      current
+    DESCRIPTION
+       "This object when written clears the statistic counters associated with
+        a specific protection instance. When read the value always returns
+        'false'.
+
+        Writing this value does not change any items in the configuration table.
+
+        Writing this object at row creation is irrelevant and should not
+        be done.
+       "
+    DEFVAL { false }
+    ::= { ostElpsInstanceCfgEntry 26 }
+
+ostElpsInstanceCfgEvcProtected OBJECT-TYPE
+    SYNTAX      OstEvcNameStringOrNone
+    MAX-ACCESS  read-create
+    STATUS      current
+    DESCRIPTION
+       "This object defines which EVC the protected ELPS port is
+        associated with. If uninitialized (null length string) or is the same
+        value as ostElpsInstanceCfgEvc then this object indicates that the
+        protected EVC and the working EVC are the same EVC and therefore the
+        same VID is associated with both ports. If they are different then the
+        protected port VID is different from the working port VID.
+
+        It may be configured if ostElpsInstanceCfgScopeType is 'evc', 'mep'.
+        It is ignored for other instance types.
+
+        This object can only be written at row creation time and cannot be
+        modified once it has been created.
+       "
+    DEFVAL { "" }
+    ::= { ostElpsInstanceCfgEntry 27 }
+
+
+--------------------------------------------------------------------------------
+-- Ethernet Link Protection Switching (ELPS) Instance Status Table
+--------------------------------------------------------------------------------
+
+ostElpsInstanceStatusTable OBJECT-TYPE
+    SYNTAX      SEQUENCE OF OstElpsInstanceStatusEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION
+       "This table supports ELPS instance status."
+    ::= { omnitronG8031Mib 3 }
+
+ostElpsInstanceStatusEntry OBJECT-TYPE
+    SYNTAX      OstElpsInstanceStatusEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION
+       "This is a ELPS instance status table entry."
+    INDEX { ostElpsInstanceStatusIndex }
+    ::= { ostElpsInstanceStatusTable 1 }
+
+OstElpsInstanceStatusEntry ::= SEQUENCE {
+    ostElpsInstanceStatusIndex              Unsigned32,
+    ostElpsInstanceStatusWorkingPort        TruthValue,
+    ostElpsInstanceStatusProtectionPort     TruthValue,
+    ostElpsInstanceStatusLocalType          OstElpsProtectType,
+    ostElpsInstanceStatusLocalRevert        TruthValue,
+    ostElpsInstanceStatusRemoteType         OstElpsProtectType,
+    ostElpsInstanceStatusRemoteRevert       TruthValue,
+    ostElpsInstanceStatusLocalLink          OstElpsSignalStates,
+    ostElpsInstanceStatusLocalBridge        OstElpsSignalStates,
+    ostElpsInstanceStatusRemoteLink         OstElpsSignalStates,
+    ostElpsInstanceStatusRemoteBridge       OstElpsSignalStates,
+    ostElpsInstanceStatusCurrentRqState     OstElpsRequestStates,
+    ostElpsInstanceStatusRemoteRqState      OstElpsRequestStates,
+    ostElpsInstanceStatusLastSwitchTime     DateAndTime,
+    ostElpsInstanceStatusLastSwitchSysTime  TimeStamp,
+    ostElpsInstanceStatusNumberSwitches     Unsigned32
+    }
+
+ostElpsInstanceStatusIndex
+OBJECT-TYPE
+    SYNTAX      Unsigned32(1..16)
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION
+       "An index to the ELPS Instance status table which indicates
+        the specific ELPS instance for the module.
+
+        Rows are automatically created when a row in the
+        ostElpsInstanceCfgTable is created.
+       "
+    ::= { ostElpsInstanceStatusEntry 1 }
+
+ostElpsInstanceStatusWorkingPort OBJECT-TYPE
+    SYNTAX      TruthValue
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+       "This object indicates whether the current instance working port is
+        operational.
+
+        The value 'true' indicates the current instance working port's status
+        is operational.
+
+        The value 'false' indicates the current instance working port is
+        not operational.
+       "
+    ::= { ostElpsInstanceStatusEntry 2 }
+
+ostElpsInstanceStatusProtectionPort OBJECT-TYPE
+    SYNTAX      TruthValue
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+       "This object indicates whether the current instance protection port is
+        operational.
+
+        The value 'true' indicates the current instance protection port is
+        operational.
+
+        The value 'false' indicates the current instance protection port is
+        not operational.
+       "
+    ::= { ostElpsInstanceStatusEntry 3 }
+
+ostElpsInstanceStatusLocalType OBJECT-TYPE
+    SYNTAX      OstElpsProtectType
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+       "This object indicates the status of the local protection type. It is
+        generally the same as the configured value, but may change based upon
+        configuration/status changes.
+       "
+    ::= { ostElpsInstanceStatusEntry 4 }
+
+ostElpsInstanceStatusLocalRevert OBJECT-TYPE
+    SYNTAX      TruthValue
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+       "This object indicates whether the local protection is set to revert.
+
+        The value 'true' indicates the local protection mode is revert.
+
+        The value 'false' indicates the local protection mode is non-revert.
+       "
+    ::= { ostElpsInstanceStatusEntry 5 }
+
+ostElpsInstanceStatusRemoteType OBJECT-TYPE
+    SYNTAX      OstElpsProtectType
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+       "This object indicates the status of the remote protection type. It is
+        generally the same as the configured value, but may change based upon
+        configuration/status changes.
+
+        This object is undefined if the APS frame exchange is not enabled.
+       "
+    ::= { ostElpsInstanceStatusEntry 6 }
+
+ostElpsInstanceStatusRemoteRevert OBJECT-TYPE
+    SYNTAX      TruthValue
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+       "This object indicates whether the remote protection is set to revert.
+
+        The value 'true' indicates the remote protection mode is revert.
+
+        The value 'false' indicates the remote protection mode is non-revert.
+
+        This object is undefined if the APS frame exchange is not enabled.
+       "
+    ::= { ostElpsInstanceStatusEntry 7 }
+
+ostElpsInstanceStatusLocalLink OBJECT-TYPE
+    SYNTAX      OstElpsSignalStates
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+       "This object indicates the status of the local requested signal."
+    ::= { ostElpsInstanceStatusEntry 8 }
+
+ostElpsInstanceStatusLocalBridge OBJECT-TYPE
+    SYNTAX      OstElpsSignalStates
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+       "This object indicates the status of the local bridged signal."
+    ::= { ostElpsInstanceStatusEntry 9 }
+
+ostElpsInstanceStatusRemoteLink OBJECT-TYPE
+    SYNTAX      OstElpsSignalStates
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+       "This object indicates the status of the remote requested signal.
+
+        This object is undefined if the APS frame exchange is not enabled.
+       "
+    ::= { ostElpsInstanceStatusEntry 10 }
+
+ostElpsInstanceStatusRemoteBridge OBJECT-TYPE
+    SYNTAX      OstElpsSignalStates
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+       "This object indicates the status of the remote bridged signal.
+
+        This object is undefined if the APS frame exchange is not enabled.
+       "
+    ::= { ostElpsInstanceStatusEntry 11 }
+
+ostElpsInstanceStatusCurrentRqState OBJECT-TYPE
+    SYNTAX      OstElpsRequestStates
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+       "This object indicates the current request/state."
+    ::= { ostElpsInstanceStatusEntry 12 }
+
+ostElpsInstanceStatusRemoteRqState OBJECT-TYPE
+    SYNTAX      OstElpsRequestStates
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+       "This object indicates the remote request/state.
+
+        This object is undefined if the APS frame exchange is not enabled.
+       "
+    ::= { ostElpsInstanceStatusEntry 13 }
+
+ostElpsInstanceStatusLastSwitchTime OBJECT-TYPE
+    SYNTAX      DateAndTime
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+       "The time of the last protection switch for the instance.
+
+        The value is initialized to zero and is updated when a protection
+        switch occurs.
+       "
+    ::= { ostElpsInstanceStatusEntry 14 }
+
+ostElpsInstanceStatusLastSwitchSysTime OBJECT-TYPE
+    SYNTAX      TimeStamp
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+       "The system uptime of the last protection switch for the instance.
+
+        The value is initialized to zero and is updated when a protection
+        switch occurs.
+       "
+    ::= { ostElpsInstanceStatusEntry 15 }
+
+ostElpsInstanceStatusNumberSwitches OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+       "The number of protection switches.
+
+        The value is initialized at zero and increments for each protection
+        switch.
+       "
+    ::= { ostElpsInstanceStatusEntry 16 }
+
+
+
+--------------------------------------------------------------------------------
+-- Ethernet Link Protection Switching (ELPS) Instance Statistic Table
+--------------------------------------------------------------------------------
+
+ostElpsInstanceStatsTable OBJECT-TYPE
+    SYNTAX      SEQUENCE OF OstElpsInstanceStatsEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION
+       "This table supports ELPS instance statistic counters."
+    ::= { omnitronG8031Mib 4 }
+
+ostElpsInstanceStatsEntry OBJECT-TYPE
+    SYNTAX      OstElpsInstanceStatsEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION
+       "This is a ELPS instance statistics table entry."
+    INDEX { ostElpsInstanceStatsIndex }
+    ::= { ostElpsInstanceStatsTable 1 }
+
+OstElpsInstanceStatsEntry ::= SEQUENCE {
+    ostElpsInstanceStatsIndex                   Unsigned32,
+    ostElpsInstanceStatsTxNoRequest             Unsigned32,
+    ostElpsInstanceStatsTxDoNotRevert           Unsigned32,
+    ostElpsInstanceStatsTxRevertRequest         Unsigned32,
+    ostElpsInstanceStatsTxExercise              Unsigned32,
+    ostElpsInstanceStatsTxWaitToRestore         Unsigned32,
+    ostElpsInstanceStatsTxSwitchWorking         Unsigned32,
+    ostElpsInstanceStatsTxManualSwitch          Unsigned32,
+    ostElpsInstanceStatsTxSignalDegrade         Unsigned32,
+    ostElpsInstanceStatsTxSignalFailWorking     Unsigned32,
+    ostElpsInstanceStatsTxForcedSwitch          Unsigned32,
+    ostElpsInstanceStatsTxSignalFailProtection  Unsigned32,
+    ostElpsInstanceStatsTxLockoutProtection     Unsigned32,
+    ostElpsInstanceStatsTxOther                 Unsigned32,
+
+    ostElpsInstanceStatsRxNoRequest             Unsigned32,
+    ostElpsInstanceStatsRxDoNotRevert           Unsigned32,
+    ostElpsInstanceStatsRxRevertRequest         Unsigned32,
+    ostElpsInstanceStatsRxExercise              Unsigned32,
+    ostElpsInstanceStatsRxWaitToRestore         Unsigned32,
+    ostElpsInstanceStatsRxSwitchWorking         Unsigned32,
+    ostElpsInstanceStatsRxManualSwitch          Unsigned32,
+    ostElpsInstanceStatsRxSignalDegrade         Unsigned32,
+    ostElpsInstanceStatsRxSignalFailWorking     Unsigned32,
+    ostElpsInstanceStatsRxForcedSwitch          Unsigned32,
+    ostElpsInstanceStatsRxSignalFailProtection  Unsigned32,
+    ostElpsInstanceStatsRxLockoutProtection     Unsigned32,
+    ostElpsInstanceStatsRxOther                 Unsigned32
+    }
+
+ostElpsInstanceStatsIndex
+OBJECT-TYPE
+    SYNTAX      Unsigned32(1..16)
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION
+       "An index to the ELPS Instance statisticss table which indicates
+        the specific ELPS instance for the module.
+
+        Rows are automatically created when a row in the
+        ostElpsInstanceCfgTable is created.
+       "
+    ::= { ostElpsInstanceStatsEntry 1 }
+
+ostElpsInstanceStatsTxNoRequest OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+       "This attribute contains the number of APS frames transmitted that
+        contain the APS no request (NR) request/state.
+       "
+    ::= { ostElpsInstanceStatsEntry 2 }
+
+ostElpsInstanceStatsTxDoNotRevert OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+       "This attribute contains the number of APS frames transmitted that
+        contain the APS do not revert (DNR) request/state.
+       "
+    ::= { ostElpsInstanceStatsEntry 3 }
+
+ ostElpsInstanceStatsTxRevertRequest OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+       "This attribute contains the number of APS frames transmitted that
+        contain the APS revert request (RR) request/state.
+       "
+    ::= { ostElpsInstanceStatsEntry 4 }
+
+ ostElpsInstanceStatsTxExercise OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+       "This attribute contains the number of APS frames transmitted that
+        contain the APS exercise (EXER) request/state.
+       "
+    ::= { ostElpsInstanceStatsEntry 5 }
+
+ ostElpsInstanceStatsTxWaitToRestore OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+       "This attribute contains the number of APS frames transmitted that
+        contain the APS wait to restore (WTR) request/state.
+       "
+    ::= { ostElpsInstanceStatsEntry 6 }
+
+ ostElpsInstanceStatsTxSwitchWorking OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+       "This attribute contains the number of APS frames transmitted that
+        contain the APS manual switch to working (MS-W) request/state.
+       "
+    ::= { ostElpsInstanceStatsEntry 7 }
+
+ ostElpsInstanceStatsTxManualSwitch OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+       "This attribute contains the number of APS frames transmitted that
+        contain the APS manual switch (MS) request/state.
+       "
+    ::= { ostElpsInstanceStatsEntry 8 }
+
+ ostElpsInstanceStatsTxSignalDegrade OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+       "This attribute contains the number of APS frames transmitted that
+        contain the APS signal degrade (SD) request/state.
+       "
+    ::= { ostElpsInstanceStatsEntry 9 }
+
+ ostElpsInstanceStatsTxSignalFailWorking OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+       "This attribute contains the number of APS frames transmitted that
+        contain the APS signal fail for working (SF) request/state.
+       "
+    ::= { ostElpsInstanceStatsEntry 10 }
+
+ ostElpsInstanceStatsTxForcedSwitch OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+       "This attribute contains the number of APS frames transmitted that
+        contain the APS forced switch (FS) request/state.
+       "
+    ::= { ostElpsInstanceStatsEntry 11 }
+
+ ostElpsInstanceStatsTxSignalFailProtection OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+       "This attribute contains the number of APS frames transmitted that
+        contain the APS signal fail for protection (SF-P) request/state.
+       "
+    ::= { ostElpsInstanceStatsEntry 12 }
+
+ ostElpsInstanceStatsTxLockoutProtection OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+       "This attribute contains the number of APS frames transmitted that
+        contain the APS lockout of protection (LO) request/state.
+       "
+    ::= { ostElpsInstanceStatsEntry 13 }
+
+ ostElpsInstanceStatsTxOther OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+       "This attribute contains the number of APS frames transmitted that
+        contain the APS reserved for future standardization request/state.
+       "
+    ::= { ostElpsInstanceStatsEntry 14 }
+
+ostElpsInstanceStatsRxNoRequest OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+       "This attribute contains the number of APS frames received that
+        contain the APS no request (NR) request/state.
+       "
+    ::= { ostElpsInstanceStatsEntry 15 }
+
+ostElpsInstanceStatsRxDoNotRevert OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+       "This attribute contains the number of APS frames received that
+        contain the APS do not revert (DNR) request/state.
+       "
+    ::= { ostElpsInstanceStatsEntry 16 }
+
+ ostElpsInstanceStatsRxRevertRequest OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+       "This attribute contains the number of APS frames received that
+        contain the APS revert request (RR) request/state.
+       "
+    ::= { ostElpsInstanceStatsEntry 17 }
+
+ ostElpsInstanceStatsRxExercise OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+       "This attribute contains the number of APS frames received that
+        contain the APS exercise (EXER) request/state.
+       "
+    ::= { ostElpsInstanceStatsEntry 18 }
+
+ ostElpsInstanceStatsRxWaitToRestore OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+       "This attribute contains the number of APS frames received that
+        contain the APS wait to restore (WTR) request/state.
+       "
+    ::= { ostElpsInstanceStatsEntry 19 }
+
+ ostElpsInstanceStatsRxSwitchWorking OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+       "This attribute contains the number of APS frames received that
+        contain the APS manual switch to working (MS-W) request/state.
+       "
+    ::= { ostElpsInstanceStatsEntry 20 }
+
+ ostElpsInstanceStatsRxManualSwitch OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+       "This attribute contains the number of APS frames received that
+        contain the APS manual switch (MS) request/state.
+       "
+    ::= { ostElpsInstanceStatsEntry 21 }
+
+ ostElpsInstanceStatsRxSignalDegrade OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+       "This attribute contains the number of APS frames received that
+        contain the APS signal degrade (SD) request/state.
+       "
+    ::= { ostElpsInstanceStatsEntry 22 }
+
+ ostElpsInstanceStatsRxSignalFailWorking OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+       "This attribute contains the number of APS frames received that
+        contain the APS signal fail for working (SF) request/state.
+       "
+    ::= { ostElpsInstanceStatsEntry 23 }
+
+ ostElpsInstanceStatsRxForcedSwitch OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+       "This attribute contains the number of APS frames received that
+        contain the APS forced switch (FS) request/state.
+       "
+    ::= { ostElpsInstanceStatsEntry 24 }
+
+ ostElpsInstanceStatsRxSignalFailProtection OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+       "This attribute contains the number of APS frames received that
+        contain the APS signal fail for protection (SF-P) request/state.
+       "
+    ::= { ostElpsInstanceStatsEntry 25 }
+
+ ostElpsInstanceStatsRxLockoutProtection OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+       "This attribute contains the number of APS frames received that
+        contain the APS lockout of protection (LO) request/state.
+       "
+    ::= { ostElpsInstanceStatsEntry 26 }
+
+ ostElpsInstanceStatsRxOther OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+       "This attribute contains the number of APS frames received that
+        contain the APS reserved for future standardization request/state.
+       "
+    ::= { ostElpsInstanceStatsEntry 27 }
+
+
+--------------------------------------------------------------------------------
+-- Conformance Information
+--------------------------------------------------------------------------------
+
+ostG8031Compliances  OBJECT IDENTIFIER ::= { omnitronG8031Mib 5 }
+ostG8031Groups       OBJECT IDENTIFIER ::= { omnitronG8031Mib 6 }
+
+
+--------------------------------------------------------------------------------
+-- Omnitron G8031 MIB Units of conformance
+--------------------------------------------------------------------------------
+
+ostElpsCfgGroup OBJECT-GROUP
+    OBJECTS {
+        ostElpsGlobalCfgEnable,
+        ostElpsGlobalCfgNextIndex,
+
+        ostElpsInstanceCfgRowStatus,
+        ostElpsInstanceCfgProfileEnable,
+        ostElpsInstanceCfgHoldOffEnable,
+        ostElpsInstanceCfgWaitToRestoreEnable,
+
+        ostElpsInstanceCfgProtectionName,
+        ostElpsInstanceCfgProtectionPortNumber,
+        ostElpsInstanceCfgWorkingPortNumber,
+        ostElpsInstanceCfgHoldOffTime,
+        ostElpsInstanceCfgWaitToRestoreTime,
+        ostElpsInstanceCfgApsRate,
+        ostElpsInstanceCfgApsToSend,
+        ostElpsInstanceCfgScopeType,
+        ostElpsInstanceCfgEvc,
+        ostElpsInstanceCfgVid,
+        ostElpsInstanceCfgPriority,
+
+        ostElpsInstanceCfgWorkingMdIndex,
+        ostElpsInstanceCfgWorkingMaIndex,
+        ostElpsInstanceCfgWorkingMepId,
+        ostElpsInstanceCfgProtectionMdIndex,
+        ostElpsInstanceCfgProtectionMaIndex,
+        ostElpsInstanceCfgProtectionMepId,
+
+        ostElpsInstanceCfgProtectionType,
+        ostElpsInstanceCfgRevertive,
+        ostElpsInstanceCfgManualMode,
+        ostElpsInstanceCfgClearStatistics,
+        ostElpsInstanceCfgEvcProtected
+    }
+    STATUS      current
+    DESCRIPTION
+       "Mandatory objects for the ELPS configuration group."
+    ::= { ostG8031Groups 8 }
+
+ostElpsStatusGroup OBJECT-GROUP
+    OBJECTS {
+        ostElpsInstanceStatusWorkingPort,
+        ostElpsInstanceStatusProtectionPort,
+        ostElpsInstanceStatusLocalType,
+        ostElpsInstanceStatusLocalRevert,
+        ostElpsInstanceStatusRemoteType,
+        ostElpsInstanceStatusRemoteRevert,
+        ostElpsInstanceStatusLocalLink,
+        ostElpsInstanceStatusLocalBridge,
+        ostElpsInstanceStatusRemoteLink,
+        ostElpsInstanceStatusRemoteBridge,
+        ostElpsInstanceStatusCurrentRqState,
+        ostElpsInstanceStatusRemoteRqState,
+        ostElpsInstanceStatusLastSwitchTime,
+        ostElpsInstanceStatusLastSwitchSysTime,
+        ostElpsInstanceStatusNumberSwitches
+    }
+    STATUS      current
+    DESCRIPTION
+       "Mandatory objects for the ELPS status group."
+    ::= { ostG8031Groups 9 }
+
+ostElpsStatsGroup OBJECT-GROUP
+    OBJECTS {
+        ostElpsInstanceStatsTxNoRequest,
+        ostElpsInstanceStatsTxDoNotRevert,
+        ostElpsInstanceStatsTxRevertRequest,
+        ostElpsInstanceStatsTxExercise,
+        ostElpsInstanceStatsTxWaitToRestore,
+        ostElpsInstanceStatsTxSwitchWorking,
+        ostElpsInstanceStatsTxManualSwitch,
+        ostElpsInstanceStatsTxSignalDegrade,
+        ostElpsInstanceStatsTxSignalFailWorking,
+        ostElpsInstanceStatsTxForcedSwitch,
+        ostElpsInstanceStatsTxSignalFailProtection,
+        ostElpsInstanceStatsTxLockoutProtection,
+        ostElpsInstanceStatsTxOther,
+
+        ostElpsInstanceStatsRxNoRequest,
+        ostElpsInstanceStatsRxDoNotRevert,
+        ostElpsInstanceStatsRxRevertRequest,
+        ostElpsInstanceStatsRxExercise,
+        ostElpsInstanceStatsRxWaitToRestore,
+        ostElpsInstanceStatsRxSwitchWorking,
+        ostElpsInstanceStatsRxManualSwitch,
+        ostElpsInstanceStatsRxSignalDegrade,
+        ostElpsInstanceStatsRxSignalFailWorking,
+        ostElpsInstanceStatsRxForcedSwitch,
+        ostElpsInstanceStatsRxSignalFailProtection,
+        ostElpsInstanceStatsRxLockoutProtection,
+        ostElpsInstanceStatsRxOther
+    }
+    STATUS      current
+    DESCRIPTION
+       "Mandatory objects for the ELPS statistics group."
+    ::= { ostG8031Groups 10 }
+
+
+--------------------------------------------------------------------------------
+-- Omnitron G8031 MIB Compliance statements
+-------------------------------------------------------------------------------
+ostG8031Compliance MODULE-COMPLIANCE
+    STATUS       current
+    DESCRIPTION "The compliance statement for the Omnitron G8031 MIB."
+    MODULE
+        MANDATORY-GROUPS {
+            ostElpsCfgGroup,
+            ostElpsStatusGroup,
+            ostElpsStatsGroup
+        }
+    ::= { ostG8031Compliances 1 }
+
+
+END
+

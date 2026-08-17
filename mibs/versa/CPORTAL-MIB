@@ -1,0 +1,402 @@
+CPORTAL-MIB DEFINITIONS ::= BEGIN
+IMPORTS
+    MODULE-IDENTITY, OBJECT-TYPE,
+    Integer32, Unsigned32, Counter32, Counter64,
+    Gauge32, IpAddress
+        FROM SNMPv2-SMI
+    TEXTUAL-CONVENTION, RowStatus, DateAndTime,
+    TruthValue
+        FROM SNMPv2-TC
+    ngfw
+        FROM VERSA-MIB
+;
+
+cportal MODULE-IDENTITY
+    LAST-UPDATED "201606020000Z"
+    ORGANIZATION "Versa Networks"
+    CONTACT-INFO "
+        2953 Bunker Hill Lane, Suite 210
+        Santa Clara, CA - 95035 (USA)
+        Email: support@versa-networks.com"
+    DESCRIPTION "Enterprise MIB for Versa Networks'
+Captive portal"
+    REVISION "201606020000Z"
+    DESCRIPTION "Initial revision"
+    ::= { ngfw 7 }
+
+ConfdString ::= TEXTUAL-CONVENTION
+    DISPLAY-HINT "1t"
+    STATUS      current
+    DESCRIPTION "xs: and confd: types mapped to strings"
+    SYNTAX      OCTET STRING
+
+String ::= TEXTUAL-CONVENTION
+    DISPLAY-HINT "1t"
+    STATUS      current
+    DESCRIPTION "xs:string"
+    SYNTAX      OCTET STRING
+
+cportalGlobalTable OBJECT-TYPE
+    SYNTAX      SEQUENCE OF CportalGlobalEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "Captive portal global statistics"
+    ::= { cportal 1 }
+
+cportalGlobalEntry OBJECT-TYPE
+    SYNTAX      CportalGlobalEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION ""
+    INDEX { cportalGlobalOrgId }
+        ::= { cportalGlobalTable 1 }
+
+CportalGlobalEntry ::=
+    SEQUENCE {
+        cportalGlobalOrgId Unsigned32,
+        cportalGlobalOrgName String,
+        cportalCpaSendRedir ConfdString,
+        cportalCpaRedirSent ConfdString,
+        cportalCpaReqArrived ConfdString,
+        cportalCpaSendToOrig ConfdString,
+        cportalEproxySend407 ConfdString,
+        cportalEproxy407Sent ConfdString,
+        cportalEproxyHdrParsing ConfdString,
+        cportalEproxyAuthFail ConfdString,
+        cportalEproxyAuthSuccess ConfdString,
+        cportalEproxySsl407Sent ConfdString,
+        cportalEproxySslAuthFail ConfdString,
+        cportalEproxySslAuthSuccess ConfdString,
+        cportalTproxySendToVurl ConfdString,
+        cportalTproxySentToVurl ConfdString,
+        cportalTproxyReqOnVurl ConfdString,
+        cportalTproxySend401 ConfdString,
+        cportalTproxy401Sent ConfdString,
+        cportalTproxy401Resp ConfdString,
+        cportalTproxyAuthFail ConfdString,
+        cportalTproxySendToOrig ConfdString,
+        cportalCookieReqArrived ConfdString,
+        cportalCookieSend401 ConfdString,
+        cportalCookie401Sent ConfdString,
+        cportalCookie401Resp ConfdString,
+        cportalCookieAuthFail ConfdString,
+        cportalCookieSetCookieRedir ConfdString,
+        cportalCookieSendToOrig ConfdString,
+        cportalLocalSession ConfdString,
+        cportalHdrHost ConfdString,
+        cportalHdrCookie ConfdString,
+        cportalHdrAuthorization ConfdString,
+        cportalHdrProxyAuthorization ConfdString,
+        cportalInternalFailure ConfdString,
+        cportalSplitFailure ConfdString,
+        cportalAuthPolicyMatch ConfdString,
+        cportalAuthAuthenticate ConfdString,
+        cportalAuthNoAuthenticate ConfdString,
+        cportalHttpRedir ConfdString,
+        cportalHttpsRedir ConfdString,
+        cportalPacFileReq ConfdString,
+        cportalPacFileResp ConfdString
+    }
+
+cportalGlobalOrgId OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "Organization id"
+    ::= { cportalGlobalEntry 1 }
+
+cportalGlobalOrgName OBJECT-TYPE
+    SYNTAX      String
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Organization Name"
+    ::= { cportalGlobalEntry 2 }
+
+cportalCpaSendRedir OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Number of CPA session in redirection-required state"
+    ::= { cportalGlobalEntry 3 }
+
+cportalCpaRedirSent OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Number of CPA session in redirection-sent state"
+    ::= { cportalGlobalEntry 4 }
+
+cportalCpaReqArrived OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Number of CPA session in request-arrived state"
+    ::= { cportalGlobalEntry 5 }
+
+cportalCpaSendToOrig OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Number of CPA session in req send-to-original state"
+    ::= { cportalGlobalEntry 6 }
+
+cportalEproxySend407 OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Number of explicit-proxy session in send-407-redirection state"
+    ::= { cportalGlobalEntry 7 }
+
+cportalEproxy407Sent OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Number of explicit-proxy session in 407-redirection-sent state"
+    ::= { cportalGlobalEntry 8 }
+
+cportalEproxyHdrParsing OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Number of explicit-proxy session in header-parsing state"
+    ::= { cportalGlobalEntry 9 }
+
+cportalEproxyAuthFail OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Number of explicit-proxy session in auth-fail state"
+    ::= { cportalGlobalEntry 10 }
+
+cportalEproxyAuthSuccess OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Number of explicit-proxy session in auth-success state"
+    ::= { cportalGlobalEntry 11 }
+
+cportalEproxySsl407Sent OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Number of explicit-proxy ssl session in 407-sent state"
+    ::= { cportalGlobalEntry 12 }
+
+cportalEproxySslAuthFail OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Number of explicit-proxy ssl session in auth-fail state"
+    ::= { cportalGlobalEntry 13 }
+
+cportalEproxySslAuthSuccess OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Number of explicit-proxy ssl session in auth-success state"
+    ::= { cportalGlobalEntry 14 }
+
+cportalTproxySendToVurl OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Number of transparent-proxy session in send-to-vurl state"
+    ::= { cportalGlobalEntry 15 }
+
+cportalTproxySentToVurl OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Number of transparent-proxy session in sent-to-vurl state"
+    ::= { cportalGlobalEntry 16 }
+
+cportalTproxyReqOnVurl OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Number of transparent-proxy session in req-on-vurl state"
+    ::= { cportalGlobalEntry 17 }
+
+cportalTproxySend401 OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Number of transparent-proxy session in send-401 state"
+    ::= { cportalGlobalEntry 18 }
+
+cportalTproxy401Sent OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Number of transparent-proxy session in 401-sent state"
+    ::= { cportalGlobalEntry 19 }
+
+cportalTproxy401Resp OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Number of transparent-proxy session in 401-resp state"
+    ::= { cportalGlobalEntry 20 }
+
+cportalTproxyAuthFail OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Number of transparent-proxy session in auth-fail state"
+    ::= { cportalGlobalEntry 21 }
+
+cportalTproxySendToOrig OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Number of transparent-proxy session in send-to-orig state"
+    ::= { cportalGlobalEntry 22 }
+
+cportalCookieReqArrived OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Number of cookie-auth session in req-arrived state"
+    ::= { cportalGlobalEntry 23 }
+
+cportalCookieSend401 OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Number of cookie-auth session in send-401 state"
+    ::= { cportalGlobalEntry 24 }
+
+cportalCookie401Sent OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Number of cookie-auth session in 401-sent state"
+    ::= { cportalGlobalEntry 25 }
+
+cportalCookie401Resp OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Number of cookie-auth session in 401-resp state"
+    ::= { cportalGlobalEntry 26 }
+
+cportalCookieAuthFail OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Number of cookie-auth session in auth-fail state"
+    ::= { cportalGlobalEntry 27 }
+
+cportalCookieSetCookieRedir OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Number of cookie-auth session in set-cookie-redir state"
+    ::= { cportalGlobalEntry 28 }
+
+cportalCookieSendToOrig OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Number of cookie-auth session in send-to-orig state"
+    ::= { cportalGlobalEntry 29 }
+
+cportalLocalSession OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Number of captive portal local sessions"
+    ::= { cportalGlobalEntry 30 }
+
+cportalHdrHost OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Number of HOST header processed"
+    ::= { cportalGlobalEntry 31 }
+
+cportalHdrCookie OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Number of COOKIE header processed"
+    ::= { cportalGlobalEntry 32 }
+
+cportalHdrAuthorization OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Number of AUTHORIZATION header processed"
+    ::= { cportalGlobalEntry 33 }
+
+cportalHdrProxyAuthorization OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Number of PROXY-AUTHORIZATION header processed"
+    ::= { cportalGlobalEntry 34 }
+
+cportalInternalFailure OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Number of internal-failures"
+    ::= { cportalGlobalEntry 35 }
+
+cportalSplitFailure OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Number of split failure"
+    ::= { cportalGlobalEntry 36 }
+
+cportalAuthPolicyMatch OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Number of authentication policy lookup matched"
+    ::= { cportalGlobalEntry 37 }
+
+cportalAuthAuthenticate OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Number of authentication policy lookup matched with authentication action"
+    ::= { cportalGlobalEntry 38 }
+
+cportalAuthNoAuthenticate OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Number of authentication policy lookup matched with no-authentication action"
+    ::= { cportalGlobalEntry 39 }
+
+cportalHttpRedir OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Number of total HTTP redirection sent"
+    ::= { cportalGlobalEntry 40 }
+
+cportalHttpsRedir OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Number of total HTTPS redirection sent"
+    ::= { cportalGlobalEntry 41 }
+
+cportalPacFileReq OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Number of total PAC file request"
+    ::= { cportalGlobalEntry 42 }
+
+cportalPacFileResp OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Number of total PAC file response"
+    ::= { cportalGlobalEntry 43 }
+
+END

@@ -1,0 +1,3268 @@
+DC-EVPN-MIB DEFINITIONS ::= BEGIN
+
+  IMPORTS
+    MODULE-IDENTITY,
+    OBJECT-TYPE,
+    NOTIFICATION-TYPE,
+    Unsigned32,
+    Integer32,
+    TimeTicks
+      FROM SNMPv2-SMI
+
+    MODULE-COMPLIANCE,
+    OBJECT-GROUP
+      FROM SNMPv2-CONF
+
+    TEXTUAL-CONVENTION,
+    RowStatus,
+    MacAddress,
+    DisplayString,
+    TruthValue
+      FROM SNMPv2-TC
+
+    InetAddressType,
+    InetAddress
+      FROM INET-ADDRESS-MIB
+
+    ifIndex,
+    InterfaceIndex,
+    InterfaceIndexOrZero
+      FROM IF-MIB
+
+    MplsLabel
+      FROM MPLS-TC-STD-MIB                               -- [RFC3811]
+
+-- Begin Versa change - Defined VlanId here as Q-BRIDGE-MIB depends on too many MIBs
+--    VlanId
+--    FROM Q-BRIDGE-MIB
+-- End Versa change
+
+    MjStatus,
+    SjStatus,
+    AdminStatus,
+    OperStatus,
+    BaseOperStatus,
+    NumericIndex,
+    VrfName
+      FROM DC-MASTER-TC;
+
+-- The identifier for the set of configuration defined in this asn1 file.
+
+  evpnMib MODULE-IDENTITY
+    LAST-UPDATED "201504130000Z" -- Mon April 13 00:00:00 GMT 2015
+    ORGANIZATION "Metaswitch Networks"
+    CONTACT-INFO
+                 "Postal: Metaswitch Networks
+                          100 Church Street
+                          Enfield
+                          EN2 6BQ
+                          United Kingdom
+                  Tel:    +44 20 8366 1177
+                  E-mail: info@metaswitch.com"
+    DESCRIPTION  "DC-EVPN Management Interface."
+    ::= { iso
+          member-body (2)
+          gb (826)
+          national (0)
+          eng-ltd (1)
+          dataConnectionLtd (1578918)
+          adg (5)
+          l2 (94)
+          evpn (10)
+          1 }
+          -- The value 10 matches the PRD_EVPN constant.
+
+-- Top level components of this MIB module.
+
+  evpnObjects       OBJECT IDENTIFIER ::= { evpnMib 1 } -- EVPN management tables
+  evpnNotifications OBJECT IDENTIFIER ::= { evpnMib 2 }
+  evpnConformance   OBJECT IDENTIFIER ::= { evpnMib 3 }
+
+-------------------------------------------------------------------------------
+
+--
+-- Textual conventions
+--
+
+-- Begin Versa change - Defined VlanId here as Q-BRIDGE-MIB depends on too many MIBs
+  VlanId ::= TEXTUAL-CONVENTION
+    DISPLAY-HINT "d"
+    STATUS      current
+    DESCRIPTION
+        "The VLAN-ID that uniquely identifies a VLAN.  This
+        is the 12-bit VLAN-ID used in the VLAN Tag header.
+        The range is defined by the REFERENCEd specification."
+    REFERENCE
+        "IEEE Std 802.1Q 2003 Edition, Virtual Bridged
+        Local Area Networks."
+    SYNTAX      Integer32 (1..4094)
+-- End Versa change
+
+  EvpnMjIfId ::= TEXTUAL-CONVENTION
+    STATUS      current
+    DESCRIPTION "The type of interface to which a DC-EVPN join applies."
+    SYNTAX      INTEGER {
+                  ifAtgPri(226492416),   -- Interface IF_ATG_PRI
+                  ifAtgLdb(545325056),   -- Interface IF_ATG_LDB
+                  ifAtgI3(696844288),    -- Interface IF_ATG_I3
+                  ifAtgTpi(697892864),   -- Interface IF_ATG_TPI
+                  ifAtgQcrp(1031864320), -- Interface IF_ATG_QCRP
+                  ifAtgBdpi(2038431744), -- Interface IF_ATG_BDPI
+                  ifAtgMai(2038759424)   -- Interface IF_ATG_MAI
+                }
+
+  EvpnSjIfId ::= TEXTUAL-CONVENTION
+    STATUS      current
+    DESCRIPTION "The type of interface to which a join applies."
+    SYNTAX      INTEGER {
+                  ifAtgQcrp(1031864320), -- Interface IF_ATG_QCRP
+                  ifAtgBdii(2038497280)  -- Interface IF_ATG_BDII
+                }
+
+  EvpnOperReason  ::= TEXTUAL-CONVENTION
+    STATUS      current
+    DESCRIPTION "A reason for the current oper status of an EVPN object."
+    SYNTAX      INTEGER {
+                  none(1),                 -- Oper status is up or going up.
+                                           -- No reason is required.
+                  entityNotUp(2),          -- Oper status is down or going
+                                           -- down because the entity is not
+                                           -- oper up.
+                  adminConfig(3),          -- Oper status is down or going down
+                                           -- because of the object's row
+                                           -- status or admin status
+                                           -- configuration.
+                  resourceFailure(4),      -- Oper status is failed or failed
+                                           -- perm due to insufficient
+                                           -- resources.
+                  noIfInfo(5),             -- Oper status is down or going down
+                                           -- because the object does not have
+                                           -- all of the interface information
+                                           -- required to activate.
+                  eviNotUp(6),             -- Oper status is down or going down
+                                           -- because the EVPN instance is not
+                                           -- oper up.
+                  evpnBdNotUp(7),          -- Oper status is down or going down
+                                           -- because the EVPN bridge domain is
+                                           -- not oper up.
+                  noRouteDistinguisher(8), -- Oper status is not up because no
+                                           -- route distinguisher is available.
+                  routeDistinguisherClash(9),
+                                           -- Oper status is not up because
+                                           -- there is an active EVPN instance
+                                           -- with the same route
+                                           -- distinguisher.
+                  noEsi(10),               -- Oper status is not up because no
+                                           -- Ethernet Segment Identifier
+                                           -- is available.
+                  badVni(11),              -- Oper status is not up because a
+                                           -- valid VNI is not available.
+                  vniClash(12),            -- Oper status is not up because
+                                           -- there is another BD with the same
+                                           -- VNI.
+                  vlanSubIfEviClash(13),   -- Oper status is not up because
+                                           -- multiple VLAN sub-interfaces have
+                                           -- been configured for the same EVI
+                                           -- on the same Ethernet Segment.
+                  noBgpId(14),             -- Oper status is not up because
+                                           -- because the BGP router identifier
+                                           -- is not yet available to EVPN.
+                  rtTypeClash(15),         -- Oper status is not up because a
+                                           -- configured RT and the auto-
+                                           -- derived RT have the same RT value
+                                           -- but different RT types.
+                  noRouteTarget(16),       -- Oper status is not up because
+                                           -- there are no configured RTs.
+                  evpnIpVrfNotUp(17),      -- Oper status is down or going down
+                                           -- because the IP VRF instance is
+                                           -- not oper up.
+                  evpnNoSystemMac(18),     -- Oper status is down or going down
+                                           -- because the system mac address is
+                                           -- unknown.
+                  rtClash(19),             -- Oper status is not up because there
+                                           -- is an another active RT configured
+                                           -- with the same route target value.
+                  evpnNoMcastGroup(20),    -- Oper status is down or going down
+                                           -- because the multicast mode
+                                           -- requires a group address, but one
+                                           -- has not been supplied.
+                  evpnNoSourceIp(21),      -- Oper status is down or going down
+                                           -- because there is no available
+                                           -- source ip.
+                  evpnBadTnnlDestType(22), -- Oper status is down or going down
+                                           -- because the VXLAN tunnel
+                                           -- destination type is invalid.
+-- Begin Versa change
+                  vlanIdClash(23)          -- Oper status is not up because
+                                           -- there is another BD with the same
+                                           -- vlan-id in the EVI.
+-- End Versa change
+                }
+
+  EvpnIndex ::= TEXTUAL-CONVENTION
+    STATUS      current
+    DESCRIPTION "The index of an EVPN instance.  The range is restricted to
+                 a two octet value to allow auto-derivation of route targets
+                 and route distinguishers."
+    SYNTAX      Unsigned32 (1..65535)
+
+  EvpnIndexOrZero ::= TEXTUAL-CONVENTION
+    STATUS      current
+    DESCRIPTION "An index of an EVPN instance, or zero if no index has
+                 been configured."
+    SYNTAX      Unsigned32 (0..65535)
+
+  EvpnRouteDistinguisher ::= TEXTUAL-CONVENTION
+    STATUS      current
+    DESCRIPTION "Syntax for a route distinguisher."
+    SYNTAX      OCTET STRING (SIZE (8))
+
+  EvpnRouteTarget ::= TEXTUAL-CONVENTION
+    STATUS      current
+    DESCRIPTION "Syntax for a route target."
+    SYNTAX      OCTET STRING (SIZE (8))
+
+  EvpnRtUsageTc ::= TEXTUAL-CONVENTION
+    STATUS      current
+    DESCRIPTION "Indicates whether a route target is used for route import,
+                 export or both."
+    SYNTAX      INTEGER {
+                  import(1),
+                  export(2),
+                  importExport(3),
+                  none(4)
+                }
+
+  EvpnCfgOrAuto ::= TEXTUAL-CONVENTION
+    STATUS      current
+    DESCRIPTION "Indicates whether a value is expected to be configured or
+                 automatically derived by EVPN."
+    SYNTAX      INTEGER {
+                  none(1),
+                  configured(2),
+                  auto(3)
+                }
+
+  EvpnEthernetTag ::= TEXTUAL-CONVENTION
+    STATUS      current
+    DESCRIPTION "An Ethernet tag identifier, representing a broadcast domain
+                 in an EVPN instance."
+    SYNTAX      Unsigned32
+
+  EvpnSource ::= TEXTUAL-CONVENTION
+    STATUS      current
+    DESCRIPTION "The source of an EVPN route.
+
+                 -  'local' indicates that the EVPN route was created based
+                    on information from locally attached sites.
+
+                 -  'remote' indicates that the EVPN route was received from
+                    a remote EVPN instance."
+    SYNTAX      INTEGER {
+                  local(1),
+                  remote(2)
+                }
+
+  EvpnEncapsulation ::= TEXTUAL-CONVENTION
+    STATUS      current
+    DESCRIPTION "The encapsulation type supported by an EVI."
+    SYNTAX      INTEGER {
+                  mpls(1),
+                  vxlan(2)
+                }
+
+  EvpnVniOrZero ::= TEXTUAL-CONVENTION
+    STATUS      current
+    DESCRIPTION "A VXLAN network identifer (VNI) value, or zero if no VNI
+                 is specified."
+    SYNTAX      Unsigned32 (0..16777215)
+
+  EvpnMacErrorType ::= TEXTUAL-CONVENTION
+    STATUS      current
+    DESCRIPTION "Type of error being reported or cleared in a evpnMacError
+                 notification."
+    SYNTAX      INTEGER {
+                  duplicate(1),
+                  stickMac(2)
+                }
+
+  EvpnESI ::= TEXTUAL-CONVENTION
+    STATUS      current
+    DESCRIPTION "Syntax for an Ethernet Segment Identifier."
+    SYNTAX      OCTET STRING (SIZE (10))
+
+  EvpnEsModeTc ::= TEXTUAL-CONVENTION
+    STATUS      current
+    DESCRIPTION "Operational mode for an Ethernet Segment.
+
+                 Only single-homing and all-active multi-homing modes
+                 are supported."
+    SYNTAX      INTEGER {
+                  singleHomed(1),
+                  allActive(2),
+                  singleActive(3)
+                }
+
+  EvpnStatusType ::= TEXTUAL-CONVENTION
+    STATUS      current
+    DESCRIPTION "Status values for an Ethernet Segment or interface in an
+                 Ethernet Segment."
+    SYNTAX      INTEGER {
+                  up(1),
+                  down(2)
+                }
+
+  EvpnLabelAllocType ::= TEXTUAL-CONVENTION
+    STATUS      current
+    DESCRIPTION "Options for the label allocation strategy for EVPN/MPLS."
+    SYNTAX      INTEGER {
+                  perFdb(1),
+                  perMac(2)
+                }
+
+  EvpnLocalMcastMode ::= TEXTUAL-CONVENTION
+    STATUS      current
+    DESCRIPTION "Locally configured multicast mode."
+    SYNTAX      INTEGER {
+                  ingressReplication(1), -- Ingress replication.
+                  pimAsm(2),             -- PIM-ASM multicast group.
+                  pimBidir(3)            -- PIM-BIDIR multicast group.
+                }
+
+  EvpnPmsiTnnlType ::= TEXTUAL-CONVENTION
+    STATUS      current
+    DESCRIPTION "The tunnel type for forwarding BUM traffic for a
+                 bridge domain."
+    SYNTAX      INTEGER {
+                  ingressReplication(1), -- Ingress replication.
+                  pimAsm(2),             -- PIM-ASM multicast group.
+                  pimBidir(3),           -- PIM-BIDIR multicast group.
+                  pimSsm(4),             -- PIM-SSM multicast group.
+                  other(5)               -- Any other type.
+                }
+
+-- Begin Versa Change
+  EvpnServiceType ::= TEXTUAL-CONVENTION
+    STATUS      current
+    DESCRIPTION "Service type"
+    SYNTAX      INTEGER {
+                  vlanAwareBundle(1),
+                  vlanBased(2)
+                }
+-- End Versa Change
+
+
+-------------------------------------------------------------------------------
+
+--
+-- DC-EVPN Entity Table.
+--
+-- This is the top-level table for DC-EVPN.  It controls creation
+-- and global configuration of DC-EVPN.
+--
+
+  evpnEntTable OBJECT-TYPE
+    SYNTAX      SEQUENCE OF EvpnEntEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "This is the top-level table for DC-EVPN.  It controls creation
+                 and global configuration of DC-EVPN."
+    ::= { evpnObjects 1 }
+
+  evpnEntEntry OBJECT-TYPE
+    SYNTAX      EvpnEntEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "Each entry represents a DC-EVPN entity."
+    INDEX { evpnEntEntityIndex }
+    ::= { evpnEntTable 1 }
+
+  EvpnEntEntry ::= SEQUENCE {
+      evpnEntEntityIndex             Unsigned32,
+      evpnEntRowStatus               RowStatus,
+      evpnEntAdminStatus             AdminStatus,
+      evpnEntOperStatus              BaseOperStatus,
+      evpnEntNbasePriority           Integer32,
+      evpnEntTimerGranularity        Integer32,
+      evpnEntRestartDuration         TimeTicks,
+      evpnEntRescheduleLimit         Integer32,
+      evpnEntLdbiBufferPoolSize      Integer32,
+      evpnEntRpiBufferPoolSize       Integer32,
+      evpnEntBdpiBufferPoolSize      Integer32,
+      evpnEntMaiBufferPoolSize       Integer32,
+      evpnEntRetryInterval           TimeTicks,
+      evpnEntMacMoveLimit            Integer32,
+      evpnEntMacMoveDuration         Integer32,
+      evpnEntTpiBufferPoolSize       Integer32,
+      evpnEntLocalRouterAddressType  InetAddressType,
+      evpnEntLocalRouterAddress      InetAddress,
+      evpnEntMacWithdrawDelay        Integer32,
+      evpnEntLabelAllocType          EvpnLabelAllocType,
+      evpnEntPriBufferPoolSize       Integer32,
+      evpnEntUseHal                  TruthValue,
+      evpnEntAfmBufferPoolSize       Integer32,
+      evpnEntBdiiBufferPoolSize      Integer32,
+      evpnEntPartialRt               TruthValue,
+-- Begin Versa change
+      evpnEntTenantId                Unsigned32,
+      evpnEntRtiName                 OCTET STRING,
+      evpnEntEnableAlarms            TruthValue,
+      evpnEntVxlanAddrType           InetAddressType,
+      evpnEntVxlanAddr               InetAddress
+ -- End Versa change
+    }
+
+  evpnEntEntityIndex OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "Identifies a DC-EVPN entity."
+    ::= { evpnEntEntry 1 }
+
+  evpnEntRowStatus OBJECT-TYPE
+    SYNTAX      RowStatus
+    MAX-ACCESS  read-create
+    STATUS      current
+    DESCRIPTION "The row status for this DC-EVPN Entity Table entry,
+                 used to create and destroy table entries."
+    ::= { evpnEntEntry 2 }
+
+  evpnEntAdminStatus OBJECT-TYPE
+    SYNTAX      AdminStatus
+    MAX-ACCESS  read-create
+    STATUS      current
+    DESCRIPTION "The administrative status of this DC-EVPN entity,
+                 used to activate and deactivate DC-EVPN."
+    DEFVAL      { adminStatusUp }
+    ::= { evpnEntEntry 3 }
+
+  evpnEntOperStatus OBJECT-TYPE
+    SYNTAX      BaseOperStatus
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "The current operational status of this DC-EVPN entity."
+    ::= { evpnEntEntry 4 }
+
+  evpnEntNbasePriority OBJECT-TYPE
+    SYNTAX      Integer32 (0..255)
+    MAX-ACCESS  read-create
+    STATUS      current
+    DESCRIPTION "N-BASE priority for this DC-EVPN Manager entity.
+
+                 When multiple N-BASE processes have IPSs queued, then the
+                 supplied N-BASE scheduler prioritizes them according to
+                 the N-BASE priority of the processes involved.  Processes
+                 with higher priority values will be scheduled earlier.
+
+                 This field is not suitable for network administrators."
+    DEFVAL      { 64 }
+    ::= { evpnEntEntry 5 }
+
+  evpnEntTimerGranularity OBJECT-TYPE
+    SYNTAX      Integer32 (1..1000)
+    MAX-ACCESS  read-create
+    STATUS      current
+    DESCRIPTION "Clustered timer granularity for this DC-EVPN Manager
+                 entity.
+
+                 Increasing this value reduces the accuracy of clustered
+                 timers, but might reduce the number of OS timer calls,
+                 improving performance.
+
+                 This field is not suitable for network administrators.
+                 This field cannot be changed after initial creation of the
+                 entity.  Instead of changing this field, create a new
+                 DC-EVPN Manager entity with the new value and destroy the
+                 old entity."
+    DEFVAL { 10 }
+    ::= { evpnEntEntry 6 }
+
+  evpnEntRestartDuration OBJECT-TYPE
+    SYNTAX      TimeTicks
+    MAX-ACCESS  read-create
+    STATUS      current
+    DESCRIPTION "The length of the audit period for the BDPI join after the
+                 entity activates.
+
+                 After a restart, bridge domain information is kept
+                 programmed until the end of the audit period.  Increasing
+                 this value may improve the chance of not deprogramming and
+                 later reprogramming bridge domain state, at the cost of
+                 increasing the amount of time bridge domains and
+                 interfaces that are no longer needed after the restart
+                 remain programmed.
+
+                 This field is not suitable for network administrators.
+                 This field cannot be changed after initial creation of the
+                 entity.  Instead of changing this field, create a new
+                 DC-EVPN Manager entity with the new value and destroy the
+                 old entity."
+    DEFVAL      { 18000 }
+    ::= { evpnEntEntry 7 }
+
+  evpnEntRescheduleLimit OBJECT-TYPE
+    SYNTAX      Integer32 (1..2147483647)
+    MAX-ACCESS  read-create
+    STATUS      current
+    DESCRIPTION "The maximum number of different objects that can be
+                 processed in a single schedule.
+
+                 When subcomponents are scheduled by receipt of an IPS or a
+                 timer pop, that IPS can cause more work than can be
+                 performed in a reasonable time without blocking the
+                 N-BASE.  Subcomponents handle this by breaking off
+                 processing when they hit a processing limit.
+
+                 Higher values increase the processing efficiency of
+                 DC-EVPN Manager instances, but can cause the scheduler to
+                 be blocked for excessive periods, causing timers to pop
+                 late.  Lower values have the reverse effects.
+
+                 This field is not suitable for network administrators."
+  --  DEFVAL      { 1000 }  versa changes
+    DEFVAL      { 50 }
+    ::= { evpnEntEntry 8 }
+
+  evpnEntLdbiBufferPoolSize OBJECT-TYPE
+    SYNTAX      Integer32 (1..200)
+    MAX-ACCESS  read-create
+    STATUS      current
+    DESCRIPTION "The size of the LDBI buffer pool.
+
+                 This determines the maximum number of buffers that can
+                 exist at once for the LDBI pool.  DC-EVPN Manager does
+                 not use pre-allocated pools, so the maximum number of
+                 buffers is also limited by memory availability, and so
+                 this number does not relate directly to memory usage.
+
+                 Buffer pools provide flow control, which is useful in
+                 ensuring efficient operation of the overall system.
+
+                 This field is not suitable for network administrators.
+                 This field cannot be changed after initial creation of the
+                 entity.  Instead of changing this field, create a new
+                 DC-EVPN Manager entity with the new value and destroy the
+                 old entity."
+    DEFVAL      { 10 }
+    ::= { evpnEntEntry 9 }
+
+  evpnEntRpiBufferPoolSize OBJECT-TYPE
+    SYNTAX      Integer32 (1..200)
+    MAX-ACCESS  read-create
+    STATUS      current
+    DESCRIPTION "The size of the RPI buffer pool.
+
+                 This determines the maximum number of buffers that can
+                 exist at once for the RPI pool.  DC-EVPN Manager does not
+                 use pre-allocated pools, so the maximum number of buffers
+                 is also limited by memory availability, and so this number
+                 does not relate directly to memory usage.
+
+                 Buffer pools provide flow control, which is useful in
+                 ensuring efficient operation of the overall system.
+
+                 This field is not suitable for network administrators.
+                 This field cannot be changed after initial creation of the
+                 entity.  Instead of changing this field, create a new
+                 DC-EVPN Manager entity with the new value and destroy the
+                 old entity."
+    DEFVAL      { 10 }
+    ::= { evpnEntEntry 10 }
+
+  evpnEntBdpiBufferPoolSize OBJECT-TYPE
+    SYNTAX      Integer32 (1..200)
+    MAX-ACCESS  read-create
+    STATUS      current
+    DESCRIPTION "The size of the BDPI buffer pool.
+
+                 This determines the maximum number of buffers that can
+                 exist at once for the BDPI pool.  DC-EVPN Manager does
+                 not use pre-allocated pools, so the maximum number of
+                 buffers is also limited by memory availability, and so
+                 this number does not relate directly to memory usage.
+
+                 Buffer pools provide flow control, which is useful in
+                 ensuring efficient operation of the overall system.
+
+                 This field is not suitable for network administrators.
+                 This field cannot be changed after initial creation of the
+                 entity.  Instead of changing this field, create a new
+                 DC-EVPN Manager entity with the new value and destroy the
+                 old entity."
+    DEFVAL      { 10 }
+    ::= { evpnEntEntry 11 }
+
+  evpnEntMaiBufferPoolSize OBJECT-TYPE
+    SYNTAX      Integer32 (1..200)
+    MAX-ACCESS  read-create
+    STATUS      current
+    DESCRIPTION "The size of the MAI buffer pool.
+
+                 This determines the maximum number of buffers that can
+                 exist at once for the MAI pool.  DC-EVPN Manager does
+                 not use pre-allocated pools, so the maximum number of
+                 buffers is also limited by memory availability, and so
+                 this number does not relate directly to memory usage.
+
+                 Buffer pools provide flow control, which is useful in
+                 ensuring efficient operation of the overall system.
+
+                 This field is not suitable for network administrators.
+                 This field cannot be changed after initial creation of the
+                 entity.  Instead of changing this field, create a new
+                 DC-EVPN Manager entity with the new value and destroy the
+                 old entity."
+    DEFVAL      { 10 }
+    ::= { evpnEntEntry 12 }
+
+  evpnEntRetryInterval OBJECT-TYPE
+    SYNTAX      TimeTicks
+    MAX-ACCESS  read-create
+    STATUS      current
+    DESCRIPTION "The retry interval for resource failures that are retried
+                 on a timer.
+
+                 This field is not suitable for network administrators.
+                 This field cannot be changed after initial creation of the
+                 entity.  Instead of changing this field, create a new
+                 DC-EVPN Manager entity with the new value and destroy the
+                 old entity."
+    DEFVAL      { 1000 }
+    ::= { evpnEntEntry 13 }
+
+  evpnEntMacMoveLimit OBJECT-TYPE
+    SYNTAX      Integer32 (2..10)
+    MAX-ACCESS  read-create
+    STATUS      current
+    DESCRIPTION "The limit on the number of MAC mobility events for a given
+                 MAC address before a duplicate MAC error is detected.
+
+                 When DC-EVPN Manager detects a MAC mobility event via
+                 local learning (that is, it learns of a local MAC address
+                 that was previously advertised by a remote device), it
+                 starts a timer with duration evpnEntMacMoveDuration.  If
+                 it detects evpnEntMacMoveLimit further moves while this
+                 timer is running, it alerts the user to the duplicate MAC
+                 error via an evpnMacError notification, and stops sending
+                 and processing BGP MAC/IP Advertisement routes for the MAC
+                 address."
+  --  DEFVAL      { 5 }  Using  L2ld mac move mechanism
+    ::= { evpnEntEntry 14 }
+
+  evpnEntMacMoveDuration OBJECT-TYPE
+    SYNTAX      Integer32 (1..1000)
+    UNITS       "seconds"
+    MAX-ACCESS  read-create
+    STATUS      current
+    DESCRIPTION "The duration of the timer to start when a MAC mobility
+                 event is detected via local learning.  See
+                 evpnEntMacMoveLimit for a description of how this timer is
+                 used."
+    DEFVAL      { 180 }
+    ::= { evpnEntEntry 15 }
+
+  evpnEntTpiBufferPoolSize OBJECT-TYPE
+    SYNTAX      Integer32 (1..200)
+    MAX-ACCESS  read-create
+    STATUS      current
+    DESCRIPTION "The size of the TPI buffer pool.
+
+                 This determines the maximum number of buffers that can
+                 exist at once for the TPI pool.  DC-EVPN Manager does
+                 not use pre-allocated pools, so the maximum number of
+                 buffers is also limited by memory availability, and so
+                 this number does not relate directly to memory usage.
+
+                 Buffer pools provide flow control, which is useful in
+                 ensuring efficient operation of the overall system.
+
+                 This field is not suitable for network administrators.
+                 This field cannot be changed after initial creation of the
+                 entity.  Instead of changing this field, create a new
+                 DC-EVPN Manager entity with the new value and destroy the
+                 old entity."
+    DEFVAL      { 10 }
+    ::= { evpnEntEntry 16 }
+
+  evpnEntLocalRouterAddressType OBJECT-TYPE
+    SYNTAX        InetAddressType
+    MAX-ACCESS    read-create
+    STATUS        current
+    DESCRIPTION "The type of the local router address to advertise in EVPN
+                 routes, or 'unknown' if there is no associated IP address."
+   ::= { evpnEntEntry 17 }
+
+  evpnEntLocalRouterAddress OBJECT-TYPE
+    SYNTAX        InetAddress (SIZE(0|4|16))
+    MAX-ACCESS    read-create
+    STATUS        current
+    DESCRIPTION "The local router address that is used as the BGP next hop
+                 address for routes, and as the originating router address
+                 in the NLRI of inclusive multicast EVPN routes.
+
+                 If no local router address is configured, the BGP router
+                 ID is used."
+   ::= { evpnEntEntry 18 }
+
+  evpnEntMacWithdrawDelay OBJECT-TYPE
+    SYNTAX      Integer32 (1..1000)
+    UNITS       "seconds"
+    MAX-ACCESS  read-create
+    STATUS      current
+    DESCRIPTION "The time between DC-EVPN receiving a withdrawal for a MAC
+                 and deleting the dataplane programming for that MAC
+                 address.
+
+                 This allows DC-EVPN to maintain connectivity to an
+                 Ethernet segment for a period of time until another PE on
+                 the Ethernet segment advertises a route for that MAC
+                 address."
+    DEFVAL      { 3 }
+    ::= { evpnEntEntry 19 }
+
+  evpnEntLabelAllocType OBJECT-TYPE
+    SYNTAX      EvpnLabelAllocType
+    MAX-ACCESS  read-create
+    STATUS      current
+    DESCRIPTION "The type of label allocation to use for EVPN/MPLS.
+
+                 Note that the value used typically depends on data plane
+                 support, so this field is expected to be determined as
+                 part of integration and not exposed to the end-user.
+
+                 Changing the value will cause EVPN to deactivate and
+                 re-activate."
+    DEFVAL      { perFdb }
+    ::= { evpnEntEntry 20 }
+
+  evpnEntPriBufferPoolSize OBJECT-TYPE
+    SYNTAX      Integer32 (1..200)
+    MAX-ACCESS  read-create
+    STATUS      current
+    DESCRIPTION "The size of the PRI buffer pool.
+
+                 This determines the maximum number of buffers that can
+                 exist at once for the PRI pool.  DC-EVPN Manager does
+                 not use pre-allocated pools, so the maximum number of
+                 buffers is also limited by memory availability, and so
+                 this number does not relate directly to memory usage.
+
+                 Buffer pools provide flow control, which is useful in
+                 ensuring efficient operation of the overall system.
+
+                 This field is not suitable for network administrators.
+                 This field cannot be changed after initial creation of the
+                 entity.  Instead of changing this field, create a new
+                 DC-EVPN Manager entity with the new value and destroy the
+                 old entity."
+    DEFVAL      { 10 }
+    ::= { evpnEntEntry 21 }
+
+  evpnEntUseHal OBJECT-TYPE
+    SYNTAX      TruthValue
+    MAX-ACCESS  read-create
+    STATUS      current
+    DESCRIPTION "Indicates whether DC-EVPN is being used in a system
+                 integrated with DC-PSM and other HAL components.
+
+                 When set to 'true', DC-EVPN will use the PRI join instead
+                 of the LSI join for programming remote labels.
+
+                 Note that the value of this field must be determined as
+                 part of the integration of DC-EVPN and must not be exposed
+                 to end users."
+    DEFVAL      { false }
+    ::= { evpnEntEntry 22 }
+
+  evpnEntAfmBufferPoolSize OBJECT-TYPE
+    SYNTAX      Integer32 (1..200)
+    MAX-ACCESS  read-create
+    STATUS      current
+    DESCRIPTION "The size of the AFM buffer pool.
+
+                 This determines the maximum number of buffers that can
+                 exist at once for the AFM pool.  DC-EVPN Manager does
+                 not use pre-allocated pools, so the maximum number of
+                 buffers is also limited by memory availability, and so
+                 this number does not relate directly to memory usage.
+
+                 Buffer pools provide flow control, which is useful in
+                 ensuring efficient operation of the overall system.
+
+                 This field is not suitable for network administrators.
+                 This field cannot be changed after initial creation of the
+                 entity.  Instead of changing this field, create a new
+                 DC-EVPN Manager entity with the new value and destroy the
+                 old entity."
+    DEFVAL      { 10 }
+    ::= { evpnEntEntry 23 }
+
+  evpnEntBdiiBufferPoolSize OBJECT-TYPE
+    SYNTAX      Integer32 (1..200)
+    MAX-ACCESS  read-create
+    STATUS      current
+    DESCRIPTION "The size of the BDII buffer pool.
+
+                 This determines the maximum number of buffers that can
+                 exist at once for the BDII pool.  DC-EVPN Manager does
+                 not use pre-allocated pools, so the maximum number of
+                 buffers is also limited by memory availability, and so
+                 this number does not relate directly to memory usage.
+
+                 Buffer pools provide flow control, which is useful in
+                 ensuring efficient operation of the overall system.
+
+                 This field is not suitable for network administrators.
+                 This field cannot be changed after initial creation of the
+                 entity.  Instead of changing this field, create a new
+                 DC-EVPN Manager entity with the new value and destroy the
+                 old entity."
+    DEFVAL      { 10 }
+    ::= { evpnEntEntry 24 }
+
+  evpnEntPartialRt OBJECT-TYPE
+    SYNTAX      TruthValue
+    MAX-ACCESS  read-create
+    STATUS      current
+    DESCRIPTION "Indicates whether EVPN will allow partial route target
+                 matching against auto-derived route targets.
+                 Enabling this allows auto-derived route targets to be used
+                 in EBGP topologies."
+    DEFVAL      { false }
+    ::= { evpnEntEntry 25 }
+
+-- Begin Versa Change
+
+  evpnEntTenantId OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  read-write
+    STATUS      current
+    DESCRIPTION "This value describes org id."
+    ::= { evpnEntEntry 26 }
+
+  evpnEntRtiName OBJECT-TYPE
+    SYNTAX      OCTET STRING (SIZE (0..128))
+    MAX-ACCESS  read-create
+    STATUS      current
+    DESCRIPTION "This value describes routing instance name. This value
+                 is passed, while configuring the routing instance."
+    ::= { evpnEntEntry 27 }
+
+  evpnEntEnableAlarms OBJECT-TYPE
+    SYNTAX      TruthValue
+    MAX-ACCESS  read-write
+    STATUS      current
+    DESCRIPTION "This field is used to enable alarms."
+    DEFVAL       { false }
+    ::= { evpnEntEntry 28 }
+
+  evpnEntVxlanAddrType OBJECT-TYPE
+    SYNTAX        InetAddressType
+    MAX-ACCESS    read-create
+    STATUS        current
+    DESCRIPTION
+        "The address type of the evpnEntVxlanAddr.
+
+         This field can only be changed when the Admin Status is
+         down."
+-- Versa removed default
+    ::= { evpnEntEntry 29 }
+
+  evpnEntVxlanAddr   OBJECT-TYPE
+    SYNTAX        InetAddress
+    MAX-ACCESS    read-create
+    STATUS        current
+    DESCRIPTION
+        "The TVI P2MP  Router Address that is used for creating,
+         ptvi dynamic tunnel interface.
+         This address must be either of type IPv4 or IPv6, as
+         specified by the evpnVxlanAddrType.  It is
+         used as the BGP next hop address for routes, and must
+         therefore be an address which is reachable in the provider
+         network.  This field can only be changed when the Admin
+         Status is down."
+    ::= { evpnEntEntry 30 }
+
+-- End Versa Change
+-------------------------------------------------------------------------------
+
+--
+-- DC-EVPN Master Join Table.
+--
+-- This table controls which entities DC-EVPN should join to as
+-- master.  Each join is represented by a row in this table.  The status of
+-- each join is represented by a read-only object within each row.
+--
+
+  evpnMjTable OBJECT-TYPE
+    SYNTAX      SEQUENCE OF EvpnMjEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "This table controls which entities DC-EVPN should
+                 join to as master.  Each join is represented by a row
+                 in this table.  The status of each join is represented
+                 by a read-only object within each row."
+    ::= { evpnObjects 2 }
+
+  evpnMjEntry OBJECT-TYPE
+    SYNTAX      EvpnMjEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "Represents a join for which DC-EVPN is master."
+    INDEX { evpnEntEntityIndex,
+            evpnMjInterfaceId,
+            evpnMjPartnerType,
+            evpnMjPartnerIndex,
+            evpnMjSubIndex }
+    ::= { evpnMjTable 1 }
+
+  EvpnMjEntry ::= SEQUENCE {
+      evpnMjInterfaceId              EvpnMjIfId,
+      evpnMjPartnerType              Unsigned32,
+      evpnMjPartnerIndex             Unsigned32,
+      evpnMjSubIndex                 Unsigned32,
+      evpnMjRowStatus                RowStatus,
+      evpnMjAdminStatus              AdminStatus,
+      evpnMjOperStatus               OperStatus,
+      evpnMjJoinStatus               MjStatus
+    }
+
+  evpnMjInterfaceId OBJECT-TYPE
+    SYNTAX      EvpnMjIfId
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "Identifies the interface required of this master join."
+    ::= { evpnMjEntry 2 }
+
+  evpnMjPartnerType OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "Identifies the type of slave entity to join to.  This
+                 can be used to distinguish between different entity types
+                 both of who can provide the same interface."
+    ::= { evpnMjEntry 3 }
+
+  evpnMjPartnerIndex OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "Identifies the specific slave entity to join with."
+    ::= { evpnMjEntry 4 }
+
+  evpnMjSubIndex OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "Additional indexing information for the join.
+
+                 For RPI joins to DC-RTM, this is set to the IP address
+                 family to be used on the join (AMB_INETWK_ADDR_TYPE_IPV4
+                 or AMB_INETWK_ADDR_TYPE_IPV6).
+
+                 For other joins, this field must be set to 0."
+    ::= { evpnMjEntry 5 }
+
+  evpnMjRowStatus OBJECT-TYPE
+    SYNTAX      RowStatus
+    MAX-ACCESS  read-create
+    STATUS      current
+    DESCRIPTION "The row status for this DC-EVPN Master Join Table
+                 entry, used to create and destroy table entries."
+    ::= { evpnMjEntry 6 }
+
+  evpnMjAdminStatus OBJECT-TYPE
+    SYNTAX      AdminStatus
+    MAX-ACCESS  read-create
+    STATUS      current
+    DESCRIPTION "The administrative status of this master join, used
+                 to start and stop the join."
+    DEFVAL      { adminStatusUp }
+    ::= { evpnMjEntry 7 }
+
+  evpnMjOperStatus OBJECT-TYPE
+    SYNTAX      OperStatus
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "The current operational status of this master join."
+    ::= { evpnMjEntry 8 }
+
+  evpnMjJoinStatus OBJECT-TYPE
+    SYNTAX      MjStatus
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "The status of the master join."
+    ::= { evpnMjEntry 9 }
+
+-------------------------------------------------------------------------------
+
+--
+-- DC-EVPN Slave Join Table.
+--
+-- This is a read-only table.  It contains information on joins for which
+-- a DC-EVPN entity is acting as slave.  Each row in this table
+-- represents one slave join in a particular DC-EVPN entity.
+--
+
+  evpnSjTable OBJECT-TYPE
+    SYNTAX      SEQUENCE OF EvpnSjEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "Read-only table containing information on joins for which
+                 DC-EVPN entities are acting as slaves.  Each row in
+                 this table represents one slave join in a particular
+                 DC-EVPN entity."
+    ::= { evpnObjects 3 }
+
+  evpnSjEntry OBJECT-TYPE
+    SYNTAX      EvpnSjEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "Represents a join for which DC-EVPN is slave."
+    INDEX { evpnEntEntityIndex,
+            evpnSjInterfaceId,
+            evpnSjPartnerType,
+            evpnSjPartnerIndex,
+            evpnSjSubIndex }
+    ::= { evpnSjTable 1 }
+
+  EvpnSjEntry ::= SEQUENCE {
+      evpnSjInterfaceId              EvpnSjIfId,
+      evpnSjPartnerType              Unsigned32,
+      evpnSjPartnerIndex             Unsigned32,
+      evpnSjSubIndex                 Unsigned32,
+      evpnSjJoinStatus               SjStatus
+    }
+
+  evpnSjInterfaceId OBJECT-TYPE
+    SYNTAX      EvpnSjIfId
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "Identifies the interface provided by this slave join."
+    ::= { evpnSjEntry 2 }
+
+  evpnSjPartnerType OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "Identifies the type of master entity joined to."
+    ::= { evpnSjEntry 3 }
+
+  evpnSjPartnerIndex OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "Identifies the specific master entity joined to."
+    ::= { evpnSjEntry 4 }
+
+  evpnSjSubIndex OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "Permits multiple joins between the same pair of
+                 entities."
+    ::= { evpnSjEntry 5 }
+
+  evpnSjJoinStatus OBJECT-TYPE
+    SYNTAX      SjStatus
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "The status of the slave join."
+    ::= { evpnSjEntry 6 }
+
+-------------------------------------------------------------------------------
+
+--
+-- evpnEviTable
+--
+-- Read-create table for configuring Ethernet VPN Instances (EVIs).
+--
+
+  evpnEviTable OBJECT-TYPE
+    SYNTAX      SEQUENCE OF EvpnEviEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "Read-create table configuring EVPN instances."
+    ::= { evpnObjects 4 }
+
+  evpnEviEntry OBJECT-TYPE
+    SYNTAX      EvpnEviEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "Entry in the table of EVPN instances."
+    INDEX { evpnEntEntityIndex,
+            evpnEviIndex }
+      ::= { evpnEviTable 1 }
+
+  EvpnEviEntry ::= SEQUENCE {
+      evpnEviIndex                   EvpnIndex,
+      evpnEviRowStatus               RowStatus,
+      evpnEviAdminStatus             AdminStatus,
+      evpnEviOperStatus              BaseOperStatus,
+      evpnEviOperReason              EvpnOperReason,
+      evpnEviRdCfgOrAuto             EvpnCfgOrAuto,
+      evpnEviCfgRd                   EvpnRouteDistinguisher,
+      evpnEviRd                      EvpnRouteDistinguisher,
+      evpnEviRtCfgOrAuto             EvpnCfgOrAuto,
+      evpnEviAutoRt                  EvpnRouteTarget,
+      evpnEviEncapsulation           EvpnEncapsulation,
+      evpnEviLocalRouterAddressType  InetAddressType,
+      evpnEviLocalRouterAddress      InetAddress,
+      evpnEviAutoRtType              EvpnRtUsageTc,
+-- Begin Versa change
+      evpnEviServiceType             EvpnServiceType
+ -- End Versa change
+    }
+
+  evpnEviIndex OBJECT-TYPE
+    SYNTAX      EvpnIndex
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "Index identifying the EVPN instance."
+    ::= { evpnEviEntry 2 }
+
+  evpnEviRowStatus OBJECT-TYPE
+    SYNTAX      RowStatus
+    MAX-ACCESS  read-create
+    STATUS      current
+    DESCRIPTION "Row status.  Used to create and delete the configuration
+                 for this EVPN instance."
+    ::= { evpnEviEntry 3 }
+
+  evpnEviAdminStatus OBJECT-TYPE
+    SYNTAX      AdminStatus
+    MAX-ACCESS  read-create
+    STATUS      current
+    DESCRIPTION "The desired status of the EVPN instance.
+
+                 Used to enable or disable the EVPN instance."
+    DEFVAL { adminStatusUp }
+    ::= { evpnEviEntry 4 }
+
+  evpnEviOperStatus OBJECT-TYPE
+    SYNTAX      BaseOperStatus
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Operational status of the EVPN instance."
+    ::= { evpnEviEntry 5 }
+
+  evpnEviOperReason OBJECT-TYPE
+    SYNTAX      EvpnOperReason
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "The reason for the EVPN instance to be in its current oper
+                 status, if the instance is not active or activating."
+    ::= { evpnEviEntry 6 }
+
+  evpnEviRdCfgOrAuto OBJECT-TYPE
+    SYNTAX      EvpnCfgOrAuto
+    MAX-ACCESS  read-create
+    STATUS      current
+    DESCRIPTION "Specifies whether this EVPN instance uses a configured
+                 or auto-derived route distiguisher."
+    DEFVAL { none }
+    ::= { evpnEviEntry 7 }
+
+  evpnEviCfgRd OBJECT-TYPE
+    SYNTAX      EvpnRouteDistinguisher
+    MAX-ACCESS  read-create
+    STATUS      current
+    DESCRIPTION "Specifies the configured route distinguisher for the
+                 EVPN instance.  This is only used if evpnEviRdCfgOrAuto
+                 is set to 'configured'."
+    DEFVAL      { '0000000000000000'H }
+    ::= { evpnEviEntry 8 }
+
+  evpnEviRd OBJECT-TYPE
+    SYNTAX      EvpnRouteDistinguisher
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "The route distinguisher in use for this EVPN instance.
+
+                 This is set as follows.
+
+                 -  Set to the value of evpnEviCfgRd if
+                    evpnEviRdCfgOrAuto is 'configured'.
+
+                 -  Automatically derived if evpnEviRdCfgOrAuto is 'auto'
+                    and EVPN has the information required to derive the
+                    value.
+
+                 -  Set to all zeros otherwise."
+    ::= { evpnEviEntry 9 }
+
+  evpnEviRtCfgOrAuto OBJECT-TYPE
+    SYNTAX      EvpnCfgOrAuto
+    MAX-ACCESS  read-create
+    STATUS      current
+    DESCRIPTION "Specifies whether this EVPN instance uses configured
+                 or auto-derived route targets.
+
+                 Currently, only auto-derived route targets are supported,
+                 so the value must be set to 'auto'."
+    DEFVAL { auto }
+    ::= { evpnEviEntry 10 }
+
+  evpnEviAutoRt OBJECT-TYPE
+    SYNTAX      EvpnRouteTarget
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "The auto-derived route target for this EVPN instance.
+
+                 Set to all zeros if EVPN does not have the information
+                 required to derive the value."
+    ::= { evpnEviEntry 11 }
+
+  evpnEviEncapsulation OBJECT-TYPE
+    SYNTAX      EvpnEncapsulation
+    MAX-ACCESS  read-create
+    STATUS      current
+    DESCRIPTION "Specifies the encapsulation type supported by the
+                 EVPN instance."
+    DEFVAL      { mpls }
+    ::= { evpnEviEntry 12 }
+
+  evpnEviLocalRouterAddressType OBJECT-TYPE
+    SYNTAX        InetAddressType
+    MAX-ACCESS    read-create
+    STATUS        current
+    DESCRIPTION "The type of the local router address to advertise in EVPN
+                 routes for this EVPN instance, or 'unknown' if there is no
+                 associated IP address."
+   ::= { evpnEviEntry 13 }
+
+  evpnEviLocalRouterAddress OBJECT-TYPE
+    SYNTAX        InetAddress (SIZE(0|4|16))
+    MAX-ACCESS    read-create
+    STATUS        current
+    DESCRIPTION "The local router address that is used as the BGP next hop
+                 address for routes, and as the originating router address
+                 in the NLRI of inclusive multicast EVPN routes.
+
+                 If no local router address is configured, the BGP router
+                 ID is used."
+   ::= { evpnEviEntry 14 }
+
+  evpnEviAutoRtType OBJECT-TYPE
+    SYNTAX        EvpnRtUsageTc
+    MAX-ACCESS    read-create
+    STATUS        current
+    DESCRIPTION "Specifies the type of the auto-derived route target for
+                 this EVPN instance.
+
+                 If you do not wish to use auto-derived route targets, set
+                 this field to 'none'."
+    DEFVAL { importExport }
+    ::= { evpnEviEntry 15 }
+
+-- Begin Versa Change
+  evpnEviServiceType OBJECT-TYPE
+    SYNTAX        EvpnServiceType
+    MAX-ACCESS    read-create
+    STATUS        current
+    DESCRIPTION "Specifies the service type of EVI"
+    DEFVAL { vlanAwareBundle }
+    ::= { evpnEviEntry 16 }
+-- End Versa Change
+
+-------------------------------------------------------------------------------
+
+--
+-- evpnBdTable
+--
+-- Read-create table providing static configuration of an EVPN bridge domain.
+--
+-- This table is only used for EVPN instances that are not VLAN-aware - in
+-- other words, for EVPN instances that correspond to a single bridge domain.
+--
+
+  evpnBdTable OBJECT-TYPE
+    SYNTAX      SEQUENCE OF EvpnBdEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "Read-create table providing configuration of an EVPN
+                 bridge domain."
+    ::= { evpnObjects 5 }
+
+  evpnBdEntry OBJECT-TYPE
+    SYNTAX      EvpnBdEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "Entry in the table of EVPN bridge domains."
+    INDEX { evpnEntEntityIndex,
+            evpnBdIndex }
+      ::= { evpnBdTable 1 }
+
+  EvpnBdEntry ::= SEQUENCE {
+      evpnBdIndex                    Unsigned32,
+      evpnBdRowStatus                RowStatus,
+      evpnBdAdminStatus              AdminStatus,
+      evpnBdOperStatus               BaseOperStatus,
+      evpnBdOperReason               EvpnOperReason,
+      evpnBdMacLearning              TruthValue,
+      evpnBdMacAddrLimit             Unsigned32,
+      evpnBdMacAgingTime             Unsigned32,
+      evpnBdVni                      EvpnVniOrZero,
+      evpnBdMcastMode                EvpnLocalMcastMode,
+      evpnBdMcastGpAddressType       InetAddressType,
+      evpnBdMcastGpAddress           InetAddress,
+-- Begin Versa change
+      evpnBdEviIndex                 Unsigned32,
+      evpnBdVlanId                   Unsigned32
+-- End Versa change
+    }
+
+-- Begin Versa change
+  evpnBdIndex OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "Index identifying the BD."
+    ::= { evpnBdEntry 2 }
+-- End Versa change
+
+  evpnBdRowStatus OBJECT-TYPE
+    SYNTAX      RowStatus
+    MAX-ACCESS  read-create
+    STATUS      current
+    DESCRIPTION "Row status.  Used to create and delete the configuration for
+                 this bridge domain."
+    ::= { evpnBdEntry 3 }
+
+  evpnBdAdminStatus OBJECT-TYPE
+    SYNTAX      AdminStatus
+    MAX-ACCESS  read-create
+    STATUS      current
+    DESCRIPTION "The desired status of the bridge domain.
+
+                 Used to enable or disable the bridge domain."
+    DEFVAL { adminStatusUp }
+    ::= { evpnBdEntry 4 }
+
+  evpnBdOperStatus OBJECT-TYPE
+    SYNTAX      BaseOperStatus
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Operational status of the bridge domain."
+    ::= { evpnBdEntry 5 }
+
+  evpnBdOperReason OBJECT-TYPE
+    SYNTAX      EvpnOperReason
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "The reason for the bridge domain to be in its current oper
+                 status, if it is not active or activating."
+    ::= { evpnBdEntry 6 }
+
+  evpnBdMacLearning OBJECT-TYPE
+    SYNTAX      TruthValue
+    MAX-ACCESS  read-create
+    STATUS      current
+    DESCRIPTION "This object specifies if MAC Learning is enabled for
+                 this bridge domain. If this object is true then MAC
+                 learning is enabled.  If false, then MAC learning is
+                 disabled.
+
+                 Note that MAC learning is only performed on traffic
+                 received on the attachment circuits."
+    DEFVAL { true }
+    ::= { evpnBdEntry 7 }
+
+  evpnBdMacAddrLimit OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  read-create
+    STATUS      current
+    DESCRIPTION "The maximum number of learned entries allowed in
+                 the bridge domain's FDB.  A value of zero means no maximum."
+    DEFVAL { 0 }
+    ::= { evpnBdEntry 8 }
+
+  evpnBdMacAgingTime OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  read-create
+    STATUS      current
+    DESCRIPTION "The MAC aging time to use for this bridge domain, in
+                 seconds. This field is only significant if mac-learning is
+                 enabled. A value of 0 means that MAC aging is disabled in
+                 this bridge domain."
+    DEFVAL { 0 }
+    ::= { evpnBdEntry 9 }
+
+  evpnBdVni OBJECT-TYPE
+    SYNTAX      EvpnVniOrZero
+    MAX-ACCESS  read-create
+    STATUS      current
+    DESCRIPTION "The VXLAN Network Identifier for the Bridge Domain.
+
+                 This must be non-zero for bridge domains associated
+                 with an EVI using VXLAN encapsulation."
+    DEFVAL { 0 }
+    ::= { evpnBdEntry 10 }
+
+  evpnBdMcastMode OBJECT-TYPE
+    SYNTAX      EvpnLocalMcastMode
+    MAX-ACCESS  read-create
+    STATUS      current
+    DESCRIPTION "Multicast mode used by this bridge-domain."
+    DEFVAL { ingressReplication }
+    ::= { evpnBdEntry 11 }
+
+  evpnBdMcastGpAddressType OBJECT-TYPE
+    SYNTAX      InetAddressType
+    MAX-ACCESS  read-create
+    STATUS      current
+    DESCRIPTION "The type of IP multicast group address to be used for
+                 BUM traffic for a VXLAN Bridge Domain.  The address is
+                 required if evpnBdMcastMode is 'pimAsm' or 'pimBidir'.
+
+                 Note that the multicast configuration must be consistent
+                 across all routers in the EVI."
+    DEFVAL { unknown }
+    ::= { evpnBdEntry 12 }
+
+  evpnBdMcastGpAddress OBJECT-TYPE
+    SYNTAX      InetAddress (SIZE(0|4|16))
+    MAX-ACCESS  read-create
+    STATUS      current
+    DESCRIPTION "The IP multicast group address to be used for BUM traffic
+                 for a VXLAN Bridge Domain.  The address is required if
+                 evpnBdMcastMode is 'pimAsm' or 'pimBidir'."
+    DEFVAL { ''h }
+    ::= { evpnBdEntry 13 }
+
+-- Begin Versa change
+  evpnBdEviIndex OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "EVI Index corresponding to the BD."
+    ::= { evpnBdEntry 14 }
+
+  evpnBdVlanId OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "VLAN id corresponding to the BD."
+    ::= { evpnBdEntry 15 }
+-- End Versa change
+
+-------------------------------------------------------------------------------
+
+--
+-- evpnIfBindCfgTable
+--
+-- Read-create table for configuring interfaces as attachment circuits
+-- in an EVPN bridge domain.  The bridge domain itself is configured in the
+-- evpnBdTable.
+--
+-- Note that this table is indexed on interface index to ensure that an
+-- interface is only ever configured in a single EVPN.  The read-only
+-- evpnBdIfTable can be used to show the ACs configured for each EVPN instance.
+--
+-- This table is only used for EVPN instances that are not VLAN-aware - in
+-- other words, for EVPN instances that correspond to a single bridge domain.
+--
+
+  evpnIfBindCfgTable OBJECT-TYPE
+    SYNTAX      SEQUENCE OF EvpnIfBindCfgEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "Read-create table for configuring interfaces as attachment
+                 circuits in an EVPN bridge domain.  The bridge domain itself
+                 is configured in the evpnBdTable.
+
+                 Note that this table is indexed on interface index to
+                 ensure that an interface is only ever configured in a single
+                 EVPN.  The read-only evpnBdIfTable can be used to show the
+                 ACs configured for each EVPN instance.
+
+                 This table is only used for EVPN instances that are not
+                 VLAN-aware - in other words, for EVPN instances that
+                 correspond to a single bridge domain."
+    ::= { evpnObjects 6 }
+
+  evpnIfBindCfgEntry OBJECT-TYPE
+    SYNTAX      EvpnIfBindCfgEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "Entry describing an interface in an EVPN bridge domain."
+    INDEX { evpnEntEntityIndex,
+            ifIndex,
+            evpnBdIndex }
+      ::= { evpnIfBindCfgTable 1 }
+
+  EvpnIfBindCfgEntry ::= SEQUENCE {
+      evpnIfBindCfgRowStatus              RowStatus,
+      evpnIfBindCfgAdminStatus            AdminStatus,
+      evpnIfBindCfgOperStatus             BaseOperStatus,
+      evpnIfBindCfgOperReason             EvpnOperReason,
+      evpnIfBindCfgMacLearning            TruthValue,
+      evpnIfBindCfgMacAddrLimit           Unsigned32
+    }
+
+  evpnIfBindCfgRowStatus OBJECT-TYPE
+    SYNTAX      RowStatus
+    MAX-ACCESS  read-create
+    STATUS      current
+    DESCRIPTION "Row status.  Used to create and delete entries in the table."
+    ::= { evpnIfBindCfgEntry 4 }
+
+  evpnIfBindCfgAdminStatus OBJECT-TYPE
+    SYNTAX      AdminStatus
+    MAX-ACCESS  read-create
+    STATUS      current
+    DESCRIPTION "The administrative status of this configuration.
+                 Used to activate and deactivate the programming of this
+                 interface in the specified EVPN bridge domain."
+    DEFVAL      { adminStatusUp }
+    ::= { evpnIfBindCfgEntry 5 }
+
+  evpnIfBindCfgOperStatus OBJECT-TYPE
+    SYNTAX      BaseOperStatus
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "The current operational status of the programming of
+                 the interface in the specified EVPN bridge domain."
+    ::= { evpnIfBindCfgEntry 6 }
+
+  evpnIfBindCfgOperReason OBJECT-TYPE
+    SYNTAX      EvpnOperReason
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "The reason for the programming of the interface in the
+                 specified bridge domain to be in its current oper status,
+                 if it is not active or activating."
+    ::= { evpnIfBindCfgEntry 7 }
+
+  evpnIfBindCfgMacLearning OBJECT-TYPE
+    SYNTAX      TruthValue
+    MAX-ACCESS  read-create
+    STATUS      current
+    DESCRIPTION "This object specifies if MAC Learning is enabled
+                 for this bridge domain member. If this object is true then
+                 MAC learning is enabled. If false, then MAC learning is
+                 disabled."
+    DEFVAL { true }
+    ::= { evpnIfBindCfgEntry 8 }
+
+  evpnIfBindCfgMacAddrLimit OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  read-create
+    STATUS      current
+    DESCRIPTION "The maximum number of learned entries allowed in the
+                 bridge domain's FDB for this interface.  A value of zero
+                 means no maximum."
+    DEFVAL { 0 }
+    ::= { evpnIfBindCfgEntry 9 }
+
+-------------------------------------------------------------------------------
+
+--
+-- evpnBdIfTable
+--
+-- Read-only table listing the interfaces configured as attachment circuits
+-- in EVPN bridge domains.  The interface bindings are configured in the
+-- evpnIfBindCfgTable.
+--
+-- This table is only used for EVPN instances that are not VLAN-aware - in
+-- other words, for EVPN instances that correspond to a single bridge domain.
+--
+
+  evpnBdIfTable OBJECT-TYPE
+    SYNTAX      SEQUENCE OF EvpnBdIfEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "Read-only table listing the interfaces configured as
+                 attachment circuits in EVPN bridge domains."
+    ::= { evpnObjects 7 }
+
+  evpnBdIfEntry OBJECT-TYPE
+    SYNTAX      EvpnBdIfEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "Entry describing an interface in an EVPN bridge domain."
+    INDEX { evpnEntEntityIndex,
+            evpnEviIndex,
+            ifIndex }
+      ::= { evpnBdIfTable 1 }
+
+  EvpnBdIfEntry ::= SEQUENCE {
+      evpnBdIfOperStatus             BaseOperStatus,
+      evpnBdIfOperReason             EvpnOperReason
+    }
+
+  evpnBdIfOperStatus OBJECT-TYPE
+    SYNTAX      BaseOperStatus
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "The current operational status of the programming of
+                 the interface in the specified EVPN bridge domain."
+    ::= { evpnBdIfEntry 4 }
+
+  evpnBdIfOperReason OBJECT-TYPE
+    SYNTAX      EvpnOperReason
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "The reason for the interface to be in its current oper
+                 status, if it is not active or activating."
+    ::= { evpnBdIfEntry 5 }
+
+-------------------------------------------------------------------------------
+
+--
+-- evpnMacIpTable
+--
+-- Read-only table for displaying MAC addresses belonging to EVPN instances.
+-- This includes MAC addresses learned from locally attached customer
+-- sites and MAC addresses received from remote EVPN instances.
+--
+
+  evpnMacIpTable OBJECT-TYPE
+    SYNTAX        SEQUENCE OF EvpnMacIpEntry
+    MAX-ACCESS    not-accessible
+    STATUS        current
+    DESCRIPTION "Read-only table for displaying MAC addresses belonging to
+                 EVPN instances. This includes MAC addresses learned from
+                 locally attached customer sites and MAC addresses received
+                 from remote EVPN instances."
+    ::= { evpnObjects 8 }
+
+  evpnMacIpEntry OBJECT-TYPE
+    SYNTAX        EvpnMacIpEntry
+    MAX-ACCESS    not-accessible
+    STATUS        current
+    DESCRIPTION "A MAC address associated with an EVPN instance."
+    INDEX { evpnEntEntityIndex,
+            evpnEviIndex,
+            evpnMacIpEthernetTagId,
+            evpnMacIpMacAddress,
+            evpnMacIpIpAddressType,
+            evpnMacIpIpAddress,
+            evpnMacIpPathIndex
+            }
+      ::= { evpnMacIpTable 1 }
+
+  EvpnMacIpEntry ::= SEQUENCE {
+      evpnMacIpEthernetTagId         EvpnEthernetTag,
+      evpnMacIpMacAddress            MacAddress,
+      evpnMacIpIpAddressType         InetAddressType,
+      evpnMacIpIpAddress             InetAddress,
+      evpnMacIpPathIndex             NumericIndex,
+      evpnMacIpSource                EvpnSource,
+      evpnMacIpBgpNhAddrType         InetAddressType,
+      evpnMacIpBgpNhAddr             InetAddress,
+      evpnMacIpLocalInterface        InterfaceIndexOrZero,
+      evpnMacIpLabel                 MplsLabel,
+      evpnMacIpInUse                 TruthValue,
+      evpnMacIpEsi                   EvpnESI,
+      evpnMacIpSequenceNum           Unsigned32,
+      evpnMacIpSticky                TruthValue
+    }
+
+  evpnMacIpEthernetTagId OBJECT-TYPE
+    SYNTAX        EvpnEthernetTag
+    MAX-ACCESS    not-accessible
+    STATUS        current
+    DESCRIPTION "The Ethernet tag ID associated with the MAC address."
+   ::= { evpnMacIpEntry 3 }
+
+  evpnMacIpMacAddress OBJECT-TYPE
+    SYNTAX        MacAddress
+    MAX-ACCESS    not-accessible
+    STATUS        current
+    DESCRIPTION "The MAC address in the EVPN FDB."
+   ::= { evpnMacIpEntry 4 }
+
+  evpnMacIpIpAddressType OBJECT-TYPE
+    SYNTAX        InetAddressType
+    MAX-ACCESS    not-accessible
+    STATUS        current
+    DESCRIPTION "Type of IP address associated with the MAC address, or
+                 'unknown' if there is no associated IP address."
+   ::= { evpnMacIpEntry 5 }
+
+  evpnMacIpIpAddress OBJECT-TYPE
+    SYNTAX        InetAddress (SIZE(0|4|16))
+    MAX-ACCESS    not-accessible
+    STATUS        current
+    DESCRIPTION "IP address associated with the MAC address, if any."
+   ::= { evpnMacIpEntry 6 }
+
+  evpnMacIpPathIndex OBJECT-TYPE
+    SYNTAX        NumericIndex
+    MAX-ACCESS    not-accessible
+    STATUS        current
+    DESCRIPTION "Arbitrary index, used to distinguish multiple paths
+                 associated with a single MAC/IP entry."
+   ::= { evpnMacIpEntry 7 }
+
+  evpnMacIpSource OBJECT-TYPE
+    SYNTAX        EvpnSource
+    MAX-ACCESS    read-only
+    STATUS        current
+    DESCRIPTION "Source from which the MAC address was learned."
+   ::= { evpnMacIpEntry 8 }
+
+  evpnMacIpBgpNhAddrType OBJECT-TYPE
+    SYNTAX        InetAddressType
+    MAX-ACCESS    read-only
+    STATUS        current
+    DESCRIPTION "Type of IP address associated with the BGP next hop for
+                 the MAC address.
+
+                 Set to 'unknown' for MAC addresses learned from local
+                 customer sites."
+   ::= { evpnMacIpEntry 9 }
+
+  evpnMacIpBgpNhAddr OBJECT-TYPE
+    SYNTAX        InetAddress (SIZE(0|4|16))
+    MAX-ACCESS    read-only
+    STATUS        current
+    DESCRIPTION "The BGP next hop for the MAC address.
+
+                 This returns a zero length string for MAC addresses
+                 learned from local customer sites."
+   ::= { evpnMacIpEntry 10 }
+
+  evpnMacIpLocalInterface OBJECT-TYPE
+    SYNTAX        InterfaceIndexOrZero
+    MAX-ACCESS    read-only
+    STATUS        current
+    DESCRIPTION "The local interface index through which the MAC address
+                 can be reached, or zero for a MAC addresses
+                 learned through BGP."
+   ::= { evpnMacIpEntry 11 }
+
+  evpnMacIpLabel OBJECT-TYPE
+    SYNTAX        MplsLabel
+    MAX-ACCESS    read-only
+    STATUS        current
+    DESCRIPTION "The label associated with this MAC address."
+   ::= { evpnMacIpEntry 12 }
+
+  evpnMacIpInUse OBJECT-TYPE
+    SYNTAX        TruthValue
+    MAX-ACCESS    read-only
+    STATUS        current
+    DESCRIPTION "Indicates whether the MAC/IP entry is in use for forwarding.
+
+                 For MAC/IP advertisements from remote EVPN instances,
+                 this indicates whether the entry has been accepted
+                 and programmed.
+
+                 Always set to 'true' for MAC addresses learned from
+                 local customer sites."
+   ::= { evpnMacIpEntry 13 }
+
+  evpnMacIpEsi OBJECT-TYPE
+    SYNTAX        EvpnESI
+    MAX-ACCESS    read-only
+    STATUS        current
+    DESCRIPTION "The Ethernet Segment Identifier advertised with the
+                 MAC/IP address."
+   ::= { evpnMacIpEntry 14 }
+
+  evpnMacIpSequenceNum OBJECT-TYPE
+    SYNTAX        Unsigned32
+    MAX-ACCESS    read-only
+    STATUS        current
+    DESCRIPTION "The MAC Mobility sequence number associated with the
+                 MAC/IP address."
+   ::= { evpnMacIpEntry 15 }
+
+  evpnMacIpSticky OBJECT-TYPE
+    SYNTAX        TruthValue
+    MAX-ACCESS    read-only
+    STATUS        current
+    DESCRIPTION "Whether the Sticky flag is set for this MAC/IP address."
+   ::= { evpnMacIpEntry 16 }
+
+-------------------------------------------------------------------------------
+
+--
+-- evpnEsTable
+--
+-- Read-write table providing configuration parameters for Ethernet Segments.
+--
+
+  evpnEsTable OBJECT-TYPE
+    SYNTAX      SEQUENCE OF EvpnEsEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "Read-write table providing configuration parameters for
+                 Ethernet Segments.  This table is only relevant for
+                 multi-homing."
+    ::= { evpnObjects 9 }
+
+  evpnEsEntry OBJECT-TYPE
+    SYNTAX      EvpnEsEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "Configuration for an Ethernet Segment."
+    INDEX { evpnEntEntityIndex,
+            evpnEsIfIndex }
+      ::= { evpnEsTable 1 }
+
+  EvpnEsEntry ::= SEQUENCE {
+      evpnEsIfIndex                    InterfaceIndex,
+      evpnEsRowStatus                  RowStatus,
+      evpnEsAdminStatus                AdminStatus,
+      evpnEsOperStatus                 BaseOperStatus,
+      evpnEsOperReason                 EvpnOperReason,
+      evpnEsIdentifier                 EvpnESI,
+      evpnEsMode                       EvpnEsModeTc,
+      evpnEsRouteDistinguisher         EvpnRouteDistinguisher,
+      evpnEsRouteTarget                EvpnRouteTarget,
+      evpnEsDfElectionWaitTime         Unsigned32,
+      evpnEsTnnlEndptAddrType          InetAddressType,
+      evpnEsTnnlEndptAddr              InetAddress
+    }
+
+  evpnEsIfIndex OBJECT-TYPE
+    SYNTAX      InterfaceIndex
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "Interface index of the Ethernet Segment.
+
+                 Note that this is the interface index of the physical
+                 interface or bundle interface for the link to the
+                 multi-homed CE.  This is not necessarily the same
+                 interface used for attachment circuits, which may be
+                 VLAN sub-interfaces of this interface."
+    ::= { evpnEsEntry 2 }
+
+  evpnEsRowStatus OBJECT-TYPE
+    SYNTAX      RowStatus
+    MAX-ACCESS  read-create
+    STATUS      current
+    DESCRIPTION "Row status.  Used to create and delete the configuration
+                 for this Ethernet Segment."
+    ::= { evpnEsEntry 3 }
+
+  evpnEsAdminStatus OBJECT-TYPE
+    SYNTAX      AdminStatus
+    MAX-ACCESS  read-create
+    STATUS      current
+    DESCRIPTION "The desired status of the Ethernet Segment configuration."
+    DEFVAL { adminStatusUp }
+    ::= { evpnEsEntry 4 }
+
+  evpnEsOperStatus OBJECT-TYPE
+    SYNTAX      BaseOperStatus
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Operational status of the Ethernet Segment configuration.
+
+                 A value of 'up' indicates only that the configuration is
+                 enabled and consistent.  The status of the Ethernet Segment
+                 itself is provided by the evpnEsStateTable."
+    ::= { evpnEsEntry 5 }
+
+  evpnEsOperReason OBJECT-TYPE
+    SYNTAX      EvpnOperReason
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "The reason for the Ethernet Segment to be in its current
+                 oper status, if the instance is not active or activating."
+    ::= { evpnEsEntry 6 }
+
+  evpnEsIdentifier OBJECT-TYPE
+    SYNTAX      EvpnESI
+    MAX-ACCESS  read-create
+    STATUS      current
+    DESCRIPTION "Configured Ethernet Segment Identifier (ESI), or
+                 all zeros if no Ethernet Segment Identifier is
+                 configured.
+
+                 For an ES multi-homed using MC-LAG, EVPN can
+                 auto-generate an ESI.  This field is used to over-ride
+                 the value or to provide an ESI if MC-LAG is not in use.
+
+                 The value in use is reported by evpnEsStateIdentifier."
+    REFERENCE "RFC 7432, section 5."
+    DEFVAL      { '00000000000000000000'H }
+    ::= { evpnEsEntry 7 }
+
+  evpnEsMode OBJECT-TYPE
+    SYNTAX      EvpnEsModeTc
+    MAX-ACCESS  read-create
+    STATUS      current
+    DESCRIPTION "Type of multi-homing for the Ethernet Segment.
+
+                 -  A value of singleHomed forces EVPN to treat this
+                    Ethernet Segment as single homed.
+
+                 -  A value of EVPN performs all-active multi-homing procedures for
+                    this Ethernet Segment if this field is set to allActive."
+    DEFVAL { allActive }
+    ::= { evpnEsEntry 8 }
+
+  evpnEsRouteDistinguisher OBJECT-TYPE
+    SYNTAX      EvpnRouteDistinguisher
+    MAX-ACCESS  read-create
+    STATUS      current
+    DESCRIPTION "The configured route distinguisher to use when advertising
+                 the Ethernet Segment route.  This can be used to over-ride the
+                 default value, which is based on the BGP router ID."
+    REFERENCE   "RFC 7432, section 8.1.1."
+    DEFVAL      { '0000000000000000'H }
+    ::= { evpnEsEntry 9 }
+
+  evpnEsRouteTarget OBJECT-TYPE
+    SYNTAX      EvpnRouteTarget
+    MAX-ACCESS  read-create
+    STATUS      current
+    DESCRIPTION "The ES-Import Route Target for the Ethernet Segment.
+
+                 For an ES that is multi-homed using MC-LAG or that
+                 is configured to use a type 1 ESI, EVPN can
+                 auto-generate the ES-Import Route Target.  This field
+                 is used to configure the route target if there is no
+                 auto-generated value or if it is necessary to
+                 over-ride the auto-generated value."
+    REFERENCE "RFC 7432, section 7.6."
+    DEFVAL      { '0000000000000000'H }
+    ::= { evpnEsEntry 10 }
+
+  evpnEsDfElectionWaitTime OBJECT-TYPE
+    SYNTAX      Unsigned32 (0..3600)
+    UNITS       "seconds"
+    MAX-ACCESS  read-create
+    STATUS      current
+    DESCRIPTION "Time to wait after advertising the Ethernet Segment
+                 before running the designated forwarder election."
+    DEFVAL { 3 }
+    ::= { evpnEsEntry 11 }
+
+  evpnEsTnnlEndptAddrType OBJECT-TYPE
+    SYNTAX        InetAddressType
+    MAX-ACCESS    read-create
+    STATUS        current
+    DESCRIPTION "Type of tunnel endpoint address to advertise in EVPN
+                 routes for this ES, or 'unknown' if there is no associated
+                 IP address."
+   ::= { evpnEsEntry 12 }
+
+  evpnEsTnnlEndptAddr OBJECT-TYPE
+    SYNTAX        InetAddress (SIZE(0|4|16))
+    MAX-ACCESS    read-create
+    STATUS        current
+    DESCRIPTION "Tunnel endpoint address to use in EVPN routes for this ES.
+
+                 Specify a value if you need remote PEs to send unicast
+                 traffic destined for this Ethernet Segment using a
+                 different tunnel."
+   ::= { evpnEsEntry 13 }
+
+-------------------------------------------------------------------------------
+
+--
+-- evpnEsStateTable
+--
+-- Read-only Ethernet Segment status table.
+--
+
+  evpnEsStateTable OBJECT-TYPE
+    SYNTAX      SEQUENCE OF EvpnEsStateEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "Read-only Ethernet Segment status table.  An entry exists
+                 for each interface that has been configured or
+                 auto-discovered as an Ethernet Segment."
+    ::= { evpnObjects 10 }
+
+  evpnEsStateEntry OBJECT-TYPE
+    SYNTAX      EvpnEsStateEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "Status of an Ethernet Segment."
+    INDEX { evpnEntEntityIndex,
+            evpnEsIfIndex }
+      ::= { evpnEsStateTable 1 }
+
+  EvpnEsStateEntry ::= SEQUENCE {
+      evpnEsStateStatus                EvpnStatusType,
+      evpnEsStateIfStatus              EvpnStatusType,
+      evpnEsStateIdentifier            EvpnESI,
+      evpnEsStateMode                  EvpnEsModeTc,
+      evpnEsStateRouteDistinguisher    EvpnRouteDistinguisher,
+      evpnEsStateRouteTarget           EvpnRouteTarget,
+      evpnEsStateDfElectionWaitTime    Unsigned32,
+      evpnEsStateTnnlEndptAddrType     InetAddressType,
+      evpnEsStateTnnlEndptAddr         InetAddress
+    }
+
+  evpnEsStateStatus OBJECT-TYPE
+    SYNTAX      EvpnStatusType
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Status of the Ethernet Segment configuration.
+
+                 A value of 'up' indicates that the Ethernet Segment
+                 configuration is being used in EVPN route advertisements."
+    ::= { evpnEsStateEntry 3 }
+
+  evpnEsStateIfStatus OBJECT-TYPE
+    SYNTAX      EvpnStatusType
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Status of the interface.
+
+                 A value of 'up' indicates that the interface is active
+                 and capable of forwarding data."
+    ::= { evpnEsStateEntry 4 }
+
+  evpnEsStateIdentifier OBJECT-TYPE
+    SYNTAX      EvpnESI
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "The Ethernet Segment Identifier (ESI) associated with
+                 this Ethernet Segment."
+    REFERENCE "RFC 7432, section 5."
+    ::= { evpnEsStateEntry 5 }
+
+  evpnEsStateMode OBJECT-TYPE
+    SYNTAX      EvpnEsModeTc
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Indicates which multi-homing procedures, if any, are in
+                 operation on the Ethernet Segment."
+    ::= { evpnEsStateEntry 6 }
+
+  evpnEsStateRouteDistinguisher OBJECT-TYPE
+    SYNTAX      EvpnRouteDistinguisher
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "The route distinguisher in use for advertising
+                 the Ethernet Segment route.
+
+                 If no value is configured for evpnEsRouteDistinguisher, the
+                 value is auto-generated based on the BGP router ID."
+    REFERENCE   "RFC 7432, section 8.1.1."
+    ::= { evpnEsStateEntry 7 }
+
+  evpnEsStateRouteTarget OBJECT-TYPE
+    SYNTAX      EvpnRouteTarget
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "The ES-Import Route Target for the Ethernet Segment."
+    ::= { evpnEsStateEntry 8 }
+
+  evpnEsStateDfElectionWaitTime OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Time to wait after advertising the Ethernet Segment
+                 before running the designated forwarder election."
+    ::= { evpnEsStateEntry 9 }
+
+  evpnEsStateTnnlEndptAddrType OBJECT-TYPE
+    SYNTAX      InetAddressType
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Type of tunnel endpoint address to advertise in EVPN
+                 routes for this ES, or 'unknown' if there is no associated
+                 IP address."
+    ::= { evpnEsStateEntry 10 }
+
+  evpnEsStateTnnlEndptAddr OBJECT-TYPE
+    SYNTAX      InetAddress
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Tunnel endpoint address to use in EVPN routes for this ES.
+                 This matches the configured value in evpnEsTnnlEndptAddr
+                 if an address is configured, and is otherwise set to none."
+    ::= { evpnEsStateEntry 11 }
+
+-------------------------------------------------------------------------------
+
+--
+-- evpnEsMemberTable
+--
+-- Read-only table listing the IP address of each PE connected to
+-- an Ethernet Segment.
+--
+
+  evpnEsMemberTable OBJECT-TYPE
+    SYNTAX      SEQUENCE OF EvpnEsMemberEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "Read-only table listing the IP address of each PE
+                 connected to Ethernet Segment."
+    ::= { evpnObjects 11 }
+
+  evpnEsMemberEntry OBJECT-TYPE
+    SYNTAX      EvpnEsMemberEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "A member of an Ethernet Segment."
+    INDEX { evpnEntEntityIndex,
+            evpnEsIfIndex,
+            evpnEsMemberAddrType,
+            evpnEsMemberAddr }
+      ::= { evpnEsMemberTable 1 }
+
+  EvpnEsMemberEntry ::= SEQUENCE {
+      evpnEsMemberAddrType             InetAddressType,
+      evpnEsMemberAddr                 InetAddress,
+      evpnEsMemberIsLocal              TruthValue
+    }
+
+  evpnEsMemberAddrType OBJECT-TYPE
+    SYNTAX      InetAddressType
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "IP address type of a PE connected to an Ethernet Segment."
+    ::= { evpnEsMemberEntry 3 }
+
+  evpnEsMemberAddr OBJECT-TYPE
+    SYNTAX      InetAddress (SIZE(4|16))
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "IP address of a PE connected to an Ethernet Segment."
+    ::= { evpnEsMemberEntry 4 }
+
+  evpnEsMemberIsLocal OBJECT-TYPE
+    SYNTAX      TruthValue
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Indicates whether the IP address belongs to the local
+                 router."
+    ::= { evpnEsMemberEntry 5 }
+
+-------------------------------------------------------------------------------
+
+--
+-- evpnEsDfTable
+--
+-- Read-only table identifying the designated forwarder for each supported
+-- VLAN on an Ethernet Segment.
+--
+
+  evpnEsDfTable OBJECT-TYPE
+    SYNTAX      SEQUENCE OF EvpnEsDfEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "Read-only table identifying the designated forwarder for
+                 each supported VLAN on an Ethernet Segment."
+    ::= { evpnObjects 12 }
+
+  evpnEsDfEntry OBJECT-TYPE
+    SYNTAX      EvpnEsDfEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "The designated forwarder for a VLAN on an Ethernet Segment."
+    INDEX { evpnEntEntityIndex,
+            evpnEsIfIndex,
+            evpnEsDfVlan }
+      ::= { evpnEsDfTable 1 }
+
+  EvpnEsDfEntry ::= SEQUENCE {
+      evpnEsDfVlan                     VlanId,
+      evpnEsDfAddrType                 InetAddressType,
+      evpnEsDfAddr                     InetAddress
+    }
+
+  evpnEsDfVlan OBJECT-TYPE
+    SYNTAX      VlanId
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "VLAN identifier of a service on the Ethernet Segment, or 0 for
+                 untagged traffic."
+    ::= { evpnEsDfEntry 3 }
+
+  evpnEsDfAddrType OBJECT-TYPE
+    SYNTAX      InetAddressType
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "IP address type of the designated forwarder."
+    ::= { evpnEsDfEntry 4 }
+
+  evpnEsDfAddr OBJECT-TYPE
+    SYNTAX      InetAddress (SIZE(4|16))
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "The IP address of the designated forwarder for the VLAN
+                 on this Ethernet Segment."
+    ::= { evpnEsDfEntry 5 }
+
+-------------------------------------------------------------------------------
+
+--
+-- evpnIrbTable
+--
+-- Read-only table listing the IRBs known by DC-EVPN.
+--
+
+  evpnIrbTable OBJECT-TYPE
+    SYNTAX      SEQUENCE OF EvpnIrbEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "Read-only table listing the IRBs advertised to DC-EVPN."
+    ::= { evpnObjects 13 }
+
+  evpnIrbEntry OBJECT-TYPE
+    SYNTAX      EvpnIrbEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "An IRB interface advertised to DC-EVPN."
+    INDEX { evpnEntEntityIndex,
+            evpnIrbIfIndex }
+      ::= { evpnIrbTable 1 }
+
+  EvpnIrbEntry ::= SEQUENCE {
+      evpnIrbIfIndex                 InterfaceIndex,
+      evpnIrbName                    DisplayString,
+      evpnIrbEvi                     EvpnIndex,
+      evpnIrbVrfName                 VrfName
+    }
+
+  evpnIrbIfIndex OBJECT-TYPE
+    SYNTAX      InterfaceIndex
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "Interface index of the IRB interface."
+    ::= { evpnIrbEntry 2 }
+
+  evpnIrbName OBJECT-TYPE
+    SYNTAX      DisplayString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "The name of the IRB interface."
+    ::= { evpnIrbEntry 3 }
+
+  evpnIrbEvi OBJECT-TYPE
+    SYNTAX      EvpnIndex
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "The EVPN instance index that the IRB is associated with."
+    ::= { evpnIrbEntry 4 }
+
+  evpnIrbVrfName OBJECT-TYPE
+    SYNTAX      VrfName
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "The text name of the VRF that this IRB is associated with."
+    ::= { evpnIrbEntry 5 }
+
+-------------------------------------------------------------------------------
+
+--
+-- evpnEviRtTable
+--
+-- Read-write table for configuring per-EVI route targets.
+--
+
+  evpnEviRtTable OBJECT-TYPE
+    SYNTAX      SEQUENCE OF EvpnEviRtEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "Read-write table for configuring per-EVI route targets."
+    ::= { evpnObjects 14 }
+
+  evpnEviRtEntry OBJECT-TYPE
+    SYNTAX      EvpnEviRtEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "Configuration for a per-EVI route target."
+    INDEX { evpnEntEntityIndex,
+            evpnEviIndex,
+            evpnEviRtRouteTarget }
+      ::= { evpnEviRtTable 1 }
+
+  EvpnEviRtEntry ::= SEQUENCE {
+      evpnEviRtRouteTarget             EvpnRouteTarget,
+      evpnEviRtRowStatus               RowStatus,
+      evpnEviRtOperStatus              BaseOperStatus,
+      evpnEviRtOperReason              EvpnOperReason,
+      evpnEviRtType                    EvpnRtUsageTc
+    }
+
+  evpnEviRtRouteTarget OBJECT-TYPE
+    SYNTAX      EvpnRouteTarget
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "The configured route target value."
+    ::= { evpnEviRtEntry 3 }
+
+  evpnEviRtRowStatus OBJECT-TYPE
+    SYNTAX      RowStatus
+    MAX-ACCESS  read-create
+    STATUS      current
+    DESCRIPTION "Row status.  Used to create and delete the configuration
+                 for this route target."
+    ::= { evpnEviRtEntry 4 }
+
+  evpnEviRtOperStatus OBJECT-TYPE
+    SYNTAX      BaseOperStatus
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Operational status of the route target configuration."
+    ::= { evpnEviRtEntry 5 }
+
+  evpnEviRtOperReason OBJECT-TYPE
+    SYNTAX      EvpnOperReason
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "The reason for the route target to be in its current oper
+                 status."
+    ::= { evpnEviRtEntry 6 }
+
+  evpnEviRtType OBJECT-TYPE
+    SYNTAX      EvpnRtUsageTc
+    MAX-ACCESS  read-create
+    STATUS      current
+    DESCRIPTION "Type of route target.
+
+                -  import(1) indicates that the EVI should import all
+                   remote routes that carry this route target, but should
+                   not add this route target to local routes.
+
+                -  export(2) indicates that the route target should be
+                   added to all routes exported from this EVI.
+
+                -  importExport(3) indicates that the route target should
+                   be both used to import remote routes and added to
+                   exported routes."
+    DEFVAL { importExport }
+    ::= { evpnEviRtEntry 7 }
+
+-------------------------------------------------------------------------------
+
+--
+-- evpnIpVrfTable
+--
+-- Read-write table for configuring IP-VRFs for EVPN.
+--
+
+  evpnIpVrfTable OBJECT-TYPE
+    SYNTAX      SEQUENCE OF EvpnIpVrfEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "Read-write table for configuring IP-VRFs for EVPN."
+    ::= { evpnObjects 15 }
+
+  evpnIpVrfEntry OBJECT-TYPE
+    SYNTAX      EvpnIpVrfEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "Configuration for an IP-VRF."
+    INDEX { evpnEntEntityIndex,
+            evpnIpVrfName }
+      ::= { evpnIpVrfTable 1 }
+
+  EvpnIpVrfEntry ::= SEQUENCE {
+      evpnIpVrfName                  VrfName,
+      evpnIpVrfRowStatus             RowStatus,
+      evpnIpVrfAdminStatus           AdminStatus,
+      evpnIpVrfOperStatus            BaseOperStatus,
+      evpnIpVrfOperReason            EvpnOperReason,
+      evpnIpVrfVni                   EvpnVniOrZero,
+      evpnIpVrfRouteDistinguisher    EvpnRouteDistinguisher
+    }
+
+  evpnIpVrfName OBJECT-TYPE
+    SYNTAX      VrfName
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "The text name of the IP-VRF."
+    ::= { evpnIpVrfEntry 2 }
+
+  evpnIpVrfRowStatus OBJECT-TYPE
+    SYNTAX      RowStatus
+    MAX-ACCESS  read-create
+    STATUS      current
+    DESCRIPTION "Row status.  Used to create and delete the configuration
+                 for this IP-VRF."
+    ::= { evpnIpVrfEntry 3 }
+
+  evpnIpVrfAdminStatus OBJECT-TYPE
+    SYNTAX      AdminStatus
+    MAX-ACCESS  read-create
+    STATUS      current
+    DESCRIPTION "The desired status of the IP-VRF configuration."
+    DEFVAL { adminStatusUp }
+    ::= { evpnIpVrfEntry 4 }
+
+  evpnIpVrfOperStatus OBJECT-TYPE
+    SYNTAX      BaseOperStatus
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Operational status of the IP-VRF configuration."
+    ::= { evpnIpVrfEntry 5 }
+
+  evpnIpVrfOperReason OBJECT-TYPE
+    SYNTAX      EvpnOperReason
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "The reason for the IP-VRF configuration to be in its
+                 current oper status."
+    ::= { evpnIpVrfEntry 6 }
+
+  evpnIpVrfVni OBJECT-TYPE
+    SYNTAX      EvpnVniOrZero
+    MAX-ACCESS  read-create
+    STATUS      current
+    DESCRIPTION "The VXLAN Network Identifier for the IP-VRF."
+    DEFVAL { 0 }
+    ::= { evpnIpVrfEntry 7 }
+
+  evpnIpVrfRouteDistinguisher OBJECT-TYPE
+    SYNTAX      EvpnRouteDistinguisher
+    MAX-ACCESS  read-create
+    STATUS      current
+    DESCRIPTION "The configured route distinguisher to use when advertising
+                 IP Prefix routes for this VRF.  This can be used to over-ride
+                 the default value, which is based on the BGP router ID."
+    DEFVAL      { '0000000000000000'H }
+    ::= { evpnIpVrfEntry 8 }
+
+-------------------------------------------------------------------------------
+
+--
+-- evpnIpVrfRtTable
+--
+-- Read-write table for configuring per-VRF route targets.
+--
+
+  evpnIpVrfRtTable OBJECT-TYPE
+    SYNTAX      SEQUENCE OF EvpnIpVrfRtEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "Read-write table for configuring per-VRF route targets."
+    ::= { evpnObjects 16 }
+
+  evpnIpVrfRtEntry OBJECT-TYPE
+    SYNTAX      EvpnIpVrfRtEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "Configuration for a per-VRF route target."
+    INDEX { evpnEntEntityIndex,
+            evpnIpVrfRtVrfName,
+            evpnIpVrfRtTarget}
+      ::= { evpnIpVrfRtTable 1 }
+
+  EvpnIpVrfRtEntry ::= SEQUENCE {
+      evpnIpVrfRtVrfName               VrfName,
+      evpnIpVrfRtTarget                EvpnRouteTarget,
+      evpnIpVrfRtType                  EvpnRtUsageTc,
+      evpnIpVrfRtRowStatus             RowStatus,
+      evpnIpVrfRtOperStatus            BaseOperStatus,
+      evpnIpVrfRtOperReason            EvpnOperReason
+    }
+
+  evpnIpVrfRtVrfName OBJECT-TYPE
+    SYNTAX      VrfName
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "The text name of the VRF that this RT is associated with."
+    ::= { evpnIpVrfRtEntry 2 }
+
+  evpnIpVrfRtTarget OBJECT-TYPE
+    SYNTAX      EvpnRouteTarget
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "The Route Target for the IP-VRF.
+
+                 This field is used in conjunction with evpnIpVrfRtType
+                 to configure the route target for the IP-VRF."
+    ::= { evpnIpVrfRtEntry 3 }
+
+  evpnIpVrfRtType OBJECT-TYPE
+    SYNTAX      EvpnRtUsageTc
+    MAX-ACCESS  read-create
+    STATUS      current
+    DESCRIPTION "Type of route target for the IP-VRF.  This route target
+                 will be used to import routes to or export routes from the
+                 IP-VRF's RIB.
+
+                 -  import(1) indicates that the IP-VRF should import all
+                    remote routes that carry this route target, but should
+                    not add this route target to local routes.
+
+                 -  export(2) indicates that the route target should be
+                    added to all routes exported from this IP-VRF.
+
+                 -  importExport(3) indicates that the route target should
+                    be both used to import remote routes and added to
+                    exported routes."
+    DEFVAL { importExport }
+    ::= { evpnIpVrfRtEntry 4 }
+
+  evpnIpVrfRtRowStatus OBJECT-TYPE
+    SYNTAX      RowStatus
+    MAX-ACCESS  read-create
+    STATUS      current
+    DESCRIPTION "Row status.  Used to create and delete the configuration
+                 for this route target."
+    ::= { evpnIpVrfRtEntry 5 }
+
+  evpnIpVrfRtOperStatus OBJECT-TYPE
+    SYNTAX      BaseOperStatus
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Operational status of the route target configuration."
+    ::= { evpnIpVrfRtEntry 6 }
+
+  evpnIpVrfRtOperReason OBJECT-TYPE
+    SYNTAX      EvpnOperReason
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "The reason for the route target to be in its current oper
+                 status."
+    ::= { evpnIpVrfRtEntry 7 }
+
+-------------------------------------------------------------------------------
+
+--
+-- evpnIncMcastTable
+--
+-- Read-only table for displaying inclusive multicast routes associated with
+-- EVPN instances.  This includes routes sent by the local router and routes
+-- received from remote EVPN instances.
+--
+
+  evpnIncMcastTable OBJECT-TYPE
+    SYNTAX        SEQUENCE OF EvpnIncMcastEntry
+    MAX-ACCESS    not-accessible
+    STATUS        current
+    DESCRIPTION "Read-only table for displaying inclusive multicast routes
+                 associated with EVPN instances.  This includes routes sent
+                 by the local router and routes received from remote EVPN
+                 instances."
+    ::= { evpnObjects 17 }
+
+  evpnIncMcastEntry OBJECT-TYPE
+    SYNTAX        EvpnIncMcastEntry
+    MAX-ACCESS    not-accessible
+    STATUS        current
+    DESCRIPTION "An inclusive multicast route associated with an EVPN
+                 instance."
+    INDEX { evpnEntEntityIndex,
+            evpnEviIndex,
+            evpnIncMcastRd,
+            evpnIncMcastEthernetTagId,
+            evpnIncMcastIpAddressType,
+            evpnIncMcastIpAddress }
+      ::= { evpnIncMcastTable 1 }
+
+  EvpnIncMcastEntry ::= SEQUENCE {
+      evpnIncMcastRd                    EvpnRouteDistinguisher,
+      evpnIncMcastEthernetTagId         EvpnEthernetTag,
+      evpnIncMcastIpAddressType         InetAddressType,
+      evpnIncMcastIpAddress             InetAddress,
+      evpnIncMcastSource                EvpnSource,
+      evpnIncMcastTnnlType              EvpnPmsiTnnlType,
+      evpnIncMcastTnnlLabel             MplsLabel,
+      evpnIncMcastTnnlIpAddrType        InetAddressType,
+      evpnIncMcastTnnlIpAddr            InetAddress
+    }
+
+  evpnIncMcastRd OBJECT-TYPE
+    SYNTAX        EvpnRouteDistinguisher
+    MAX-ACCESS    not-accessible
+    STATUS        current
+    DESCRIPTION "The Route Distinguisher from the route."
+   ::= { evpnIncMcastEntry 3 }
+
+  evpnIncMcastEthernetTagId OBJECT-TYPE
+    SYNTAX        EvpnEthernetTag
+    MAX-ACCESS    not-accessible
+    STATUS        current
+    DESCRIPTION "The Ethernet tag ID associated with the route."
+   ::= { evpnIncMcastEntry 4 }
+
+  evpnIncMcastIpAddressType OBJECT-TYPE
+    SYNTAX        InetAddressType
+    MAX-ACCESS    not-accessible
+    STATUS        current
+    DESCRIPTION "The originating router's IP address type."
+   ::= { evpnIncMcastEntry 5 }
+
+  evpnIncMcastIpAddress OBJECT-TYPE
+    SYNTAX        InetAddress (SIZE(4|16))
+    MAX-ACCESS    not-accessible
+    STATUS        current
+    DESCRIPTION "The originating router's IP address."
+   ::= { evpnIncMcastEntry 6 }
+
+  evpnIncMcastSource OBJECT-TYPE
+    SYNTAX        EvpnSource
+    MAX-ACCESS    read-only
+    STATUS        current
+    DESCRIPTION "Source from which the route was learned."
+   ::= { evpnIncMcastEntry 7 }
+
+  evpnIncMcastTnnlType OBJECT-TYPE
+    SYNTAX        EvpnPmsiTnnlType
+    MAX-ACCESS    read-only
+    STATUS        current
+    DESCRIPTION "Tunnel type as contained in the PMSI attribute associated
+                 with the route."
+   ::= { evpnIncMcastEntry 8 }
+
+  evpnIncMcastTnnlLabel OBJECT-TYPE
+    SYNTAX        MplsLabel
+    MAX-ACCESS    read-only
+    STATUS        current
+    DESCRIPTION "The label associated with this tunnel."
+   ::= { evpnIncMcastEntry 9 }
+
+  evpnIncMcastTnnlIpAddrType OBJECT-TYPE
+    SYNTAX        InetAddressType
+    MAX-ACCESS    read-only
+    STATUS        current
+    DESCRIPTION "Tunnel endpoint IP address type."
+   ::= { evpnIncMcastEntry 10 }
+
+  evpnIncMcastTnnlIpAddr OBJECT-TYPE
+    SYNTAX        InetAddress (SIZE(0|4|16))
+    MAX-ACCESS    read-only
+    STATUS        current
+    DESCRIPTION "Tunnel endpoint IP address, taken from the PMSI attribute
+                 associated with the route.
+
+                 -  For a tunnel type of ingressReplication, this is the
+                    IP address to which data is replicated.
+                 -  For a tunnel type of pimAsm, pimBidir or pimSsm, this
+                    is the multicast group IP address.
+                 -  For other unsupported types this is empty."
+   ::= { evpnIncMcastEntry 11 }
+
+-------------------------------------------------------------------------------
+
+--
+-- evpnVxlanTnnlTable
+--
+-- Read-only table for displaying VXLAN tunnels used by EVPN instances.
+--
+
+  evpnVxlanTnnlTable OBJECT-TYPE
+    SYNTAX        SEQUENCE OF EvpnVxlanTnnlEntry
+    MAX-ACCESS    not-accessible
+    STATUS        current
+    DESCRIPTION "Read-only table for displaying VXLAN tunnels used by
+                 EVPN instances."
+    ::= { evpnObjects 18 }
+
+  evpnVxlanTnnlEntry OBJECT-TYPE
+    SYNTAX        EvpnVxlanTnnlEntry
+    MAX-ACCESS    not-accessible
+    STATUS        current
+    DESCRIPTION "A VXLAN tunnel used by EVPN instance."
+    INDEX { evpnEntEntityIndex,
+            evpnVxlanTnnlLocalVni,
+            evpnVxlanTnnlRemoteVni,
+            evpnVxlanTnnlPeerAddressType,
+            evpnVxlanTnnlPeerAddress,
+            evpnVxlanTnnlSourceAddressType,
+            evpnVxlanTnnlSourceAddress }
+      ::= { evpnVxlanTnnlTable 1 }
+
+  EvpnVxlanTnnlEntry ::= SEQUENCE {
+      evpnVxlanTnnlLocalVni              EvpnVniOrZero,
+      evpnVxlanTnnlRemoteVni             EvpnVniOrZero,
+      evpnVxlanTnnlPeerAddressType       InetAddressType,
+      evpnVxlanTnnlPeerAddress           InetAddress,
+      evpnVxlanTnnlSourceAddressType     InetAddressType,
+      evpnVxlanTnnlSourceAddress         InetAddress,
+      evpnVxlanTnnlOperStatus            BaseOperStatus,
+      evpnVxlanTnnlPortIfIndex           InterfaceIndex,
+      evpnVxlanTnnlEviIndex              EvpnIndexOrZero,
+      evpnVxlanTnnlVrfName               VrfName
+    }
+
+  evpnVxlanTnnlLocalVni OBJECT-TYPE
+    SYNTAX        EvpnVniOrZero
+    MAX-ACCESS    not-accessible
+    STATUS        current
+    DESCRIPTION "The local VNI associated with the VXLAN tunnel."
+   ::= { evpnVxlanTnnlEntry 2 }
+
+  evpnVxlanTnnlRemoteVni OBJECT-TYPE
+    SYNTAX        EvpnVniOrZero
+    MAX-ACCESS    not-accessible
+    STATUS        current
+    DESCRIPTION "The remote VNI associated with the VXLAN tunnel."
+   ::= { evpnVxlanTnnlEntry 3 }
+
+  evpnVxlanTnnlPeerAddressType OBJECT-TYPE
+    SYNTAX        InetAddressType
+    MAX-ACCESS    not-accessible
+    STATUS        current
+    DESCRIPTION "The destination IP address type of the VXLAN tunnel."
+   ::= { evpnVxlanTnnlEntry 4 }
+
+  evpnVxlanTnnlPeerAddress OBJECT-TYPE
+    SYNTAX        InetAddress
+    MAX-ACCESS    not-accessible
+    STATUS        current
+    DESCRIPTION "The destination IP address of the VXLAN tunnel."
+   ::= { evpnVxlanTnnlEntry 5 }
+
+  evpnVxlanTnnlSourceAddressType OBJECT-TYPE
+    SYNTAX        InetAddressType
+    MAX-ACCESS    not-accessible
+    STATUS        current
+    DESCRIPTION "The source IP address type of the VXLAN tunnel."
+   ::= { evpnVxlanTnnlEntry 6 }
+
+  evpnVxlanTnnlSourceAddress OBJECT-TYPE
+    SYNTAX        InetAddress
+    MAX-ACCESS    not-accessible
+    STATUS        current
+    DESCRIPTION "The source IP address of the VXLAN tunnel."
+   ::= { evpnVxlanTnnlEntry 7 }
+
+  evpnVxlanTnnlOperStatus OBJECT-TYPE
+    SYNTAX        BaseOperStatus
+    MAX-ACCESS    read-only
+    STATUS        current
+    DESCRIPTION "Operational status of the VXLAN tunnel used by EVPN."
+   ::= { evpnVxlanTnnlEntry 8 }
+
+  evpnVxlanTnnlPortIfIndex OBJECT-TYPE
+    SYNTAX        InterfaceIndex
+    MAX-ACCESS    read-only
+    STATUS        current
+    DESCRIPTION "Interface index of the VXLAN port."
+   ::= { evpnVxlanTnnlEntry 9 }
+
+  evpnVxlanTnnlEviIndex OBJECT-TYPE
+    SYNTAX      EvpnIndex
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Index identifying the EVPN instance."
+    ::= { evpnVxlanTnnlEntry 10 }
+
+  evpnVxlanTnnlVrfName OBJECT-TYPE
+    SYNTAX      VrfName
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "The text name of the VRF that this VXLAN Tunnel
+                 is associated with."
+    ::= { evpnVxlanTnnlEntry 11 }
+
+-------------------------------------------------------------------------------
+--
+-- EVPN Notifications
+--
+
+evpnBaseNotifications OBJECT IDENTIFIER ::= { evpnNotifications 0 }
+
+--
+-- evpnNotification
+--
+-- A table defining any objects that are used in notifications but that do
+-- not appear in any other tables.
+--
+
+  evpnNotification OBJECT IDENTIFIER ::= { evpnMib 4 }
+
+  evpnNotificationEntry OBJECT IDENTIFIER
+      ::= { evpnNotification 1 }
+
+  evpnMacErrorMacAddress OBJECT-TYPE
+      SYNTAX      MacAddress
+      MAX-ACCESS  accessible-for-notify
+      STATUS      current
+      DESCRIPTION "The MAC address for which a fault has been detected."
+  ::= { evpnNotificationEntry 2 }
+
+  evpnMacErrorErrorType OBJECT-TYPE
+      SYNTAX      EvpnMacErrorType
+      MAX-ACCESS  accessible-for-notify
+      STATUS      current
+      DESCRIPTION "The MAC address for which a fault has been detected."
+  ::= { evpnNotificationEntry 3 }
+
+  evpnMacErrorErrorDetected OBJECT-TYPE
+      SYNTAX      TruthValue
+      MAX-ACCESS  accessible-for-notify
+      STATUS      current
+      DESCRIPTION "Indicates whether or not an error is currently detected
+                   for this MAC address.
+
+                   A value of true(1) indicates that an error has been
+                   detected for this MAC address.  A value of false(2)
+                   indicates that the error has been cleared."
+  ::= { evpnNotificationEntry 4 }
+
+  evpnMacErrorIpAddressType OBJECT-TYPE
+      SYNTAX      InetAddressType
+      MAX-ACCESS  accessible-for-notify
+      STATUS      current
+      DESCRIPTION "If evpnMacErrorErrorDetected is true, this field is the
+                   type of IP address in the remote MAC/IP route that caused
+                   the error."
+  ::= { evpnNotificationEntry 5 }
+
+  evpnMacErrorIpAddress OBJECT-TYPE
+      SYNTAX      InetAddress
+      MAX-ACCESS  accessible-for-notify
+      STATUS      current
+      DESCRIPTION "If evpnMacErrorErrorDetected is true, this field is the IP
+                   address in the remote MAC/IP route that caused the error."
+  ::= { evpnNotificationEntry 6 }
+
+  evpnMacErrorIpBgpNhAddrType OBJECT-TYPE
+      SYNTAX      InetAddressType
+      MAX-ACCESS  accessible-for-notify
+      STATUS      current
+      DESCRIPTION "If evpnMacErrorErrorDetected is true, this field is the
+                   type of IP address associated with the BGP next hop for the
+                   remote MAC/IP route that caused the error."
+  ::= { evpnNotificationEntry 7 }
+
+  evpnMacErrorIpBgpNhAddr OBJECT-TYPE
+      SYNTAX      InetAddress
+      MAX-ACCESS  accessible-for-notify
+      STATUS      current
+      DESCRIPTION "If evpnMacErrorErrorDetected is true, this field is the
+                   BGP next hop address for the remote MAC/IP route that
+                   caused the error."
+  ::= { evpnNotificationEntry 8 }
+
+  evpnLocalMcastMode OBJECT-TYPE
+      SYNTAX      EvpnLocalMcastMode
+      MAX-ACCESS  accessible-for-notify
+      STATUS      current
+      DESCRIPTION "The local multicast mode."
+  ::= { evpnNotificationEntry 9 }
+
+  evpnLocalMcastGpAddrType OBJECT-TYPE
+      SYNTAX      InetAddressType
+      MAX-ACCESS  accessible-for-notify
+      STATUS      current
+      DESCRIPTION "The local IP multicast group address type."
+  ::= { evpnNotificationEntry 10 }
+
+  evpnLocalMcastGpAddr OBJECT-TYPE
+      SYNTAX      InetAddress
+      MAX-ACCESS  accessible-for-notify
+      STATUS      current
+      DESCRIPTION "The local IP multicast group address."
+  ::= { evpnNotificationEntry 11 }
+
+  evpnRemoteRtrAddrType OBJECT-TYPE
+      SYNTAX      InetAddressType
+      MAX-ACCESS  accessible-for-notify
+      STATUS      current
+      DESCRIPTION "The type of address of a remote router."
+  ::= { evpnNotificationEntry 12 }
+
+  evpnRemoteRtrAddr OBJECT-TYPE
+      SYNTAX      InetAddress
+      MAX-ACCESS  accessible-for-notify
+      STATUS      current
+      DESCRIPTION "The address of a remote router."
+  ::= { evpnNotificationEntry 13 }
+
+  evpnRemoteMcastMode OBJECT-TYPE
+      SYNTAX      EvpnPmsiTnnlType
+      MAX-ACCESS  accessible-for-notify
+      STATUS      current
+      DESCRIPTION "The remote multicast mode."
+  ::= { evpnNotificationEntry 14 }
+
+  evpnRemoteMcastGpAddrType OBJECT-TYPE
+      SYNTAX      InetAddressType
+      MAX-ACCESS  accessible-for-notify
+      STATUS      current
+      DESCRIPTION "The remote IP multicast group address type."
+  ::= { evpnNotificationEntry 15 }
+
+  evpnRemoteMcastGpAddr OBJECT-TYPE
+      SYNTAX      InetAddress
+      MAX-ACCESS  accessible-for-notify
+      STATUS      current
+      DESCRIPTION "The remote IP multicast group address."
+  ::= { evpnNotificationEntry 16 }
+
+  evpnIpDupErrorIpType OBJECT-TYPE
+      SYNTAX      InetAddressType
+      MAX-ACCESS  accessible-for-notify
+      STATUS      current
+      DESCRIPTION "The type of the IP address for which an error has been
+                   detected."
+  ::= { evpnNotificationEntry 17 }
+
+  evpnIpDupErrorIpAddr OBJECT-TYPE
+      SYNTAX      InetAddress
+      MAX-ACCESS  accessible-for-notify
+      STATUS      current
+      DESCRIPTION "The IP address for which and error has been detected."
+  ::= { evpnNotificationEntry 18 }
+
+  evpnIpDupErrorDetected OBJECT-TYPE
+    SYNTAX      TruthValue
+    MAX-ACCESS  accessible-for-notify
+    STATUS      current
+    DESCRIPTION "Indicates whether or not an error is currently detected
+                 for this IP address.
+
+                 A value of true(1) indicates that an error has been
+                 detected for this IP address.  A value of false(2)
+                 indicates that the error has been cleared. "
+  ::= { evpnNotificationEntry 19 }
+
+  evpnIpDupErrorMacAddress OBJECT-TYPE
+      SYNTAX      MacAddress
+      MAX-ACCESS  accessible-for-notify
+      STATUS      current
+      DESCRIPTION "The remote MAC address where the same IP is configured."
+  ::= { evpnNotificationEntry 20 }
+
+  evpnIpDupIpBgpNhAddrType OBJECT-TYPE
+      SYNTAX      InetAddressType
+      MAX-ACCESS  accessible-for-notify
+      STATUS      current
+      DESCRIPTION "The type of IP address associated with the BGP next hop
+                   for the remote MAC/IP route that caused the error."
+  ::= { evpnNotificationEntry 21 }
+
+  evpnIpDupIpBgpNhAddr OBJECT-TYPE
+      SYNTAX      InetAddress
+      MAX-ACCESS  accessible-for-notify
+      STATUS      current
+      DESCRIPTION "The BGP next hop address for the remote MAC/IP route that
+                   caused the error."
+  ::= { evpnNotificationEntry 22 }
+
+-- Begin Versa change {
+
+   evpnEviName  OBJECT-TYPE
+    SYNTAX      OCTET STRING (SIZE (0..128))
+    MAX-ACCESS  accessible-for-notify
+    STATUS      current
+    DESCRIPTION "Configured name of the EVI"
+    ::= { evpnNotificationEntry 23 }
+
+   evpnBdName   OBJECT-TYPE
+    SYNTAX      OCTET STRING (SIZE (0..128))
+    MAX-ACCESS  accessible-for-notify
+    STATUS      current
+    DESCRIPTION "Configured name of the bridge-domain"
+    ::= { evpnNotificationEntry 24 }
+
+-- End Versa change }
+
+-------------------------------------------------------------------------------
+--
+-- evpnMacError
+--
+-- A notification generated as part of MAC-mobility procedures.
+--
+
+  evpnMacError NOTIFICATION-TYPE
+    OBJECTS {
+-- Begin Versa change
+-- Begin Versa change
+-- Versa removed below
+--      evpnEviIndex,
+-- Versa added below
+        evpnBdIndex,
+-- End Versa change
+        evpnMacErrorMacAddress,
+        evpnMacErrorErrorType,
+        evpnMacErrorErrorDetected,
+        evpnMacErrorIpAddressType,
+        evpnMacErrorIpAddress,
+        evpnMacErrorIpBgpNhAddrType,
+        evpnMacErrorIpBgpNhAddr,
+-- Begin Versa change
+        evpnEviName,
+        evpnBdName
+-- End Versa change
+     }
+    STATUS  current
+    DESCRIPTION "Notification indicating that an error has been detected for
+                 a MAC address advertised within an EVPN network.
+
+                 Notifications are generated when the fault is initially
+                 detected, and when it is cleared.  See the comments for the
+                 specific error types for when this happens, and what the
+                 consequence of the error being detected is."
+    ::= { evpnBaseNotifications 1 }
+
+-------------------------------------------------------------------------------
+--
+-- evpnMulticastConfigError
+--
+-- A notification generated when EVPN detects that the local multicast
+-- configuration is inconsistent with a remote router.
+--
+
+  evpnMulticastConfigError NOTIFICATION-TYPE
+    OBJECTS {
+-- Begin Versa change
+-- Versa removed below
+--      evpnEviIndex,
+-- Versa added below
+        evpnBdIndex,
+-- End Versa change
+        evpnLocalMcastMode,
+        evpnLocalMcastGpAddrType,
+        evpnLocalMcastGpAddr,
+        evpnRemoteRtrAddrType,
+        evpnRemoteRtrAddr,
+        evpnRemoteMcastMode,
+        evpnRemoteMcastGpAddrType,
+        evpnRemoteMcastGpAddr,
+-- Begin Versa change
+        evpnEviName,
+        evpnBdName
+-- End Versa change
+     }
+    STATUS  current
+    DESCRIPTION "Notification indicating inconsistent multicast configuration.
+
+                 The notification is generated when EVPN detects that the
+                 local multicast configuration for an EVI is not consistent
+                 with a remote router in the same EVI.
+
+                 In order for BUM traffic to be forwarded correctly within
+                 an EVI, the multicast configuration must be the same on
+                 each router that supports the EVI."
+    ::= { evpnBaseNotifications 2 }
+
+-------------------------------------------------------------------------------
+--
+-- evpnIpDuplicationError
+--
+-- A notification generated as part of MAC-mobility procedures.
+--
+
+  evpnIpDuplicationError NOTIFICATION-TYPE
+    OBJECTS {
+        evpnEviIndex,
+        evpnIpDupErrorIpType,
+        evpnIpDupErrorIpAddr,
+        evpnIpDupErrorDetected,
+        evpnIpDupErrorMacAddress,
+        evpnIpDupIpBgpNhAddrType,
+        evpnIpDupIpBgpNhAddr
+     }
+    STATUS  current
+    DESCRIPTION "Notification indicating that a duplicated IP has been
+                 detected within an EVPN network.
+
+                 Notifications are generated when the fault is initially
+                 detected, and when it is cleared."
+    ::= { evpnBaseNotifications 3 }
+
+-------------------------------------------------------------------------------
+-- Module Conformance Statement
+-------------------------------------------------------------------------------
+
+evpnGroups
+    OBJECT IDENTIFIER ::= { evpnConformance 1 }
+
+evpnCompliances
+    OBJECT IDENTIFIER ::= { evpnConformance 2 }
+
+--
+-- Full Compliance
+--
+
+evpnModuleFullCompliance MODULE-COMPLIANCE
+    STATUS current
+    DESCRIPTION "The full set of EVPN objects."
+
+    MODULE -- this module
+        MANDATORY-GROUPS    { evpnGeneralGroup,
+                              evpnConfigGroup,
+                              evpnInfoGroup,
+                              evpnNotificationObjectGroup,
+                              evpnNotificationGroup
+                            }
+
+    ::= { evpnCompliances 1 }
+
+evpnGeneralGroup OBJECT-GROUP
+    OBJECTS {
+      evpnEntRowStatus,
+      evpnEntAdminStatus,
+      evpnEntOperStatus,
+      evpnEntNbasePriority,
+      evpnEntTimerGranularity,
+      evpnEntRestartDuration,
+      evpnEntRescheduleLimit,
+      evpnEntLdbiBufferPoolSize,
+      evpnEntRpiBufferPoolSize,
+      evpnEntBdpiBufferPoolSize,
+      evpnEntMaiBufferPoolSize,
+      evpnEntRetryInterval,
+      evpnEntTpiBufferPoolSize,
+      evpnEntPriBufferPoolSize,
+      evpnEntAfmBufferPoolSize,
+      evpnEntBdiiBufferPoolSize,
+      evpnMjRowStatus,
+      evpnMjAdminStatus,
+      evpnMjOperStatus,
+      evpnMjJoinStatus,
+      evpnSjJoinStatus
+    }
+    STATUS current
+    DESCRIPTION
+        "Objects from EVPN entity configuration tables."
+    ::= { evpnGroups 1 }
+
+evpnConfigGroup OBJECT-GROUP
+    OBJECTS {
+      evpnEntMacMoveLimit,
+      evpnEntMacMoveDuration,
+      evpnEntLocalRouterAddressType,
+      evpnEntLocalRouterAddress,
+      evpnEntMacWithdrawDelay,
+      evpnEntLabelAllocType,
+      evpnEntUseHal,
+      evpnEntPartialRt,
+      evpnEviRowStatus,
+      evpnEviAdminStatus,
+      evpnEviOperStatus,
+      evpnEviOperReason,
+      evpnEviRdCfgOrAuto,
+      evpnEviCfgRd,
+      evpnEviRd,
+      evpnEviRtCfgOrAuto,
+      evpnEviAutoRt,
+      evpnEviEncapsulation,
+      evpnEviLocalRouterAddressType,
+      evpnEviLocalRouterAddress,
+      evpnEviAutoRtType,
+      evpnBdRowStatus,
+      evpnBdAdminStatus,
+      evpnBdOperStatus,
+      evpnBdOperReason,
+      evpnBdMacLearning,
+      evpnBdMacAddrLimit,
+      evpnBdMacAgingTime,
+      evpnBdVni,
+      evpnBdMcastMode,
+      evpnBdMcastGpAddressType,
+      evpnBdMcastGpAddress,
+      evpnIfBindCfgRowStatus,
+      evpnIfBindCfgAdminStatus,
+      evpnIfBindCfgOperStatus,
+      evpnIfBindCfgOperReason,
+      evpnIfBindCfgMacLearning,
+      evpnIfBindCfgMacAddrLimit,
+      evpnEsRowStatus,
+      evpnEsAdminStatus,
+      evpnEsOperStatus,
+      evpnEsOperReason,
+      evpnEsIdentifier,
+      evpnEsMode,
+      evpnEsRouteDistinguisher,
+      evpnEsRouteTarget,
+      evpnEsDfElectionWaitTime,
+      evpnEsTnnlEndptAddrType,
+      evpnEsTnnlEndptAddr,
+      evpnEviRtRowStatus,
+      evpnEviRtOperStatus,
+      evpnEviRtOperReason,
+      evpnEviRtType,
+      evpnIpVrfRowStatus,
+      evpnIpVrfAdminStatus,
+      evpnIpVrfOperStatus,
+      evpnIpVrfOperReason,
+      evpnIpVrfVni,
+      evpnIpVrfRtType,
+      evpnIpVrfRtRowStatus,
+      evpnIpVrfRtOperStatus,
+      evpnIpVrfRtOperReason
+    }
+    STATUS current
+    DESCRIPTION
+        "Objects from EVPN protocol configuration tables."
+    ::= { evpnGroups 2 }
+
+evpnInfoGroup OBJECT-GROUP
+    OBJECTS {
+      evpnBdIfOperStatus,
+      evpnBdIfOperReason,
+      evpnMacIpSource,
+      evpnMacIpBgpNhAddrType,
+      evpnMacIpBgpNhAddr,
+      evpnMacIpLocalInterface,
+      evpnMacIpLabel,
+      evpnMacIpInUse,
+      evpnMacIpEsi,
+      evpnMacIpSequenceNum,
+      evpnMacIpSticky,
+      evpnEsOperStatus,
+      evpnEsOperReason,
+      evpnEsStateStatus,
+      evpnEsStateIfStatus,
+      evpnEsStateIdentifier,
+      evpnEsStateMode,
+      evpnEsStateRouteDistinguisher,
+      evpnEsStateRouteTarget,
+      evpnEsStateDfElectionWaitTime,
+      evpnEsStateTnnlEndptAddrType,
+      evpnEsStateTnnlEndptAddr,
+      evpnEsMemberIsLocal,
+      evpnEsDfAddrType,
+      evpnEsDfAddr,
+      evpnIrbName,
+      evpnIrbEvi,
+      evpnIrbVrfName,
+      evpnIncMcastSource,
+      evpnIncMcastTnnlType,
+      evpnIncMcastTnnlLabel,
+      evpnIncMcastTnnlIpAddrType,
+      evpnIncMcastTnnlIpAddr,
+      evpnVxlanTnnlOperStatus,
+      evpnVxlanTnnlPortIfIndex,
+      evpnVxlanTnnlEviIndex,
+      evpnVxlanTnnlVrfName
+    }
+    STATUS current
+    DESCRIPTION
+        "Information from read-only EVPN tables."
+    ::= { evpnGroups 3 }
+
+evpnNotificationObjectGroup OBJECT-GROUP
+    OBJECTS {
+        evpnMacErrorMacAddress,
+        evpnMacErrorErrorType,
+        evpnMacErrorErrorDetected,
+        evpnMacErrorIpAddressType,
+        evpnMacErrorIpAddress,
+        evpnMacErrorIpBgpNhAddrType,
+        evpnMacErrorIpBgpNhAddr,
+        evpnLocalMcastGpAddrType,
+        evpnLocalMcastGpAddr,
+        evpnLocalMcastMode,
+        evpnRemoteRtrAddrType,
+        evpnRemoteRtrAddr,
+        evpnRemoteMcastGpAddrType,
+        evpnRemoteMcastGpAddr,
+        evpnRemoteMcastMode,
+        evpnIpDupErrorIpType,
+        evpnIpDupErrorIpAddr,
+        evpnIpDupErrorDetected,
+        evpnIpDupErrorMacAddress,
+        evpnIpDupIpBgpNhAddrType,
+        evpnIpDupIpBgpNhAddr
+    }
+    STATUS current
+    DESCRIPTION
+        "Objects used in notification parameters."
+    ::= { evpnGroups 4 }
+
+evpnNotificationGroup OBJECT-GROUP
+    OBJECTS {
+        evpnMacError,
+        evpnMulticastConfigError,
+        evpnIpDuplicationError
+    }
+    STATUS current
+    DESCRIPTION
+        "Notifications."
+    ::= { evpnGroups 5 }
+
+-------------------------------------------------------------------------------
+
+END

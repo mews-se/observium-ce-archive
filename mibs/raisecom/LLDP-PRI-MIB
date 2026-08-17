@@ -1,0 +1,245 @@
+--MibName=rcLldpPrivate
+   LLDP-PRI-MIB DEFINITIONS ::= BEGIN 
+   
+IMPORTS         
+      MODULE-IDENTITY, OBJECT-TYPE, NOTIFICATION-TYPE
+        									FROM SNMPv2-SMI
+      	TruthValue				FROM SNMPv2-TC 
+        InterfaceIndex   	  FROM IF-MIB
+        iscomSwitch       FROM RAISECOM-BASE-MIB   
+        MacAddress     FROM SNMPv2-TC 
+        lldpLocManAddrSubtype FROM LLDP-STD-MIB    
+        lldpRemLocalPortNum FROM LLDP-STD-MIB
+        lldpRemIndex FROM LLDP-STD-MIB
+        lldpRemManAddrSubtype FROM LLDP-STD-MIB;     -- [RFC2579]
+
+rcLldp 			 OBJECT IDENTIFIER ::= { iscomSwitch 57 }
+
+rcLldpPrivate MODULE-IDENTITY 
+        LAST-UPDATED "201001040000Z"  -- Jan 4,2010"
+        ORGANIZATION 
+          "raisecom"
+        CONTACT-INFO 
+          "          "
+        DESCRIPTION
+          "The MIB module for private canfiguration of lldp."
+   
+        REVISION    "201001040000Z"  -- Jan 4, 2010"
+        DESCRIPTION ""
+     
+         ::= { rcLldp 2 }
+      
+      -- 
+      -- Sections of the raisecom LLDP MIB
+      --
+
+rcLldpConfig 			   OBJECT IDENTIFIER ::= { rcLldpPrivate 1 }
+rcLldpPortConfig		 OBJECT IDENTIFIER ::= { rcLldpPrivate 2 } 
+rclldpManIpAdd            OBJECT IDENTIFIER ::= { rcLldpPrivate 3 } 
+
+        
+-- ***************************************************************
+--
+-- private LLDP objectes group
+--
+
+
+rcLldpEnable OBJECT-TYPE
+    SYNTAX      TruthValue
+    MAX-ACCESS  read-write
+    STATUS      current
+    DESCRIPTION
+            "The vlalue indicats that LLDP is valid when it is set TRUE.
+            The default value is FALSE."
+    DEFVAL     { FALSE }
+    ::= { rcLldpConfig 1 }
+
+rcLldpNotificationEnable OBJECT-TYPE
+    SYNTAX      TruthValue
+    MAX-ACCESS  read-write
+    STATUS      current
+    DESCRIPTION
+            "The vlalue indicats whether LLDP trap can be sent to SNMP when 
+            some events occurs.The 'TRUE'value indicats trap 
+            can execute,or cannot execute."
+    DEFVAL     { TRUE }
+    ::= { rcLldpConfig 2 }
+
+rcLldpClearGlobalStatistic OBJECT-TYPE
+    SYNTAX      TruthValue
+    MAX-ACCESS  read-write
+    STATUS      current
+    DESCRIPTION
+            "Clear global statistic information."
+    DEFVAL     { FALSE }
+    ::= { rcLldpConfig 3 }
+             
+rcLldpPortConfigTable OBJECT-TYPE
+	SYNTAX      SEQUENCE OF rcLldpPortConfigEntry
+	MAX-ACCESS  not-accessible
+	STATUS      current
+	DESCRIPTION 
+	  "A table of LLDP port configuration. "   
+	::= { rcLldpPortConfig 1 }
+
+rcLldpPortConfigEntry OBJECT-TYPE
+	SYNTAX     rcLldpPortConfigEntry
+	MAX-ACCESS not-accessible
+	STATUS     current
+	DESCRIPTION 
+	  "Table entry for LLDP port configuration."
+	INDEX       { rcLldpPortIndex }
+	::= { rcLldpPortConfigTable 1 }
+
+rcLldpPortConfigEntry ::=
+	SEQUENCE { 
+	  rcLldpPortIndex	        InterfaceIndex,
+	  rcLldpPortEnable			TruthValue,
+	  rcLldpPortClearStatistic TruthValue,
+	  rcLldpPortClearRemTablesEntries TruthValue,
+	  rcLldpPortDestAddress MacAddress
+}
+rcLldpPortIndex        OBJECT-TYPE
+	SYNTAX      InterfaceIndex
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION
+            "This object represents the  Bridge Port" 
+	::= { rcLldpPortConfigEntry 1 }
+      
+rcLldpPortEnable OBJECT-TYPE
+	SYNTAX      TruthValue
+	MAX-ACCESS  read-write
+	STATUS      current
+	DESCRIPTION 
+	  "Enable or disable port lldp function." 
+	DEFVAL     { TRUE }
+	 ::= { rcLldpPortConfigEntry 2 }
+
+rcLldpPortClearStatistic OBJECT-TYPE
+	SYNTAX      TruthValue
+	MAX-ACCESS  read-write
+	STATUS      current
+	DESCRIPTION 
+	  "Clear port statistic information." 
+	DEFVAL     { FALSE }
+	 ::= { rcLldpPortConfigEntry 3 }
+	 
+rcLldpPortClearRemTablesEntries OBJECT-TYPE
+	SYNTAX      TruthValue
+	MAX-ACCESS  read-write
+	STATUS      current
+	DESCRIPTION 
+	  "Clear port remote information."
+	DEFVAL     { FALSE }
+	 ::= { rcLldpPortConfigEntry 4 }
+	 
+rcLldpPortDestAddress OBJECT-TYPE
+	SYNTAX      MacAddress
+	MAX-ACCESS  read-write
+	STATUS      current
+	DESCRIPTION 
+	  "Dest mac address of LLDPDU."
+	 ::= { rcLldpPortConfigEntry 5 }
+	 
+--
+-- lldpLocManIpAddrTable : Management addresses of the local system
+--
+
+lldpLocManIpAddrTable OBJECT-TYPE
+    SYNTAX      SEQUENCE OF LldpLocManIpAddrEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION
+            "This table contains management address information on the
+            local system known to this agent."
+    ::= { rclldpManIpAdd 1 }
+
+lldpLocManIpAddrEntry OBJECT-TYPE
+    SYNTAX      LldpLocManIpAddrEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION
+            "Management address information about a particular chassis
+            component.  There may be multiple management addresses
+            configured on the system identified by a particular
+            lldpLocChassisId.  Each management address should have
+            distinct 'management address type' (lldpLocManAddrSubtype) and
+            'management address' (lldpLocManAddr.)
+
+            Entries may be created and deleted in this table by the
+            agent."
+    INDEX   { lldpLocManAddrSubtype,
+              rcLldpPortIndex }
+    ::= { lldpLocManIpAddrTable 1 }
+
+LldpLocManIpAddrEntry ::= SEQUENCE {
+      lldpLocManIpAddr       IpAddress
+}
+		
+lldpLocManIpAddr OBJECT-TYPE
+   SYNTAX      IpAddress
+   MAX-ACCESS  read-only
+   STATUS      current
+   DESCRIPTION
+      "The OID value used to identify the type of hardware component
+       or protocol entity associated with the management address
+       advertised by the local system agent."
+   REFERENCE 
+   "IEEE 802.1AB-2005 9.5.9.8"
+   ::= { lldpLocManIpAddrEntry 1 }
+
+--
+-- lldpRemManIpAddrTable : Management addresses of the remote system
+--
+
+lldpRemManIpAddrTable OBJECT-TYPE
+    SYNTAX      SEQUENCE OF LldpRemManIpAddrEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION
+            "This table contains one or more rows per management address
+            information on the remote system learned on a particular port
+            contained in the local chassis known to this agent."
+    ::= { rclldpManIpAdd 2 }
+
+lldpRemManIpAddrEntry OBJECT-TYPE
+    SYNTAX      LldpRemManIpAddrEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION
+            "Management address information about a particular chassis
+            component.  There may be multiple management addresses
+            configured on the remote system identified by a particular
+            lldpRemIndex whose information is received on
+            lldpRemLocalPortNum of the local system.  Each management
+            address should have distinct 'management address
+            type' (lldpRemManAddrSubtype) and 'management address'
+            (lldpRemManAddr.)
+
+            Entries may be created and deleted in this table by the
+            agent."
+    INDEX   { lldpRemLocalPortNum,
+              lldpRemIndex,
+              lldpRemManAddrSubtype
+ }
+    ::= { lldpRemManIpAddrTable 1 }
+
+LldpRemManIpAddrEntry ::= SEQUENCE {
+      lldpRemManIpAddr            IpAddress
+}
+
+lldpRemManIpAddr  OBJECT-TYPE
+    SYNTAX      IpAddress
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+            "The string value used to identify the management address
+            component associated with the remote system.  The purpose
+            of this address is to contact the management entity."
+    REFERENCE 
+            "IEEE 802.1AB-2005 9.5.9.4"
+    ::= { lldpRemManIpAddrEntry 1 }
+	 
+
+END

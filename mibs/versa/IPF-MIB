@@ -1,0 +1,194 @@
+IPF-MIB DEFINITIONS ::= BEGIN
+IMPORTS
+    MODULE-IDENTITY, OBJECT-TYPE,
+    Integer32, Unsigned32, Counter32, Counter64,
+    Gauge32, IpAddress
+        FROM SNMPv2-SMI
+    TEXTUAL-CONVENTION, RowStatus, DateAndTime,
+    TruthValue
+        FROM SNMPv2-TC
+    ngfw
+        FROM VERSA-MIB
+;
+
+ipf MODULE-IDENTITY
+    LAST-UPDATED "201701050000Z"
+    ORGANIZATION "Versa Networks"
+    CONTACT-INFO "
+        2953 Bunker Hill Lane, Suite 210
+        Santa Clara, CA - 95035 (USA)
+        Email: support@versa-networks.com"
+    DESCRIPTION "Enterprise MIB for Versa Networks'
+IP Filtering solution"
+    REVISION "201701050000Z"
+    DESCRIPTION "Initial revision"
+    ::= { ngfw 11 }
+
+ConfdString ::= TEXTUAL-CONVENTION
+    DISPLAY-HINT "1t"
+    STATUS      current
+    DESCRIPTION "xs: and confd: types mapped to strings"
+    SYNTAX      OCTET STRING
+
+String ::= TEXTUAL-CONVENTION
+    DISPLAY-HINT "1t"
+    STATUS      current
+    DESCRIPTION "xs:string"
+    SYNTAX      OCTET STRING
+
+ipfProfileTable OBJECT-TYPE
+    SYNTAX      SEQUENCE OF IpfProfileEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "IPF profile statistics"
+    ::= { ipf 1 }
+
+ipfProfileEntry OBJECT-TYPE
+    SYNTAX      IpfProfileEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION ""
+    INDEX { ipfProfileOrgId, ipfProfileID }
+        ::= { ipfProfileTable 1 }
+
+IpfProfileEntry ::=
+    SEQUENCE {
+        ipfProfileOrgId Unsigned32,
+        ipfProfileID Unsigned32,
+        ipfProfileOrgName String,
+        ipfProfileName String,
+        ipfProfileHitCount ConfdString,
+        ipfProfileBlackListHitCount ConfdString,
+        ipfProfileWhiteListHitCount ConfdString,
+        ipfProfileGeoRuleHitCount ConfdString,
+        ipfProfileReputationRuleHitCount ConfdString,
+        ipfProfileNoMatchCount ConfdString,
+        ipfProfileLogCount ConfdString,
+        ipfProfileDropCount ConfdString,
+        ipfProfileFailCount ConfdString,
+        ipfProfileReverseLookupCount ConfdString,
+        ipfProfileUrlfProfileHitCount ConfdString,
+        ipfProfileCPortalActionCount ConfdString,
+        ipfProfileReputationActionIgnoredCount ConfdString
+    }
+
+ipfProfileOrgId OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "Organization id"
+    ::= { ipfProfileEntry 1 }
+
+ipfProfileID OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "IPF Profile Id"
+    ::= { ipfProfileEntry 2 }
+
+ipfProfileOrgName OBJECT-TYPE
+    SYNTAX      String
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Organization Name"
+    ::= { ipfProfileEntry 3 }
+
+ipfProfileName OBJECT-TYPE
+    SYNTAX      String
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "IPF Profile Name"
+    ::= { ipfProfileEntry 4 }
+
+ipfProfileHitCount OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Profile hit count"
+    ::= { ipfProfileEntry 5 }
+
+ipfProfileBlackListHitCount OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Black list hit count"
+    ::= { ipfProfileEntry 6 }
+
+ipfProfileWhiteListHitCount OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "White list hit count"
+    ::= { ipfProfileEntry 7 }
+
+ipfProfileGeoRuleHitCount OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Geoip rule hit count"
+    ::= { ipfProfileEntry 8 }
+
+ipfProfileReputationRuleHitCount OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Reputation rule hit count"
+    ::= { ipfProfileEntry 9 }
+
+ipfProfileNoMatchCount OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "No rule match count"
+    ::= { ipfProfileEntry 10 }
+
+ipfProfileLogCount OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Lef log send count"
+    ::= { ipfProfileEntry 11 }
+
+ipfProfileDropCount OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "session drop/reject count"
+    ::= { ipfProfileEntry 12 }
+
+ipfProfileFailCount OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "profile evaluation failed count"
+    ::= { ipfProfileEntry 13 }
+
+ipfProfileReverseLookupCount OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "reverse lookup perform count"
+    ::= { ipfProfileEntry 14 }
+
+ipfProfileUrlfProfileHitCount OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "URLf profile hit count"
+    ::= { ipfProfileEntry 15 }
+
+ipfProfileCPortalActionCount OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "captive portal action taken count"
+    ::= { ipfProfileEntry 16 }
+
+ipfProfileReputationActionIgnoredCount OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "reputation action not taken for trustworthy urls"
+    ::= { ipfProfileEntry 17 }
+
+END

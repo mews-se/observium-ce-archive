@@ -1,0 +1,416 @@
+-- Copyright (C) 2006-2012 Aricent Group . All Rights Reserved
+
+-- $Id: fssshmib.mib,v 1.1.1.1 2018/02/08 06:06:34 siva Exp $
+
+-- SSH proprietary MIB Definition
+ 
+ARICENT-SSH-MIB DEFINITIONS ::= BEGIN
+
+IMPORTS 
+   MODULE-IDENTITY, OBJECT-TYPE, 
+   enterprises, Integer32, Unsigned32   
+   FROM SNMPv2-SMI 
+   TruthValue 
+   FROM SNMPv2-TC; 
+
+   ssh MODULE-IDENTITY 
+      LAST-UPDATED "202406270000Z"
+      ORGANIZATION "CAMBIUM NETWORKS SOFTWARE" 
+      CONTACT-INFO "support@cambiumnetworks.com" 
+      DESCRIPTION
+         "The proprietary MIB for SSH."
+      REVISION "202406270000Z"
+      DESCRIPTION
+         "Add object sshKexList. Change default value for ssh key exchange algorithm.
+          Add object sshKeyList. Change default value for ssh host key algorithm."
+      REVISION "202404160000Z"
+      DESCRIPTION
+         "Add new values to the bit mask object of sshTrace"
+      REVISION "202311060000Z"
+      DESCRIPTION
+         "Add object sshRekeyLimit. Maximum amount of data that may be transmitted or
+          received before the session key is renegotiated 
+          Add object sshRekeyInterval. Maximum amount of time that may pass before 
+          the session key is renegotiated
+          Add object sshClientAliveCountMax. The number of client alive messages 
+          which may be sent without ssh server receiving any messages back from the client. 
+          If this threshold is reached while client alive messages are being sent, 
+          ssh server will disconnect the client, terminating the session. 
+          Add object sshClientAliveInterval. Timeout interval in seconds after 
+          which if no data has been received from the client, the ssh server will send 
+          a message through the encrypted channel to request a response from the client.
+          Add object sshMaxStartupsStartDrop. Number of concurrent unauthenticated  
+          connections to the SSH server from which it starts to drop connections
+          Add object sshMaxStartupsRateDrop. SSH server will refuse connection 
+          attempts with a probability of the rate drop 
+          Add object sshMaxStartupsDropAll. All connection attempts are refused 
+          if the number of unauthenticated connections reaches this value.
+          Add object sshLoginGraceTime. The server disconnects after this time 
+          in seconds if the user has not successfully logged in."
+      REVISION "202311010000Z"
+      DESCRIPTION
+         "Add object sshTunnelingStatus for enabling or disabling ssh tunneling."
+      REVISION "202305260000Z"
+      DESCRIPTION
+         "Change default value to the object sshMacList.
+          Change default value to the object sshCipherList."
+      REVISION "202304120000Z"
+      DESCRIPTION
+         "Change default value to the object sshMacList."
+      REVISION "202303230000Z"
+      DESCRIPTION
+         "Add new parameters to the object sshCipherList.
+          Change default value to the object sshCipherList.
+          Add new parameters to the object sshMacList.
+          Change default value to the object sshMacList.
+          Add new parameters and deprecate old parameters to the object sshTrace.
+          Deprecate object sshTransportMaxAllowedBytes"
+      REVISION "202201170000Z"
+      DESCRIPTION
+         "Was added object sshMaxSessions for setting SSH max sessions"
+      REVISION "201906140000Z"
+      DESCRIPTION 
+         "The proprietary MIB for SSH." 
+   ::= { enterprises futuresoftware (2076) 97 }
+
+
+-- ----------------------------------------------------------------- --
+-- groups in the MIB
+-- ----------------------------------------------------------------- --
+ 
+      sshGeneralGroup             OBJECT IDENTIFIER ::= { ssh 1 }
+ 
+-- ---------------------------------------------------------------- --
+
+-- General Group 
+
+sshVersionCompatibility      OBJECT-TYPE
+   SYNTAX      TruthValue 
+   MAX-ACCESS  read-write 
+   STATUS      current 
+   DESCRIPTION 
+
+   "This object is to configure the SSH version compatibility mode.
+   When set to TRUE, both SSH version-1 and SSH Version-2 will be supported.
+   When set to FALSE, SSH version-2 only will be supported.
+
+   By default SSH version-2 is supported."
+
+   DEFVAL  { false } 
+   ::= { sshGeneralGroup 1 }
+
+sshCipherList OBJECT-TYPE
+      SYNTAX Integer32(1..2045)
+      MAX-ACCESS read-write
+      STATUS current
+      DESCRIPTION
+      
+      "This object is to configure the cipher-suites list.
+
+      This object takes values as bit mask.  Setting a bit indicates that the 
+      corresponding cipher-list will be used for Encryption. 
+
+      The value of each bit position is as given below with bit 0 being the 
+      least significant bit:
+           BIT 10 - AES-CTR-192
+           BIT 9  - AES-CBC-192
+           BIT 8  - AES-GCM-256
+           BIT 7  - AES-GCM-128
+           BIT 6  - AES-CTR-256
+           BIT 5  - AES-CTR-128
+           BIT 4  - CHACHA20-POLY1305
+           BIT 3  - AES-CBC-256
+           BIT 2  - AES-CBC-128 
+           BIT 1  - DES-CBC
+           BIT 0  - 3DES-CBC" 
+          
+   DEFVAL  { 496 }
+   ::= { sshGeneralGroup 2}
+
+sshMacList OBJECT-TYPE
+      SYNTAX Integer32(1..65535)
+      MAX-ACCESS read-write
+      STATUS current
+      DESCRIPTION
+
+      "This object is to configure the MAC-list.
+
+      This object takes values as bit mask. Setting a bit indicates that the 
+      corresponding MAC-list will be used for authentication. 
+
+      The value of each bit position is as given below with bit 0  being the 
+      least significant bit: 
+            BIT 1  - HMAC-MD5
+            BIT 0  - HMAC-SHA1
+            BIT 2  - HMAC-SHA256
+            BIT 3  - HMAC-SHA512
+            BIT 4  - UMAC128
+            BIT 5  - HMAC-SHA1-ETM
+            BIT 6  - HMAC-MD5-ETM
+            BIT 7  - HMAC-SHA256-ETM
+            BIT 8  - HMAC-SHA512-ETM
+            BIT 9  - UMAC128-ETM
+            BIT 10 - HMAC-SHA1-96
+            BIT 11 - HMAC-MD5-96
+            BIT 12 - HMAC-SHA1-96-ETM
+            BIT 13 - HMAC-MD5-96-ETM
+            BIT 14 - UMAC64
+            BIT 15 - UMAC64-ETM"
+            
+   DEFVAL  { 396 }
+   ::= { sshGeneralGroup 3}
+
+
+sshTrace     OBJECT-TYPE
+         SYNTAX        Integer32
+         MAX-ACCESS    read-write
+         STATUS        current
+         DESCRIPTION
+         "Set the trace level for SSH.
+            BIT 0 - Initialisation and Shutdown Trace. (Deprecated)
+            BIT 1 - Management trace. (Deprecated)
+            BIT 2 - Data path trace. (Deprecated)
+            BIT 3 - Control Plane trace. (Deprecated)
+            BIT 4 - Packet Dump. (Deprecated)
+            BIT 5 - OS Resource trace. (Deprecated)
+            BIT 6 - All Failure trace. (Deprecated)
+            BIT 7 - Buffer Trace. (Deprecated)
+            BIT 8 - SSH Server Trace. (Deprecated)
+            BIT 9 - Fatal trace.
+            BIT 10 - Error trace.
+            BIT 11 - Info trace.
+            BIT 12 - Sftp trace.
+            BIT 13 - Ssh client info trace.
+            BIT 14 - Ssh client error trace.
+            BIT 15 - Ssh client verbose trace.
+            BIT 16 - Sshd fatal trace.
+            BIT 17 - Sshd error trace.
+            BIT 18 - Sshd info trace.
+            BIT 19 - Sshd verbose trace.
+            BIT 20 - Sshd debug trace.
+            BIT 21 - Sshd debug1 trace.
+            BIT 22 - Sshd debug2 trace.
+            BIT 23 - Sshd debug3 trace."
+
+         ::= { sshGeneralGroup 4 }
+
+sshStatus  OBJECT-TYPE
+   SYNTAX      TruthValue 
+   MAX-ACCESS  read-write
+   STATUS      current
+   DESCRIPTION
+      "A value of 'true(1)' enables ssh in the system.
+       A value of 'false(2)' disables ssh in the system."
+
+   DEFVAL  { true }
+   ::= { sshGeneralGroup 5}
+sshTransportMaxAllowedBytes        OBJECT-TYPE
+        SYNTAX                 Integer32(1..32768)
+        MAX-ACCESS        	  read-only
+        STATUS                deprecated
+        DESCRIPTION
+        "This object was used to configure the maximum number of bytes allowed in an SSH transport connection. The object is deprecated and not used anymore."
+   DEFVAL    { 32768 }
+   ::= { sshGeneralGroup 6 }
+
+sshSrvBindAddr OBJECT-TYPE
+    SYNTAX   OCTET STRING (SIZE (4|16))
+    MAX-ACCESS  read-write
+    STATUS  current
+    DESCRIPTION "This object defines the Ip address on which Ssh Server listens"
+    ::=  { sshGeneralGroup 7 }
+
+sshServerBindPortNo OBJECT-TYPE
+    SYNTAX   Unsigned32
+    MAX-ACCESS  read-write
+    STATUS  current
+    DESCRIPTION "This object defines the primary port number on which Ssh Server listens"
+    DEFVAL    { 22 }
+    ::=  { sshGeneralGroup 8 }
+
+sshMaxSessions OBJECT-TYPE
+       SYNTAX            Integer32(1..8)
+       MAX-ACCESS        read-write
+       STATUS            current
+       DESCRIPTION "This object defines SSH max sessions"
+       DEFVAL    { 8 }
+       ::= { sshGeneralGroup 9 }
+
+sshTunnelingStatus  OBJECT-TYPE
+   SYNTAX      TruthValue 
+   MAX-ACCESS  read-write
+   STATUS      current
+   DESCRIPTION
+            "A value of 'true(1)' enables ssh tunneling in the system.
+             A value of 'false(2)' disables ssh tunneling in the system."
+
+   DEFVAL  { false }
+   ::= { sshGeneralGroup 10 }
+   
+sshRekeyLimit OBJECT-TYPE
+   SYNTAX            Integer32(0..2147483647)
+   MAX-ACCESS        read-write
+   STATUS            current
+   DESCRIPTION 
+            "This object defines the maximum amount of data (KB) that may be 
+             transmitted or received before the session key is renegotiated.
+             The default value for RekeyLimit is 0, which means that rekeying 
+             is performed after the cipher's default amount of data 
+             has been sent or received and no time based rekeying is done."
+   DEFVAL    { 0 }
+   ::= { sshGeneralGroup 11 }
+
+sshRekeyInterval OBJECT-TYPE
+   SYNTAX            Integer32(0..2147483647)
+   MAX-ACCESS        read-write
+   STATUS            current
+   DESCRIPTION 
+            "This object defines the maximum amount of time that may pass before 
+             the session key is renegotiated. Value 0 means no rekeying is done."
+   DEFVAL    { 0 }
+   ::= { sshGeneralGroup 12 }
+
+sshClientAliveCountMax OBJECT-TYPE
+   SYNTAX            Integer32(0..2147483647)
+   MAX-ACCESS        read-write
+   STATUS            current
+   DESCRIPTION 
+            "This object defines the number of client alive messages which may be sent
+             without ssh server receiving any messages back from the client. 
+             If this threshold is reached while client alive messages are being sent, 
+             ssh server will disconnect the client, terminating the session.
+             Value 0 disables connection termination."
+
+   DEFVAL    { 3 }
+   ::= { sshGeneralGroup 13 }
+
+sshClientAliveInterval OBJECT-TYPE
+   SYNTAX            Integer32(0..2147483647)
+   MAX-ACCESS        read-write
+   STATUS            current
+   DESCRIPTION 
+            "This object defines the timeout interval in seconds after which if no data
+             has been received from the client, ssh server will send a message 
+             through the encrypted channel to request a response from the client. 
+             Value 0 indicates that these messages will not be sent to the client"
+   DEFVAL    { 0 }
+   ::= { sshGeneralGroup 14 }
+
+sshMaxStartupsStartDrop OBJECT-TYPE
+   SYNTAX            Integer32(1..1000000)
+   MAX-ACCESS        read-write
+   STATUS            current
+   DESCRIPTION 
+            "This object defines the number of concurrent unauthenticated  
+             connections to the SSH server from which it starts to drop connections.
+             The value given must be positive."
+   DEFVAL    { 10 }
+   ::= { sshGeneralGroup 15 }
+
+sshMaxStartupsRateDrop OBJECT-TYPE
+   SYNTAX            Integer32(1..100)
+   MAX-ACCESS        read-write
+   STATUS            current
+   DESCRIPTION 
+            "SSH server will refuse connection attempts with a probability of the rate drop,
+             if there are currently sshMaxStartupsStartDrop value unauthenticated connections. 
+             The probability increases linearly and all connection attempts are refused 
+             if the number of unauthenticated connections reaches sshMaxStartupsDropAll value.
+             All connections will be dropped until authentication succeeds or the sshLoginGraceTime 
+             value expires for a connection. The default rate of drop is 30%"
+   DEFVAL    { 30 }
+   ::= { sshGeneralGroup 16 }
+
+sshMaxStartupsDropAll OBJECT-TYPE
+   SYNTAX            Integer32(1..1000000)
+   MAX-ACCESS        read-write
+   STATUS            current
+   DESCRIPTION 
+            "All connection attempts are refused if the number of unauthenticated  
+             connections reaches this value. The value given must be positive."
+   DEFVAL    { 100 }
+   ::= { sshGeneralGroup 17 }
+   
+sshLoginGraceTime OBJECT-TYPE
+   SYNTAX            Integer32(0..2147483647)
+   MAX-ACCESS        read-write
+   STATUS            current
+   DESCRIPTION 
+            "The SSH server disconnects after this time in seconds if the user 
+             has not successfully logged in. If the value is 0, there is no time limit."
+   DEFVAL    { 120 }
+   ::= { sshGeneralGroup 18 }
+ 
+sshKexList OBJECT-TYPE
+      SYNTAX BITS {
+           dh-group1-sha1(0),
+           dh-group14-sha1(1),
+           dh-group14-sha256(2),
+           dh-group16-sha512(3),
+           dh-group18-sha512(4),
+           dh-group-exchange-sha1(5),
+           dh-group-exchange-sha256(6),
+           ecdh-sha2-nistp256(7),
+           ecdh-sha2-nistp384(8),
+           ecdh-sha2-nistp521(9),
+           curve25519-sha256(10),
+           curve25519-sha256-libssh(11),
+           sntrup761x25519-sha512(12)
+      }
+      MAX-ACCESS read-write
+      STATUS current
+      DESCRIPTION
+
+      "This object is to configure the kex-suites list.
+
+      This object takes values as bit mask.  Setting a bit indicates that the
+      corresponding ssh key exchange algorithm will be used for key exchange"
+
+--   DEFVAL  { dh-group14-sha256, dh-group16-sha512, dh-group18-sha512, 
+--             dh-group-exchange-sha256, ecdh-sha2-nistp256, ecdh-sha2-nistp384, ecdh-sha2-nistp521, 
+--             curve25519-sha256, curve25519-sha256-libssh, sntrup761x25519-sha512 }
+
+   ::= { sshGeneralGroup 19}
+
+sshKeyList OBJECT-TYPE
+      SYNTAX BITS {
+         ssh-ed25519(0),
+         ssh-ed25519-cert-v01(1),
+         sk-ssh-ed25519(2),
+         sk-ssh-ed25519-cert-v01(3),
+         ssh-rsa(4),
+         ssh-dss(5),
+         ecdsa-sha2-nistp256(6),
+         ecdsa-sha2-nistp384(7),
+         ecdsa-sha2-nistp521(8),
+         sk-ecdsa-sha2-nistp256(9),
+         ssh-rsa-cert-v01(10),
+         ssh-dss-cert-v01(11),
+         ecdsa-sha2-nistp256-cert-v01(12),
+         ecdsa-sha2-nistp384-cert-v01(13),
+         ecdsa-sha2-nistp521-cert-v01(14),
+         sk-ecdsa-sha2-nistp256-cert-v01(15),
+         webauthn-sk-ecdsa-sha2-nistp256(16),
+         rsa-sha2-256(17),
+         rsa-sha2-512(18),
+         rsa-sha2-256-cert-v01(19),
+         rsa-sha2-512-cert-v01(20)
+      }
+      MAX-ACCESS read-write
+      STATUS current
+      DESCRIPTION
+
+      "This object is to configure the host key algorithms list.
+
+      This object takes values as bit mask.  Setting a bit indicates that the
+      corresponding ssh host key algorithm will be used for key exchange."
+
+--   DEFVAL  { { ssh-ed25519, ssh-ed25519-cert-v01, sk-ssh-ed25519, sk-ssh-ed25519-cert-v01, 
+--               ecdsa-sha2-nistp256, ecdsa-sha2-nistp384, ecdsa-sha2-nistp521, 
+--               sk-ecdsa-sha2-nistp256, ecdsa-sha2-nistp256-cert-v01, ecdsa-sha2-nistp384-cert-v01, 
+--               ecdsa-sha2-nistp521-cert-v01, sk-ecdsa-sha2-nistp256-cert-v01, rsa-sha2-256, 
+--               rsa-sha2-512, rsa-sha2-256-cert-v01, rsa-sha2-512-cert-v01 } }
+
+   ::= { sshGeneralGroup 20 }
+
+END

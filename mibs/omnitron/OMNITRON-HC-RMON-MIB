@@ -1,0 +1,655 @@
+OMNITRON-HC-RMON-MIB DEFINITIONS ::= BEGIN
+
+IMPORTS
+    MODULE-IDENTITY, OBJECT-TYPE, Unsigned32, Counter64, TimeTicks
+        FROM SNMPv2-SMI           -- RFC-2578
+    MODULE-COMPLIANCE, OBJECT-GROUP
+        FROM SNMPv2-CONF          -- RFC-2580
+    TruthValue
+        FROM SNMPv2-TC            -- RFC-2579        
+    omnitron
+        FROM OMNITRON-TC-MIB;     -- Omnitron Enterprise Extension MIB
+
+omnitronHCRmonMib MODULE-IDENTITY
+    LAST-UPDATED "201711151200Z"     -- November 15, 2017
+    ORGANIZATION "Omnitron Systems Technology, Inc."
+    CONTACT-INFO "Omnitron Systems Technology, Inc.
+                  38 Tesla
+                  Irvine, CA 92618-4670
+                  USA
+
+             Tel: (949) 250 6510
+             Fax: (949) 250 6514
+          E-mail: info@omnitron-systems.com
+   International: +1 949 250 6510
+
+                  Technical Support and Customer Service
+             Tel: (800) 675 8410
+          E-mail: support@omnitron-systems.com
+   International: +1 949 250 6510"
+
+    DESCRIPTION
+            "Omnitron High Capacity RMON MIB for use with iConverter Management
+             Modules v5.3 and NetOutlook.
+             
+             Copyright 2017 Omnitron Systems Technology, Inc.
+             All rights reserved.            
+            "
+
+
+    REVISION    "201711151200Z"     -- November 15, 2017
+    DESCRIPTION "Changed ostHighCapacityRmonGlobalCfgInterval minimum to 60, 
+                "
+                
+    REVISION    "201701191200Z"     -- January 19, 2017
+    DESCRIPTION "Corrected typographical errors
+                 Corrected ostHighCapacityRmonGlobalCfgBuckets range to 1..200
+                 Changed ostHighCapacityRmonStatsIndex to 
+                   ostHighCapacityRmonStatsInterfaceIndex
+                "
+
+    REVISION    "201701171200Z"     -- January 17, 2017
+    DESCRIPTION "Initial version of v5.3 MIB.
+                "
+    ::= { omnitron 23 }
+
+
+--------------------------------------------------------------------------------
+-- High Capacity Configuration Table
+--------------------------------------------------------------------------------
+
+ostHighCapacityRmonGlobalCfgTable  OBJECT IDENTIFIER ::= { omnitronHCRmonMib 1 }
+
+ostHighCapacityRmonGlobalCfgEnable OBJECT-TYPE
+    SYNTAX      TruthValue
+    MAX-ACCESS  read-write
+    STATUS      current
+    DESCRIPTION
+       "This object specifies whether the High Capacity history table is 
+        enabled.
+
+        The value 'true' indicates that High Capacity history table 
+        is enabled.
+
+        The value 'false' indicates that High Capacity history table 
+        is disabled.
+       "
+    DEFVAL { true }
+    ::= { ostHighCapacityRmonGlobalCfgTable 1 }
+
+
+ostHighCapacityRmonGlobalCfgBuckets OBJECT-TYPE
+    SYNTAX      Unsigned32  (1..200)
+    MAX-ACCESS  read-write
+    STATUS      current
+    DESCRIPTION
+       "This object specifies the number of discrete time intervals over
+        which data is to be saved into the High Capacity RMON history 
+        table.  
+       "
+    DEFVAL { 96 }       
+    ::= { ostHighCapacityRmonGlobalCfgTable 2 }
+
+ostHighCapacityRmonGlobalCfgInterval OBJECT-TYPE
+    SYNTAX      Unsigned32  (60..3600)   
+    UNITS       "Seconds"
+    MAX-ACCESS  read-write
+    STATUS      current
+    DESCRIPTION
+       "This object specifies the interval in seconds over which the data
+        is sampled for each bucket for each port. 
+        
+        This interval can be set to any number of seconds from 1 to 3600
+        (1 hour). The default value is 900s or 15min.
+       "
+    DEFVAL { 900 }       
+    ::= { ostHighCapacityRmonGlobalCfgTable 3 }
+    
+
+--------------------------------------------------------------------------------
+-- High Capacity Statistics Table
+--------------------------------------------------------------------------------
+
+ostHighCapacityRmonStatsTable OBJECT-TYPE
+    SYNTAX      SEQUENCE OF OstHighCapacityRmonStatsEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION
+       "This table supports high capacity RMON statistics on a per port basis.
+       
+        The entries in this table are automatically created based upon the 
+        number of Ethernet ports available for the product.       
+       "
+    ::= { omnitronHCRmonMib 2 }
+    
+
+ostHighCapacityRmonStatsEntry OBJECT-TYPE
+    SYNTAX      OstHighCapacityRmonStatsEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION
+       "This is a high capacity RMON statistics table entry."
+    INDEX { ostHighCapacityRmonStatsInterfaceIndex }
+    ::= { ostHighCapacityRmonStatsTable 1 }
+    
+OstHighCapacityRmonStatsEntry ::= SEQUENCE {
+    ostHighCapacityRmonStatsInterfaceIndex         Unsigned32,
+    ostHighCapacityRmonStatsInOctets               Counter64,
+    ostHighCapacityRmonStatsInUnicastPkts          Counter64,
+    ostHighCapacityRmonStatsInBroadcastPkts        Counter64,    
+    ostHighCapacityRmonStatsInMulticastPkts        Counter64,
+    ostHighCapacityRmonStatsInPkts64Octets         Counter64,
+    ostHighCapacityRmonStatsInPkts65to127Octets    Counter64,
+    ostHighCapacityRmonStatsInPkts128to255Octets   Counter64,
+    ostHighCapacityRmonStatsInPkts256to511Octets   Counter64,
+    ostHighCapacityRmonStatsInPkts512to1023Octets  Counter64,
+    ostHighCapacityRmonStatsInPkts1024toMaxOctets  Counter64,
+    ostHighCapacityRmonStatsInPktsErrors           Counter64,   
+    ostHighCapacityRmonStatsInPktsFcsErrors        Counter64,
+    ostHighCapacityRmonStatsOutOctets              Counter64,
+    ostHighCapacityRmonStatsOutUnicastPkts         Counter64,
+    ostHighCapacityRmonStatsOutBroadcastPkts       Counter64,    
+    ostHighCapacityRmonStatsOutMulticastPkts       Counter64
+    }
+
+ostHighCapacityRmonStatsInterfaceIndex OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION
+       "An index that is used to identify the specific interface number.
+       "
+    ::= { ostHighCapacityRmonStatsEntry 1 }
+
+ostHighCapacityRmonStatsInOctets OBJECT-TYPE
+    SYNTAX      Counter64
+    UNITS       "Octets"
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+       "The total number of octets (including bad packets) received on an
+        interface (excluding framing bits but including FCS octets).
+       "
+    ::= { ostHighCapacityRmonStatsEntry 2 }
+
+ostHighCapacityRmonStatsInUnicastPkts OBJECT-TYPE
+    SYNTAX      Counter64
+    UNITS       "Packets"
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+       "The total number of good unicast packets received.
+       "
+    ::= { ostHighCapacityRmonStatsEntry 3 }
+
+ostHighCapacityRmonStatsInBroadcastPkts OBJECT-TYPE
+    SYNTAX      Counter64
+    UNITS       "Packets"
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+       "The total number of good broadcast packets received.
+       "
+    ::= { ostHighCapacityRmonStatsEntry 4 }
+
+ostHighCapacityRmonStatsInMulticastPkts OBJECT-TYPE
+    SYNTAX      Counter64
+    UNITS       "Packets"
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+       "The total number of good multicast packets received.
+       "
+    ::= { ostHighCapacityRmonStatsEntry 5 }
+    
+ostHighCapacityRmonStatsInPkts64Octets OBJECT-TYPE
+    SYNTAX      Counter64
+    UNITS       "Packets"
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+       "The total number of good 64 octet packets received.
+       "
+    ::= { ostHighCapacityRmonStatsEntry 6 }
+
+ostHighCapacityRmonStatsInPkts65to127Octets OBJECT-TYPE
+    SYNTAX      Counter64
+    UNITS       "Packets"
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+       "The total number of good 65-127 octet packets received.
+       "
+    ::= { ostHighCapacityRmonStatsEntry 7 }
+    
+ostHighCapacityRmonStatsInPkts128to255Octets OBJECT-TYPE
+    SYNTAX      Counter64
+    UNITS       "Packets"
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+       "The total number of good 128-255 octet packets received.
+       "
+    ::= { ostHighCapacityRmonStatsEntry 8 }
+
+ostHighCapacityRmonStatsInPkts256to511Octets OBJECT-TYPE
+    SYNTAX      Counter64
+    UNITS       "Packets"
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+       "The total number of good 256-511 octet packets received.
+       "
+    ::= { ostHighCapacityRmonStatsEntry 9 }
+
+ostHighCapacityRmonStatsInPkts512to1023Octets OBJECT-TYPE
+    SYNTAX      Counter64
+    UNITS       "Packets"
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+       "The total number of good 512-1023 octet packets received.
+       "
+    ::= { ostHighCapacityRmonStatsEntry 10 }
+
+ostHighCapacityRmonStatsInPkts1024toMaxOctets OBJECT-TYPE
+    SYNTAX      Counter64
+    UNITS       "Packets"
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+       "The total number of good 1024-Max Frame Size octet packets received.
+       "
+    ::= { ostHighCapacityRmonStatsEntry 11 }
+
+ostHighCapacityRmonStatsInPktsErrors OBJECT-TYPE
+    SYNTAX      Counter64
+    UNITS       "Packets"
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+       "The total number of bad packets received, including too small, 
+        too large, jabber, alignment, but not FCS errors.
+       "
+    ::= { ostHighCapacityRmonStatsEntry 12 }
+    
+ostHighCapacityRmonStatsInPktsFcsErrors OBJECT-TYPE
+    SYNTAX      Counter64
+    UNITS       "Packets"
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+       "The total number of packets received with FCS errors.
+       "
+    ::= { ostHighCapacityRmonStatsEntry 13 }
+
+ostHighCapacityRmonStatsOutOctets OBJECT-TYPE
+    SYNTAX      Counter64
+    UNITS       "Octets"
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+       "The total number of octets (including bad packets) transmitted on an
+        interface (excluding framing bits but including FCS octets).
+       "
+    ::= { ostHighCapacityRmonStatsEntry 14 }
+
+ostHighCapacityRmonStatsOutUnicastPkts OBJECT-TYPE
+    SYNTAX      Counter64
+    UNITS       "Packets"
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+       "The total number of unicast packets transmitted.
+       "
+    ::= { ostHighCapacityRmonStatsEntry 15 }
+
+ostHighCapacityRmonStatsOutBroadcastPkts OBJECT-TYPE
+    SYNTAX      Counter64
+    UNITS       "Packets"
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+       "The total number of broadcast packets transmitted.
+       "
+    ::= { ostHighCapacityRmonStatsEntry 16 }
+
+ostHighCapacityRmonStatsOutMulticastPkts OBJECT-TYPE
+    SYNTAX      Counter64
+    UNITS       "Packets"
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+       "The total number of multicast packets transmitted.
+       "
+    ::= { ostHighCapacityRmonStatsEntry 17 }
+    
+
+--------------------------------------------------------------------------------
+-- High Capacity History Statistics Table
+--------------------------------------------------------------------------------
+
+ostHighCapacityRmonHistoryTable OBJECT-TYPE
+    SYNTAX      SEQUENCE OF OstHighCapacityRmonHistoryEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION
+       "This table supports high capacity RMON historic statistics on a per port
+        basis. Rows in this table are automatically created or deleted by the 
+        SNMP Agent based on the number and index of the buckets that are stored
+        in the history table. A new row is added to the table when a specific 
+        measurement interval completes. An old row is deleted in the table when 
+        the number of rows in the table exceed ostHighCapacityRmonGlobalCfgBuckets.
+       "
+    ::= { omnitronHCRmonMib 3 }
+    
+ostHighCapacityRmonHistoryEntry OBJECT-TYPE
+    SYNTAX      OstHighCapacityRmonHistoryEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION
+       "This is a high capacity RMON statistics table entry."
+    INDEX { ostHighCapacityRmonStatsInterfaceIndex, ostHighCapacityRmonHistoryIndex }
+    ::= { ostHighCapacityRmonHistoryTable 1 }
+    
+OstHighCapacityRmonHistoryEntry ::= SEQUENCE {
+    ostHighCapacityRmonHistoryIndex                  Unsigned32,
+    ostHighCapacityRmonHistoryIntervalStartTime      TimeTicks,
+    ostHighCapacityRmonHistoryInOctets               Counter64,
+    ostHighCapacityRmonHistoryInUnicastPkts          Counter64,
+    ostHighCapacityRmonHistoryInBroadcastPkts        Counter64,    
+    ostHighCapacityRmonHistoryInMulticastPkts        Counter64,
+    ostHighCapacityRmonHistoryInPkts64Octets         Counter64,
+    ostHighCapacityRmonHistoryInPkts65to127Octets    Counter64,
+    ostHighCapacityRmonHistoryInPkts128to255Octets   Counter64,
+    ostHighCapacityRmonHistoryInPkts256to511Octets   Counter64,
+    ostHighCapacityRmonHistoryInPkts512to1023Octets  Counter64,
+    ostHighCapacityRmonHistoryInPkts1024toMaxOctets  Counter64,
+    ostHighCapacityRmonHistoryInPktsErrors           Counter64,   
+    ostHighCapacityRmonHistoryInPktsFcsErrors        Counter64,
+    ostHighCapacityRmonHistoryOutOctets              Counter64,
+    ostHighCapacityRmonHistoryOutUnicastPkts         Counter64,
+    ostHighCapacityRmonHistoryOutBroadcastPkts       Counter64,    
+    ostHighCapacityRmonHistoryOutMulticastPkts       Counter64
+    }
+
+ostHighCapacityRmonHistoryIndex OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION
+       "An index that is used to identify the specific measurement interval,
+        or bucket, for the specific interface number.
+        
+        Bucket indices are assigned sequentially by the SNMP Agent. The first
+        bucket that occurs after the a restart or reboot is assigned index 1.
+        The index is never reused until it wraps to zero. The index value
+        keeps increasing up to that time.
+       "
+    ::= { ostHighCapacityRmonHistoryEntry 1 }
+
+ostHighCapacityRmonHistoryIntervalStartTime OBJECT-TYPE
+    SYNTAX      TimeTicks
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+       "The value of the sysUpTime at the start of the interval over which
+        this sample was measured.
+        
+        If the module has had its Time of Day initialized then the start
+        of the first history sample should be delayed such that when the
+        next of hour of the day begins, a sample is started at that instant. 
+       "
+    ::= { ostHighCapacityRmonHistoryEntry 2 }
+
+ostHighCapacityRmonHistoryInOctets OBJECT-TYPE
+    SYNTAX      Counter64
+    UNITS       "Octets"
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+       "The total number of octets (including bad packets) received on an
+        interface (excluding framing bits but including FCS octets).
+       "
+    ::= { ostHighCapacityRmonHistoryEntry 3 }
+
+ostHighCapacityRmonHistoryInUnicastPkts OBJECT-TYPE
+    SYNTAX      Counter64
+    UNITS       "Packets"
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+       "The total number of good unicast packets received during the time 
+        interval.
+       "
+    ::= { ostHighCapacityRmonHistoryEntry 4 }
+
+ostHighCapacityRmonHistoryInBroadcastPkts OBJECT-TYPE
+    SYNTAX      Counter64
+    UNITS       "Packets"
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+       "The total number of good broadcast packets received during the time 
+        interval.
+       "
+    ::= { ostHighCapacityRmonHistoryEntry 5 }
+
+ostHighCapacityRmonHistoryInMulticastPkts OBJECT-TYPE
+    SYNTAX      Counter64
+    UNITS       "Packets"
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+       "The total number of good multicast packets received during the time 
+        interval.
+       "
+    ::= { ostHighCapacityRmonHistoryEntry 6 }
+    
+ostHighCapacityRmonHistoryInPkts64Octets OBJECT-TYPE
+    SYNTAX      Counter64
+    UNITS       "Packets"
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+       "The total number of good 64 octet packets received during the time 
+        interval.
+       "
+    ::= { ostHighCapacityRmonHistoryEntry 7 }
+
+ostHighCapacityRmonHistoryInPkts65to127Octets OBJECT-TYPE
+    SYNTAX      Counter64
+    UNITS       "Packets"
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+       "The total number of good 65-127 octet packets received during the time 
+        interval.
+       "
+    ::= { ostHighCapacityRmonHistoryEntry 8 }
+    
+ostHighCapacityRmonHistoryInPkts128to255Octets OBJECT-TYPE
+    SYNTAX      Counter64
+    UNITS       "Packets"
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+       "The total number of good 128-255 octet packets received during the time 
+        interval.
+       "
+    ::= { ostHighCapacityRmonHistoryEntry 9 }
+
+ostHighCapacityRmonHistoryInPkts256to511Octets OBJECT-TYPE
+    SYNTAX      Counter64
+    UNITS       "Packets"
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+       "The total number of good 256-511 octet packets received during the time 
+        interval.
+       "
+    ::= { ostHighCapacityRmonHistoryEntry 10 }
+
+ostHighCapacityRmonHistoryInPkts512to1023Octets OBJECT-TYPE
+    SYNTAX      Counter64
+    UNITS       "Packets"
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+       "The total number of good 512-1023 octet packets received during the 
+        time interval.
+       "
+    ::= { ostHighCapacityRmonHistoryEntry 11 }
+
+ostHighCapacityRmonHistoryInPkts1024toMaxOctets OBJECT-TYPE
+    SYNTAX      Counter64
+    UNITS       "Packets"
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+       "The total number of good 1024-Max Frame Size octet packets received 
+        during the time interval.
+       "
+    ::= { ostHighCapacityRmonHistoryEntry 12 }
+
+ostHighCapacityRmonHistoryInPktsErrors OBJECT-TYPE
+    SYNTAX      Counter64
+    UNITS       "Packets"
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+       "The total number of bad packets received, including too small, 
+        too large, jabber, alignment, but not FCS errors during the time 
+        interval.
+       "
+    ::= { ostHighCapacityRmonHistoryEntry 13 }
+    
+ostHighCapacityRmonHistoryInPktsFcsErrors OBJECT-TYPE
+    SYNTAX      Counter64
+    UNITS       "Packets"
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+       "The total number of packets received with FCS errors during the time 
+        interval.
+       "
+    ::= { ostHighCapacityRmonHistoryEntry 14 }
+
+ostHighCapacityRmonHistoryOutOctets OBJECT-TYPE
+    SYNTAX      Counter64
+    UNITS       "Octets"
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+       "The total number of octets (including bad packets) transmitted on an
+        interface (excluding framing bits but including FCS octets) during the
+        time interval.
+       "
+    ::= { ostHighCapacityRmonHistoryEntry 15 }
+
+ostHighCapacityRmonHistoryOutUnicastPkts OBJECT-TYPE
+    SYNTAX      Counter64
+    UNITS       "Packets"
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+       "The total number of unicast packets transmitted during the time 
+        interval.
+       "
+    ::= { ostHighCapacityRmonHistoryEntry 16 }
+
+ostHighCapacityRmonHistoryOutBroadcastPkts OBJECT-TYPE
+    SYNTAX      Counter64
+    UNITS       "Packets"
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+       "The total number of broadcast packets transmitted during the time 
+        interval.
+       "
+    ::= { ostHighCapacityRmonHistoryEntry 17 }
+
+ostHighCapacityRmonHistoryOutMulticastPkts OBJECT-TYPE
+    SYNTAX      Counter64
+    UNITS       "Packets"
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+       "The total number of multicast packets transmitted during the time 
+        interval.
+       "
+    ::= { ostHighCapacityRmonHistoryEntry 18 }
+
+
+--------------------------------------------------------------------------------
+-- Conformance Information
+--------------------------------------------------------------------------------
+ostHCRmonCompliances      OBJECT IDENTIFIER ::= { omnitronHCRmonMib 4 }
+ostHCRmonGroups           OBJECT IDENTIFIER ::= { omnitronHCRmonMib 5 }
+
+
+--------------------------------------------------------------------------------
+-- Omnitron User MIB Units of conformance
+--------------------------------------------------------------------------------
+ostHCRmonGroup OBJECT-GROUP
+    OBJECTS {
+        ostHighCapacityRmonGlobalCfgEnable,
+        ostHighCapacityRmonGlobalCfgBuckets,
+        ostHighCapacityRmonGlobalCfgInterval,
+        
+        ostHighCapacityRmonStatsInOctets,
+        ostHighCapacityRmonStatsInUnicastPkts,
+        ostHighCapacityRmonStatsInBroadcastPkts,    
+        ostHighCapacityRmonStatsInMulticastPkts,
+        ostHighCapacityRmonStatsInPkts64Octets,
+        ostHighCapacityRmonStatsInPkts65to127Octets,
+        ostHighCapacityRmonStatsInPkts128to255Octets,
+        ostHighCapacityRmonStatsInPkts256to511Octets,
+        ostHighCapacityRmonStatsInPkts512to1023Octets,
+        ostHighCapacityRmonStatsInPkts1024toMaxOctets,
+        ostHighCapacityRmonStatsInPktsErrors,   
+        ostHighCapacityRmonStatsInPktsFcsErrors,
+        ostHighCapacityRmonStatsOutOctets,
+        ostHighCapacityRmonStatsOutUnicastPkts,
+        ostHighCapacityRmonStatsOutBroadcastPkts,    
+        ostHighCapacityRmonStatsOutMulticastPkts,
+        
+        ostHighCapacityRmonHistoryIntervalStartTime,        
+        ostHighCapacityRmonHistoryInOctets,
+        ostHighCapacityRmonHistoryInUnicastPkts,
+        ostHighCapacityRmonHistoryInBroadcastPkts,    
+        ostHighCapacityRmonHistoryInMulticastPkts,
+        ostHighCapacityRmonHistoryInPkts64Octets,
+        ostHighCapacityRmonHistoryInPkts65to127Octets,
+        ostHighCapacityRmonHistoryInPkts128to255Octets,
+        ostHighCapacityRmonHistoryInPkts256to511Octets,
+        ostHighCapacityRmonHistoryInPkts512to1023Octets,
+        ostHighCapacityRmonHistoryInPkts1024toMaxOctets,
+        ostHighCapacityRmonHistoryInPktsErrors,   
+        ostHighCapacityRmonHistoryInPktsFcsErrors,
+        ostHighCapacityRmonHistoryOutOctets,
+        ostHighCapacityRmonHistoryOutUnicastPkts,
+        ostHighCapacityRmonHistoryOutBroadcastPkts,    
+        ostHighCapacityRmonHistoryOutMulticastPkts
+    }
+    STATUS      current
+    DESCRIPTION
+       "Mandatory objects for the high capacity functional group."
+    ::= { ostHCRmonGroups 1 }
+
+
+--------------------------------------------------------------------------------
+-- Omnitron User MIB Compliance statements
+-------------------------------------------------------------------------------
+ostHCRmonCompliance MODULE-COMPLIANCE
+    STATUS       current
+    DESCRIPTION "The compliance statement for the Omnitron HC RMON MIB."
+    MODULE
+        MANDATORY-GROUPS {
+            ostHCRmonGroup
+        }
+    ::= { ostHCRmonCompliances 1 }
+
+
+END
+

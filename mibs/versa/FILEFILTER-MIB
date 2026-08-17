@@ -1,0 +1,844 @@
+FILEFILTER-MIB DEFINITIONS ::= BEGIN
+IMPORTS
+    MODULE-IDENTITY, OBJECT-TYPE,
+    Integer32, Unsigned32, Counter32, Counter64,
+    Gauge32, IpAddress
+        FROM SNMPv2-SMI
+    TEXTUAL-CONVENTION, RowStatus, DateAndTime,
+    TruthValue
+        FROM SNMPv2-TC
+    ngfw
+        FROM VERSA-MIB
+;
+
+filefilter MODULE-IDENTITY
+    LAST-UPDATED "201406090000Z"
+    ORGANIZATION "Versa Networks"
+    CONTACT-INFO "
+        2953 Bunker Hill Lane, Suite 210
+        Santa Clara, CA - 95035 (USA)
+        Email: support@versa-networks.com"
+    DESCRIPTION "Enterprise MIB for Versa Networks'
+FileFilter solution"
+    REVISION "201406090000Z"
+    DESCRIPTION "Initial revision"
+    ::= { ngfw 8 }
+
+ConfdString ::= TEXTUAL-CONVENTION
+    DISPLAY-HINT "1t"
+    STATUS      current
+    DESCRIPTION "xs: and confd: types mapped to strings"
+    SYNTAX      OCTET STRING
+
+String ::= TEXTUAL-CONVENTION
+    DISPLAY-HINT "1t"
+    STATUS      current
+    DESCRIPTION "xs:string"
+    SYNTAX      OCTET STRING
+
+-- File Filter statistics
+fileFilterTable OBJECT IDENTIFIER ::= { filefilter 1 }
+
+fileFilterPreDefTable OBJECT-TYPE
+    SYNTAX      SEQUENCE OF FileFilterPreDefEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "FileFilter Pre-defined C Statistics"
+    ::= { fileFilterTable 1 }
+
+fileFilterPreDefEntry OBJECT-TYPE
+    SYNTAX      FileFilterPreDefEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION ""
+    INDEX { ffPreDefOrgId, ffPreDefProfileID }
+        ::= { fileFilterPreDefTable 1 }
+
+FileFilterPreDefEntry ::=
+    SEQUENCE {
+        ffPreDefOrgId Unsigned32,
+        ffPreDefProfileID Unsigned32,
+        ffPreDefOrgName String,
+        ffPreDefProfileName String,
+        ffPreDefProfileHitCnt ConfdString,
+        ffPreDefFileSizeExceedCnt ConfdString,
+        ffPreDefDefaultActionCnt ConfdString,
+        ffPreDefBlacklistMD5ScanCnt ConfdString,
+        ffPreDefBlacklistMD5DetectionCnt ConfdString,
+        ffPreDefBlacklistSHA1ScanCnt ConfdString,
+        ffPreDefBlacklistSHA1DetectionCnt ConfdString,
+        ffPreDefWhitelistMD5ScanCnt ConfdString,
+        ffPreDefWhitelistMD5DetectionCnt ConfdString,
+        ffPreDefWhitelistSHA1ScanCnt ConfdString,
+        ffPreDefWhitelistSHA1DetectionCnt ConfdString,
+        ffPreDefActionAllowCnt ConfdString,
+        ffPreDefActionAlertCnt ConfdString,
+        ffPreDefActionRejectCnt ConfdString,
+        ffPreDefActionBlockCnt ConfdString,
+        ffPreDefCloudScanCnt ConfdString,
+        ffPreDefCloudDetectionCnt ConfdString,
+        ffPreDefBlacklistSHA256ScanCnt ConfdString,
+        ffPreDefBlacklistSHA256DetectionCnt ConfdString,
+        ffPreDefBlacklistSHA384ScanCnt ConfdString,
+        ffPreDefBlacklistSHA384DetectionCnt ConfdString,
+        ffPreDefWhitelistSHA256ScanCnt ConfdString,
+        ffPreDefWhitelistSHA256DetectionCnt ConfdString,
+        ffPreDefWhitelistSHA384ScanCnt ConfdString,
+        ffPreDefWhitelistSHA384DetectionCnt ConfdString
+    }
+
+ffPreDefOrgId OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "Organization id"
+    ::= { fileFilterPreDefEntry 1 }
+
+ffPreDefProfileID OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "URLF Profile Id"
+    ::= { fileFilterPreDefEntry 2 }
+
+ffPreDefOrgName OBJECT-TYPE
+    SYNTAX      String
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Organization Name"
+    ::= { fileFilterPreDefEntry 3 }
+
+ffPreDefProfileName OBJECT-TYPE
+    SYNTAX      String
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "URLF Profile Name"
+    ::= { fileFilterPreDefEntry 4 }
+
+ffPreDefProfileHitCnt OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "No of times profile hit"
+    ::= { fileFilterPreDefEntry 5 }
+
+ffPreDefFileSizeExceedCnt OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "No of times file size exceeded"
+    ::= { fileFilterPreDefEntry 6 }
+
+ffPreDefDefaultActionCnt OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "No of time default action hit"
+    ::= { fileFilterPreDefEntry 7 }
+
+ffPreDefBlacklistMD5ScanCnt OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      deprecated
+    DESCRIPTION "No of blacklist scanned"
+    ::= { fileFilterPreDefEntry 8 }
+
+ffPreDefBlacklistMD5DetectionCnt OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      deprecated
+    DESCRIPTION "No of blacklist detected"
+    ::= { fileFilterPreDefEntry 9 }
+
+ffPreDefBlacklistSHA1ScanCnt OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      deprecated
+    DESCRIPTION "No of blacklist scanned"
+    ::= { fileFilterPreDefEntry 10 }
+
+ffPreDefBlacklistSHA1DetectionCnt OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      deprecated
+    DESCRIPTION "No of blacklist detected"
+    ::= { fileFilterPreDefEntry 11 }
+
+ffPreDefWhitelistMD5ScanCnt OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      deprecated
+    DESCRIPTION "No of whitelist scanned"
+    ::= { fileFilterPreDefEntry 12 }
+
+ffPreDefWhitelistMD5DetectionCnt OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      deprecated
+    DESCRIPTION "No of whitelist detected"
+    ::= { fileFilterPreDefEntry 13 }
+
+ffPreDefWhitelistSHA1ScanCnt OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      deprecated
+    DESCRIPTION "No of whitelist scanned"
+    ::= { fileFilterPreDefEntry 14 }
+
+ffPreDefWhitelistSHA1DetectionCnt OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      deprecated
+    DESCRIPTION "No of whitelist detected"
+    ::= { fileFilterPreDefEntry 15 }
+
+ffPreDefActionAllowCnt OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "No of flow allowed."
+    ::= { fileFilterPreDefEntry 16 }
+
+ffPreDefActionAlertCnt OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "No of flow alerted."
+    ::= { fileFilterPreDefEntry 17 }
+
+ffPreDefActionRejectCnt OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "No of flow rejected."
+    ::= { fileFilterPreDefEntry 18 }
+
+ffPreDefActionBlockCnt OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "No of flow blocked"
+    ::= { fileFilterPreDefEntry 19 }
+
+ffPreDefCloudScanCnt OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total cloud scan count"
+    ::= { fileFilterPreDefEntry 20 }
+
+ffPreDefCloudDetectionCnt OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total Cloud detection count"
+    ::= { fileFilterPreDefEntry 21 }
+
+ffPreDefBlacklistSHA256ScanCnt OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "No of blacklist scanned"
+    ::= { fileFilterPreDefEntry 22 }
+
+ffPreDefBlacklistSHA256DetectionCnt OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "No of blacklist detected"
+    ::= { fileFilterPreDefEntry 23 }
+
+ffPreDefBlacklistSHA384ScanCnt OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "No of blacklist scanned"
+    ::= { fileFilterPreDefEntry 24 }
+
+ffPreDefBlacklistSHA384DetectionCnt OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "No of blacklist detected"
+    ::= { fileFilterPreDefEntry 25 }
+
+ffPreDefWhitelistSHA256ScanCnt OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "No of whitelist scanned"
+    ::= { fileFilterPreDefEntry 26 }
+
+ffPreDefWhitelistSHA256DetectionCnt OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "No of whitelist detected"
+    ::= { fileFilterPreDefEntry 27 }
+
+ffPreDefWhitelistSHA384ScanCnt OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "No of whitelist scanned"
+    ::= { fileFilterPreDefEntry 28 }
+
+ffPreDefWhitelistSHA384DetectionCnt OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "No of whitelist detected"
+    ::= { fileFilterPreDefEntry 29 }
+
+fileFilterUserDefTable OBJECT-TYPE
+    SYNTAX      SEQUENCE OF FileFilterUserDefEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "URL User-defined Category Statistics"
+    ::= { fileFilterTable 2 }
+
+fileFilterUserDefEntry OBJECT-TYPE
+    SYNTAX      FileFilterUserDefEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION ""
+    INDEX { ffUserDefOrgId, ffUserDefProfileID }
+        ::= { fileFilterUserDefTable 1 }
+
+FileFilterUserDefEntry ::=
+    SEQUENCE {
+        ffUserDefOrgId Unsigned32,
+        ffUserDefProfileID Unsigned32,
+        ffUserDefOrgName String,
+        ffUserDefProfileName String,
+        ffUserDefProfileHitCnt ConfdString,
+        ffUserDefFileSizeExceedCnt ConfdString,
+        ffUserDefDefaultActionCnt ConfdString,
+        ffUserDefBlacklistMD5ScanCnt ConfdString,
+        ffUserDefBlacklistMD5DetectionCnt ConfdString,
+        ffUserDefBlacklistSHA1ScanCnt ConfdString,
+        ffUserDefBlacklistSHA1DetectionCnt ConfdString,
+        ffUserDefWhitelistMD5ScanCnt ConfdString,
+        ffUserDefWhitelistMD5DetectionCnt ConfdString,
+        ffUserDefWhitelistSHA1ScanCnt ConfdString,
+        ffUserDefWhitelistSHA1DetectionCnt ConfdString,
+        ffUserDefActionAllowCnt ConfdString,
+        ffUserDefActionAlertCnt ConfdString,
+        ffUserDefActionRejectCnt ConfdString,
+        ffUserDefActionBlockCnt ConfdString,
+        ffUserDefCloudScanCnt ConfdString,
+        ffUserDefCloudDetectionCnt ConfdString,
+        ffUserDefBlacklistSHA256ScanCnt ConfdString,
+        ffUserDefBlacklistSHA256DetectionCnt ConfdString,
+        ffUserDefBlacklistSHA384ScanCnt ConfdString,
+        ffUserDefBlacklistSHA384DetectionCnt ConfdString,
+        ffUserDefWhitelistSHA256ScanCnt ConfdString,
+        ffUserDefWhitelistSHA256DetectionCnt ConfdString,
+        ffUserDefWhitelistSHA384ScanCnt ConfdString,
+        ffUserDefWhitelistSHA384DetectionCnt ConfdString
+    }
+
+ffUserDefOrgId OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "Organization id"
+    ::= { fileFilterUserDefEntry 1 }
+
+ffUserDefProfileID OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "FileFilter Profile Id"
+    ::= { fileFilterUserDefEntry 2 }
+
+ffUserDefOrgName OBJECT-TYPE
+    SYNTAX      String
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Organization Name"
+    ::= { fileFilterUserDefEntry 3 }
+
+ffUserDefProfileName OBJECT-TYPE
+    SYNTAX      String
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "FileFilter Profile Name"
+    ::= { fileFilterUserDefEntry 4 }
+
+ffUserDefProfileHitCnt OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "No of times profile hit"
+    ::= { fileFilterUserDefEntry 5 }
+
+ffUserDefFileSizeExceedCnt OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "No of times file size exceeded"
+    ::= { fileFilterUserDefEntry 6 }
+
+ffUserDefDefaultActionCnt OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "No of time default action hit"
+    ::= { fileFilterUserDefEntry 7 }
+
+ffUserDefBlacklistMD5ScanCnt OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      deprecated
+    DESCRIPTION "No of blacklist scanned"
+    ::= { fileFilterUserDefEntry 8 }
+
+ffUserDefBlacklistMD5DetectionCnt OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      deprecated
+    DESCRIPTION "No of blacklist detected"
+    ::= { fileFilterUserDefEntry 9 }
+
+ffUserDefBlacklistSHA1ScanCnt OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      deprecated
+    DESCRIPTION "No of blacklist scanned"
+    ::= { fileFilterUserDefEntry 10 }
+
+ffUserDefBlacklistSHA1DetectionCnt OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      deprecated
+    DESCRIPTION "No of blacklist detected"
+    ::= { fileFilterUserDefEntry 11 }
+
+ffUserDefWhitelistMD5ScanCnt OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      deprecated
+    DESCRIPTION "No of whitelist scanned"
+    ::= { fileFilterUserDefEntry 12 }
+
+ffUserDefWhitelistMD5DetectionCnt OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      deprecated
+    DESCRIPTION "No of whitelist detected"
+    ::= { fileFilterUserDefEntry 13 }
+
+ffUserDefWhitelistSHA1ScanCnt OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      deprecated
+    DESCRIPTION "No of whitelist scanned"
+    ::= { fileFilterUserDefEntry 14 }
+
+ffUserDefWhitelistSHA1DetectionCnt OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      deprecated
+    DESCRIPTION "No of whitelist detected"
+    ::= { fileFilterUserDefEntry 15 }
+
+ffUserDefActionAllowCnt OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "No of flow allowed."
+    ::= { fileFilterUserDefEntry 16 }
+
+ffUserDefActionAlertCnt OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "No of flow alerted."
+    ::= { fileFilterUserDefEntry 17 }
+
+ffUserDefActionRejectCnt OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "No of flow rejected."
+    ::= { fileFilterUserDefEntry 18 }
+
+ffUserDefActionBlockCnt OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "No of flow blocked"
+    ::= { fileFilterUserDefEntry 19 }
+
+ffUserDefCloudScanCnt OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total cloud scan count"
+    ::= { fileFilterUserDefEntry 20 }
+
+ffUserDefCloudDetectionCnt OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total Cloud detection count"
+    ::= { fileFilterUserDefEntry 21 }
+
+ffUserDefBlacklistSHA256ScanCnt OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "No of blacklist scanned"
+    ::= { fileFilterUserDefEntry 22 }
+
+ffUserDefBlacklistSHA256DetectionCnt OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "No of blacklist detected"
+    ::= { fileFilterUserDefEntry 23 }
+
+ffUserDefBlacklistSHA384ScanCnt OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "No of blacklist scanned"
+    ::= { fileFilterUserDefEntry 24 }
+
+ffUserDefBlacklistSHA384DetectionCnt OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "No of blacklist detected"
+    ::= { fileFilterUserDefEntry 25 }
+
+ffUserDefWhitelistSHA256ScanCnt OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "No of whitelist scanned"
+    ::= { fileFilterUserDefEntry 26 }
+
+ffUserDefWhitelistSHA256DetectionCnt OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "No of whitelist detected"
+    ::= { fileFilterUserDefEntry 27 }
+
+ffUserDefWhitelistSHA384ScanCnt OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "No of whitelist scanned"
+    ::= { fileFilterUserDefEntry 28 }
+
+ffUserDefWhitelistSHA384DetectionCnt OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "No of whitelist detected"
+    ::= { fileFilterUserDefEntry 29 }
+
+fileFilterUserDefProtocolTable OBJECT-TYPE
+    SYNTAX      SEQUENCE OF FileFilterUserDefProtocolEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "FileFilter file types Statistics"
+    ::= { fileFilterTable 3 }
+
+fileFilterUserDefProtocolEntry OBJECT-TYPE
+    SYNTAX      FileFilterUserDefProtocolEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION ""
+    INDEX { ffUserDefProtocolOrgId, ffUserDefProtocolProfileID, ffUserDefProtocol }
+        ::= { fileFilterUserDefProtocolTable 1 }
+
+FileFilterUserDefProtocolEntry ::=
+    SEQUENCE {
+        ffUserDefProtocolOrgId Unsigned32,
+        ffUserDefProtocolProfileID Unsigned32,
+        ffUserDefProtocol Unsigned32,
+        ffUserDefProtocolOrgName String,
+        ffUserDefProtocolProfileName String,
+        ffUserDefProtocolName String,
+        ffUserDefProtScanned ConfdString
+    }
+
+ffUserDefProtocolOrgId OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "Organization id"
+    ::= { fileFilterUserDefProtocolEntry 1 }
+
+ffUserDefProtocolProfileID OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "URLF Profile Id"
+    ::= { fileFilterUserDefProtocolEntry 2 }
+
+ffUserDefProtocol OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "Protocol ID"
+    ::= { fileFilterUserDefProtocolEntry 3 }
+
+ffUserDefProtocolOrgName OBJECT-TYPE
+    SYNTAX      String
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Organization Name"
+    ::= { fileFilterUserDefProtocolEntry 4 }
+
+ffUserDefProtocolProfileName OBJECT-TYPE
+    SYNTAX      String
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "URLF Profile Name"
+    ::= { fileFilterUserDefProtocolEntry 5 }
+
+ffUserDefProtocolName OBJECT-TYPE
+    SYNTAX      String
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Protocol Name"
+    ::= { fileFilterUserDefProtocolEntry 6 }
+
+ffUserDefProtScanned OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Number of times protocol scanned."
+    ::= { fileFilterUserDefProtocolEntry 7 }
+
+fileFilterPreDefProtocolTable OBJECT-TYPE
+    SYNTAX      SEQUENCE OF FileFilterPreDefProtocolEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "FileFilter protocol Statistics"
+    ::= { fileFilterTable 4 }
+
+fileFilterPreDefProtocolEntry OBJECT-TYPE
+    SYNTAX      FileFilterPreDefProtocolEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION ""
+    INDEX { ffPreDefProtocolOrgId, ffPreDefProtocolProfileID, ffPreDefProtocol }
+        ::= { fileFilterPreDefProtocolTable 1 }
+
+FileFilterPreDefProtocolEntry ::=
+    SEQUENCE {
+        ffPreDefProtocolOrgId Unsigned32,
+        ffPreDefProtocolProfileID Unsigned32,
+        ffPreDefProtocol Unsigned32,
+        ffPreDefProtocolOrgName String,
+        ffPreDefProtocolProfileName String,
+        ffPreDefProtocolName String,
+        ffPreDefProtScanned ConfdString
+    }
+
+ffPreDefProtocolOrgId OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "Organization id"
+    ::= { fileFilterPreDefProtocolEntry 1 }
+
+ffPreDefProtocolProfileID OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "URLF Profile Id"
+    ::= { fileFilterPreDefProtocolEntry 2 }
+
+ffPreDefProtocol OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "Protocol ID"
+    ::= { fileFilterPreDefProtocolEntry 3 }
+
+ffPreDefProtocolOrgName OBJECT-TYPE
+    SYNTAX      String
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Organization Name"
+    ::= { fileFilterPreDefProtocolEntry 4 }
+
+ffPreDefProtocolProfileName OBJECT-TYPE
+    SYNTAX      String
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "URLF Profile Name"
+    ::= { fileFilterPreDefProtocolEntry 5 }
+
+ffPreDefProtocolName OBJECT-TYPE
+    SYNTAX      String
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Protocol Name"
+    ::= { fileFilterPreDefProtocolEntry 6 }
+
+ffPreDefProtScanned OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Number of times protocol scanned."
+    ::= { fileFilterPreDefProtocolEntry 7 }
+
+fileFilterUserDefFileTypeTable OBJECT-TYPE
+    SYNTAX      SEQUENCE OF FileFilterUserDefFileTypeEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "FileFilter file types Statistics"
+    ::= { fileFilterTable 5 }
+
+fileFilterUserDefFileTypeEntry OBJECT-TYPE
+    SYNTAX      FileFilterUserDefFileTypeEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION ""
+    INDEX { ffUserDefFileTypeOrgId, ffUserDefFileTypeProfileID, ffUserDefFileType }
+        ::= { fileFilterUserDefFileTypeTable 1 }
+
+FileFilterUserDefFileTypeEntry ::=
+    SEQUENCE {
+        ffUserDefFileTypeOrgId Unsigned32,
+        ffUserDefFileTypeProfileID Unsigned32,
+        ffUserDefFileType Unsigned32,
+        ffUserDefFileTypeOrgName String,
+        ffUserDefFileTypeProfileName String,
+        ffUserDefFileTypeName String,
+        ffUserDefFileTypeScanned ConfdString
+    }
+
+ffUserDefFileTypeOrgId OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "Organization id"
+    ::= { fileFilterUserDefFileTypeEntry 1 }
+
+ffUserDefFileTypeProfileID OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "URLF Profile Id"
+    ::= { fileFilterUserDefFileTypeEntry 2 }
+
+ffUserDefFileType OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "File Type id"
+    ::= { fileFilterUserDefFileTypeEntry 3 }
+
+ffUserDefFileTypeOrgName OBJECT-TYPE
+    SYNTAX      String
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Organization Name"
+    ::= { fileFilterUserDefFileTypeEntry 4 }
+
+ffUserDefFileTypeProfileName OBJECT-TYPE
+    SYNTAX      String
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "URLF Profile Name"
+    ::= { fileFilterUserDefFileTypeEntry 5 }
+
+ffUserDefFileTypeName OBJECT-TYPE
+    SYNTAX      String
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "File Type Name"
+    ::= { fileFilterUserDefFileTypeEntry 6 }
+
+ffUserDefFileTypeScanned OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "No of file scanned of this type"
+    ::= { fileFilterUserDefFileTypeEntry 7 }
+
+fileFilterPreDefFileTypeTable OBJECT-TYPE
+    SYNTAX      SEQUENCE OF FileFilterPreDefFileTypeEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "FileFilter file types Statistics"
+    ::= { fileFilterTable 6 }
+
+fileFilterPreDefFileTypeEntry OBJECT-TYPE
+    SYNTAX      FileFilterPreDefFileTypeEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION ""
+    INDEX { ffPreDefFileTypeOrgId, ffPreDefFileTypeProfileID, ffPreDefFileType }
+        ::= { fileFilterPreDefFileTypeTable 1 }
+
+FileFilterPreDefFileTypeEntry ::=
+    SEQUENCE {
+        ffPreDefFileTypeOrgId Unsigned32,
+        ffPreDefFileTypeProfileID Unsigned32,
+        ffPreDefFileType Unsigned32,
+        ffPreDefFileTypeOrgName String,
+        ffPreDefFileTypeProfileName String,
+        ffPreDefFileTypeName String,
+        ffPreDefFileTypeScanned ConfdString
+    }
+
+ffPreDefFileTypeOrgId OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "Organization id"
+    ::= { fileFilterPreDefFileTypeEntry 1 }
+
+ffPreDefFileTypeProfileID OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "URLF Profile Id"
+    ::= { fileFilterPreDefFileTypeEntry 2 }
+
+ffPreDefFileType OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "File Type id"
+    ::= { fileFilterPreDefFileTypeEntry 3 }
+
+ffPreDefFileTypeOrgName OBJECT-TYPE
+    SYNTAX      String
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Organization Name"
+    ::= { fileFilterPreDefFileTypeEntry 4 }
+
+ffPreDefFileTypeProfileName OBJECT-TYPE
+    SYNTAX      String
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "URLF Profile Name"
+    ::= { fileFilterPreDefFileTypeEntry 5 }
+
+ffPreDefFileTypeName OBJECT-TYPE
+    SYNTAX      String
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "File Type Name"
+    ::= { fileFilterPreDefFileTypeEntry 6 }
+
+ffPreDefFileTypeScanned OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "No of file scanned of this type"
+    ::= { fileFilterPreDefFileTypeEntry 7 }
+
+END

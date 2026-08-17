@@ -1,0 +1,242 @@
+-- Change Log
+-- 06: Initial revision. This version was derived off of the MIB used when SNMP traps
+--     are emitted from the Persistent Monitor. Changes from the base version include
+--     name changes, removal of the table format, modifications to eliminate syntax warnings,
+--     addition of the Event Priority, string length modifications, additions of
+--     the informational variables for the Vendor ID, Product ID, Model Number and Needs
+--     Attention and use of ss01R1Trap8 0 instance 2.
+--
+-- Maintenance Note:  The internal version must match the CM Version!
+
+-- Renamed by Observium Developers
+-- ES-NETAPP-06-MIB DEFINITIONS ::= BEGIN
+ES-NETAPP-MIB DEFINITIONS ::= BEGIN
+
+	IMPORTS
+		MODULE-IDENTITY,
+		OBJECT-TYPE,
+		NOTIFICATION-TYPE,
+		enterprises,
+		Integer32
+	FROM SNMPv2-SMI
+		DisplayString
+	FROM SNMPv2-TC
+		MODULE-COMPLIANCE,
+		OBJECT-GROUP,
+		NOTIFICATION-GROUP
+	FROM SNMPv2-CONF;
+
+	-- ss01R1Node1 instance
+	--       0  traps
+	--       1  informational variables
+	--       2  event variables
+	--       3  conformance
+	ss01R1Node1 MODULE-IDENTITY
+		LAST-UPDATED      "201306060000Z"
+		ORGANIZATION      "NetApp"
+		CONTACT-INFO      "http://www.netapp.com/us/support/"
+		DESCRIPTION       "NetApp E-Series Storage System Embedded SNMP MIB Module"
+		REVISION          "201306060000Z"
+		DESCRIPTION       "Version 06"
+		::= { storageServer 500 }
+
+	-- MIB-II style
+	-- Client MIB when the E-Series embedded SNMP Agent is enabled.
+	netapp			OBJECT IDENTIFIER ::= { enterprises 789 }
+	eSeriesStorageSystem	OBJECT IDENTIFIER ::= { netapp 1123 }
+
+	-- storage server base (789.1123.2)
+	--      1 storageManager (MSW)
+	--      2 storageServer (CFW)
+	storageServer		OBJECT IDENTIFIER ::= { eSeriesStorageSystem 2 }
+
+
+	ss01R1TrapBase		OBJECT IDENTIFIER ::= { ss01R1Node1 0 }
+	ss01R1InfoBase		OBJECT IDENTIFIER ::= { ss01R1Node1 1 }
+	ss01R1EventBase		OBJECT IDENTIFIER ::= { ss01R1Node1 2 }
+	ss01R1Conformance	OBJECT IDENTIFIER ::= { ss01R1Node1 3 }
+	ss01R1Compliance	OBJECT IDENTIFIER ::= { ss01R1Conformance 1 }
+	ss01R1Groups		OBJECT IDENTIFIER ::= { ss01R1Conformance 2 }
+
+	-- Informational variables
+	-- Also included in vendor unique event traps
+	ssStorageArrayName OBJECT-TYPE
+		SYNTAX DisplayString (SIZE (0..30))
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION
+			"Storage array name for the reporting device."
+		::= { ss01R1InfoBase 1 }
+
+	-- Also included in vendor unique event traps
+	ssStorageArrayWWID OBJECT-TYPE
+		SYNTAX DisplayString (SIZE (0..32))
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION
+			"World wide identifier (WWID) for the reporting device."
+		::= { ss01R1InfoBase 2 }
+
+	-- Also included in vendor unique event traps
+	ssChassisSerialNumber OBJECT-TYPE
+		SYNTAX DisplayString (SIZE (0..32))
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION
+			"Storage Array Chassis Serial Number for the reporting device."
+		::= { ss01R1InfoBase 3 }
+
+	ssVendorID OBJECT-TYPE
+		SYNTAX DisplayString (SIZE (0..8))
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION
+			"Vendor identifier of the reporting device."
+		::= { ss01R1InfoBase 4 }
+
+	ssProductID OBJECT-TYPE
+		SYNTAX DisplayString (SIZE (0..16))
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION
+			"Product identifier for the reporting device."
+		::= { ss01R1InfoBase 5 }
+
+	ssModelName OBJECT-TYPE
+		SYNTAX DisplayString (SIZE (0..8))
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION
+			"Vendor defined model name for the reporting device."
+		::= { ss01R1InfoBase 6 }
+
+	ssStorageArrayNeedsAttention OBJECT-TYPE
+		SYNTAX Integer32
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION
+			"Summary of the operational status of the reporting device. (0 - Optimal, 1 - Needs Attention)"
+		::= { ss01R1InfoBase 7 }
+
+
+	-- Event Only Variables
+	ssEventType OBJECT-TYPE
+		SYNTAX DisplayString (SIZE (0..19))
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION
+			"Enumerated value corresponding to the error detected by the reporting device."
+		::= { ss01R1EventBase 1 }
+
+	ssEventTime OBJECT-TYPE
+		SYNTAX DisplayString (SIZE (0..39))
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION
+			"The time at which the error event occurred on the reporting device."
+		::= { ss01R1EventBase 2 }
+
+	ssEventDescription OBJECT-TYPE
+		SYNTAX DisplayString (SIZE (0..69))
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION
+			"String describing the nature of the error that occurred on the reporting device."
+		::= { ss01R1EventBase 3 }
+
+	ssNetworkNodeName OBJECT-TYPE
+		SYNTAX DisplayString (SIZE (0..17))
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION
+			"The network name of the reporting device."
+		::= { ss01R1EventBase 4 }
+
+	ssEventComponentType OBJECT-TYPE
+		SYNTAX DisplayString (SIZE (0..59))
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION
+			"String identifying the type of component that the reporting device detected as failed."
+		::= { ss01R1EventBase 5 }
+
+	ssEventComponentLocation OBJECT-TYPE
+		SYNTAX DisplayString (SIZE (0..39))
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION
+			"String identifying the physical location of the failed component detected by the reporting device."
+		::= { ss01R1EventBase 6 }
+
+	ssEventPriority OBJECT-TYPE
+		SYNTAX DisplayString (SIZE (0..15))
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION
+			"String identifying the priority of the error that occurred on the reporting device."
+		::= { ss01R1EventBase 7 }
+
+
+	-- Notifications
+	ssStorageArrayAlert NOTIFICATION-TYPE
+		OBJECTS {
+				ssNetworkNodeName,
+				ssStorageArrayName,
+				ssEventType,
+				ssEventTime,
+				ssEventDescription,
+				ssEventComponentType,
+				ssEventComponentLocation,
+				ssEventPriority,
+				ssStorageArrayWWID,
+				ssChassisSerialNumber
+			}
+		STATUS current
+		DESCRIPTION
+			"The reporting device has detected a failure and immediate user-interaction is required."
+		::= { ss01R1TrapBase 2 }
+
+	-- Object Groups
+	ss01R1ObjectGroup OBJECT-GROUP
+		OBJECTS {
+				ssStorageArrayName,
+				ssStorageArrayWWID,
+				ssChassisSerialNumber,
+				ssVendorID,
+				ssProductID,
+				ssModelName,
+				ssStorageArrayNeedsAttention,
+				ssNetworkNodeName,
+				ssEventType,
+				ssEventTime,
+				ssEventDescription,
+				ssEventComponentType,
+				ssEventComponentLocation,
+				ssEventPriority
+			}
+		STATUS current
+		DESCRIPTION
+			"A collection of objects that are current in the ES-NETAPP MIB."
+		::= { ss01R1Groups 1 }
+
+	ss01R1NotifyGroup NOTIFICATION-GROUP
+		NOTIFICATIONS { ssStorageArrayAlert }
+		STATUS current
+		DESCRIPTION
+			"Notifications for the ES-NETAPP MIB."
+		::= { ss01R1Groups 2 }
+
+	-- Compliance
+	ss01R1ComplianceGroup MODULE-COMPLIANCE
+		STATUS current
+		DESCRIPTION
+			"The compliance statement for the ES-NETAPP MIB."
+		MODULE
+		MANDATORY-GROUPS {
+				ss01R1ObjectGroup,
+				ss01R1NotifyGroup
+				 }
+		::= { ss01R1Compliance 1 }
+
+-- END of the MIB
+END

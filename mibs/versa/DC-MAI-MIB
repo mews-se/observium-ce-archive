@@ -1,0 +1,651 @@
+DC-MAI-MIB DEFINITIONS ::= BEGIN
+
+  -- PRODUCT-SHORT-NAME MAI
+
+  IMPORTS
+    MODULE-IDENTITY,
+    OBJECT-TYPE,
+    Unsigned32
+      FROM SNMPv2-SMI
+
+    TEXTUAL-CONVENTION,
+    TruthValue,
+    RowStatus,
+    MacAddress
+      FROM SNMPv2-TC
+
+    InterfaceIndexOrZero
+      FROM IF-MIB
+
+    MODULE-COMPLIANCE,
+    OBJECT-GROUP
+      FROM SNMPv2-CONF
+
+    InetAddressType,
+    InetAddress
+      FROM INET-ADDRESS-MIB
+
+    AdminStatus,
+    BaseOperStatus,
+    EntityIndex,
+    L2BridgeDomainType,
+    SjStatus
+      FROM DC-MASTER-TC;
+
+  maiMib MODULE-IDENTITY
+    LAST-UPDATED "201505010000Z" -- Fri May 1 00:00:00 GMT 2015
+    ORGANIZATION "Metaswitch Networks"
+    CONTACT-INFO
+                 "Postal: Metaswitch Networks
+                          100 Church Street
+                          Enfield
+                          EN2 6BQ
+                          United Kingdom
+                  Tel:    +44 20 8366 1177
+                  E-mail: info@metaswitch.com"
+    DESCRIPTION  "Metaswitch MAI Stub MIB."
+    ::= { iso
+          member-body(2)
+          gb(826)
+          national (0)
+          eng-ltd (1)
+          dataConnectionLtd (1578918)
+          adg (5)
+          stubs (3)
+-- Begin Versa change {
+          -- 29 }
+           30 }
+-- End Versa change }
+
+  maiObjects OBJECT IDENTIFIER ::= { maiMib 1 } -- MAI Stub tables
+  maiConformance OBJECT IDENTIFIER ::= { maiMib 2 } -- Module conformance
+
+-------------------------------------------------------------------------------
+
+--
+-- Textual conventions
+--
+
+  MaiSjIfId ::= TEXTUAL-CONVENTION
+    STATUS      current
+    DESCRIPTION "The type of interface to which a join applies."
+    SYNTAX      INTEGER {
+                  ifAtgMai(2038759424)   -- Interface IF_ATG_MAI
+                }
+
+  MaiMacIpSourceType ::= TEXTUAL-CONVENTION
+    STATUS      current
+    DESCRIPTION "The source of the information for an FDB entry or MAC/IP
+                 mapping.
+
+                 -  mgmt(1) - the entry has been statically configured by
+                 management.
+
+                 -  learned(2) - the entry has been dynamically learned, for
+                 example through MAC learning or ARP/ND snooping.
+
+                 -  evpn(3) - the entry has been learned from a remote EVPN
+                 site."
+    SYNTAX      INTEGER {
+                  mgmt(1),
+                  learned(2),
+                  evpn(3)
+                }
+
+  MaiOperReason  ::= TEXTUAL-CONVENTION
+    STATUS      current
+    DESCRIPTION "A reason for the current oper status of an MAI stub object."
+    SYNTAX      INTEGER {
+                  maiOperRsnNone(1),           -- Oper status is up or going
+                                               -- up.  No reason is required.
+                  maiOperRsnEntityNotUp(2),    -- Oper status is down or going
+                                               -- down because the MAI stub
+                                               -- entity is not operationally
+                                               -- up.
+                  maiOperRsnAdminConfig(3),    -- Oper status is down or going
+                                               -- down because of the object's
+                                               -- row status or admin status
+                                               -- configuration.
+                  maiOperRsnNoIfIndex(4),      -- Oper status is down or going
+                                               -- down because the object does
+                                               -- not have an associated
+                                               -- interface index configured.
+                  maiOperRsnBadIpConfig(5),    -- Oper status is down or going
+                                               -- down because the object's IP
+                                               -- address configuration is
+                                               -- inconsistent.
+                  maiOperRsnResourceFailure(6) -- Oper status is failed or
+                                               -- failed perm because of a
+                                               -- resource failure.
+                }
+
+  MaiSnoopingMode ::= TEXTUAL-CONVENTION
+    STATUS      current
+    DESCRIPTION "Configuration of what packets the MAI stub should snoop."
+    SYNTAX      INTEGER {
+                  none(0),
+                  all(1),
+                  arp(2)
+                }
+
+-------------------------------------------------------------------------------
+
+--
+-- The MAI Stub Entity Table.
+--
+
+  maiEntTable OBJECT-TYPE
+    SYNTAX      SEQUENCE OF MaiEntEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "Each entry in this table represents a MAI Stub entity."
+    ::= { maiObjects 1 }
+
+  maiEntEntry OBJECT-TYPE
+    SYNTAX      MaiEntEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "Each entry represents a MAI Stub entity."
+    INDEX { maiEntIndex }
+    ::= { maiEntTable 1 }
+
+  MaiEntEntry ::= SEQUENCE {
+      maiEntIndex              EntityIndex,
+      maiEntRowStatus          RowStatus,
+      maiEntAdminStatus        AdminStatus,
+      maiEntOperStatus         BaseOperStatus,
+      maiEntSnoopingMode       MaiSnoopingMode
+    }
+
+  maiEntIndex OBJECT-TYPE
+    SYNTAX      EntityIndex
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "Identifies an MAI Stub entity."
+    ::= { maiEntEntry 1 }
+
+  maiEntRowStatus OBJECT-TYPE
+    SYNTAX      RowStatus
+    MAX-ACCESS  read-create
+    STATUS      current
+    DESCRIPTION "The row status for this MAI Stub Entity Table entry,
+                 used to create and destroy table entries."
+    ::= { maiEntEntry 2 }
+
+  maiEntAdminStatus OBJECT-TYPE
+    SYNTAX      AdminStatus
+    MAX-ACCESS  read-create
+    STATUS      current
+    DESCRIPTION "The administrative status of this MAI Stub entity,
+                 used to activate and deactivate the MAI Stub."
+    DEFVAL      { adminStatusUp }
+    ::= { maiEntEntry 3 }
+
+  maiEntOperStatus OBJECT-TYPE
+    SYNTAX      BaseOperStatus
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "The current operational status of this MAI Stub entity."
+    ::= { maiEntEntry 4 }
+
+  maiEntSnoopingMode OBJECT-TYPE
+    SYNTAX      MaiSnoopingMode
+    MAX-ACCESS  read-create
+    STATUS      current
+    DESCRIPTION "Configures whether the MAI stub should snoop all packets
+                 to learn FDB entries or just ARP packets to learn MAC/IP
+                 pairings.
+
+                 This field is used when the MAI stub learns of a Bridge
+                 Domain member to determine what snooping should be done on
+                 that interface.  This is a test field to set at start of
+                 day, so any changes to this field will have no
+                 effect on interfaces that the MAI stub has already
+                 learned."
+    DEFVAL      { none }
+    ::= { maiEntEntry 5 }
+
+-------------------------------------------------------------------------------
+
+--
+-- MAI Stub Slave Join Table
+--
+
+  maiSjTable OBJECT-TYPE
+    SYNTAX      SEQUENCE OF MaiSjEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "This table contains information on joins for which MAI Stub
+                 entities are acting as slaves.  Each row in this table
+                 represents one slave join in a particular MAI Stub entity."
+    ::= { maiObjects 2 }
+
+  maiSjEntry OBJECT-TYPE
+    SYNTAX      MaiSjEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "An entry (conceptual row) representing a slave join in a
+                 particular MAI Stub entity."
+    INDEX { maiEntIndex,
+            maiSjInterfaceId,
+            maiSjPartnerType,
+            maiSjPartnerIndex,
+            maiSjSubIndex }
+    ::= { maiSjTable 1 }
+
+  MaiSjEntry ::= SEQUENCE {
+      maiSjInterfaceId  MaiSjIfId,
+      maiSjPartnerType  Unsigned32,
+      maiSjPartnerIndex Unsigned32,
+      maiSjSubIndex     Unsigned32,
+      maiSjJoinStatus   SjStatus
+    }
+
+  maiSjInterfaceId OBJECT-TYPE
+    SYNTAX      MaiSjIfId
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "Identifies the interface of this slave join."
+    ::= { maiSjEntry 2 }
+
+  maiSjPartnerType OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "Identifies the process type of master entity that has
+                 joined to this slave."
+    ::= { maiSjEntry 3 }
+
+  maiSjPartnerIndex OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "Identifies the entity index of the master entity that has
+                 joined to this slave."
+    ::= { maiSjEntry 4 }
+
+  maiSjSubIndex OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "This permits a master and slave to have multiple
+                 simultaneous joins of the same type."
+    ::= { maiSjEntry 5 }
+
+  maiSjJoinStatus OBJECT-TYPE
+    SYNTAX      SjStatus
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "The current join status of this slave join."
+    ::= { maiSjEntry 6 }
+
+-------------------------------------------------------------------------------
+
+--
+-- MAI Stub MAC IP Configuration Table
+--
+-- Read-create table providing static configuration of FDB entries and MAC/IP
+-- mappings.
+--
+
+  maiMacIpCfgTable OBJECT-TYPE
+    SYNTAX      SEQUENCE OF MaiMacIpCfgEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "Each entry in this table represents a configured FDB entry or
+                 MAC/IP mapping.  These entries will be advertised over the MAI
+                 to any MAI masters."
+    ::= { maiObjects 3 }
+
+  maiMacIpCfgEntry OBJECT-TYPE
+    SYNTAX      MaiMacIpCfgEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "An entry (conceptual row) representing a configured FDB entry
+                 or MAC/IP mapping for a Bridge Domain managed by the MAI
+                 Stub."
+    INDEX { maiEntIndex,
+            maiMacIpCfgBdType,
+            maiMacIpCfgBdIndex,
+            maiMacIpCfgBdSubIndex,
+            maiMacIpCfgMacAddress,
+            maiMacIpCfgIpAddressType,
+            maiMacIpCfgIpAddress }
+    ::= { maiMacIpCfgTable 1 }
+
+  MaiMacIpCfgEntry ::= SEQUENCE {
+      maiMacIpCfgBdType          L2BridgeDomainType,
+      maiMacIpCfgBdIndex         Unsigned32,
+      maiMacIpCfgBdSubIndex      Unsigned32,
+      maiMacIpCfgMacAddress      MacAddress,
+      maiMacIpCfgIpAddressType   InetAddressType,
+      maiMacIpCfgIpAddress       InetAddress,
+      maiMacIpCfgRowStatus       RowStatus,
+      maiMacIpCfgAdminStatus     AdminStatus,
+      maiMacIpCfgOperStatus      BaseOperStatus,
+      maiMacIpCfgOperReason      MaiOperReason,
+      maiMacIpCfgIfIndex         InterfaceIndexOrZero,
+      maiMacIpCfgSticky          TruthValue
+    }
+
+  maiMacIpCfgBdType OBJECT-TYPE
+    SYNTAX      L2BridgeDomainType
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "The Bridge Domain type of the Bridge Domain that this FDB
+                 entry or MAC/IP mapping is for."
+    ::= { maiMacIpCfgEntry 2 }
+
+  maiMacIpCfgBdIndex OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "The principal identifier for the Bridge Domain (for example
+                 the EVPN instance index)."
+    ::= { maiMacIpCfgEntry 3 }
+
+  maiMacIpCfgBdSubIndex OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "The secondary identifier for the Bridge Domain (for an EVPN
+                 instance this is always set to 0)."
+    ::= { maiMacIpCfgEntry 4 }
+
+  maiMacIpCfgMacAddress OBJECT-TYPE
+    SYNTAX      MacAddress
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "The MAC address that this entry is for."
+    ::= { maiMacIpCfgEntry 5 }
+
+  maiMacIpCfgIpAddressType OBJECT-TYPE
+    SYNTAX      InetAddressType
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "The type of IP address to associate with the MAC address,
+                 if any.
+
+                 To associate an IP address with the MAC address, set this
+                 field to ipv4(1) or ipv6(2), and configure the IP address
+                 itself in maiMacIpCfgIpAddress.
+
+                 If no IP address is required, set this field to other(0)."
+    ::= { maiMacIpCfgEntry 6 }
+
+  maiMacIpCfgIpAddress OBJECT-TYPE
+    SYNTAX      InetAddress (SIZE(0|4|16))
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "The IP address to associate with the MAC address, if any.
+
+                 To associate an IP address with the MAC address, configure
+                 the IP address here and the type of the address in
+                 maiMacIpCfgIpAddressType.
+
+                 If no IP address is required, leave this field empty."
+    ::= { maiMacIpCfgEntry 7 }
+
+  maiMacIpCfgRowStatus OBJECT-TYPE
+    SYNTAX      RowStatus
+    MAX-ACCESS  read-create
+    STATUS      current
+    DESCRIPTION "The row status for this entry, used to create and destroy
+                 table entries."
+    ::= { maiMacIpCfgEntry 8 }
+
+  maiMacIpCfgAdminStatus OBJECT-TYPE
+    SYNTAX      AdminStatus
+    MAX-ACCESS  read-create
+    STATUS      current
+    DESCRIPTION "The administrative status of this entry, used to activate and
+                 deactivate entries."
+    DEFVAL      { adminStatusUp }
+    ::= { maiMacIpCfgEntry 9 }
+
+  maiMacIpCfgOperStatus OBJECT-TYPE
+    SYNTAX      BaseOperStatus
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Operational status of this entry.
+
+                 -  operStatusDown if the row is not active, the admin status
+                    is not up, or the MAI stub is operationally down, or there
+                    is no interface index configured for the entry
+                    (maiMacIpCfgIfIndex is set to 0).
+
+                 -  operStatusUp if the entry is active and ready to be
+                    advertised to other components."
+    ::= { maiMacIpCfgEntry 10 }
+
+  maiMacIpCfgOperReason OBJECT-TYPE
+    SYNTAX      MaiOperReason
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "The reason for this entry to be in its current oper status."
+    ::= { maiMacIpCfgEntry 11 }
+
+  maiMacIpCfgIfIndex OBJECT-TYPE
+    SYNTAX      InterfaceIndexOrZero
+    MAX-ACCESS  read-create
+    STATUS      current
+    DESCRIPTION "The index of the interface to indicate that this FDB entry or
+                 MAC/IP address combination can be reached over.
+
+                 This row will not activate if this field is set to 0."
+    DEFVAL      { 0 }
+    ::= { maiMacIpCfgEntry 12 }
+
+  maiMacIpCfgSticky OBJECT-TYPE
+    SYNTAX      TruthValue
+    MAX-ACCESS  read-create
+    STATUS      current
+    DESCRIPTION "Whether this entry should be considered sticky - that is,
+                 whether the MAC address for the entry is forbidden to move.
+                 The entry will be advertised as sticky or not to other
+                 components based on the value of this field.
+
+                 In general, all statically configured MAC addresses will
+                 be sticky, so this field should be set to true(1).
+                 However, it may be set to false(2) to enable testing of
+                 MAC addresses moving."
+    DEFVAL      { true }
+    ::= { maiMacIpCfgEntry 14 }
+
+-------------------------------------------------------------------------------
+
+--
+-- MAI Stub MAC IP Table
+--
+-- Read-only table of all current FDB entries and MAC/IP mappings known about
+-- by an MAI stub.
+--
+
+  maiMacIpTable OBJECT-TYPE
+    SYNTAX      SEQUENCE OF MaiMacIpEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "Each entry in this table represents a current FDB entry or
+                 MAC/IP mapping that the MAI stub has learned about, either
+                 from configuration, a dynamic entry or from a remote EVPN
+                 site.
+
+                 Note that configured entries only appear in this table if
+                 they are operationally up."
+    ::= { maiObjects 4 }
+
+  maiMacIpEntry OBJECT-TYPE
+    SYNTAX      MaiMacIpEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "An entry (conceptual row) representing an FDB entry or MAC/IP
+                 mapping for a Bridge Domain managed by the MAI Stub."
+    INDEX { maiEntIndex,
+            maiMacIpBdType,
+            maiMacIpBdIndex,
+            maiMacIpBdSubIndex,
+            maiMacIpMacAddress,
+            maiMacIpIpAddressType,
+            maiMacIpIpAddress,
+            maiMacIpSource }
+    ::= { maiMacIpTable 1 }
+
+  MaiMacIpEntry ::= SEQUENCE {
+      maiMacIpBdType          L2BridgeDomainType,
+      maiMacIpBdIndex         Unsigned32,
+      maiMacIpBdSubIndex      Unsigned32,
+      maiMacIpMacAddress      MacAddress,
+      maiMacIpIpAddressType   InetAddressType,
+      maiMacIpIpAddress       InetAddress,
+      maiMacIpSource          MaiMacIpSourceType,
+      maiMacIpIfIndex         InterfaceIndexOrZero,
+      maiMacIpAge             Unsigned32,
+      maiMacIpTimeout         Unsigned32
+    }
+
+  maiMacIpBdType OBJECT-TYPE
+    SYNTAX      L2BridgeDomainType
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "The Bridge Domain type of the Bridge Domain that this FDB
+                 entry or MAC/IP mapping is for."
+    ::= { maiMacIpEntry 2 }
+
+  maiMacIpBdIndex OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "The principal identifier for the Bridge Domain (for example
+                 the EVPN instance index)."
+    ::= { maiMacIpEntry 3 }
+
+  maiMacIpBdSubIndex OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "The secondary identifier for the Bridge Domain (for an EVPN
+                 instance this is always set to 0)."
+    ::= { maiMacIpEntry 4 }
+
+  maiMacIpMacAddress OBJECT-TYPE
+    SYNTAX      MacAddress
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "The MAC address of the FDB entry or MAC/IP mapping."
+    ::= { maiMacIpEntry 5 }
+
+  maiMacIpIpAddressType OBJECT-TYPE
+    SYNTAX      InetAddressType
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "The type of the IP address if this is a MAC/IP mapping, either
+                 ipv4(1) or ipv6(2).  If this is an FDB entry, this is set to
+                 other(0).  The address is reported in the
+                 maiMacIpIpAddress field."
+    ::= { maiMacIpEntry 6 }
+
+  maiMacIpIpAddress OBJECT-TYPE
+    SYNTAX      InetAddress (SIZE(0|4|16))
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "The IP address is this is a MAC/IP mapping.  If this is an FDB
+                 entry, this is set to all zeroes.  The address type is
+                 reported in the maiMacIpIpAddressType field."
+    ::= { maiMacIpEntry 7 }
+
+  maiMacIpSource OBJECT-TYPE
+    SYNTAX      MaiMacIpSourceType
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "The source of the information for this FDB entry or MAC/IP
+                 mapping."
+    ::= { maiMacIpEntry 8 }
+
+  maiMacIpIfIndex OBJECT-TYPE
+    SYNTAX      InterfaceIndexOrZero
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "For a static or learned entry, this is the index of the
+                 interface over which the FDB entry or MAC/IP
+                 address combination is reachable.
+
+                 This is 0 for an entry from a remote EVPN site."
+    ::= { maiMacIpEntry 9 }
+
+  maiMacIpAge OBJECT-TYPE
+    SYNTAX      Unsigned32
+    UNITS       "seconds"
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "How long it has been since the entry was learned or updated
+                 in seconds.
+
+                 For static entries this is the time since the entry was last
+                 activated."
+    ::= { maiMacIpEntry 10 }
+
+  maiMacIpTimeout OBJECT-TYPE
+    SYNTAX      Unsigned32
+    UNITS       "seconds"
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "If this is a dynamic entry, how long until the entry times
+                 out in seconds.
+
+                 For static and EVPN entries, this is zero."
+    ::= { maiMacIpEntry 11 }
+
+-------------------------------------------------------------------------------
+
+--
+-- MAI Stub Conformance statement
+--
+
+ maiCompliances
+    OBJECT IDENTIFIER ::= { maiConformance 1 }
+
+ maiGroups
+    OBJECT IDENTIFIER ::= { maiConformance 2 }
+
+--
+-- Full Compliance
+--
+
+ maiFullCompliance MODULE-COMPLIANCE
+     STATUS current
+     DESCRIPTION "The module is implemented with support for read-create.  In
+                  other words, both monitoring and configuration are available
+                  when using this MODULE-COMPLIANCE."
+     MODULE -- this module
+       MANDATORY-GROUPS {
+                          maiBaseGroup
+                        }
+     ::= { maiCompliances 1 }
+
+--
+
+ maiBaseGroup OBJECT-GROUP
+    OBJECTS {
+              maiEntRowStatus,
+              maiEntAdminStatus,
+              maiEntOperStatus,
+              maiEntSnoopingMode,
+              maiSjJoinStatus,
+              maiMacIpCfgRowStatus,
+              maiMacIpCfgAdminStatus,
+              maiMacIpCfgOperStatus,
+              maiMacIpCfgOperReason,
+              maiMacIpCfgIfIndex,
+              maiMacIpCfgSticky,
+              maiMacIpIfIndex,
+              maiMacIpAge,
+              maiMacIpTimeout
+            }
+    STATUS  current
+    DESCRIPTION
+        "Objects that are common to all styles of MAI Stub implementations."
+    ::= { maiGroups 1 }
+
+-------------------------------------------------------------------------------
+
+END

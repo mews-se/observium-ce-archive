@@ -1,0 +1,114 @@
+ACTION-MIB DEFINITIONS ::= BEGIN
+IMPORTS
+    MODULE-IDENTITY, OBJECT-TYPE,
+    Integer32, Unsigned32, Counter32, Counter64,
+    Gauge32, IpAddress
+        FROM SNMPv2-SMI
+    TEXTUAL-CONVENTION, RowStatus, DateAndTime,
+    TruthValue
+        FROM SNMPv2-TC
+    ngfw
+        FROM VERSA-MIB
+;
+
+action MODULE-IDENTITY
+    LAST-UPDATED "201610030000Z"
+    ORGANIZATION "Versa Networks"
+    CONTACT-INFO "
+        2953 Bunker Hill Lane, Suite 210
+        Santa Clara, CA - 95035 (USA)
+        Email: support@versa-networks.com"
+    DESCRIPTION "Enterprise MIB for Versa Networks'
+Action solution"
+    REVISION "201610030000Z"
+    DESCRIPTION "Initial revision"
+    ::= { ngfw 13 }
+
+ConfdString ::= TEXTUAL-CONVENTION
+    DISPLAY-HINT "1t"
+    STATUS      current
+    DESCRIPTION "xs: and confd: types mapped to strings"
+    SYNTAX      OCTET STRING
+
+String ::= TEXTUAL-CONVENTION
+    DISPLAY-HINT "1t"
+    STATUS      current
+    DESCRIPTION "xs:string"
+    SYNTAX      OCTET STRING
+
+actionTable OBJECT-TYPE
+    SYNTAX      SEQUENCE OF ActionEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "Action statistics"
+    ::= { action 1 }
+
+actionEntry OBJECT-TYPE
+    SYNTAX      ActionEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION ""
+    INDEX { actionOrgId, actionId }
+        ::= { actionTable 1 }
+
+ActionEntry ::=
+    SEQUENCE {
+        actionOrgId Unsigned32,
+        actionId Unsigned32,
+        actionOrgName String,
+        actionName String,
+        actionSessionMatchCount ConfdString,
+        actionActivateCount ConfdString,
+        actionDeactivateCount ConfdString
+    }
+
+actionOrgId OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "Organization id"
+    ::= { actionEntry 1 }
+
+actionId OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "Action id"
+    ::= { actionEntry 2 }
+
+actionOrgName OBJECT-TYPE
+    SYNTAX      String
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Organization name"
+    ::= { actionEntry 3 }
+
+actionName OBJECT-TYPE
+    SYNTAX      String
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Action name"
+    ::= { actionEntry 4 }
+
+actionSessionMatchCount OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Number of session match action attribute"
+    ::= { actionEntry 5 }
+
+actionActivateCount OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Number of action activate count"
+    ::= { actionEntry 6 }
+
+actionDeactivateCount OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Number of action deactivate count"
+    ::= { actionEntry 7 }
+
+END

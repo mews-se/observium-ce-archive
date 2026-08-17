@@ -1,0 +1,445 @@
+DDOS-MIB DEFINITIONS ::= BEGIN
+IMPORTS
+    MODULE-IDENTITY, OBJECT-TYPE,
+    Integer32, Unsigned32, Counter32, Counter64,
+    Gauge32, IpAddress
+        FROM SNMPv2-SMI
+    TEXTUAL-CONVENTION, RowStatus, DateAndTime,
+    TruthValue
+        FROM SNMPv2-TC
+    orgServices
+        FROM VERSA-MIB
+;
+
+ddos MODULE-IDENTITY
+    LAST-UPDATED "201505130000Z"
+    ORGANIZATION "Versa Networks"
+    CONTACT-INFO "
+        2953 Bunker Hill Lane, Suite 210
+        Santa Clara, CA - 95035 (USA)
+        Email: support@versa-networks.com"
+    DESCRIPTION "Enterprise MIB for Versa Networks'
+Distributed DOS solution"
+    REVISION "201505130000Z"
+    DESCRIPTION "Initial revision"
+    ::= { orgServices 7 }
+
+ConfdString ::= TEXTUAL-CONVENTION
+    DISPLAY-HINT "1t"
+    STATUS      current
+    DESCRIPTION "xs: and confd: types mapped to strings"
+    SYNTAX      OCTET STRING
+
+String ::= TEXTUAL-CONVENTION
+    DISPLAY-HINT "1t"
+    STATUS      current
+    DESCRIPTION "xs:string"
+    SYNTAX      OCTET STRING
+
+ddosPolicyTable OBJECT-TYPE
+    SYNTAX      SEQUENCE OF DdosPolicyEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "DoS policy statistics"
+    ::= { ddos 1 }
+
+ddosPolicyEntry OBJECT-TYPE
+    SYNTAX      DdosPolicyEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION ""
+    INDEX { ddosPolicyOrgId, ddosPolicyId, ddosPolicyRuleOrder, ddosPolicyRuleId }
+        ::= { ddosPolicyTable 1 }
+
+DdosPolicyEntry ::=
+    SEQUENCE {
+        ddosPolicyOrgId Unsigned32,
+        ddosPolicyId Unsigned32,
+        ddosPolicyRuleOrder Unsigned32,
+        ddosPolicyRuleId Unsigned32,
+        ddosPolicyOrgName String,
+        ddosPolicyName String,
+        ddosPolicyRuleName String,
+        ddosPolicyUdpDropCount ConfdString,
+        ddosPolicyIcmpDropCount ConfdString,
+        ddosPolicyIcmp6DropCount ConfdString,
+        ddosPolicyOIpDropCount ConfdString,
+        ddosPolicyTcpSynDropCount ConfdString,
+        ddosPolicyDosHitCount ConfdString,
+        ddosPolicySctpDropCount ConfdString,
+        ddosPolicySessionDropCount ConfdString
+    }
+
+ddosPolicyOrgId OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "Organization Id"
+    ::= { ddosPolicyEntry 1 }
+
+ddosPolicyId OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "Policy Id"
+    ::= { ddosPolicyEntry 2 }
+
+ddosPolicyRuleOrder OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "rule order"
+    ::= { ddosPolicyEntry 3 }
+
+ddosPolicyRuleId OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "rule id"
+    ::= { ddosPolicyEntry 4 }
+
+ddosPolicyOrgName OBJECT-TYPE
+    SYNTAX      String
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Name of the Organization"
+    ::= { ddosPolicyEntry 5 }
+
+ddosPolicyName OBJECT-TYPE
+    SYNTAX      String
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Name of the policy"
+    ::= { ddosPolicyEntry 6 }
+
+ddosPolicyRuleName OBJECT-TYPE
+    SYNTAX      String
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "rule name"
+    ::= { ddosPolicyEntry 7 }
+
+ddosPolicyUdpDropCount OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total UDP packets dropped by DOS policy"
+    ::= { ddosPolicyEntry 8 }
+
+ddosPolicyIcmpDropCount OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total ICMP packets dropped by DOS policy"
+    ::= { ddosPolicyEntry 9 }
+
+ddosPolicyIcmp6DropCount OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total ICMPv6 packets dropped by DOS policy"
+    ::= { ddosPolicyEntry 10 }
+
+ddosPolicyOIpDropCount OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total other IP packets dropped by DOS policy"
+    ::= { ddosPolicyEntry 11 }
+
+ddosPolicyTcpSynDropCount OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total TCP SYN packets dropped by DOS policy"
+    ::= { ddosPolicyEntry 12 }
+
+ddosPolicyDosHitCount OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total hits on this dos rule policy"
+    ::= { ddosPolicyEntry 13 }
+
+ddosPolicySctpDropCount OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total SCTP packets dropped by DOS policy"
+    ::= { ddosPolicyEntry 14 }
+
+ddosPolicySessionDropCount OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total sessions denied by DOS policy"
+    ::= { ddosPolicyEntry 15 }
+
+zoneProtectionTable OBJECT-TYPE
+    SYNTAX      SEQUENCE OF ZoneProtectionEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "Zone protection profile statistics"
+    ::= { ddos 2 }
+
+zoneProtectionEntry OBJECT-TYPE
+    SYNTAX      ZoneProtectionEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION ""
+    INDEX { zoneProtectionOrgId, zoneProtectionProfileId, zoneProtectionProfileName }
+        ::= { zoneProtectionTable 1 }
+
+ZoneProtectionEntry ::=
+    SEQUENCE {
+        zoneProtectionOrgId Unsigned32,
+        zoneProtectionProfileId Unsigned32,
+        zoneProtectionOrgName String,
+        zoneProtectionProfileName String,
+        zoneProtectionFloodSessDropped ConfdString,
+        zoneProtectionScansDetected ConfdString,
+        zoneProtectionIpSpoofDropped ConfdString,
+        zoneProtectionIpFragDropped ConfdString,
+        zoneProtectionIpSSRDropped ConfdString,
+        zoneProtectionIpLSRDropped ConfdString,
+        zoneProtectionIpTimestampDropped ConfdString,
+        zoneProtectionIpRRDropped ConfdString,
+        zoneProtectionIpSecIdDropped ConfdString,
+        zoneProtectionIpStreamIdDropped ConfdString,
+        zoneProtectionIpUnknownClassDropped ConfdString,
+        zoneProtectionIpMalformDropped ConfdString,
+        zoneProtectionNonSynDropped ConfdString,
+        zoneProtectionIcmpErrDropped ConfdString,
+        zoneProtectionIcmpFragDropped ConfdString,
+        zoneProtectionIcmpLargePktDropped ConfdString,
+        zoneProtectionIcmpPingZeroIdDropped ConfdString,
+        zoneProtectionLogAlertsSent ConfdString,
+        zoneProtectionIcmpMalformedDropped ConfdString,
+        zoneProtectionUdpMalformedDropped ConfdString,
+        zoneProtectionTcpMalformedDropped ConfdString,
+        zoneProtectionTcpFloodSessDropped ConfdString,
+        zoneProtectionUdpFloodSessDropped ConfdString,
+        zoneProtectionIcmpFloodSessDropped ConfdString,
+        zoneProtectionIcmp6FloodSessDropped ConfdString,
+        zoneProtectionSctpFloodSessDropped ConfdString,
+        zoneProtectionOipFloodSessDropped ConfdString
+    }
+
+zoneProtectionOrgId OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "Organization Id"
+    ::= { zoneProtectionEntry 1 }
+
+zoneProtectionProfileId OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "Profile Id"
+    ::= { zoneProtectionEntry 2 }
+
+zoneProtectionOrgName OBJECT-TYPE
+    SYNTAX      String
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Name of the Organization"
+    ::= { zoneProtectionEntry 3 }
+
+zoneProtectionProfileName OBJECT-TYPE
+    SYNTAX      String
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "Unique zone protection profile name"
+    ::= { zoneProtectionEntry 4 }
+
+zoneProtectionFloodSessDropped OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      deprecated
+    DESCRIPTION "Total sessions dropped due to RED"
+    ::= { zoneProtectionEntry 5 }
+
+zoneProtectionScansDetected OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total port/host scans detected"
+    ::= { zoneProtectionEntry 6 }
+
+zoneProtectionIpSpoofDropped OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total sessions dropped due to ip-spoof"
+    ::= { zoneProtectionEntry 7 }
+
+zoneProtectionIpFragDropped OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total fragment packets dropped"
+    ::= { zoneProtectionEntry 8 }
+
+zoneProtectionIpSSRDropped OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total strict source route option packets dropped"
+    ::= { zoneProtectionEntry 9 }
+
+zoneProtectionIpLSRDropped OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total loose source route option packets dropped"
+    ::= { zoneProtectionEntry 10 }
+
+zoneProtectionIpTimestampDropped OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total timestamp option packets dropped"
+    ::= { zoneProtectionEntry 11 }
+
+zoneProtectionIpRRDropped OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total record route option packets dropped"
+    ::= { zoneProtectionEntry 12 }
+
+zoneProtectionIpSecIdDropped OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total security id option packets dropped"
+    ::= { zoneProtectionEntry 13 }
+
+zoneProtectionIpStreamIdDropped OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total stream id option packets dropped"
+    ::= { zoneProtectionEntry 14 }
+
+zoneProtectionIpUnknownClassDropped OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total unknown class number packets dropped"
+    ::= { zoneProtectionEntry 15 }
+
+zoneProtectionIpMalformDropped OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total ip malformed option packets dropped"
+    ::= { zoneProtectionEntry 16 }
+
+zoneProtectionNonSynDropped OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total non syn tcp first packets dropped"
+    ::= { zoneProtectionEntry 17 }
+
+zoneProtectionIcmpErrDropped OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total icmp error packets dropped"
+    ::= { zoneProtectionEntry 18 }
+
+zoneProtectionIcmpFragDropped OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total icmp fragment packets dropped"
+    ::= { zoneProtectionEntry 19 }
+
+zoneProtectionIcmpLargePktDropped OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total icmp large packets dropped "
+    ::= { zoneProtectionEntry 20 }
+
+zoneProtectionIcmpPingZeroIdDropped OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total icmp ping id zero packets dropped"
+    ::= { zoneProtectionEntry 21 }
+
+zoneProtectionLogAlertsSent OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total alerts sent on this profile"
+    ::= { zoneProtectionEntry 22 }
+
+zoneProtectionIcmpMalformedDropped OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total icmp malformed packets dropped"
+    ::= { zoneProtectionEntry 23 }
+
+zoneProtectionUdpMalformedDropped OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total UDP malformed packets dropped"
+    ::= { zoneProtectionEntry 24 }
+
+zoneProtectionTcpMalformedDropped OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total tcp malformed packets dropped"
+    ::= { zoneProtectionEntry 25 }
+
+zoneProtectionTcpFloodSessDropped OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total TCP sessions dropped due to RED"
+    ::= { zoneProtectionEntry 26 }
+
+zoneProtectionUdpFloodSessDropped OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total UDP sessions dropped due to RED"
+    ::= { zoneProtectionEntry 27 }
+
+zoneProtectionIcmpFloodSessDropped OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total ICMP sessions dropped due to RED"
+    ::= { zoneProtectionEntry 28 }
+
+zoneProtectionIcmp6FloodSessDropped OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total ICMPv6 sessions dropped due to RED"
+    ::= { zoneProtectionEntry 29 }
+
+zoneProtectionSctpFloodSessDropped OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total SCTP sessions dropped due to RED"
+    ::= { zoneProtectionEntry 30 }
+
+zoneProtectionOipFloodSessDropped OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total OIP sessions dropped due to RED"
+    ::= { zoneProtectionEntry 31 }
+
+END

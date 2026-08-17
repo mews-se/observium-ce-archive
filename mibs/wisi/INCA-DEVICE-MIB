@@ -1,0 +1,443 @@
+INCA-DEVICE-MIB DEFINITIONS ::= BEGIN
+
+IMPORTS
+    MODULE-IDENTITY, OBJECT-TYPE, IpAddress, Unsigned32, Counter32, Integer32
+            FROM SNMPv2-SMI
+    OBJECT-GROUP
+            FROM SNMPv2-CONF
+    TEXTUAL-CONVENTION, DateAndTime, TruthValue
+            FROM SNMPv2-TC
+    SnmpAdminString
+            FROM SNMP-FRAMEWORK-MIB
+    incaNetworks
+            FROM INCA-MIB;
+
+incaDevice MODULE-IDENTITY
+    LAST-UPDATED    "201611030000Z"  -- Nov 3rd, 2016
+    ORGANIZATION    "Inca Networks Inc."
+    CONTACT-INFO   
+        "Mike Bradley
+         Postal: Inca Networks
+                 112-19055 Airport Way
+                 Pitt Meadows BC  V3Y 0G4
+                 Canada
+         Phone:  +1 604 998 4665
+         E-mail: support@incanetworks.com
+   
+         Initial MIB creator: Mike Bradley
+         Postal: Inca Networks
+                 112-19055 Airport Way
+                 Pitt Meadows BC  V3Y 0G4
+                 Canada
+         Phone:  +1 604 998 4665
+         E-mail: support@incanetworks.com"
+
+    DESCRIPTION
+        "This is the MIB Module for Inca base devices"
+    REVISION     "201611030000Z"  -- Nov 3rd, 2016
+    DESCRIPTION  "Updated contact info"
+    REVISION     "201205250000Z"  -- May 25th, 2012
+    DESCRIPTION  "Initial version"
+
+        ::= { incaNetworks 1 }
+
+    incaDevMIBObjects     OBJECT IDENTIFIER ::= { incaDevice 1 }
+    incaDevBase           OBJECT IDENTIFIER ::= { incaDevMIBObjects 1 }
+
+    incaDevMIBConformance OBJECT IDENTIFIER ::= { incaDevice 2 }
+    incaDevMIBCompliances OBJECT IDENTIFIER ::= { incaDevMIBConformance 1 }
+    incaDevMIBGroups      OBJECT IDENTIFIER ::= { incaDevMIBConformance 2 }
+
+    IncaEvLevel ::= TEXTUAL-CONVENTION
+        STATUS    current
+        DESCRIPTION
+            "A type definition for for an event priority level"
+        SYNTAX    INTEGER {
+            emergency(1),
+            alert(2),
+            critical(3),
+            error(4),
+            warning(5),
+            notice(6),
+            information(7),
+            debug(8)
+        }
+
+incaDevSerialNumber OBJECT-TYPE
+        SYNTAX      SnmpAdminString
+        MAX-ACCESS  read-only
+        STATUS      current
+        DESCRIPTION
+            "The manufacturer's serial number for this device."
+        ::= { incaDevBase 1 }
+
+incaDevDateTime OBJECT-TYPE
+        SYNTAX      DateAndTime
+        MAX-ACCESS  read-write
+        STATUS      current
+        DESCRIPTION
+            "The date and time, with optional timezone
+             information."
+        ::= { incaDevBase 2 }
+
+incaDevResetNow OBJECT-TYPE
+        SYNTAX      TruthValue
+        MAX-ACCESS  read-write
+        STATUS      current
+        DESCRIPTION
+            "Setting this object to true(1) causes the device to reset.
+             Reading this object always returns false(2)."
+        ::= { incaDevBase 3 }
+
+
+incaDevEvent OBJECT IDENTIFIER ::= { incaDevMIBObjects 2 }
+
+incaDevEvControl OBJECT-TYPE
+        SYNTAX INTEGER {
+            resetLog(1),
+            useDefaultReporting(2)
+        }
+        MAX-ACCESS  read-write
+        STATUS      current
+        DESCRIPTION
+            "Setting this object to resetLog(1) empties the event log.
+             All data is deleted. Setting it to useDefaultReporting(2)
+             returns all event priorities to their factory-default
+             reporting. Reading this object always returns
+             useDefaultReporting(2)."
+        ::= { incaDevEvent 1 }
+
+incaDevEvSyslog OBJECT-TYPE
+        SYNTAX      IpAddress
+        MAX-ACCESS  read-write
+        STATUS      current
+        DESCRIPTION
+            "The IP address of the Syslog server. If 0.0.0.0, syslog
+             transmission is inhibited."
+        ::= { incaDevEvent 2 }
+
+incaDevEvThrottleAdminStatus OBJECT-TYPE
+        SYNTAX INTEGER {
+            unconstrained(1),
+            maintainBelowThreshold(2),
+            stopAtThreshold(3),
+            inhibited(4)
+        }
+        MAX-ACCESS  read-write
+        STATUS      current
+        DESCRIPTION
+            "Controls the transmission of traps and syslog messages
+             with respect to the trap pacing threshold.
+             unconstrained(1) causes traps and syslog messages to be
+             transmitted without regard to the threshold settings.
+
+             maintainBelowThreshold(2) causes trap transmission and
+             syslog messages to be suppressed if the number of traps
+             would otherwise exceed the threshold.
+             stopAtThreshold(3) causes trap transmission to cease
+             at the threshold, and not resume until directed to do so.
+             inhibited(4) causes all trap transmission and syslog
+             messages to be suppressed.
+
+             A single event is always treated as a single event for
+             threshold counting. That is, an event causing both a trap
+             and a syslog message is still treated as a single event.
+
+             Writing to this object resets the thresholding state.
+
+             At initial startup, this object has a default value of
+             unconstrained(1)."
+        ::= { incaDevEvent 3 }
+
+incaDevEvThrottleInhibited OBJECT-TYPE
+        SYNTAX      TruthValue
+        MAX-ACCESS  read-only
+        STATUS      current
+        DESCRIPTION
+            "If true(1), trap and syslog transmission is currently
+             inhibited due to thresholds and/or the current setting of
+             incaDevEvThrottleAdminStatus. In addition, this is set to
+             true(1) if transmission is inhibited due to no
+             syslog (incaDevEvSyslog) or trap (incaDevNmAccessEntry)
+             destinations having been set."
+        ::= { incaDevEvent 4 }
+
+incaDevEvThrottleThreshold OBJECT-TYPE
+        SYNTAX      Unsigned32
+        MAX-ACCESS  read-write
+        STATUS      current
+        DESCRIPTION
+            "Number of trap/syslog events per incaDevEvThrottleInterval
+             to be transmitted before throttling.
+
+             A single event is always treated as a single event for
+             threshold counting. That is, an event causing both a trap
+             and a syslog message is still treated as a single event.
+
+             At initial startup, this object returns 0."
+        ::= { incaDevEvent 5 }
+
+incaDevEvThrottleInterval OBJECT-TYPE
+        SYNTAX      Integer32 (1..2147483647)
+
+
+
+
+
+        UNITS       "seconds"
+        MAX-ACCESS  read-write
+        STATUS      current
+        DESCRIPTION
+            "The interval over which the trap threshold applies.
+             At initial startup, this object has a value of 1."
+
+        ::= { incaDevEvent 6 }
+
+--
+-- The following table controls the reporting of the various classes of
+-- events.
+--
+
+incaDevEvControlTable OBJECT-TYPE
+        SYNTAX      SEQUENCE OF IncaDevEvControlEntry
+        MAX-ACCESS  not-accessible
+        STATUS      current
+        DESCRIPTION
+            "This table allows control of the reporting of event classes.
+        For each event priority, a combination of logging and
+        reporting mechanisms may be chosen. The mapping of event types
+        to priorities is vendor-dependent. Vendors may also choose to
+        allow the user to control that mapping through proprietary
+        means."
+        ::= {  incaDevEvent 7 }
+
+
+incaDevEvControlEntry OBJECT-TYPE
+        SYNTAX      IncaDevEvControlEntry
+        MAX-ACCESS  not-accessible
+        STATUS      current
+        DESCRIPTION
+            "Allows configuration of the reporting mechanisms for a
+             particular event priority."
+        INDEX { incaDevEvPriority }
+        ::= { incaDevEvControlTable 1 }
+
+IncaDevEvControlEntry ::= SEQUENCE {
+            incaDevEvPriority        INTEGER,
+            incaDevEvReporting       BITS
+        }
+
+incaDevEvPriority OBJECT-TYPE
+        SYNTAX INTEGER {
+            emergency(1),
+            alert(2),
+            critical(3),
+            error(4),
+            warning(5),
+            notice(6),
+            information(7),
+            debug(8)
+        }
+        MAX-ACCESS  not-accessible
+        STATUS      current
+        DESCRIPTION
+            "The priority level that is controlled by this
+             entry. These are ordered from most (emergency) to least
+             (debug) critical.  Each event with a CM or CMTS has a
+             particular priority level associated with it (as defined
+             by the vendor). During normal operation no event more
+             critical than notice(6) should be generated. Events between
+             warning and emergency should be generated at appropriate
+             levels of problems (e.g. emergency when the box is about to
+             crash)."
+        ::= { incaDevEvControlEntry 1 }
+
+incaDevEvReporting OBJECT-TYPE
+        SYNTAX BITS {
+            local(0),
+            traps(1),
+            syslog(2),
+            localvol(3)
+        }
+        MAX-ACCESS  read-write
+        STATUS      current
+        DESCRIPTION
+            "Defines the action to be taken on occurrence of this
+             event class. Implementations may not necessarily support
+             all options for all event classes, but at minimum must
+             allow traps and syslogging to be disabled. If the
+             local(0) bit is set, then log to the internal log, if the
+             traps(1) bit is set, then generate a trap, if the
+             syslog(2) bit is set, then send a syslog message
+             (assuming the syslog address is set)."
+        ::= { incaDevEvControlEntry 2 }
+
+incaDevEventTable OBJECT-TYPE
+        SYNTAX      SEQUENCE OF IncaDevEventEntry
+        MAX-ACCESS  not-accessible
+        STATUS      current
+        DESCRIPTION
+            "Contains a log of network and device events that may be
+             of interest in fault isolation and troubleshooting."
+        ::= {  incaDevEvent 8 }
+
+
+incaDevEventEntry OBJECT-TYPE
+        SYNTAX      IncaDevEventEntry
+        MAX-ACCESS  not-accessible
+        STATUS      current
+        DESCRIPTION
+            "Describes a network or device event that may be of
+             interest in fault isolation and troubleshooting. Multiple
+             sequential identical events are represented by
+             incrementing incaDevEvCounts and setting
+             incaDevEvLastTime to the current time rather than creating
+             multiple rows.
+
+             Entries are created with the first occurrance of an event.
+             incaDevEvControl can be used to clear the table.
+             Individual events can not be deleted."
+        INDEX { incaDevEvIndex }
+
+        ::= { incaDevEventTable 1 }
+
+IncaDevEventEntry ::= SEQUENCE {
+            incaDevEvIndex           Integer32,
+            incaDevEvFirstTime       DateAndTime,
+            incaDevEvLastTime        DateAndTime,
+            incaDevEvCounts          Counter32,
+            incaDevEvLevel           INTEGER,
+            incaDevEvType            Unsigned32,
+            incaDevEvText            SnmpAdminString,
+            incaDevAlarmCode         Unsigned32
+        }
+
+incaDevEvIndex OBJECT-TYPE
+        SYNTAX      Integer32 (1..2147483647)
+        MAX-ACCESS  read-only
+        STATUS      current
+        DESCRIPTION
+            "Provides relative ordering of the objects in the event
+             log. This object will always increase except when
+             (a) the log is reset via incaDevEvControl,
+             (b) the device reboots and does not implement non-volatile
+             storage for this log, or (c) it reaches the value 2^31.
+             The next entry for all the above cases is 1."
+        ::= { incaDevEventEntry 1 }
+
+incaDevEvFirstTime OBJECT-TYPE
+        SYNTAX      DateAndTime
+        MAX-ACCESS  read-only
+        STATUS      current
+        DESCRIPTION
+            "The time that this entry was created."
+        ::= { incaDevEventEntry 2 }
+
+incaDevEvLastTime OBJECT-TYPE
+        SYNTAX      DateAndTime
+        MAX-ACCESS  read-only
+        STATUS      current
+        DESCRIPTION
+            "If multiple events are reported via the same entry, the
+             time that the last event for this entry occurred,
+             otherwise this should have the same value as
+             incaDevEvFirstTime. "
+        ::= { incaDevEventEntry 3 }
+
+-- This object was renamed from incaDevEvCount to meet naming
+-- requirements for Counter32
+incaDevEvCounts OBJECT-TYPE
+        SYNTAX      Counter32
+        MAX-ACCESS  read-only
+        STATUS      current
+        DESCRIPTION
+            "The number of consecutive event instances reported by
+             this entry.  This starts at 1 with the creation of this
+             row and increments by 1 for each subsequent duplicate
+             event."
+        ::= { incaDevEventEntry 4 }
+
+incaDevEvLevel OBJECT-TYPE
+        SYNTAX INTEGER {
+            none(0),
+            emergency(1),
+            alert(2),
+            critical(3),
+            error(4),
+            warning(5),
+            notice(6),
+            information(7),
+            debug(8)
+        }
+        MAX-ACCESS  read-only
+        STATUS      current
+        DESCRIPTION
+            "The priority level of this event as defined by the
+             vendor.  These are ordered from most serious (emergency)
+             to least serious (debug)."
+        ::= { incaDevEventEntry 5 }
+
+--
+-- Vendors will provide their own enumerations for the following.
+-- The interpretation of the enumeration is unambiguous for a
+-- particular value of the vendor's enterprise number in sysObjectID.
+--
+
+incaDevEvType OBJECT-TYPE
+        SYNTAX      Unsigned32
+        MAX-ACCESS  read-only
+        STATUS      current
+        DESCRIPTION
+            "For this product, uniquely identifies the type of event
+             that is reported by this entry."
+        ::= { incaDevEventEntry 6 }
+
+incaDevEvText OBJECT-TYPE
+        SYNTAX      SnmpAdminString
+        MAX-ACCESS  read-only
+        STATUS      current
+        DESCRIPTION
+            "Provides a human-readable description of the event,
+             including all relevant context (interface numbers,
+             etc.)."
+        ::= { incaDevEventEntry 7 }
+
+incaDevAlarmCode OBJECT-TYPE
+        SYNTAX      Unsigned32
+        MAX-ACCESS  read-only
+        STATUS      current
+        DESCRIPTION
+            "If the event is associated with an alarm, this is the 
+             alarm code."
+        ::= { incaDevEventEntry 8 }
+
+
+
+incaDevEventObjectGroup OBJECT-GROUP
+        OBJECTS {
+            incaDevEvIndex,
+            incaDevEvFirstTime,
+            incaDevEvLastTime,
+            incaDevEvCounts,
+            incaDevEvLevel,
+            incaDevEvType,
+            incaDevEvText,
+            incaDevAlarmCode,
+
+            incaDevEvSyslog,
+            incaDevEvReporting,
+            incaDevEvControl,
+            incaDevResetNow,
+            incaDevDateTime,
+            incaDevSerialNumber,
+
+incaDevEvThrottleAdminStatus,
+incaDevEvThrottleInhibited,
+incaDevEvThrottleThreshold,
+incaDevEvThrottleInterval
+        }
+        STATUS current
+        DESCRIPTION
+                "Event objects."
+        ::= { incaDevMIBGroups 1 }
+END

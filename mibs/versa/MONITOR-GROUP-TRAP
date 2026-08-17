@@ -1,0 +1,58 @@
+--
+-- @Description: MIB for MONITOR-GROUP Traps
+-- @Date       : 2018-05-25
+--
+
+MONITOR-GROUP-TRAP DEFINITIONS ::= BEGIN
+IMPORTS
+    MODULE-IDENTITY, OBJECT-TYPE, NOTIFICATION-TYPE
+        FROM SNMPv2-SMI
+    serviceNotification
+        FROM VERSA-MIB
+    alarmIndex, alarmType, alarmDevice, alarmObject,
+    alarmSpecificProblem, alarmEventType, alarmProbableCause,
+    alarmTime, alarmSeverity, alarmHasClear, alarmText,
+    tenantName, alarmClass
+        FROM TRAPS-COMMON;
+
+monitorGrouptrapMIB MODULE-IDENTITY
+    LAST-UPDATED "201806060000Z"
+    ORGANIZATION "Versa Networks"
+    CONTACT-INFO "
+        2953 Bunker Hill Lane, Suite 210
+        Santa Clara, CA - 95035 (USA)
+        Email: support@versa-networks.com"
+    DESCRIPTION  "Versa Networks' Entrprise MIB for MONITOR-GROUP traps"
+    ::= { serviceNotification 12 }
+
+-- Root Object
+monitorGroupEntities OBJECT IDENTIFIER ::= { monitorGrouptrapMIB 1 }
+monitorGroupNotification OBJECT IDENTIFIER ::= { monitorGrouptrapMIB 2 }
+
+monitorGroupName OBJECT-TYPE
+    SYNTAX      OCTET STRING
+    MAX-ACCESS  accessible-for-notify
+    STATUS      current
+    DESCRIPTION "Name of the monitor group"
+        ::= { monitorGroupEntities 1 }
+
+monitorGroupDown NOTIFICATION-TYPE
+    OBJECTS {
+        alarmType, alarmDevice, alarmObject, alarmSpecificProblem,
+        alarmClass, alarmEventType, alarmProbableCause, alarmTime,
+        alarmSeverity, alarmHasClear, alarmText, monitorGroupName
+    }
+    STATUS  current
+    DESCRIPTION "Monitor group down notification"
+        ::= { monitorGroupNotification 1 }
+
+monitorGroupUp NOTIFICATION-TYPE
+    OBJECTS {
+        alarmType, alarmDevice, alarmObject, alarmSpecificProblem,
+        alarmClass, alarmEventType, alarmProbableCause, alarmTime,
+        alarmSeverity, alarmHasClear, alarmText, monitorGroupName
+    }
+    STATUS  current
+    DESCRIPTION "Monitor group up notification"
+        ::= { monitorGroupNotification 2 }
+END

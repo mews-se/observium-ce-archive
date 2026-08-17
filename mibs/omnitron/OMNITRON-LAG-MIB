@@ -1,0 +1,345 @@
+OMNITRON-LAG-MIB DEFINITIONS ::= BEGIN
+
+IMPORTS
+    MODULE-IDENTITY, OBJECT-TYPE, Unsigned32
+        FROM SNMPv2-SMI           -- RFC-2578
+    TruthValue
+        FROM SNMPv2-TC            -- RFC-2579
+    MODULE-COMPLIANCE, OBJECT-GROUP
+        FROM SNMPv2-CONF          -- RFC-2580       
+    Dot1agCfmMepIdOrZero
+        FROM IEEE8021-CFM-MIB     -- IEEE 802.1ag
+    omnitron, OstPortSingleIndex
+        FROM OMNITRON-TC-MIB;     -- Omnitron Textual Convention MIB
+        
+omnitronLagMib MODULE-IDENTITY
+    LAST-UPDATED "201603241200Z"     -- March 24, 2016
+    ORGANIZATION "Omnitron Systems Technology, Inc."
+    CONTACT-INFO "Omnitron Systems Technology, Inc.
+                  38 Tesla
+                  Irvine, CA 92618-4670
+                  USA
+
+             Tel: (949) 250 6510
+             Fax: (949) 250 6514
+          E-mail: info@omnitron-systems.com
+   International: +1 949 250 6510
+
+                  Technical Support and Customer Service
+             Tel: (800) 675 8410
+          E-mail: support@omnitron-systems.com
+   International: +1 949 250 6510"
+
+    DESCRIPTION
+            "Omnitron Link Aggregationg MIB for use with iConverter
+             Management Modules v5.3 and NetOutlook. This MIB is in
+             addition to the functions in the standard IEEE8023-LAG-MIB.
+
+             Copyright 2016 Omnitron Systems Technology, Inc.
+             All rights reserved.
+            "
+
+    REVISION    "201603241200Z"     -- March 24, 2016
+    DESCRIPTION "Initial version of v5.3 MIB.
+                   Added ostLinkAggrPortCfgMdIndex
+                   Added ostLinkAggrPortCfgMaIndex
+                   Added ostLinkAggrPortCfgMepId
+                "
+    ::= { omnitron 18 }
+
+
+--------------------------------------------------------------------------------
+-- Link Aggregation Global Configuration Table
+--------------------------------------------------------------------------------
+
+ostLinkAggrGlobalCfgTable  OBJECT IDENTIFIER ::= { omnitronLagMib 1 }
+
+
+ostLinkAggregationEnable OBJECT-TYPE
+    SYNTAX      TruthValue
+    MAX-ACCESS  read-write
+    STATUS      current
+    DESCRIPTION
+       "This object enables or disables Link Aggregation (LAG) globally in the
+        module, based upon IEEE 802.1AX. The default setting is disabled.
+       "
+    DEFVAL { false }
+    ::= { ostLinkAggrGlobalCfgTable 1 }
+
+ostLinkAggregationForward OBJECT-TYPE
+    SYNTAX      INTEGER {
+        port  (1),
+        macda (2),
+        macsa (3)
+    }
+    MAX-ACCESS  read-write
+    STATUS      current
+    DESCRIPTION
+       "This object configures the Link Aggregation forwarding mode. The
+        default forwarding mode is port based.
+
+        port(1)       Forwarding is based upon ingress port
+        macda(2)      Forwarding is based upon MAC destination address
+        macsa(3)      Forwarding is based upon MAC source address
+       "
+    DEFVAL { port }
+    ::= { ostLinkAggrGlobalCfgTable 2 }
+
+
+--------------------------------------------------------------------------------
+-- Link Aggregation Port Configuration Table
+--------------------------------------------------------------------------------
+
+ostLinkAggrPortCfgTable OBJECT-TYPE
+    SYNTAX      SEQUENCE OF OstLinkAggrPortCfgEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION
+       "This table supports the Link Aggregation port configuration table."
+    ::= { omnitronLagMib 2 }
+
+ostLinkAggrPortCfgEntry OBJECT-TYPE
+    SYNTAX      OstLinkAggrPortCfgEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION
+       "This is a Link Aggregation port configuration table entry. Each row
+        in the table indicates a specific configuration for a port in
+        relationship to the Link Aggregation function. These are
+        extensions to the standard IEEE 801.AX 2008 MIB.
+
+        Each row in this table is created automatically based upon the number
+        of ports (interfaces) in a device.
+       "
+    INDEX { ostLinkAggrPortCfgInterfaceIndex }
+    ::= { ostLinkAggrPortCfgTable 1 }
+
+OstLinkAggrPortCfgEntry ::= SEQUENCE {
+    ostLinkAggrPortCfgInterfaceIndex            OstPortSingleIndex,
+    ostLinkAggrPortCfgLagEnable                 TruthValue,
+    ostLinkAggrPortCfgLacpEnable                TruthValue,
+    ostLinkAggrPortCfgPortKeyAuto               TruthValue,
+    ostLinkAggrPortCfgActiveNum                 Unsigned32,
+    ostLinkAggrPortCfgStatsClear                Unsigned32,
+    ostLinkAggrPortCfgLogicalPort               Unsigned32,
+    ostLinkAggrPortCfgMdIndex                   Unsigned32,
+    ostLinkAggrPortCfgMaIndex                   Unsigned32,
+    ostLinkAggrPortCfgMepId                     Dot1agCfmMepIdOrZero
+    }
+
+ostLinkAggrPortCfgInterfaceIndex OBJECT-TYPE
+    SYNTAX      OstPortSingleIndex
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION
+       "Chassis, module and port indices to which this interface belongs."
+    ::= { ostLinkAggrPortCfgEntry 1 }
+
+ostLinkAggrPortCfgLagEnable OBJECT-TYPE
+    SYNTAX      TruthValue
+    MAX-ACCESS  read-write
+    STATUS      current
+    DESCRIPTION
+       "This object selects whether the specific port participates in link
+        aggregation.
+
+        A value of true indicates the port can be aggregated and particpate
+        in the link aggregation algorithm
+
+        A value of false indicates the port cannot be aggregated and does not
+        particdipate in the link aggregation algorithm.
+       "
+    DEFVAL { false }
+    ::= { ostLinkAggrPortCfgEntry 2 }
+
+ostLinkAggrPortCfgLacpEnable OBJECT-TYPE
+    SYNTAX      TruthValue
+    MAX-ACCESS  read-write
+    STATUS      current
+    DESCRIPTION
+       "This object selects whether the specific port participates in link
+        aggregation control protocol (LACP).
+
+        A value of true indicates the port can peer via LACP.
+
+        A value of false indicates the port cannot peer via LACP.
+       "
+    DEFVAL { false }
+    ::= { ostLinkAggrPortCfgEntry 3 }
+
+ostLinkAggrPortCfgPortKeyAuto OBJECT-TYPE
+    SYNTAX      TruthValue
+    MAX-ACCESS  read-write
+    STATUS      current
+    DESCRIPTION
+       "This object selects whether the specific port's key value can be
+        automatically changed based the dynamic allocation of operational
+        keys found in IEEE 802.1AX section 5.6.2.
+
+        A value of true indicates the port can have its port key value
+        automatically changed based upon dynamic allocation of
+        operation keys.
+
+        A value of false indicates the port cannot have its port key
+        value automatically changed based upon dynamic allocation of
+        operation keys
+       "
+    DEFVAL { false }
+    ::= { ostLinkAggrPortCfgEntry 4 }
+
+ostLinkAggrPortCfgActiveNum OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  read-write
+    STATUS      current
+    DESCRIPTION
+       "This object selects number of active ports in a link aggregation
+        group as indicated by the associated port number.
+
+        If the number of active ports in a link aggregation group is equal
+        or greater than the number of ports in the group all ports can be
+        active.
+
+        If the number of active port in a link aggregation group is less
+        than the number of ports in a group one or more of the ports
+        have to be select as 'standby'.
+
+        Ports selected for standby are those that ports that don't have a
+        link, don't have a peer partner, or their port priority is less than
+        the other ports in a group.
+
+        From 802.1AX 2008:
+        Every link between systems operating LACP is assigned a unique
+        priority. This priority comprises (in priority order) the System
+        Priority, System ID, Port Priority, and Port Number of the higher-
+        priority system. In priority comparisons, numerically lower values
+        have higher priority.
+
+        Ports are considered for active use in an aggregation in link priority
+        order, starting with the port attached to the highest priority link.
+        Each port is selected for active use if preceding higher priority
+        selections can also be maintained; otherwise, the port is selected
+        as standby.
+       "
+    DEFVAL { 4 }
+    ::= { ostLinkAggrPortCfgEntry 5 }
+
+ostLinkAggrPortCfgStatsClear OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  read-write
+    STATUS      current
+    DESCRIPTION
+       "Writing any value to this object clears the counter values of the
+        associated port in the standard LAG MIB dot3adAggPortStatsTable.
+       "
+    DEFVAL {0}
+    ::= { ostLinkAggrPortCfgEntry 6 }
+
+ostLinkAggrPortCfgLogicalPort OBJECT-TYPE
+    SYNTAX      Unsigned32 (0 | 81..88)
+    MAX-ACCESS  read-write
+    STATUS      current
+    DESCRIPTION
+       "This object selects the logical group for a port number when a LAG
+        is assigned to a logical group instead of a physical port. This is
+        used for a MEP assigned to a logical port instead of a physical
+        port.
+
+        A value of '0' indicates the port is not assigned to a logical group.
+       "
+    DEFVAL { 0 }
+    ::= { ostLinkAggrPortCfgEntry 7 }
+
+ostLinkAggrPortCfgMdIndex OBJECT-TYPE
+    SYNTAX Unsigned32
+    MAX-ACCESS  read-write
+    STATUS      current
+    DESCRIPTION
+       "This object specifies the Maintenance Domain index for the MEP
+        that is configured on a port. If not configured (index value=0)
+        fail over is by link or protocol failure only.
+
+        This object can only be written at row creation time and cannot be
+        modified once it has been created.
+       "
+    DEFVAL { 0 }
+    ::= { ostLinkAggrPortCfgEntry 8 }
+
+ostLinkAggrPortCfgMaIndex OBJECT-TYPE
+    SYNTAX Unsigned32
+    MAX-ACCESS  read-write
+    STATUS      current
+    DESCRIPTION
+       "This object specifies the Maintenance Association index for the MEP
+        that is configured on a port. If not configured (index value=0) 
+        fail over is by link or protocol failure only.
+
+        This object can only be written at row creation time and cannot be
+        modified once it has been created.
+       "
+    DEFVAL { 0 }
+    ::= {  ostLinkAggrPortCfgEntry 9 }
+
+ostLinkAggrPortCfgMepId OBJECT-TYPE
+    SYNTAX      Dot1agCfmMepIdOrZero
+    MAX-ACCESS  read-write
+    STATUS      current
+    DESCRIPTION
+       "This object specifies the Maintenance End Point Identifier (MEP). 
+        If not configured (index value=0) fail over is by link failure only.
+        
+        Normally LAG failover is based upon link or protocol failure. If a
+        MEP is correctly configured on a port failover is possible when a
+        MEP failure is detected. This is supported in MEF 30.1.
+
+        This object can only be written at row creation time and cannot be
+        modified once it has been created.
+       "
+    DEFVAL { 0 }
+    ::= {  ostLinkAggrPortCfgEntry 10 }    
+
+
+--------------------------------------------------------------------------------
+-- Conformance Information
+--------------------------------------------------------------------------------
+ostLagCompliances       OBJECT IDENTIFIER ::= { omnitronLagMib 3 }
+ostLagGroups            OBJECT IDENTIFIER ::= { omnitronLagMib 4 }
+
+
+--------------------------------------------------------------------------------
+-- Omnitron LAG MIB Units of conformance
+--------------------------------------------------------------------------------
+ostLagGroup OBJECT-GROUP
+    OBJECTS {
+        ostLinkAggregationEnable,
+        ostLinkAggregationForward,
+        ostLinkAggrPortCfgLagEnable,
+        ostLinkAggrPortCfgLacpEnable,
+        ostLinkAggrPortCfgPortKeyAuto,
+        ostLinkAggrPortCfgActiveNum,
+        ostLinkAggrPortCfgStatsClear,
+        ostLinkAggrPortCfgLogicalPort,
+        ostLinkAggrPortCfgMdIndex,
+        ostLinkAggrPortCfgMaIndex,
+        ostLinkAggrPortCfgMepId
+    }
+    STATUS      current
+    DESCRIPTION
+       "Mandatory objects for the LAG functional group."
+    ::= { ostLagGroups 1 }
+
+
+--------------------------------------------------------------------------------
+-- Omnitron LAG MIB Compliance statements
+-------------------------------------------------------------------------------
+ostLagCompliance MODULE-COMPLIANCE
+    STATUS       current
+    DESCRIPTION "The compliance statement for the Omnitron LAG MIB."
+    MODULE
+        MANDATORY-GROUPS {
+            ostLagGroup
+        }
+    ::= { ostLagCompliances 1 }
+
+
+END
+

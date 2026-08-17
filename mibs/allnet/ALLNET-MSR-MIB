@@ -1,0 +1,400 @@
+ALLNET-MSR-MIB DEFINITIONS ::= BEGIN
+
+IMPORTS
+    enterprises, OBJECT-TYPE FROM RFC1155-SMI;
+
+allnetmsr OBJECT IDENTIFIER ::= { enterprises 19935 }
+
+sensor1 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Internal °C"
+    ::= { allnetmsr 1 }
+
+levela1 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "ignore me !"
+    ::= { sensor1 3 }
+
+levelb1 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "ignore me !"
+    ::= { levela1 1 }
+
+levelc1 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "ignore me !"
+    ::= { levelb1 1 }
+
+leveld1 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "ignore me !"
+    ::= { levelc1 1 }
+
+sensorvalue1 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "READ THIS VALUE ONLY !!!"
+    ::= { leveld1 65 }
+
+levele1 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "ignore me !"
+    ::= { sensorvalue1 0 }
+
+sensor96 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Zürich hpa hpa"
+    ::= { allnetmsr 96 }
+
+levela96 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "ignore me !"
+    ::= { sensor96 3 }
+
+levelb96 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "ignore me !"
+    ::= { levela96 1 }
+
+levelc96 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "ignore me !"
+    ::= { levelb96 1 }
+
+leveld96 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "ignore me !"
+    ::= { levelc96 1 }
+
+sensorvalue96 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "READ THIS VALUE ONLY !!!"
+    ::= { leveld96 65 }
+
+levele96 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "ignore me !"
+    ::= { sensorvalue96 0 }
+
+sensor97 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Zürich % %"
+    ::= { allnetmsr 97 }
+
+levela97 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "ignore me !"
+    ::= { sensor97 3 }
+
+levelb97 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "ignore me !"
+    ::= { levela97 1 }
+
+levelc97 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "ignore me !"
+    ::= { levelb97 1 }
+
+leveld97 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "ignore me !"
+    ::= { levelc97 1 }
+
+sensorvalue97 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "READ THIS VALUE ONLY !!!"
+    ::= { leveld97 65 }
+
+levele97 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "ignore me !"
+    ::= { sensorvalue97 0 }
+
+sensor98 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Zürich °C °C"
+    ::= { allnetmsr 98 }
+
+levela98 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "ignore me !"
+    ::= { sensor98 3 }
+
+levelb98 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "ignore me !"
+    ::= { levela98 1 }
+
+levelc98 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "ignore me !"
+    ::= { levelb98 1 }
+
+leveld98 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "ignore me !"
+    ::= { levelc98 1 }
+
+sensorvalue98 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "READ THIS VALUE ONLY !!!"
+    ::= { leveld98 65 }
+
+levele98 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "ignore me !"
+    ::= { sensorvalue98 0 }
+
+sensor104 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Port 1 °C"
+    ::= { allnetmsr 104 }
+
+levela104 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "ignore me !"
+    ::= { sensor104 3 }
+
+levelb104 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "ignore me !"
+    ::= { levela104 1 }
+
+levelc104 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "ignore me !"
+    ::= { levelb104 1 }
+
+leveld104 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "ignore me !"
+    ::= { levelc104 1 }
+
+sensorvalue104 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "READ THIS VALUE ONLY !!!"
+    ::= { leveld104 65 }
+
+levele104 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "ignore me !"
+    ::= { sensorvalue104 0 }
+
+sensor105 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Port 2 °C"
+    ::= { allnetmsr 105 }
+
+levela105 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "ignore me !"
+    ::= { sensor105 3 }
+
+levelb105 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "ignore me !"
+    ::= { levela105 1 }
+
+levelc105 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "ignore me !"
+    ::= { levelb105 1 }
+
+leveld105 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "ignore me !"
+    ::= { levelc105 1 }
+
+sensorvalue105 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "READ THIS VALUE ONLY !!!"
+    ::= { leveld105 65 }
+
+levele105 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "ignore me !"
+    ::= { sensorvalue105 0 }
+
+sensor106 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Port 3 °C"
+    ::= { allnetmsr 106 }
+
+levela106 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "ignore me !"
+    ::= { sensor106 3 }
+
+levelb106 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "ignore me !"
+    ::= { levela106 1 }
+
+levelc106 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "ignore me !"
+    ::= { levelb106 1 }
+
+leveld106 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "ignore me !"
+    ::= { levelc106 1 }
+
+sensorvalue106 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "READ THIS VALUE ONLY !!!"
+    ::= { leveld106 65 }
+
+levele106 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "ignore me !"
+    ::= { sensorvalue106 0 }
+
+sensor107 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Port 3 %"
+    ::= { allnetmsr 107 }
+
+levela107 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "ignore me !"
+    ::= { sensor107 3 }
+
+levelb107 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "ignore me !"
+    ::= { levela107 1 }
+
+levelc107 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "ignore me !"
+    ::= { levelb107 1 }
+
+leveld107 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "ignore me !"
+    ::= { levelc107 1 }
+
+sensorvalue107 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "READ THIS VALUE ONLY !!!"
+    ::= { leveld107 65 }
+
+levele107 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "ignore me !"
+    ::= { sensorvalue107 0 }
+
+END

@@ -1,0 +1,6523 @@
+------------------------------------------------------------
+-- Vertiv
+-- ITEI MIB
+------------------------------------------------------------
+
+DCS-MIB DEFINITIONS ::= BEGIN
+
+IMPORTS
+	MODULE-IDENTITY, OBJECT-TYPE, NOTIFICATION-TYPE,Integer32, Counter32, enterprises		FROM SNMPv2-SMI
+	TEXTUAL-CONVENTION, DisplayString, DateAndTime											FROM SNMPv2-TC;
+	
+------------------------------------------------------------
+-- Node definitions
+------------------------------------------------------------
+dcs MODULE-IDENTITY
+	LAST-UPDATED "201808160000Z"
+	ORGANIZATION "Vertiv"
+	CONTACT-INFO "vertivc.service@vertivco.com"
+	DESCRIPTION  "Vertiv device MIB"
+	REVISION     "201808160000Z"
+	DESCRIPTION  "Vertiv device MIB"
+
+	::= { enp 3 }
+	
+
+
+enp OBJECT IDENTIFIER ::= { enterprises 13400 }
+
+
+------------------------------------------------------------
+-- Textual conventions
+------------------------------------------------------------
+
+AlarmSeverity ::= TEXTUAL-CONVENTION
+	STATUS current
+	DESCRIPTION "
+		The severity of the alarm. One of
+		(1) informational
+		(2) warning
+		(3) critical"
+	SYNTAX INTEGER {
+		informational(1),
+		warning(2),
+		critical(3) }
+		
+AlarmStatusChange ::= TEXTUAL-CONVENTION
+	STATUS current
+	DESCRIPTION "
+		Indicates 'activated' (0) or 'deactivated' (1) alarm events."
+	SYNTAX INTEGER {
+		activated(0),
+		deactivated(1) }
+		
+		
+------------------------------------------------------------
+-- System Info{ 13400.3.1 }
+------------------------------------------------------------
+
+systemInfo OBJECT IDENTIFIER ::=  { dcs 1 }
+
+systemLoaction OBJECT-TYPE
+		SYNTAX 			DisplayString
+		MAX-ACCESS 		read-only
+		STATUS 			current
+		DESCRIPTION 	"Where is this Uint"
+		::= 			{ systemInfo 1 }
+
+systemEquipNum OBJECT-TYPE
+		SYNTAX 			Integer32
+		MAX-ACCESS 		read-only
+		STATUS 			current
+		DESCRIPTION 	"System Equipment Number"
+		::=				{ systemInfo 2 }
+		
+systemEquipListTable OBJECT-TYPE
+		SYNTAX 			SEQUENCE OF SystemEquipListEntry
+		MAX-ACCESS 		not-accessible
+		STATUS 			current
+		DESCRIPTION 	"System Equipment List Table"
+		::= 			{ systemInfo 3 }
+	
+systemEquipListEntry OBJECT-TYPE
+		SYNTAX 			SystemEquipListEntry
+		MAX-ACCESS 		not-accessible
+		STATUS 			current
+		DESCRIPTION 	"System Equipment List Entry"
+		INDEX 			{ systemEquipListIndex }
+		::= 			{ systemEquipListTable 1 }
+
+SystemEquipListEntry ::= SEQUENCE {
+		systemEquipListIndex 		Integer32,
+		systemEquipTypeName			DisplayString,
+		systemEquipID				Integer32,
+		systemEquipTypeID	 		Integer32}
+	
+systemEquipListIndex OBJECT-TYPE
+		SYNTAX 			Integer32(1..64)
+		MAX-ACCESS 		read-only
+		STATUS 			current
+		DESCRIPTION 	"System Equipment List Index"
+		::=				{ systemEquipListEntry 1 }
+		
+systemEquipTypeName OBJECT-TYPE
+		SYNTAX 			DisplayString
+		MAX-ACCESS 		read-only
+		STATUS 			current
+		DESCRIPTION 	"System Equipment Type Name"
+		::= 			{ systemEquipListEntry 2 }
+		
+systemEquipID OBJECT-TYPE
+		SYNTAX 			Integer32
+		MAX-ACCESS 		read-only
+		STATUS 			current
+		DESCRIPTION 	"System Equipment ID"
+		::= 			{ systemEquipListEntry 3 }
+
+systemEquipTypeID OBJECT-TYPE
+		SYNTAX 			Integer32
+		MAX-ACCESS 		read-only
+		STATUS 			current
+		DESCRIPTION 	"System Equipment Type ID"
+		::= 			{ systemEquipListEntry 4 }
+
+
+------------------------------------------------------------
+-- System { 13400.3.1.100 }
+------------------------------------------------------------
+rdua-System OBJECT IDENTIFIER ::= { systemInfo 100 }
+rduaSystemTable OBJECT-TYPE
+		SYNTAX			SEQUENCE OF RduaSystemEntry
+		MAX-ACCESS		not-accessible
+		STATUS			current
+		DESCRIPTION	"rduaSystemTable"
+		::=			{ rdua-System 1 }
+rduaSystemEntry OBJECT-TYPE
+		SYNTAX			RduaSystemEntry
+		MAX-ACCESS		not-accessible
+		STATUS			current
+		DESCRIPTION		"rduaSystemEntry"
+		INDEX			{ rduaSystemIndex }
+		::=				{ rduaSystemTable 1 }
+RduaSystemEntry ::= SEQUENCE {
+		rduaSystemIndex								Integer32,
+		rduaSystemsSystemstatus						INTEGER,
+		rduaSystemsUnitInternalStatus				INTEGER,
+		rduaSystemsRunningConfigType				INTEGER,
+		rduaSystemsAutoManState						INTEGER,
+		rduaSystemsOutgoingAlarmBlocked				INTEGER,
+		rduaSystemsDatastatstartclock				INTEGER,
+		rduaSystemsDatastatperiod					INTEGER }
+rduaSystemIndex OBJECT-TYPE
+		SYNTAX Integer32(1..8)
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION
+		"rduaSystem System Entry Index."
+		::= { rduaSystemEntry 1 }
+rduaSystemsSystemstatus OBJECT-TYPE
+		SYNTAX Integer32
+		
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION
+		"rduaSystemsSystemstatus status."
+		::= { rduaSystemEntry 2 }
+rduaSystemsUnitInternalStatus OBJECT-TYPE
+		SYNTAX Integer32
+		
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION
+		"rduaSystemsUnitInternalStatus status."
+		::= { rduaSystemEntry 3 }
+rduaSystemsRunningConfigType OBJECT-TYPE
+		SYNTAX Integer32
+		
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION
+		"rduaSystemsRunningConfigType status."
+		::= { rduaSystemEntry 4 }
+rduaSystemsAutoManState OBJECT-TYPE
+		SYNTAX Integer32
+		
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+		"rduaSystemsAuto/ManState status."
+		::= { rduaSystemEntry 5 }
+rduaSystemsOutgoingAlarmBlocked OBJECT-TYPE
+		SYNTAX Integer32
+		
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+		"rduaSystemsOutgoingAlarmBlocked status."
+		::= { rduaSystemEntry 6 }
+rduaSystemsDatastatstartclock OBJECT-TYPE
+		SYNTAX Integer32
+		
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+		"rduaSystemsDatastatstartclock oclock."
+		::= { rduaSystemEntry 7 }
+rduaSystemsDatastatperiod OBJECT-TYPE
+		SYNTAX Integer32
+		
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+		"rduaSystemsDatastatperiod h."
+		::= { rduaSystemEntry 8 }
+
+
+------------------------------------------------------------
+-- Env { 13400.3.5 }
+------------------------------------------------------------
+env OBJECT IDENTIFIER ::=  { dcs 5 }
+
+
+------------------------------------------------------------
+-- Th1sensor { 13400.3.5.531 }
+------------------------------------------------------------
+env-Th1sensor OBJECT IDENTIFIER ::= { env 531 }
+envTh1sensorTable OBJECT-TYPE
+		SYNTAX			SEQUENCE OF EnvTh1sensorEntry
+		MAX-ACCESS		not-accessible
+		STATUS			current
+		DESCRIPTION	"envTh1sensorTable"
+		::=			{ env-Th1sensor 1 }
+envTh1sensorEntry OBJECT-TYPE
+		SYNTAX			EnvTh1sensorEntry
+		MAX-ACCESS		not-accessible
+		STATUS			current
+		DESCRIPTION		"envTh1sensorEntry"
+		INDEX			{ envTh1sensorIndex }
+		::=				{ envTh1sensorTable 1 }
+EnvTh1sensorEntry ::= SEQUENCE {
+		envTh1sensorIndex					Integer32,
+		envTh1sensor_2_Temp01					Integer32,
+		envTh1sensor_3_Temp11					Integer32,
+		envTh1sensor_4_Temp21					Integer32,
+		envTh1sensor_5_Temp31					Integer32,
+		envTh1sensor_6_Temp41					Integer32,
+		envTh1sensor_7_Temp51					Integer32,
+		envTh1sensor_8_Temp61					Integer32,
+		envTh1sensor_9_Temp71					Integer32,
+		envTh1sensor_10_Temp81					Integer32,
+		envTh1sensor_11_Temp91					Integer32,
+		envTh1sensor_12_TempA1					Integer32,
+		envTh1sensor_13_TempB1					Integer32,
+		envTh1sensor_14_TempC1					Integer32,
+		envTh1sensor_15_TempD1					Integer32,
+		envTh1sensor_16_TempE1					Integer32,
+		envTh1sensor_17_TempF1					Integer32,
+		envTh1sensor_18_Hum01					Integer32,
+		envTh1sensor_19_Hum11					Integer32,
+		envTh1sensor_20_Hum21					Integer32,
+		envTh1sensor_21_Hum31					Integer32,
+		envTh1sensor_22_Hum41					Integer32,
+		envTh1sensor_23_Hum51					Integer32,
+		envTh1sensor_24_Hum61					Integer32,
+		envTh1sensor_25_Hum71					Integer32,
+		envTh1sensor_26_Hum81					Integer32,
+		envTh1sensor_27_Hum91					Integer32,
+		envTh1sensor_28_HumA1					Integer32,
+		envTh1sensor_29_HumB1					Integer32,
+		envTh1sensor_30_HumC1					Integer32,
+		envTh1sensor_31_HumD1					Integer32,
+		envTh1sensor_32_HumE1					Integer32,
+		envTh1sensor_33_HumF1					Integer32,
+		envTh1sensor_34_Temp01AlarmStatus					INTEGER,
+		envTh1sensor_35_Temp11AlarmStatus					INTEGER,
+		envTh1sensor_36_Temp21AlarmStatus					INTEGER,
+		envTh1sensor_37_Temp31AlarmStatus					INTEGER,
+		envTh1sensor_38_Temp41AlarmStatus					INTEGER,
+		envTh1sensor_39_Temp51AlarmStatus					INTEGER,
+		envTh1sensor_40_Temp61AlarmStatus					INTEGER,
+		envTh1sensor_41_Temp71AlarmStatus					INTEGER,
+		envTh1sensor_42_Temp81AlarmStatus					INTEGER,
+		envTh1sensor_43_Temp91AlarmStatus					INTEGER,
+		envTh1sensor_44_TempA1AlarmStatus					INTEGER,
+		envTh1sensor_45_TempB1AlarmStatus					INTEGER,
+		envTh1sensor_46_TempC1AlarmStatus					INTEGER,
+		envTh1sensor_47_TempD1AlarmStatus					INTEGER,
+		envTh1sensor_48_TempE1AlarmStatus					INTEGER,
+		envTh1sensor_49_TempF1AlarmStatus					INTEGER,
+		envTh1sensor_50_Hum01AlarmStatus					INTEGER,
+		envTh1sensor_51_Hum11AlarmStatus					INTEGER,
+		envTh1sensor_52_Hum21AlarmStatus					INTEGER,
+		envTh1sensor_53_Hum31AlarmStatus					INTEGER,
+		envTh1sensor_54_Hum41AlarmStatus					INTEGER,
+		envTh1sensor_55_Hum51AlarmStatus					INTEGER,
+		envTh1sensor_56_Hum61AlarmStatus					INTEGER,
+		envTh1sensor_57_Hum71AlarmStatus					INTEGER,
+		envTh1sensor_58_Hum81AlarmStatus					INTEGER,
+		envTh1sensor_59_Hum91AlarmStatus					INTEGER,
+		envTh1sensor_60_HumA1AlarmStatus					INTEGER,
+		envTh1sensor_61_HumB1AlarmStatus					INTEGER,
+		envTh1sensor_62_HumC1AlarmStatus					INTEGER,
+		envTh1sensor_63_HumD1AlarmStatus					INTEGER,
+		envTh1sensor_64_HumE1AlarmStatus					INTEGER,
+		envTh1sensor_65_HumF1AlarmStatus					INTEGER,
+		envTh1sensor_66_Temp01CommStatus					INTEGER,
+		envTh1sensor_67_Temp11CommStatus					INTEGER,
+		envTh1sensor_68_Temp21CommStatus					INTEGER,
+		envTh1sensor_69_Temp31CommStatus					INTEGER,
+		envTh1sensor_70_Temp41CommStatus					INTEGER,
+		envTh1sensor_71_Temp51CommStatus					INTEGER,
+		envTh1sensor_72_Temp61CommStatus					INTEGER,
+		envTh1sensor_73_Temp71CommStatus					INTEGER,
+		envTh1sensor_74_Temp81CommStatus					INTEGER,
+		envTh1sensor_75_Temp91CommStatus					INTEGER,
+		envTh1sensor_76_TempA1CommStatus					INTEGER,
+		envTh1sensor_77_TempB1CommStatus					INTEGER,
+		envTh1sensor_78_TempC1CommStatus					INTEGER,
+		envTh1sensor_79_TempD1CommStatus					INTEGER,
+		envTh1sensor_80_TempE1CommStatus					INTEGER,
+		envTh1sensor_81_TempF1CommStatus					INTEGER,
+		envTh1sensor_82_CommunicationStatus					INTEGER,
+		envTh1sensor_83_SensorNumber					INTEGER,
+		envTh1sensor_84_TH1AlarmNumber					INTEGER,
+		envTh1sensor_85_ClearSensorCommFailAlarm					INTEGER,
+		envTh1sensor_86_Temp01Alarmhystersis					Integer32,
+		envTh1sensor_87_Temp11Alarmhystersis					Integer32,
+		envTh1sensor_88_Temp21Alarmhystersis					Integer32,
+		envTh1sensor_89_Temp31Alarmhystersis					Integer32,
+		envTh1sensor_90_Temp41Alarmhystersis					Integer32,
+		envTh1sensor_91_Temp51Alarmhystersis					Integer32,
+		envTh1sensor_92_Temp61Alarmhystersis					Integer32,
+		envTh1sensor_93_Temp71Alarmhystersis					Integer32,
+		envTh1sensor_94_Temp81Alarmhystersis					Integer32,
+		envTh1sensor_95_Temp91Alarmhystersis					Integer32,
+		envTh1sensor_96_TempA1Alarmhystersis					Integer32,
+		envTh1sensor_97_TempB1Alarmhystersis					Integer32,
+		envTh1sensor_98_TempC1Alarmhystersis					Integer32,
+		envTh1sensor_99_TempD1Alarmhystersis					Integer32,
+		envTh1sensor_100_TempE1Alarmhystersis					Integer32,
+		envTh1sensor_101_TempF1Alarmhystersis					Integer32,
+		envTh1sensor_102_HighTemp01Alarmlimit					Integer32,
+		envTh1sensor_103_HighTemp11Alarmlimit					Integer32,
+		envTh1sensor_104_HighTemp21Alarmlimit					Integer32,
+		envTh1sensor_105_HighTemp31Alarmlimit					Integer32,
+		envTh1sensor_106_HighTemp41Alarmlimit					Integer32,
+		envTh1sensor_107_HighTemp51Alarmlimit					Integer32,
+		envTh1sensor_108_HighTemp61Alarmlimit					Integer32,
+		envTh1sensor_109_HighTemp71Alarmlimit					Integer32,
+		envTh1sensor_110_HighTemp81Alarmlimit					Integer32,
+		envTh1sensor_111_HighTemp91Alarmlimit					Integer32,
+		envTh1sensor_112_HighTempA1Alarmlimit					Integer32,
+		envTh1sensor_113_HighTempB1Alarmlimit					Integer32,
+		envTh1sensor_114_HighTempC1Alarmlimit					Integer32,
+		envTh1sensor_115_HighTempD1Alarmlimit					Integer32,
+		envTh1sensor_116_HighTempE1Alarmlimit					Integer32,
+		envTh1sensor_117_HighTempF1Alarmlimit					Integer32,
+		envTh1sensor_118_LowTemp01Alarmlimit					Integer32,
+		envTh1sensor_119_LowTemp11Alarmlimit					Integer32,
+		envTh1sensor_120_LowTemp21Alarmlimit					Integer32,
+		envTh1sensor_121_LowTemp31Alarmlimit					Integer32,
+		envTh1sensor_122_LowTemp41Alarmlimit					Integer32,
+		envTh1sensor_123_LowTemp51Alarmlimit					Integer32,
+		envTh1sensor_124_LowTemp61Alarmlimit					Integer32,
+		envTh1sensor_125_LowTemp71Alarmlimit					Integer32,
+		envTh1sensor_126_LowTemp81Alarmlimit					Integer32,
+		envTh1sensor_127_LowTemp91Alarmlimit					Integer32,
+		envTh1sensor_128_LowTempA1Alarmlimit					Integer32,
+		envTh1sensor_129_LowTempB1Alarmlimit					Integer32,
+		envTh1sensor_130_LowTempC1Alarmlimit					Integer32,
+		envTh1sensor_131_LowTempD1Alarmlimit					Integer32,
+		envTh1sensor_132_LowTempE1Alarmlimit					Integer32,
+		envTh1sensor_133_LowTempF1Alarmlimit					Integer32,
+		envTh1sensor_134_Hum01Alarmhystersis					Integer32,
+		envTh1sensor_135_Hum11Alarmhystersis					Integer32,
+		envTh1sensor_136_Hum21Alarmhystersis					Integer32,
+		envTh1sensor_137_Hum31Alarmhystersis					Integer32,
+		envTh1sensor_138_Hum41Alarmhystersis					Integer32,
+		envTh1sensor_139_Hum51Alarmhystersis					Integer32,
+		envTh1sensor_140_Hum61Alarmhystersis					Integer32,
+		envTh1sensor_141_Hum71Alarmhystersis					Integer32,
+		envTh1sensor_142_Hum81Alarmhystersis					Integer32,
+		envTh1sensor_143_Hum91Alarmhystersis					Integer32,
+		envTh1sensor_144_HumA1Alarmhystersis					Integer32,
+		envTh1sensor_145_HumB1Alarmhystersis					Integer32,
+		envTh1sensor_146_HumC1Alarmhystersis					Integer32,
+		envTh1sensor_147_HumD1Alarmhystersis					Integer32,
+		envTh1sensor_148_HumE1Alarmhystersis					Integer32,
+		envTh1sensor_149_HumF1Alarmhystersis					Integer32,
+		envTh1sensor_150_HighHum01Alarmlimit					Integer32,
+		envTh1sensor_151_HighHum11Alarmlimit					Integer32,
+		envTh1sensor_152_HighHum21Alarmlimit					Integer32,
+		envTh1sensor_153_HighHum31Alarmlimit					Integer32,
+		envTh1sensor_154_HighHum41Alarmlimit					Integer32,
+		envTh1sensor_155_HighHum51Alarmlimit					Integer32,
+		envTh1sensor_156_HighHum61Alarmlimit					Integer32,
+		envTh1sensor_157_HighHum71Alarmlimit					Integer32,
+		envTh1sensor_158_HighHum81Alarmlimit					Integer32,
+		envTh1sensor_159_HighHum91Alarmlimit					Integer32,
+		envTh1sensor_160_HighHumA1Alarmlimit					Integer32,
+		envTh1sensor_161_HighHumB1Alarmlimit					Integer32,
+		envTh1sensor_162_HighHumC1Alarmlimit					Integer32,
+		envTh1sensor_163_HighHumD1Alarmlimit					Integer32,
+		envTh1sensor_164_HighHumE1Alarmlimit					Integer32,
+		envTh1sensor_165_HighHumF1Alarmlimit					Integer32,
+		envTh1sensor_166_LowHum01Alarmlimit					Integer32,
+		envTh1sensor_167_LowHum11Alarmlimit					Integer32,
+		envTh1sensor_168_LowHum21Alarmlimit					Integer32,
+		envTh1sensor_169_LowHum31Alarmlimit					Integer32,
+		envTh1sensor_170_LowHum41Alarmlimit					Integer32,
+		envTh1sensor_171_LowHum51Alarmlimit					Integer32,
+		envTh1sensor_172_LowHum61Alarmlimit					Integer32,
+		envTh1sensor_173_LowHum71Alarmlimit					Integer32,
+		envTh1sensor_174_LowHum81Alarmlimit					Integer32,
+		envTh1sensor_175_LowHum91Alarmlimit					Integer32,
+		envTh1sensor_176_LowHumA1Alarmlimit					Integer32,
+		envTh1sensor_177_LowHumB1Alarmlimit					Integer32,
+		envTh1sensor_178_LowHumC1Alarmlimit					Integer32,
+		envTh1sensor_179_LowHumD1Alarmlimit					Integer32,
+		envTh1sensor_180_LowHumE1Alarmlimit					Integer32,
+		envTh1sensor_181_LowHumF1Alarmlimit					Integer32,
+		envTh1sensor_182_AllHighTempAlarmlimit					Integer32,
+		envTh1sensor_183_AllLowTempAlarmlimit					Integer32,
+		envTh1sensor_184_AllHighHumAlarmlimit					Integer32,
+		envTh1sensor_185_AllLowHumAlarmlimit					Integer32 }
+envTh1sensorIndex OBJECT-TYPE
+		SYNTAX Integer32(1..185)
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION
+		"envTh1sensor System Entry Index."
+		::= { envTh1sensorEntry 1 }
+envTh1sensor_2_Temp01 OBJECT-TYPE
+		SYNTAX Integer32
+		
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION
+		"envTh1sensor_2_Temp01 stored as 0.1℃."
+		::= { envTh1sensorEntry 2 }
+envTh1sensor_3_Temp11 OBJECT-TYPE
+		SYNTAX Integer32
+		
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION
+		"envTh1sensor_3_Temp11 stored as 0.1℃."
+		::= { envTh1sensorEntry 3 }
+envTh1sensor_4_Temp21 OBJECT-TYPE
+		SYNTAX Integer32
+		
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION
+		"envTh1sensor_4_Temp21 stored as 0.1℃."
+		::= { envTh1sensorEntry 4 }
+envTh1sensor_5_Temp31 OBJECT-TYPE
+		SYNTAX Integer32
+		
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION
+		"envTh1sensor_5_Temp31 stored as 0.1℃."
+		::= { envTh1sensorEntry 5 }
+envTh1sensor_6_Temp41 OBJECT-TYPE
+		SYNTAX Integer32
+		
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION
+		"envTh1sensor_6_Temp41 stored as 0.1℃."
+		::= { envTh1sensorEntry 6 }
+envTh1sensor_7_Temp51 OBJECT-TYPE
+		SYNTAX Integer32
+		
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION
+		"envTh1sensor_7_Temp51 stored as 0.1℃."
+		::= { envTh1sensorEntry 7 }
+envTh1sensor_8_Temp61 OBJECT-TYPE
+		SYNTAX Integer32
+		
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION
+		"envTh1sensor_8_Temp61 stored as 0.1℃."
+		::= { envTh1sensorEntry 8 }
+envTh1sensor_9_Temp71 OBJECT-TYPE
+		SYNTAX Integer32
+		
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION
+		"envTh1sensor_9_Temp71 stored as 0.1℃."
+		::= { envTh1sensorEntry 9 }
+envTh1sensor_10_Temp81 OBJECT-TYPE
+		SYNTAX Integer32
+		
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION
+		"envTh1sensor_10_Temp81 stored as 0.1℃."
+		::= { envTh1sensorEntry 10 }
+envTh1sensor_11_Temp91 OBJECT-TYPE
+		SYNTAX Integer32
+		
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION
+		"envTh1sensor_11_Temp91 stored as 0.1℃."
+		::= { envTh1sensorEntry 11 }
+envTh1sensor_12_TempA1 OBJECT-TYPE
+		SYNTAX Integer32
+		
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION
+		"envTh1sensor_12_TempA1 stored as 0.1℃."
+		::= { envTh1sensorEntry 12 }
+envTh1sensor_13_TempB1 OBJECT-TYPE
+		SYNTAX Integer32
+		
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION
+		"envTh1sensor_13_TempB1 stored as 0.1℃."
+		::= { envTh1sensorEntry 13 }
+envTh1sensor_14_TempC1 OBJECT-TYPE
+		SYNTAX Integer32
+		
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION
+		"envTh1sensor_14_TempC1 stored as 0.1℃."
+		::= { envTh1sensorEntry 14 }
+envTh1sensor_15_TempD1 OBJECT-TYPE
+		SYNTAX Integer32
+		
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION
+		"envTh1sensor_15_TempD1 stored as 0.1℃."
+		::= { envTh1sensorEntry 15 }
+envTh1sensor_16_TempE1 OBJECT-TYPE
+		SYNTAX Integer32
+		
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION
+		"envTh1sensor_16_TempE1 stored as 0.1℃."
+		::= { envTh1sensorEntry 16 }
+envTh1sensor_17_TempF1 OBJECT-TYPE
+		SYNTAX Integer32
+		
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION
+		"envTh1sensor_17_TempF1 stored as 0.1℃."
+		::= { envTh1sensorEntry 17 }
+envTh1sensor_18_Hum01 OBJECT-TYPE
+		SYNTAX Integer32
+		
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION
+		"envTh1sensor_18_Hum01 stored as 0.1%."
+		::= { envTh1sensorEntry 18 }
+envTh1sensor_19_Hum11 OBJECT-TYPE
+		SYNTAX Integer32
+		
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION
+		"envTh1sensor_19_Hum11 stored as 0.1%."
+		::= { envTh1sensorEntry 19 }
+envTh1sensor_20_Hum21 OBJECT-TYPE
+		SYNTAX Integer32
+		
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION
+		"envTh1sensor_20_Hum21 stored as 0.1%."
+		::= { envTh1sensorEntry 20 }
+envTh1sensor_21_Hum31 OBJECT-TYPE
+		SYNTAX Integer32
+		
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION
+		"envTh1sensor_21_Hum31 stored as 0.1%."
+		::= { envTh1sensorEntry 21 }
+envTh1sensor_22_Hum41 OBJECT-TYPE
+		SYNTAX Integer32
+		
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION
+		"envTh1sensor_22_Hum41 stored as 0.1%."
+		::= { envTh1sensorEntry 22 }
+envTh1sensor_23_Hum51 OBJECT-TYPE
+		SYNTAX Integer32
+		
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION
+		"envTh1sensor_23_Hum51 stored as 0.1%."
+		::= { envTh1sensorEntry 23 }
+envTh1sensor_24_Hum61 OBJECT-TYPE
+		SYNTAX Integer32
+		
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION
+		"envTh1sensor_24_Hum61 stored as 0.1%."
+		::= { envTh1sensorEntry 24 }
+envTh1sensor_25_Hum71 OBJECT-TYPE
+		SYNTAX Integer32
+		
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION
+		"envTh1sensor_25_Hum71 stored as 0.1%."
+		::= { envTh1sensorEntry 25 }
+envTh1sensor_26_Hum81 OBJECT-TYPE
+		SYNTAX Integer32
+		
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION
+		"envTh1sensor_26_Hum81 stored as 0.1%."
+		::= { envTh1sensorEntry 26 }
+envTh1sensor_27_Hum91 OBJECT-TYPE
+		SYNTAX Integer32
+		
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION
+		"envTh1sensor_27_Hum91 stored as 0.1%."
+		::= { envTh1sensorEntry 27 }
+envTh1sensor_28_HumA1 OBJECT-TYPE
+		SYNTAX Integer32
+		
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION
+		"envTh1sensor_28_HumA1 stored as 0.1%."
+		::= { envTh1sensorEntry 28 }
+envTh1sensor_29_HumB1 OBJECT-TYPE
+		SYNTAX Integer32
+		
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION
+		"envTh1sensor_29_HumB1 stored as 0.1%."
+		::= { envTh1sensorEntry 29 }
+envTh1sensor_30_HumC1 OBJECT-TYPE
+		SYNTAX Integer32
+		
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION
+		"envTh1sensor_30_HumC1 stored as 0.1%."
+		::= { envTh1sensorEntry 30 }
+envTh1sensor_31_HumD1 OBJECT-TYPE
+		SYNTAX Integer32
+		
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION
+		"envTh1sensor_31_HumD1 stored as 0.1%."
+		::= { envTh1sensorEntry 31 }
+envTh1sensor_32_HumE1 OBJECT-TYPE
+		SYNTAX Integer32
+		
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION
+		"envTh1sensor_32_HumE1 stored as 0.1%."
+		::= { envTh1sensorEntry 32 }
+envTh1sensor_33_HumF1 OBJECT-TYPE
+		SYNTAX Integer32
+		
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION
+		"envTh1sensor_33_HumF1 stored as 0.1%."
+		::= { envTh1sensorEntry 33 }
+envTh1sensor_34_Temp01AlarmStatus OBJECT-TYPE
+		SYNTAX INTEGER {
+			normal(0),
+			hightemp(1),
+			lowtemp(2),
+			invalid(3) }
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION
+		"envTh1sensor_34_Temp01AlarmStatus status."
+		::= { envTh1sensorEntry 34 }
+envTh1sensor_35_Temp11AlarmStatus OBJECT-TYPE
+		SYNTAX INTEGER {
+			normal(0),
+			hightemp(1),
+			lowtemp(2),
+			invalid(3) }
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION
+		"envTh1sensor_35_Temp11AlarmStatus status."
+		::= { envTh1sensorEntry 35 }
+envTh1sensor_36_Temp21AlarmStatus OBJECT-TYPE
+		SYNTAX INTEGER {
+			normal(0),
+			hightemp(1),
+			lowtemp(2),
+			invalid(3) }
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION
+		"envTh1sensor_36_Temp21AlarmStatus status."
+		::= { envTh1sensorEntry 36 }
+envTh1sensor_37_Temp31AlarmStatus OBJECT-TYPE
+		SYNTAX INTEGER {
+			normal(0),
+			hightemp(1),
+			lowtemp(2),
+			invalid(3) }
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION
+		"envTh1sensor_37_Temp31AlarmStatus status."
+		::= { envTh1sensorEntry 37 }
+envTh1sensor_38_Temp41AlarmStatus OBJECT-TYPE
+		SYNTAX INTEGER {
+			normal(0),
+			hightemp(1),
+			lowtemp(2),
+			invalid(3) }
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION
+		"envTh1sensor_38_Temp41AlarmStatus status."
+		::= { envTh1sensorEntry 38 }
+envTh1sensor_39_Temp51AlarmStatus OBJECT-TYPE
+		SYNTAX INTEGER {
+			normal(0),
+			hightemp(1),
+			lowtemp(2),
+			invalid(3) }
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION
+		"envTh1sensor_39_Temp51AlarmStatus status."
+		::= { envTh1sensorEntry 39 }
+envTh1sensor_40_Temp61AlarmStatus OBJECT-TYPE
+		SYNTAX INTEGER {
+			normal(0),
+			hightemp(1),
+			lowtemp(2),
+			invalid(3) }
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION
+		"envTh1sensor_40_Temp61AlarmStatus status."
+		::= { envTh1sensorEntry 40 }
+envTh1sensor_41_Temp71AlarmStatus OBJECT-TYPE
+		SYNTAX INTEGER {
+			normal(0),
+			hightemp(1),
+			lowtemp(2),
+			invalid(3) }
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION
+		"envTh1sensor_41_Temp71AlarmStatus status."
+		::= { envTh1sensorEntry 41 }
+envTh1sensor_42_Temp81AlarmStatus OBJECT-TYPE
+		SYNTAX INTEGER {
+			normal(0),
+			hightemp(1),
+			lowtemp(2),
+			invalid(3) }
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION
+		"envTh1sensor_42_Temp81AlarmStatus status."
+		::= { envTh1sensorEntry 42 }
+envTh1sensor_43_Temp91AlarmStatus OBJECT-TYPE
+		SYNTAX INTEGER {
+			normal(0),
+			hightemp(1),
+			lowtemp(2),
+			invalid(3) }
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION
+		"envTh1sensor_43_Temp91AlarmStatus status."
+		::= { envTh1sensorEntry 43 }
+envTh1sensor_44_TempA1AlarmStatus OBJECT-TYPE
+		SYNTAX INTEGER {
+			normal(0),
+			hightemp(1),
+			lowtemp(2),
+			invalid(3) }
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION
+		"envTh1sensor_44_TempA1AlarmStatus status."
+		::= { envTh1sensorEntry 44 }
+envTh1sensor_45_TempB1AlarmStatus OBJECT-TYPE
+		SYNTAX INTEGER {
+			normal(0),
+			hightemp(1),
+			lowtemp(2),
+			invalid(3) }
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION
+		"envTh1sensor_45_TempB1AlarmStatus status."
+		::= { envTh1sensorEntry 45 }
+envTh1sensor_46_TempC1AlarmStatus OBJECT-TYPE
+		SYNTAX INTEGER {
+			normal(0),
+			hightemp(1),
+			lowtemp(2),
+			invalid(3) }
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION
+		"envTh1sensor_46_TempC1AlarmStatus status."
+		::= { envTh1sensorEntry 46 }
+envTh1sensor_47_TempD1AlarmStatus OBJECT-TYPE
+		SYNTAX INTEGER {
+			normal(0),
+			hightemp(1),
+			lowtemp(2),
+			invalid(3) }
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION
+		"envTh1sensor_47_TempD1AlarmStatus status."
+		::= { envTh1sensorEntry 47 }
+envTh1sensor_48_TempE1AlarmStatus OBJECT-TYPE
+		SYNTAX INTEGER {
+			normal(0),
+			hightemp(1),
+			lowtemp(2),
+			invalid(3) }
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION
+		"envTh1sensor_48_TempE1AlarmStatus status."
+		::= { envTh1sensorEntry 48 }
+envTh1sensor_49_TempF1AlarmStatus OBJECT-TYPE
+		SYNTAX INTEGER {
+			normal(0),
+			hightemp(1),
+			lowtemp(2),
+			invalid(3) }
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION
+		"envTh1sensor_49_TempF1AlarmStatus status."
+		::= { envTh1sensorEntry 49 }
+envTh1sensor_50_Hum01AlarmStatus OBJECT-TYPE
+		SYNTAX INTEGER {
+			normal(0),
+			highhum(1),
+			lowhum(2),
+			invalid(3) }
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION
+		"envTh1sensor_50_Hum01AlarmStatus status."
+		::= { envTh1sensorEntry 50 }
+envTh1sensor_51_Hum11AlarmStatus OBJECT-TYPE
+		SYNTAX INTEGER {
+			normal(0),
+			highhum(1),
+			lowhum(2),
+			invalid(3) }
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION
+		"envTh1sensor_51_Hum11AlarmStatus status."
+		::= { envTh1sensorEntry 51 }
+envTh1sensor_52_Hum21AlarmStatus OBJECT-TYPE
+		SYNTAX INTEGER {
+			normal(0),
+			highhum(1),
+			lowhum(2),
+			invalid(3) }
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION
+		"envTh1sensor_52_Hum21AlarmStatus status."
+		::= { envTh1sensorEntry 52 }
+envTh1sensor_53_Hum31AlarmStatus OBJECT-TYPE
+		SYNTAX INTEGER {
+			normal(0),
+			highhum(1),
+			lowhum(2),
+			invalid(3) }
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION
+		"envTh1sensor_53_Hum31AlarmStatus status."
+		::= { envTh1sensorEntry 53 }
+envTh1sensor_54_Hum41AlarmStatus OBJECT-TYPE
+		SYNTAX INTEGER {
+			normal(0),
+			highhum(1),
+			lowhum(2),
+			invalid(3) }
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION
+		"envTh1sensor_54_Hum41AlarmStatus status."
+		::= { envTh1sensorEntry 54 }
+envTh1sensor_55_Hum51AlarmStatus OBJECT-TYPE
+		SYNTAX INTEGER {
+			normal(0),
+			highhum(1),
+			lowhum(2),
+			invalid(3) }
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION
+		"envTh1sensor_55_Hum51AlarmStatus status."
+		::= { envTh1sensorEntry 55 }
+envTh1sensor_56_Hum61AlarmStatus OBJECT-TYPE
+		SYNTAX INTEGER {
+			normal(0),
+			highhum(1),
+			lowhum(2),
+			invalid(3) }
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION
+		"envTh1sensor_56_Hum61AlarmStatus status."
+		::= { envTh1sensorEntry 56 }
+envTh1sensor_57_Hum71AlarmStatus OBJECT-TYPE
+		SYNTAX INTEGER {
+			normal(0),
+			highhum(1),
+			lowhum(2),
+			invalid(3) }
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION
+		"envTh1sensor_57_Hum71AlarmStatus status."
+		::= { envTh1sensorEntry 57 }
+envTh1sensor_58_Hum81AlarmStatus OBJECT-TYPE
+		SYNTAX INTEGER {
+			normal(0),
+			highhum(1),
+			lowhum(2),
+			invalid(3) }
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION
+		"envTh1sensor_58_Hum81AlarmStatus status."
+		::= { envTh1sensorEntry 58 }
+envTh1sensor_59_Hum91AlarmStatus OBJECT-TYPE
+		SYNTAX INTEGER {
+			normal(0),
+			highhum(1),
+			lowhum(2),
+			invalid(3) }
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION
+		"envTh1sensor_59_Hum91AlarmStatus status."
+		::= { envTh1sensorEntry 59 }
+envTh1sensor_60_HumA1AlarmStatus OBJECT-TYPE
+		SYNTAX INTEGER {
+			normal(0),
+			highhum(1),
+			lowhum(2),
+			invalid(3) }
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION
+		"envTh1sensor_60_HumA1AlarmStatus status."
+		::= { envTh1sensorEntry 60 }
+envTh1sensor_61_HumB1AlarmStatus OBJECT-TYPE
+		SYNTAX INTEGER {
+			normal(0),
+			highhum(1),
+			lowhum(2),
+			invalid(3) }
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION
+		"envTh1sensor_61_HumB1AlarmStatus status."
+		::= { envTh1sensorEntry 61 }
+envTh1sensor_62_HumC1AlarmStatus OBJECT-TYPE
+		SYNTAX INTEGER {
+			normal(0),
+			highhum(1),
+			lowhum(2),
+			invalid(3) }
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION
+		"envTh1sensor_62_HumC1AlarmStatus status."
+		::= { envTh1sensorEntry 62 }
+envTh1sensor_63_HumD1AlarmStatus OBJECT-TYPE
+		SYNTAX INTEGER {
+			normal(0),
+			highhum(1),
+			lowhum(2),
+			invalid(3) }
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION
+		"envTh1sensor_63_HumD1AlarmStatus status."
+		::= { envTh1sensorEntry 63 }
+envTh1sensor_64_HumE1AlarmStatus OBJECT-TYPE
+		SYNTAX INTEGER {
+			normal(0),
+			highhum(1),
+			lowhum(2),
+			invalid(3) }
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION
+		"envTh1sensor_64_HumE1AlarmStatus status."
+		::= { envTh1sensorEntry 64 }
+envTh1sensor_65_HumF1AlarmStatus OBJECT-TYPE
+		SYNTAX INTEGER {
+			normal(0),
+			highhum(1),
+			lowhum(2),
+			invalid(3) }
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION
+		"envTh1sensor_65_HumF1AlarmStatus status."
+		::= { envTh1sensorEntry 65 }
+envTh1sensor_66_Temp01CommStatus OBJECT-TYPE
+		SYNTAX INTEGER {
+			normal(0),
+			failure(1) }
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION
+		"envTh1sensor_66_Temp01CommStatus status."
+		::= { envTh1sensorEntry 66 }
+envTh1sensor_67_Temp11CommStatus OBJECT-TYPE
+		SYNTAX INTEGER {
+			normal(0),
+			failure(1) }
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION
+		"envTh1sensor_67_Temp11CommStatus status."
+		::= { envTh1sensorEntry 67 }
+envTh1sensor_68_Temp21CommStatus OBJECT-TYPE
+		SYNTAX INTEGER {
+			normal(0),
+			failure(1) }
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION
+		"envTh1sensor_68_Temp21CommStatus status."
+		::= { envTh1sensorEntry 68 }
+envTh1sensor_69_Temp31CommStatus OBJECT-TYPE
+		SYNTAX INTEGER {
+			normal(0),
+			failure(1) }
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION
+		"envTh1sensor_69_Temp31CommStatus status."
+		::= { envTh1sensorEntry 69 }
+envTh1sensor_70_Temp41CommStatus OBJECT-TYPE
+		SYNTAX INTEGER {
+			normal(0),
+			failure(1) }
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION
+		"envTh1sensor_70_Temp41CommStatus status."
+		::= { envTh1sensorEntry 70 }
+envTh1sensor_71_Temp51CommStatus OBJECT-TYPE
+		SYNTAX INTEGER {
+			normal(0),
+			failure(1) }
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION
+		"envTh1sensor_71_Temp51CommStatus status."
+		::= { envTh1sensorEntry 71 }
+envTh1sensor_72_Temp61CommStatus OBJECT-TYPE
+		SYNTAX INTEGER {
+			normal(0),
+			failure(1) }
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION
+		"envTh1sensor_72_Temp61CommStatus status."
+		::= { envTh1sensorEntry 72 }
+envTh1sensor_73_Temp71CommStatus OBJECT-TYPE
+		SYNTAX INTEGER {
+			normal(0),
+			failure(1) }
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION
+		"envTh1sensor_73_Temp71CommStatus status."
+		::= { envTh1sensorEntry 73 }
+envTh1sensor_74_Temp81CommStatus OBJECT-TYPE
+		SYNTAX INTEGER {
+			normal(0),
+			failure(1) }
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION
+		"envTh1sensor_74_Temp81CommStatus status."
+		::= { envTh1sensorEntry 74 }
+envTh1sensor_75_Temp91CommStatus OBJECT-TYPE
+		SYNTAX INTEGER {
+			normal(0),
+			failure(1) }
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION
+		"envTh1sensor_75_Temp91CommStatus status."
+		::= { envTh1sensorEntry 75 }
+envTh1sensor_76_TempA1CommStatus OBJECT-TYPE
+		SYNTAX INTEGER {
+			normal(0),
+			failure(1) }
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION
+		"envTh1sensor_76_TempA1CommStatus status."
+		::= { envTh1sensorEntry 76 }
+envTh1sensor_77_TempB1CommStatus OBJECT-TYPE
+		SYNTAX INTEGER {
+			normal(0),
+			failure(1) }
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION
+		"envTh1sensor_77_TempB1CommStatus status."
+		::= { envTh1sensorEntry 77 }
+envTh1sensor_78_TempC1CommStatus OBJECT-TYPE
+		SYNTAX INTEGER {
+			normal(0),
+			failure(1) }
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION
+		"envTh1sensor_78_TempC1CommStatus status."
+		::= { envTh1sensorEntry 78 }
+envTh1sensor_79_TempD1CommStatus OBJECT-TYPE
+		SYNTAX INTEGER {
+			normal(0),
+			failure(1) }
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION
+		"envTh1sensor_79_TempD1CommStatus status."
+		::= { envTh1sensorEntry 79 }
+envTh1sensor_80_TempE1CommStatus OBJECT-TYPE
+		SYNTAX INTEGER {
+			normal(0),
+			failure(1) }
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION
+		"envTh1sensor_80_TempE1CommStatus status."
+		::= { envTh1sensorEntry 80 }
+envTh1sensor_81_TempF1CommStatus OBJECT-TYPE
+		SYNTAX INTEGER {
+			normal(0),
+			failure(1) }
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION
+		"envTh1sensor_81_TempF1CommStatus status."
+		::= { envTh1sensorEntry 81 }
+envTh1sensor_82_CommunicationStatus OBJECT-TYPE
+		SYNTAX INTEGER {
+			normal(0),
+			failure(1) }
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION
+		"envTh1sensor_82_CommunicationStatus status."
+		::= { envTh1sensorEntry 82 }
+envTh1sensor_83_SensorNumber OBJECT-TYPE
+		SYNTAX Integer32
+		
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION
+		"envTh1sensor_83_SensorNumber stored as 1."
+		::= { envTh1sensorEntry 83 }
+envTh1sensor_84_TH1AlarmNumber OBJECT-TYPE
+		SYNTAX Integer32
+		
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION
+		"envTh1sensor_84_TH1AlarmNumber stored as 1."
+		::= { envTh1sensorEntry 84 }
+envTh1sensor_85_ClearSensorCommFailAlarm OBJECT-TYPE
+		SYNTAX INTEGER {
+			clear(1) }
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+		"envTh1sensor_85_ClearSensorCommFailAlarm status."
+		::= { envTh1sensorEntry 85 }
+envTh1sensor_86_Temp01Alarmhystersis OBJECT-TYPE
+		SYNTAX Integer32
+		
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+		"envTh1sensor_86_Temp01Alarmhystersis stored as 0.1℃."
+		::= { envTh1sensorEntry 86 }
+envTh1sensor_87_Temp11Alarmhystersis OBJECT-TYPE
+		SYNTAX Integer32
+		
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+		"envTh1sensor_87_Temp11Alarmhystersis stored as 0.1℃."
+		::= { envTh1sensorEntry 87 }
+envTh1sensor_88_Temp21Alarmhystersis OBJECT-TYPE
+		SYNTAX Integer32
+		
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+		"envTh1sensor_88_Temp21Alarmhystersis stored as 0.1℃."
+		::= { envTh1sensorEntry 88 }
+envTh1sensor_89_Temp31Alarmhystersis OBJECT-TYPE
+		SYNTAX Integer32
+		
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+		"envTh1sensor_89_Temp31Alarmhystersis stored as 0.1℃."
+		::= { envTh1sensorEntry 89 }
+envTh1sensor_90_Temp41Alarmhystersis OBJECT-TYPE
+		SYNTAX Integer32
+		
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+		"envTh1sensor_90_Temp41Alarmhystersis stored as 0.1℃."
+		::= { envTh1sensorEntry 90 }
+envTh1sensor_91_Temp51Alarmhystersis OBJECT-TYPE
+		SYNTAX Integer32
+		
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+		"envTh1sensor_91_Temp51Alarmhystersis stored as 0.1℃."
+		::= { envTh1sensorEntry 91 }
+envTh1sensor_92_Temp61Alarmhystersis OBJECT-TYPE
+		SYNTAX Integer32
+		
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+		"envTh1sensor_92_Temp61Alarmhystersis stored as 0.1℃."
+		::= { envTh1sensorEntry 92 }
+envTh1sensor_93_Temp71Alarmhystersis OBJECT-TYPE
+		SYNTAX Integer32
+		
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+		"envTh1sensor_93_Temp71Alarmhystersis stored as 0.1℃."
+		::= { envTh1sensorEntry 93 }
+envTh1sensor_94_Temp81Alarmhystersis OBJECT-TYPE
+		SYNTAX Integer32
+		
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+		"envTh1sensor_94_Temp81Alarmhystersis stored as 0.1℃."
+		::= { envTh1sensorEntry 94 }
+envTh1sensor_95_Temp91Alarmhystersis OBJECT-TYPE
+		SYNTAX Integer32
+		
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+		"envTh1sensor_95_Temp91Alarmhystersis stored as 0.1℃."
+		::= { envTh1sensorEntry 95 }
+envTh1sensor_96_TempA1Alarmhystersis OBJECT-TYPE
+		SYNTAX Integer32
+		
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+		"envTh1sensor_96_TempA1Alarmhystersis stored as 0.1℃."
+		::= { envTh1sensorEntry 96 }
+envTh1sensor_97_TempB1Alarmhystersis OBJECT-TYPE
+		SYNTAX Integer32
+		
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+		"envTh1sensor_97_TempB1Alarmhystersis stored as 0.1℃."
+		::= { envTh1sensorEntry 97 }
+envTh1sensor_98_TempC1Alarmhystersis OBJECT-TYPE
+		SYNTAX Integer32
+		
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+		"envTh1sensor_98_TempC1Alarmhystersis stored as 0.1℃."
+		::= { envTh1sensorEntry 98 }
+envTh1sensor_99_TempD1Alarmhystersis OBJECT-TYPE
+		SYNTAX Integer32
+		
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+		"envTh1sensor_99_TempD1Alarmhystersis stored as 0.1℃."
+		::= { envTh1sensorEntry 99 }
+envTh1sensor_100_TempE1Alarmhystersis OBJECT-TYPE
+		SYNTAX Integer32
+		
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+		"envTh1sensor_100_TempE1Alarmhystersis stored as 0.1℃."
+		::= { envTh1sensorEntry 100 }
+envTh1sensor_101_TempF1Alarmhystersis OBJECT-TYPE
+		SYNTAX Integer32
+		
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+		"envTh1sensor_101_TempF1Alarmhystersis stored as 0.1℃."
+		::= { envTh1sensorEntry 101 }
+envTh1sensor_102_HighTemp01Alarmlimit OBJECT-TYPE
+		SYNTAX Integer32
+		
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+		"envTh1sensor_102_HighTemp01Alarmlimit stored as 0.1℃."
+		::= { envTh1sensorEntry 102 }
+envTh1sensor_103_HighTemp11Alarmlimit OBJECT-TYPE
+		SYNTAX Integer32
+		
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+		"envTh1sensor_103_HighTemp11Alarmlimit stored as 0.1℃."
+		::= { envTh1sensorEntry 103 }
+envTh1sensor_104_HighTemp21Alarmlimit OBJECT-TYPE
+		SYNTAX Integer32
+		
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+		"envTh1sensor_104_HighTemp21Alarmlimit stored as 0.1℃."
+		::= { envTh1sensorEntry 104 }
+envTh1sensor_105_HighTemp31Alarmlimit OBJECT-TYPE
+		SYNTAX Integer32
+		
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+		"envTh1sensor_105_HighTemp31Alarmlimit stored as 0.1℃."
+		::= { envTh1sensorEntry 105 }
+envTh1sensor_106_HighTemp41Alarmlimit OBJECT-TYPE
+		SYNTAX Integer32
+		
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+		"envTh1sensor_106_HighTemp41Alarmlimit stored as 0.1℃."
+		::= { envTh1sensorEntry 106 }
+envTh1sensor_107_HighTemp51Alarmlimit OBJECT-TYPE
+		SYNTAX Integer32
+		
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+		"envTh1sensor_107_HighTemp51Alarmlimit stored as 0.1℃."
+		::= { envTh1sensorEntry 107 }
+envTh1sensor_108_HighTemp61Alarmlimit OBJECT-TYPE
+		SYNTAX Integer32
+		
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+		"envTh1sensor_108_HighTemp61Alarmlimit stored as 0.1℃."
+		::= { envTh1sensorEntry 108 }
+envTh1sensor_109_HighTemp71Alarmlimit OBJECT-TYPE
+		SYNTAX Integer32
+		
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+		"envTh1sensor_109_HighTemp71Alarmlimit stored as 0.1℃."
+		::= { envTh1sensorEntry 109 }
+envTh1sensor_110_HighTemp81Alarmlimit OBJECT-TYPE
+		SYNTAX Integer32
+		
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+		"envTh1sensor_110_HighTemp81Alarmlimit stored as 0.1℃."
+		::= { envTh1sensorEntry 110 }
+envTh1sensor_111_HighTemp91Alarmlimit OBJECT-TYPE
+		SYNTAX Integer32
+		
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+		"envTh1sensor_111_HighTemp91Alarmlimit stored as 0.1℃."
+		::= { envTh1sensorEntry 111 }
+envTh1sensor_112_HighTempA1Alarmlimit OBJECT-TYPE
+		SYNTAX Integer32
+		
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+		"envTh1sensor_112_HighTempA1Alarmlimit stored as 0.1℃."
+		::= { envTh1sensorEntry 112 }
+envTh1sensor_113_HighTempB1Alarmlimit OBJECT-TYPE
+		SYNTAX Integer32
+		
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+		"envTh1sensor_113_HighTempB1Alarmlimit stored as 0.1℃."
+		::= { envTh1sensorEntry 113 }
+envTh1sensor_114_HighTempC1Alarmlimit OBJECT-TYPE
+		SYNTAX Integer32
+		
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+		"envTh1sensor_114_HighTempC1Alarmlimit stored as 0.1℃."
+		::= { envTh1sensorEntry 114 }
+envTh1sensor_115_HighTempD1Alarmlimit OBJECT-TYPE
+		SYNTAX Integer32
+		
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+		"envTh1sensor_115_HighTempD1Alarmlimit stored as 0.1℃."
+		::= { envTh1sensorEntry 115 }
+envTh1sensor_116_HighTempE1Alarmlimit OBJECT-TYPE
+		SYNTAX Integer32
+		
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+		"envTh1sensor_116_HighTempE1Alarmlimit stored as 0.1℃."
+		::= { envTh1sensorEntry 116 }
+envTh1sensor_117_HighTempF1Alarmlimit OBJECT-TYPE
+		SYNTAX Integer32
+		
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+		"envTh1sensor_117_HighTempF1Alarmlimit stored as 0.1℃."
+		::= { envTh1sensorEntry 117 }
+envTh1sensor_118_LowTemp01Alarmlimit OBJECT-TYPE
+		SYNTAX Integer32
+		
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+		"envTh1sensor_118_LowTemp01Alarmlimit stored as 0.1℃."
+		::= { envTh1sensorEntry 118 }
+envTh1sensor_119_LowTemp11Alarmlimit OBJECT-TYPE
+		SYNTAX Integer32
+		
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+		"envTh1sensor_119_LowTemp11Alarmlimit stored as 0.1℃."
+		::= { envTh1sensorEntry 119 }
+envTh1sensor_120_LowTemp21Alarmlimit OBJECT-TYPE
+		SYNTAX Integer32
+		
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+		"envTh1sensor_120_LowTemp21Alarmlimit stored as 0.1℃."
+		::= { envTh1sensorEntry 120 }
+envTh1sensor_121_LowTemp31Alarmlimit OBJECT-TYPE
+		SYNTAX Integer32
+		
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+		"envTh1sensor_121_LowTemp31Alarmlimit stored as 0.1℃."
+		::= { envTh1sensorEntry 121 }
+envTh1sensor_122_LowTemp41Alarmlimit OBJECT-TYPE
+		SYNTAX Integer32
+		
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+		"envTh1sensor_122_LowTemp41Alarmlimit stored as 0.1℃."
+		::= { envTh1sensorEntry 122 }
+envTh1sensor_123_LowTemp51Alarmlimit OBJECT-TYPE
+		SYNTAX Integer32
+		
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+		"envTh1sensor_123_LowTemp51Alarmlimit stored as 0.1℃."
+		::= { envTh1sensorEntry 123 }
+envTh1sensor_124_LowTemp61Alarmlimit OBJECT-TYPE
+		SYNTAX Integer32
+		
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+		"envTh1sensor_124_LowTemp61Alarmlimit stored as 0.1℃."
+		::= { envTh1sensorEntry 124 }
+envTh1sensor_125_LowTemp71Alarmlimit OBJECT-TYPE
+		SYNTAX Integer32
+		
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+		"envTh1sensor_125_LowTemp71Alarmlimit stored as 0.1℃."
+		::= { envTh1sensorEntry 125 }
+envTh1sensor_126_LowTemp81Alarmlimit OBJECT-TYPE
+		SYNTAX Integer32
+		
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+		"envTh1sensor_126_LowTemp81Alarmlimit stored as 0.1℃."
+		::= { envTh1sensorEntry 126 }
+envTh1sensor_127_LowTemp91Alarmlimit OBJECT-TYPE
+		SYNTAX Integer32
+		
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+		"envTh1sensor_127_LowTemp91Alarmlimit stored as 0.1℃."
+		::= { envTh1sensorEntry 127 }
+envTh1sensor_128_LowTempA1Alarmlimit OBJECT-TYPE
+		SYNTAX Integer32
+		
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+		"envTh1sensor_128_LowTempA1Alarmlimit stored as 0.1℃."
+		::= { envTh1sensorEntry 128 }
+envTh1sensor_129_LowTempB1Alarmlimit OBJECT-TYPE
+		SYNTAX Integer32
+		
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+		"envTh1sensor_129_LowTempB1Alarmlimit stored as 0.1℃."
+		::= { envTh1sensorEntry 129 }
+envTh1sensor_130_LowTempC1Alarmlimit OBJECT-TYPE
+		SYNTAX Integer32
+		
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+		"envTh1sensor_130_LowTempC1Alarmlimit stored as 0.1℃."
+		::= { envTh1sensorEntry 130 }
+envTh1sensor_131_LowTempD1Alarmlimit OBJECT-TYPE
+		SYNTAX Integer32
+		
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+		"envTh1sensor_131_LowTempD1Alarmlimit stored as 0.1℃."
+		::= { envTh1sensorEntry 131 }
+envTh1sensor_132_LowTempE1Alarmlimit OBJECT-TYPE
+		SYNTAX Integer32
+		
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+		"envTh1sensor_132_LowTempE1Alarmlimit stored as 0.1℃."
+		::= { envTh1sensorEntry 132 }
+envTh1sensor_133_LowTempF1Alarmlimit OBJECT-TYPE
+		SYNTAX Integer32
+		
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+		"envTh1sensor_133_LowTempF1Alarmlimit stored as 0.1℃."
+		::= { envTh1sensorEntry 133 }
+envTh1sensor_134_Hum01Alarmhystersis OBJECT-TYPE
+		SYNTAX Integer32
+		
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+		"envTh1sensor_134_Hum01Alarmhystersis stored as 0.1%."
+		::= { envTh1sensorEntry 134 }
+envTh1sensor_135_Hum11Alarmhystersis OBJECT-TYPE
+		SYNTAX Integer32
+		
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+		"envTh1sensor_135_Hum11Alarmhystersis stored as 0.1%."
+		::= { envTh1sensorEntry 135 }
+envTh1sensor_136_Hum21Alarmhystersis OBJECT-TYPE
+		SYNTAX Integer32
+		
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+		"envTh1sensor_136_Hum21Alarmhystersis stored as 0.1%."
+		::= { envTh1sensorEntry 136 }
+envTh1sensor_137_Hum31Alarmhystersis OBJECT-TYPE
+		SYNTAX Integer32
+		
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+		"envTh1sensor_137_Hum31Alarmhystersis stored as 0.1%."
+		::= { envTh1sensorEntry 137 }
+envTh1sensor_138_Hum41Alarmhystersis OBJECT-TYPE
+		SYNTAX Integer32
+		
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+		"envTh1sensor_138_Hum41Alarmhystersis stored as 0.1%."
+		::= { envTh1sensorEntry 138 }
+envTh1sensor_139_Hum51Alarmhystersis OBJECT-TYPE
+		SYNTAX Integer32
+		
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+		"envTh1sensor_139_Hum51Alarmhystersis stored as 0.1%."
+		::= { envTh1sensorEntry 139 }
+envTh1sensor_140_Hum61Alarmhystersis OBJECT-TYPE
+		SYNTAX Integer32
+		
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+		"envTh1sensor_140_Hum61Alarmhystersis stored as 0.1%."
+		::= { envTh1sensorEntry 140 }
+envTh1sensor_141_Hum71Alarmhystersis OBJECT-TYPE
+		SYNTAX Integer32
+		
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+		"envTh1sensor_141_Hum71Alarmhystersis stored as 0.1%."
+		::= { envTh1sensorEntry 141 }
+envTh1sensor_142_Hum81Alarmhystersis OBJECT-TYPE
+		SYNTAX Integer32
+		
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+		"envTh1sensor_142_Hum81Alarmhystersis stored as 0.1%."
+		::= { envTh1sensorEntry 142 }
+envTh1sensor_143_Hum91Alarmhystersis OBJECT-TYPE
+		SYNTAX Integer32
+		
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+		"envTh1sensor_143_Hum91Alarmhystersis stored as 0.1%."
+		::= { envTh1sensorEntry 143 }
+envTh1sensor_144_HumA1Alarmhystersis OBJECT-TYPE
+		SYNTAX Integer32
+		
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+		"envTh1sensor_144_HumA1Alarmhystersis stored as 0.1%."
+		::= { envTh1sensorEntry 144 }
+envTh1sensor_145_HumB1Alarmhystersis OBJECT-TYPE
+		SYNTAX Integer32
+		
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+		"envTh1sensor_145_HumB1Alarmhystersis stored as 0.1%."
+		::= { envTh1sensorEntry 145 }
+envTh1sensor_146_HumC1Alarmhystersis OBJECT-TYPE
+		SYNTAX Integer32
+		
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+		"envTh1sensor_146_HumC1Alarmhystersis stored as 0.1%."
+		::= { envTh1sensorEntry 146 }
+envTh1sensor_147_HumD1Alarmhystersis OBJECT-TYPE
+		SYNTAX Integer32
+		
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+		"envTh1sensor_147_HumD1Alarmhystersis stored as 0.1%."
+		::= { envTh1sensorEntry 147 }
+envTh1sensor_148_HumE1Alarmhystersis OBJECT-TYPE
+		SYNTAX Integer32
+		
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+		"envTh1sensor_148_HumE1Alarmhystersis stored as 0.1%."
+		::= { envTh1sensorEntry 148 }
+envTh1sensor_149_HumF1Alarmhystersis OBJECT-TYPE
+		SYNTAX Integer32
+		
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+		"envTh1sensor_149_HumF1Alarmhystersis stored as 0.1%."
+		::= { envTh1sensorEntry 149 }
+envTh1sensor_150_HighHum01Alarmlimit OBJECT-TYPE
+		SYNTAX Integer32
+		
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+		"envTh1sensor_150_HighHum01Alarmlimit stored as 0.1%."
+		::= { envTh1sensorEntry 150 }
+envTh1sensor_151_HighHum11Alarmlimit OBJECT-TYPE
+		SYNTAX Integer32
+		
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+		"envTh1sensor_151_HighHum11Alarmlimit stored as 0.1%."
+		::= { envTh1sensorEntry 151 }
+envTh1sensor_152_HighHum21Alarmlimit OBJECT-TYPE
+		SYNTAX Integer32
+		
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+		"envTh1sensor_152_HighHum21Alarmlimit stored as 0.1%."
+		::= { envTh1sensorEntry 152 }
+envTh1sensor_153_HighHum31Alarmlimit OBJECT-TYPE
+		SYNTAX Integer32
+		
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+		"envTh1sensor_153_HighHum31Alarmlimit stored as 0.1%."
+		::= { envTh1sensorEntry 153 }
+envTh1sensor_154_HighHum41Alarmlimit OBJECT-TYPE
+		SYNTAX Integer32
+		
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+		"envTh1sensor_154_HighHum41Alarmlimit stored as 0.1%."
+		::= { envTh1sensorEntry 154 }
+envTh1sensor_155_HighHum51Alarmlimit OBJECT-TYPE
+		SYNTAX Integer32
+		
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+		"envTh1sensor_155_HighHum51Alarmlimit stored as 0.1%."
+		::= { envTh1sensorEntry 155 }
+envTh1sensor_156_HighHum61Alarmlimit OBJECT-TYPE
+		SYNTAX Integer32
+		
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+		"envTh1sensor_156_HighHum61Alarmlimit stored as 0.1%."
+		::= { envTh1sensorEntry 156 }
+envTh1sensor_157_HighHum71Alarmlimit OBJECT-TYPE
+		SYNTAX Integer32
+		
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+		"envTh1sensor_157_HighHum71Alarmlimit stored as 0.1%."
+		::= { envTh1sensorEntry 157 }
+envTh1sensor_158_HighHum81Alarmlimit OBJECT-TYPE
+		SYNTAX Integer32
+		
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+		"envTh1sensor_158_HighHum81Alarmlimit stored as 0.1%."
+		::= { envTh1sensorEntry 158 }
+envTh1sensor_159_HighHum91Alarmlimit OBJECT-TYPE
+		SYNTAX Integer32
+		
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+		"envTh1sensor_159_HighHum91Alarmlimit stored as 0.1%."
+		::= { envTh1sensorEntry 159 }
+envTh1sensor_160_HighHumA1Alarmlimit OBJECT-TYPE
+		SYNTAX Integer32
+		
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+		"envTh1sensor_160_HighHumA1Alarmlimit stored as 0.1%."
+		::= { envTh1sensorEntry 160 }
+envTh1sensor_161_HighHumB1Alarmlimit OBJECT-TYPE
+		SYNTAX Integer32
+		
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+		"envTh1sensor_161_HighHumB1Alarmlimit stored as 0.1%."
+		::= { envTh1sensorEntry 161 }
+envTh1sensor_162_HighHumC1Alarmlimit OBJECT-TYPE
+		SYNTAX Integer32
+		
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+		"envTh1sensor_162_HighHumC1Alarmlimit stored as 0.1%."
+		::= { envTh1sensorEntry 162 }
+envTh1sensor_163_HighHumD1Alarmlimit OBJECT-TYPE
+		SYNTAX Integer32
+		
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+		"envTh1sensor_163_HighHumD1Alarmlimit stored as 0.1%."
+		::= { envTh1sensorEntry 163 }
+envTh1sensor_164_HighHumE1Alarmlimit OBJECT-TYPE
+		SYNTAX Integer32
+		
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+		"envTh1sensor_164_HighHumE1Alarmlimit stored as 0.1%."
+		::= { envTh1sensorEntry 164 }
+envTh1sensor_165_HighHumF1Alarmlimit OBJECT-TYPE
+		SYNTAX Integer32
+		
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+		"envTh1sensor_165_HighHumF1Alarmlimit stored as 0.1%."
+		::= { envTh1sensorEntry 165 }
+envTh1sensor_166_LowHum01Alarmlimit OBJECT-TYPE
+		SYNTAX Integer32
+		
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+		"envTh1sensor_166_LowHum01Alarmlimit stored as 0.1%."
+		::= { envTh1sensorEntry 166 }
+envTh1sensor_167_LowHum11Alarmlimit OBJECT-TYPE
+		SYNTAX Integer32
+		
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+		"envTh1sensor_167_LowHum11Alarmlimit stored as 0.1%."
+		::= { envTh1sensorEntry 167 }
+envTh1sensor_168_LowHum21Alarmlimit OBJECT-TYPE
+		SYNTAX Integer32
+		
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+		"envTh1sensor_168_LowHum21Alarmlimit stored as 0.1%."
+		::= { envTh1sensorEntry 168 }
+envTh1sensor_169_LowHum31Alarmlimit OBJECT-TYPE
+		SYNTAX Integer32
+		
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+		"envTh1sensor_169_LowHum31Alarmlimit stored as 0.1%."
+		::= { envTh1sensorEntry 169 }
+envTh1sensor_170_LowHum41Alarmlimit OBJECT-TYPE
+		SYNTAX Integer32
+		
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+		"envTh1sensor_170_LowHum41Alarmlimit stored as 0.1%."
+		::= { envTh1sensorEntry 170 }
+envTh1sensor_171_LowHum51Alarmlimit OBJECT-TYPE
+		SYNTAX Integer32
+		
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+		"envTh1sensor_171_LowHum51Alarmlimit stored as 0.1%."
+		::= { envTh1sensorEntry 171 }
+envTh1sensor_172_LowHum61Alarmlimit OBJECT-TYPE
+		SYNTAX Integer32
+		
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+		"envTh1sensor_172_LowHum61Alarmlimit stored as 0.1%."
+		::= { envTh1sensorEntry 172 }
+envTh1sensor_173_LowHum71Alarmlimit OBJECT-TYPE
+		SYNTAX Integer32
+		
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+		"envTh1sensor_173_LowHum71Alarmlimit stored as 0.1%."
+		::= { envTh1sensorEntry 173 }
+envTh1sensor_174_LowHum81Alarmlimit OBJECT-TYPE
+		SYNTAX Integer32
+		
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+		"envTh1sensor_174_LowHum81Alarmlimit stored as 0.1%."
+		::= { envTh1sensorEntry 174 }
+envTh1sensor_175_LowHum91Alarmlimit OBJECT-TYPE
+		SYNTAX Integer32
+		
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+		"envTh1sensor_175_LowHum91Alarmlimit stored as 0.1%."
+		::= { envTh1sensorEntry 175 }
+envTh1sensor_176_LowHumA1Alarmlimit OBJECT-TYPE
+		SYNTAX Integer32
+		
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+		"envTh1sensor_176_LowHumA1Alarmlimit stored as 0.1%."
+		::= { envTh1sensorEntry 176 }
+envTh1sensor_177_LowHumB1Alarmlimit OBJECT-TYPE
+		SYNTAX Integer32
+		
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+		"envTh1sensor_177_LowHumB1Alarmlimit stored as 0.1%."
+		::= { envTh1sensorEntry 177 }
+envTh1sensor_178_LowHumC1Alarmlimit OBJECT-TYPE
+		SYNTAX Integer32
+		
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+		"envTh1sensor_178_LowHumC1Alarmlimit stored as 0.1%."
+		::= { envTh1sensorEntry 178 }
+envTh1sensor_179_LowHumD1Alarmlimit OBJECT-TYPE
+		SYNTAX Integer32
+		
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+		"envTh1sensor_179_LowHumD1Alarmlimit stored as 0.1%."
+		::= { envTh1sensorEntry 179 }
+envTh1sensor_180_LowHumE1Alarmlimit OBJECT-TYPE
+		SYNTAX Integer32
+		
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+		"envTh1sensor_180_LowHumE1Alarmlimit stored as 0.1%."
+		::= { envTh1sensorEntry 180 }
+envTh1sensor_181_LowHumF1Alarmlimit OBJECT-TYPE
+		SYNTAX Integer32
+		
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+		"envTh1sensor_181_LowHumF1Alarmlimit stored as 0.1%."
+		::= { envTh1sensorEntry 181 }
+envTh1sensor_182_AllHighTempAlarmlimit OBJECT-TYPE
+		SYNTAX Integer32
+		
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+		"envTh1sensor_182_AllHighTempAlarmlimit stored as 0.1℃."
+		::= { envTh1sensorEntry 182 }
+envTh1sensor_183_AllLowTempAlarmlimit OBJECT-TYPE
+		SYNTAX Integer32
+		
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+		"envTh1sensor_183_AllLowTempAlarmlimit stored as 0.1℃."
+		::= { envTh1sensorEntry 183 }
+envTh1sensor_184_AllHighHumAlarmlimit OBJECT-TYPE
+		SYNTAX Integer32
+		
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+		"envTh1sensor_184_AllHighHumAlarmlimit stored as 0.1%."
+		::= { envTh1sensorEntry 184 }
+envTh1sensor_185_AllLowHumAlarmlimit OBJECT-TYPE
+		SYNTAX Integer32
+		
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+		"envTh1sensor_185_AllLowHumAlarmlimit stored as 0.1%."
+		::= { envTh1sensorEntry 185 }
+
+------------------------------------------------------------
+-- Th2sensor { 13400.3.5.532 }
+------------------------------------------------------------
+env-Th2sensor OBJECT IDENTIFIER ::= { env 532 }
+envTh2sensorTable OBJECT-TYPE
+		SYNTAX			SEQUENCE OF EnvTh2sensorEntry
+		MAX-ACCESS		not-accessible
+		STATUS			current
+		DESCRIPTION	"envTh2sensorTable"
+		::=			{ env-Th2sensor 1 }
+envTh2sensorEntry OBJECT-TYPE
+		SYNTAX			EnvTh2sensorEntry
+		MAX-ACCESS		not-accessible
+		STATUS			current
+		DESCRIPTION		"envTh2sensorEntry"
+		INDEX			{ envTh2sensorIndex }
+		::=				{ envTh2sensorTable 1 }
+EnvTh2sensorEntry ::= SEQUENCE {
+		envTh2sensorIndex					Integer32,
+		envTh2sensor_2_Temp02					Integer32,
+		envTh2sensor_3_Temp12					Integer32,
+		envTh2sensor_4_Temp22					Integer32,
+		envTh2sensor_5_Temp32					Integer32,
+		envTh2sensor_6_Temp42					Integer32,
+		envTh2sensor_7_Temp52					Integer32,
+		envTh2sensor_8_Temp62					Integer32,
+		envTh2sensor_9_Temp72					Integer32,
+		envTh2sensor_10_Temp82					Integer32,
+		envTh2sensor_11_Temp92					Integer32,
+		envTh2sensor_12_TempA2					Integer32,
+		envTh2sensor_13_TempB2					Integer32,
+		envTh2sensor_14_TempC2					Integer32,
+		envTh2sensor_15_TempD2					Integer32,
+		envTh2sensor_16_TempE2					Integer32,
+		envTh2sensor_17_TempF2					Integer32,
+		envTh2sensor_18_Hum02					Integer32,
+		envTh2sensor_19_Hum12					Integer32,
+		envTh2sensor_20_Hum22					Integer32,
+		envTh2sensor_21_Hum32					Integer32,
+		envTh2sensor_22_Hum42					Integer32,
+		envTh2sensor_23_Hum52					Integer32,
+		envTh2sensor_24_Hum62					Integer32,
+		envTh2sensor_25_Hum72					Integer32,
+		envTh2sensor_26_Hum82					Integer32,
+		envTh2sensor_27_Hum92					Integer32,
+		envTh2sensor_28_HumA2					Integer32,
+		envTh2sensor_29_HumB2					Integer32,
+		envTh2sensor_30_HumC2					Integer32,
+		envTh2sensor_31_HumD2					Integer32,
+		envTh2sensor_32_HumE2					Integer32,
+		envTh2sensor_33_HumF2					Integer32,
+		envTh2sensor_34_Temp02AlarmStatus					INTEGER,
+		envTh2sensor_35_Temp12AlarmStatus					INTEGER,
+		envTh2sensor_36_Temp22AlarmStatus					INTEGER,
+		envTh2sensor_37_Temp32AlarmStatus					INTEGER,
+		envTh2sensor_38_Temp42AlarmStatus					INTEGER,
+		envTh2sensor_39_Temp52AlarmStatus					INTEGER,
+		envTh2sensor_40_Temp62AlarmStatus					INTEGER,
+		envTh2sensor_41_Temp72AlarmStatus					INTEGER,
+		envTh2sensor_42_Temp82AlarmStatus					INTEGER,
+		envTh2sensor_43_Temp92AlarmStatus					INTEGER,
+		envTh2sensor_44_TempA2AlarmStatus					INTEGER,
+		envTh2sensor_45_TempB2AlarmStatus					INTEGER,
+		envTh2sensor_46_TempC2AlarmStatus					INTEGER,
+		envTh2sensor_47_TempD2AlarmStatus					INTEGER,
+		envTh2sensor_48_TempE2AlarmStatus					INTEGER,
+		envTh2sensor_49_TempF2AlarmStatus					INTEGER,
+		envTh2sensor_50_Hum02AlarmStatus					INTEGER,
+		envTh2sensor_51_Hum12AlarmStatus					INTEGER,
+		envTh2sensor_52_Hum22AlarmStatus					INTEGER,
+		envTh2sensor_53_Hum32AlarmStatus					INTEGER,
+		envTh2sensor_54_Hum42AlarmStatus					INTEGER,
+		envTh2sensor_55_Hum52AlarmStatus					INTEGER,
+		envTh2sensor_56_Hum62AlarmStatus					INTEGER,
+		envTh2sensor_57_Hum72AlarmStatus					INTEGER,
+		envTh2sensor_58_Hum82AlarmStatus					INTEGER,
+		envTh2sensor_59_Hum92AlarmStatus					INTEGER,
+		envTh2sensor_60_HumA2AlarmStatus					INTEGER,
+		envTh2sensor_61_HumB2AlarmStatus					INTEGER,
+		envTh2sensor_62_HumC2AlarmStatus					INTEGER,
+		envTh2sensor_63_HumD2AlarmStatus					INTEGER,
+		envTh2sensor_64_HumE2AlarmStatus					INTEGER,
+		envTh2sensor_65_HumF2AlarmStatus					INTEGER,
+		envTh2sensor_66_Temp02CommStatus					INTEGER,
+		envTh2sensor_67_Temp12CommStatus					INTEGER,
+		envTh2sensor_68_Temp22CommStatus					INTEGER,
+		envTh2sensor_69_Temp32CommStatus					INTEGER,
+		envTh2sensor_70_Temp42CommStatus					INTEGER,
+		envTh2sensor_71_Temp52CommStatus					INTEGER,
+		envTh2sensor_72_Temp62CommStatus					INTEGER,
+		envTh2sensor_73_Temp72CommStatus					INTEGER,
+		envTh2sensor_74_Temp82CommStatus					INTEGER,
+		envTh2sensor_75_Temp92CommStatus					INTEGER,
+		envTh2sensor_76_TempA2CommStatus					INTEGER,
+		envTh2sensor_77_TempB2CommStatus					INTEGER,
+		envTh2sensor_78_TempC2CommStatus					INTEGER,
+		envTh2sensor_79_TempD2CommStatus					INTEGER,
+		envTh2sensor_80_TempE2CommStatus					INTEGER,
+		envTh2sensor_81_TempF2CommStatus					INTEGER,
+		envTh2sensor_82_CommunicationStatus					INTEGER,
+		envTh2sensor_83_SensorNumber					INTEGER,
+		envTh2sensor_84_TH2AlarmNumber					INTEGER,
+		envTh2sensor_85_ClearSensorCommFailAlarm					INTEGER,
+		envTh2sensor_86_Temp02Alarmhystersis					Integer32,
+		envTh2sensor_87_Temp12Alarmhystersis					Integer32,
+		envTh2sensor_88_Temp22Alarmhystersis					Integer32,
+		envTh2sensor_89_Temp32Alarmhystersis					Integer32,
+		envTh2sensor_90_Temp42Alarmhystersis					Integer32,
+		envTh2sensor_91_Temp52Alarmhystersis					Integer32,
+		envTh2sensor_92_Temp62Alarmhystersis					Integer32,
+		envTh2sensor_93_Temp72Alarmhystersis					Integer32,
+		envTh2sensor_94_Temp82Alarmhystersis					Integer32,
+		envTh2sensor_95_Temp92Alarmhystersis					Integer32,
+		envTh2sensor_96_TempA2Alarmhystersis					Integer32,
+		envTh2sensor_97_TempB2Alarmhystersis					Integer32,
+		envTh2sensor_98_TempC2Alarmhystersis					Integer32,
+		envTh2sensor_99_TempD2Alarmhystersis					Integer32,
+		envTh2sensor_100_TempE2Alarmhystersis					Integer32,
+		envTh2sensor_101_TempF2Alarmhystersis					Integer32,
+		envTh2sensor_102_HighTemp02Alarmlimit					Integer32,
+		envTh2sensor_103_HighTemp12Alarmlimit					Integer32,
+		envTh2sensor_104_HighTemp22Alarmlimit					Integer32,
+		envTh2sensor_105_HighTemp32Alarmlimit					Integer32,
+		envTh2sensor_106_HighTemp42Alarmlimit					Integer32,
+		envTh2sensor_107_HighTemp52Alarmlimit					Integer32,
+		envTh2sensor_108_HighTemp62Alarmlimit					Integer32,
+		envTh2sensor_109_HighTemp72Alarmlimit					Integer32,
+		envTh2sensor_110_HighTemp82Alarmlimit					Integer32,
+		envTh2sensor_111_HighTemp92Alarmlimit					Integer32,
+		envTh2sensor_112_HighTempA2Alarmlimit					Integer32,
+		envTh2sensor_113_HighTempB2Alarmlimit					Integer32,
+		envTh2sensor_114_HighTempC2Alarmlimit					Integer32,
+		envTh2sensor_115_HighTempD2Alarmlimit					Integer32,
+		envTh2sensor_116_HighTempE2Alarmlimit					Integer32,
+		envTh2sensor_117_HighTempF2Alarmlimit					Integer32,
+		envTh2sensor_118_LowTemp02Alarmlimit					Integer32,
+		envTh2sensor_119_LowTemp12Alarmlimit					Integer32,
+		envTh2sensor_120_LowTemp22Alarmlimit					Integer32,
+		envTh2sensor_121_LowTemp32Alarmlimit					Integer32,
+		envTh2sensor_122_LowTemp42Alarmlimit					Integer32,
+		envTh2sensor_123_LowTemp52Alarmlimit					Integer32,
+		envTh2sensor_124_LowTemp62Alarmlimit					Integer32,
+		envTh2sensor_125_LowTemp72Alarmlimit					Integer32,
+		envTh2sensor_126_LowTemp82Alarmlimit					Integer32,
+		envTh2sensor_127_LowTemp92Alarmlimit					Integer32,
+		envTh2sensor_128_LowTempA2Alarmlimit					Integer32,
+		envTh2sensor_129_LowTempB2Alarmlimit					Integer32,
+		envTh2sensor_130_LowTempC2Alarmlimit					Integer32,
+		envTh2sensor_131_LowTempD2Alarmlimit					Integer32,
+		envTh2sensor_132_LowTempE2Alarmlimit					Integer32,
+		envTh2sensor_133_LowTempF2Alarmlimit					Integer32,
+		envTh2sensor_134_Hum02Alarmhystersis					Integer32,
+		envTh2sensor_135_Hum12Alarmhystersis					Integer32,
+		envTh2sensor_136_Hum22Alarmhystersis					Integer32,
+		envTh2sensor_137_Hum32Alarmhystersis					Integer32,
+		envTh2sensor_138_Hum42Alarmhystersis					Integer32,
+		envTh2sensor_139_Hum52Alarmhystersis					Integer32,
+		envTh2sensor_140_Hum62Alarmhystersis					Integer32,
+		envTh2sensor_141_Hum72Alarmhystersis					Integer32,
+		envTh2sensor_142_Hum82Alarmhystersis					Integer32,
+		envTh2sensor_143_Hum92Alarmhystersis					Integer32,
+		envTh2sensor_144_HumA2Alarmhystersis					Integer32,
+		envTh2sensor_145_HumB2Alarmhystersis					Integer32,
+		envTh2sensor_146_HumC2Alarmhystersis					Integer32,
+		envTh2sensor_147_HumD2Alarmhystersis					Integer32,
+		envTh2sensor_148_HumE2Alarmhystersis					Integer32,
+		envTh2sensor_149_HumF2Alarmhystersis					Integer32,
+		envTh2sensor_150_HighHum02Alarmlimit					Integer32,
+		envTh2sensor_151_HighHum12Alarmlimit					Integer32,
+		envTh2sensor_152_HighHum22Alarmlimit					Integer32,
+		envTh2sensor_153_HighHum32Alarmlimit					Integer32,
+		envTh2sensor_154_HighHum42Alarmlimit					Integer32,
+		envTh2sensor_155_HighHum52Alarmlimit					Integer32,
+		envTh2sensor_156_HighHum62Alarmlimit					Integer32,
+		envTh2sensor_157_HighHum72Alarmlimit					Integer32,
+		envTh2sensor_158_HighHum82Alarmlimit					Integer32,
+		envTh2sensor_159_HighHum92Alarmlimit					Integer32,
+		envTh2sensor_160_HighHumA2Alarmlimit					Integer32,
+		envTh2sensor_161_HighHumB2Alarmlimit					Integer32,
+		envTh2sensor_162_HighHumC2Alarmlimit					Integer32,
+		envTh2sensor_163_HighHumD2Alarmlimit					Integer32,
+		envTh2sensor_164_HighHumE2Alarmlimit					Integer32,
+		envTh2sensor_165_HighHumF2Alarmlimit					Integer32,
+		envTh2sensor_166_LowHum02Alarmlimit					Integer32,
+		envTh2sensor_167_LowHum12Alarmlimit					Integer32,
+		envTh2sensor_168_LowHum22Alarmlimit					Integer32,
+		envTh2sensor_169_LowHum32Alarmlimit					Integer32,
+		envTh2sensor_170_LowHum42Alarmlimit					Integer32,
+		envTh2sensor_171_LowHum52Alarmlimit					Integer32,
+		envTh2sensor_172_LowHum62Alarmlimit					Integer32,
+		envTh2sensor_173_LowHum72Alarmlimit					Integer32,
+		envTh2sensor_174_LowHum82Alarmlimit					Integer32,
+		envTh2sensor_175_LowHum92Alarmlimit					Integer32,
+		envTh2sensor_176_LowHumA2Alarmlimit					Integer32,
+		envTh2sensor_177_LowHumB2Alarmlimit					Integer32,
+		envTh2sensor_178_LowHumC2Alarmlimit					Integer32,
+		envTh2sensor_179_LowHumD2Alarmlimit					Integer32,
+		envTh2sensor_180_LowHumE2Alarmlimit					Integer32,
+		envTh2sensor_181_LowHumF2Alarmlimit					Integer32,
+		envTh2sensor_182_AllHighTempAlarmlimit					Integer32,
+		envTh2sensor_183_AllLowTempAlarmlimit					Integer32,
+		envTh2sensor_184_AllHighHumAlarmlimit					Integer32,
+		envTh2sensor_185_AllLowHumAlarmlimit					Integer32 }
+envTh2sensorIndex OBJECT-TYPE
+		SYNTAX Integer32(1..185)
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION
+		"envTh2sensor System Entry Index."
+		::= { envTh2sensorEntry 1 }
+envTh2sensor_2_Temp02 OBJECT-TYPE
+		SYNTAX Integer32
+		
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION
+		"envTh2sensor_2_Temp02 stored as 0.1℃."
+		::= { envTh2sensorEntry 2 }
+envTh2sensor_3_Temp12 OBJECT-TYPE
+		SYNTAX Integer32
+		
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION
+		"envTh2sensor_3_Temp12 stored as 0.1℃."
+		::= { envTh2sensorEntry 3 }
+envTh2sensor_4_Temp22 OBJECT-TYPE
+		SYNTAX Integer32
+		
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION
+		"envTh2sensor_4_Temp22 stored as 0.1℃."
+		::= { envTh2sensorEntry 4 }
+envTh2sensor_5_Temp32 OBJECT-TYPE
+		SYNTAX Integer32
+		
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION
+		"envTh2sensor_5_Temp32 stored as 0.1℃."
+		::= { envTh2sensorEntry 5 }
+envTh2sensor_6_Temp42 OBJECT-TYPE
+		SYNTAX Integer32
+		
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION
+		"envTh2sensor_6_Temp42 stored as 0.1℃."
+		::= { envTh2sensorEntry 6 }
+envTh2sensor_7_Temp52 OBJECT-TYPE
+		SYNTAX Integer32
+		
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION
+		"envTh2sensor_7_Temp52 stored as 0.1℃."
+		::= { envTh2sensorEntry 7 }
+envTh2sensor_8_Temp62 OBJECT-TYPE
+		SYNTAX Integer32
+		
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION
+		"envTh2sensor_8_Temp62 stored as 0.1℃."
+		::= { envTh2sensorEntry 8 }
+envTh2sensor_9_Temp72 OBJECT-TYPE
+		SYNTAX Integer32
+		
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION
+		"envTh2sensor_9_Temp72 stored as 0.1℃."
+		::= { envTh2sensorEntry 9 }
+envTh2sensor_10_Temp82 OBJECT-TYPE
+		SYNTAX Integer32
+		
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION
+		"envTh2sensor_10_Temp82 stored as 0.1℃."
+		::= { envTh2sensorEntry 10 }
+envTh2sensor_11_Temp92 OBJECT-TYPE
+		SYNTAX Integer32
+		
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION
+		"envTh2sensor_11_Temp92 stored as 0.1℃."
+		::= { envTh2sensorEntry 11 }
+envTh2sensor_12_TempA2 OBJECT-TYPE
+		SYNTAX Integer32
+		
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION
+		"envTh2sensor_12_TempA2 stored as 0.1℃."
+		::= { envTh2sensorEntry 12 }
+envTh2sensor_13_TempB2 OBJECT-TYPE
+		SYNTAX Integer32
+		
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION
+		"envTh2sensor_13_TempB2 stored as 0.1℃."
+		::= { envTh2sensorEntry 13 }
+envTh2sensor_14_TempC2 OBJECT-TYPE
+		SYNTAX Integer32
+		
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION
+		"envTh2sensor_14_TempC2 stored as 0.1℃."
+		::= { envTh2sensorEntry 14 }
+envTh2sensor_15_TempD2 OBJECT-TYPE
+		SYNTAX Integer32
+		
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION
+		"envTh2sensor_15_TempD2 stored as 0.1℃."
+		::= { envTh2sensorEntry 15 }
+envTh2sensor_16_TempE2 OBJECT-TYPE
+		SYNTAX Integer32
+		
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION
+		"envTh2sensor_16_TempE2 stored as 0.1℃."
+		::= { envTh2sensorEntry 16 }
+envTh2sensor_17_TempF2 OBJECT-TYPE
+		SYNTAX Integer32
+		
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION
+		"envTh2sensor_17_TempF2 stored as 0.1℃."
+		::= { envTh2sensorEntry 17 }
+envTh2sensor_18_Hum02 OBJECT-TYPE
+		SYNTAX Integer32
+		
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION
+		"envTh2sensor_18_Hum02 stored as 0.1%."
+		::= { envTh2sensorEntry 18 }
+envTh2sensor_19_Hum12 OBJECT-TYPE
+		SYNTAX Integer32
+		
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION
+		"envTh2sensor_19_Hum12 stored as 0.1%."
+		::= { envTh2sensorEntry 19 }
+envTh2sensor_20_Hum22 OBJECT-TYPE
+		SYNTAX Integer32
+		
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION
+		"envTh2sensor_20_Hum22 stored as 0.1%."
+		::= { envTh2sensorEntry 20 }
+envTh2sensor_21_Hum32 OBJECT-TYPE
+		SYNTAX Integer32
+		
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION
+		"envTh2sensor_21_Hum32 stored as 0.1%."
+		::= { envTh2sensorEntry 21 }
+envTh2sensor_22_Hum42 OBJECT-TYPE
+		SYNTAX Integer32
+		
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION
+		"envTh2sensor_22_Hum42 stored as 0.1%."
+		::= { envTh2sensorEntry 22 }
+envTh2sensor_23_Hum52 OBJECT-TYPE
+		SYNTAX Integer32
+		
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION
+		"envTh2sensor_23_Hum52 stored as 0.1%."
+		::= { envTh2sensorEntry 23 }
+envTh2sensor_24_Hum62 OBJECT-TYPE
+		SYNTAX Integer32
+		
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION
+		"envTh2sensor_24_Hum62 stored as 0.1%."
+		::= { envTh2sensorEntry 24 }
+envTh2sensor_25_Hum72 OBJECT-TYPE
+		SYNTAX Integer32
+		
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION
+		"envTh2sensor_25_Hum72 stored as 0.1%."
+		::= { envTh2sensorEntry 25 }
+envTh2sensor_26_Hum82 OBJECT-TYPE
+		SYNTAX Integer32
+		
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION
+		"envTh2sensor_26_Hum82 stored as 0.1%."
+		::= { envTh2sensorEntry 26 }
+envTh2sensor_27_Hum92 OBJECT-TYPE
+		SYNTAX Integer32
+		
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION
+		"envTh2sensor_27_Hum92 stored as 0.1%."
+		::= { envTh2sensorEntry 27 }
+envTh2sensor_28_HumA2 OBJECT-TYPE
+		SYNTAX Integer32
+		
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION
+		"envTh2sensor_28_HumA2 stored as 0.1%."
+		::= { envTh2sensorEntry 28 }
+envTh2sensor_29_HumB2 OBJECT-TYPE
+		SYNTAX Integer32
+		
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION
+		"envTh2sensor_29_HumB2 stored as 0.1%."
+		::= { envTh2sensorEntry 29 }
+envTh2sensor_30_HumC2 OBJECT-TYPE
+		SYNTAX Integer32
+		
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION
+		"envTh2sensor_30_HumC2 stored as 0.1%."
+		::= { envTh2sensorEntry 30 }
+envTh2sensor_31_HumD2 OBJECT-TYPE
+		SYNTAX Integer32
+		
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION
+		"envTh2sensor_31_HumD2 stored as 0.1%."
+		::= { envTh2sensorEntry 31 }
+envTh2sensor_32_HumE2 OBJECT-TYPE
+		SYNTAX Integer32
+		
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION
+		"envTh2sensor_32_HumE2 stored as 0.1%."
+		::= { envTh2sensorEntry 32 }
+envTh2sensor_33_HumF2 OBJECT-TYPE
+		SYNTAX Integer32
+		
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION
+		"envTh2sensor_33_HumF2 stored as 0.1%."
+		::= { envTh2sensorEntry 33 }
+envTh2sensor_34_Temp02AlarmStatus OBJECT-TYPE
+		SYNTAX INTEGER {
+			normal(0),
+			hightemp(1),
+			lowtemp(2),
+			invalid(3) }
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION
+		"envTh2sensor_34_Temp02AlarmStatus status."
+		::= { envTh2sensorEntry 34 }
+envTh2sensor_35_Temp12AlarmStatus OBJECT-TYPE
+		SYNTAX INTEGER {
+			normal(0),
+			hightemp(1),
+			lowtemp(2),
+			invalid(3) }
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION
+		"envTh2sensor_35_Temp12AlarmStatus status."
+		::= { envTh2sensorEntry 35 }
+envTh2sensor_36_Temp22AlarmStatus OBJECT-TYPE
+		SYNTAX INTEGER {
+			normal(0),
+			hightemp(1),
+			lowtemp(2),
+			invalid(3) }
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION
+		"envTh2sensor_36_Temp22AlarmStatus status."
+		::= { envTh2sensorEntry 36 }
+envTh2sensor_37_Temp32AlarmStatus OBJECT-TYPE
+		SYNTAX INTEGER {
+			normal(0),
+			hightemp(1),
+			lowtemp(2),
+			invalid(3) }
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION
+		"envTh2sensor_37_Temp32AlarmStatus status."
+		::= { envTh2sensorEntry 37 }
+envTh2sensor_38_Temp42AlarmStatus OBJECT-TYPE
+		SYNTAX INTEGER {
+			normal(0),
+			hightemp(1),
+			lowtemp(2),
+			invalid(3) }
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION
+		"envTh2sensor_38_Temp42AlarmStatus status."
+		::= { envTh2sensorEntry 38 }
+envTh2sensor_39_Temp52AlarmStatus OBJECT-TYPE
+		SYNTAX INTEGER {
+			normal(0),
+			hightemp(1),
+			lowtemp(2),
+			invalid(3) }
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION
+		"envTh2sensor_39_Temp52AlarmStatus status."
+		::= { envTh2sensorEntry 39 }
+envTh2sensor_40_Temp62AlarmStatus OBJECT-TYPE
+		SYNTAX INTEGER {
+			normal(0),
+			hightemp(1),
+			lowtemp(2),
+			invalid(3) }
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION
+		"envTh2sensor_40_Temp62AlarmStatus status."
+		::= { envTh2sensorEntry 40 }
+envTh2sensor_41_Temp72AlarmStatus OBJECT-TYPE
+		SYNTAX INTEGER {
+			normal(0),
+			hightemp(1),
+			lowtemp(2),
+			invalid(3) }
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION
+		"envTh2sensor_41_Temp72AlarmStatus status."
+		::= { envTh2sensorEntry 41 }
+envTh2sensor_42_Temp82AlarmStatus OBJECT-TYPE
+		SYNTAX INTEGER {
+			normal(0),
+			hightemp(1),
+			lowtemp(2),
+			invalid(3) }
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION
+		"envTh2sensor_42_Temp82AlarmStatus status."
+		::= { envTh2sensorEntry 42 }
+envTh2sensor_43_Temp92AlarmStatus OBJECT-TYPE
+		SYNTAX INTEGER {
+			normal(0),
+			hightemp(1),
+			lowtemp(2),
+			invalid(3) }
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION
+		"envTh2sensor_43_Temp92AlarmStatus status."
+		::= { envTh2sensorEntry 43 }
+envTh2sensor_44_TempA2AlarmStatus OBJECT-TYPE
+		SYNTAX INTEGER {
+			normal(0),
+			hightemp(1),
+			lowtemp(2),
+			invalid(3) }
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION
+		"envTh2sensor_44_TempA2AlarmStatus status."
+		::= { envTh2sensorEntry 44 }
+envTh2sensor_45_TempB2AlarmStatus OBJECT-TYPE
+		SYNTAX INTEGER {
+			normal(0),
+			hightemp(1),
+			lowtemp(2),
+			invalid(3) }
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION
+		"envTh2sensor_45_TempB2AlarmStatus status."
+		::= { envTh2sensorEntry 45 }
+envTh2sensor_46_TempC2AlarmStatus OBJECT-TYPE
+		SYNTAX INTEGER {
+			normal(0),
+			hightemp(1),
+			lowtemp(2),
+			invalid(3) }
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION
+		"envTh2sensor_46_TempC2AlarmStatus status."
+		::= { envTh2sensorEntry 46 }
+envTh2sensor_47_TempD2AlarmStatus OBJECT-TYPE
+		SYNTAX INTEGER {
+			normal(0),
+			hightemp(1),
+			lowtemp(2),
+			invalid(3) }
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION
+		"envTh2sensor_47_TempD2AlarmStatus status."
+		::= { envTh2sensorEntry 47 }
+envTh2sensor_48_TempE2AlarmStatus OBJECT-TYPE
+		SYNTAX INTEGER {
+			normal(0),
+			hightemp(1),
+			lowtemp(2),
+			invalid(3) }
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION
+		"envTh2sensor_48_TempE2AlarmStatus status."
+		::= { envTh2sensorEntry 48 }
+envTh2sensor_49_TempF2AlarmStatus OBJECT-TYPE
+		SYNTAX INTEGER {
+			normal(0),
+			hightemp(1),
+			lowtemp(2),
+			invalid(3) }
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION
+		"envTh2sensor_49_TempF2AlarmStatus status."
+		::= { envTh2sensorEntry 49 }
+envTh2sensor_50_Hum02AlarmStatus OBJECT-TYPE
+		SYNTAX INTEGER {
+			normal(0),
+			highhum(1),
+			lowhum(2),
+			invalid(3) }
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION
+		"envTh2sensor_50_Hum02AlarmStatus status."
+		::= { envTh2sensorEntry 50 }
+envTh2sensor_51_Hum12AlarmStatus OBJECT-TYPE
+		SYNTAX INTEGER {
+			normal(0),
+			highhum(1),
+			lowhum(2),
+			invalid(3) }
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION
+		"envTh2sensor_51_Hum12AlarmStatus status."
+		::= { envTh2sensorEntry 51 }
+envTh2sensor_52_Hum22AlarmStatus OBJECT-TYPE
+		SYNTAX INTEGER {
+			normal(0),
+			highhum(1),
+			lowhum(2),
+			invalid(3) }
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION
+		"envTh2sensor_52_Hum22AlarmStatus status."
+		::= { envTh2sensorEntry 52 }
+envTh2sensor_53_Hum32AlarmStatus OBJECT-TYPE
+		SYNTAX INTEGER {
+			normal(0),
+			highhum(1),
+			lowhum(2),
+			invalid(3) }
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION
+		"envTh2sensor_53_Hum32AlarmStatus status."
+		::= { envTh2sensorEntry 53 }
+envTh2sensor_54_Hum42AlarmStatus OBJECT-TYPE
+		SYNTAX INTEGER {
+			normal(0),
+			highhum(1),
+			lowhum(2),
+			invalid(3) }
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION
+		"envTh2sensor_54_Hum42AlarmStatus status."
+		::= { envTh2sensorEntry 54 }
+envTh2sensor_55_Hum52AlarmStatus OBJECT-TYPE
+		SYNTAX INTEGER {
+			normal(0),
+			highhum(1),
+			lowhum(2),
+			invalid(3) }
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION
+		"envTh2sensor_55_Hum52AlarmStatus status."
+		::= { envTh2sensorEntry 55 }
+envTh2sensor_56_Hum62AlarmStatus OBJECT-TYPE
+		SYNTAX INTEGER {
+			normal(0),
+			highhum(1),
+			lowhum(2),
+			invalid(3) }
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION
+		"envTh2sensor_56_Hum62AlarmStatus status."
+		::= { envTh2sensorEntry 56 }
+envTh2sensor_57_Hum72AlarmStatus OBJECT-TYPE
+		SYNTAX INTEGER {
+			normal(0),
+			highhum(1),
+			lowhum(2),
+			invalid(3) }
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION
+		"envTh2sensor_57_Hum72AlarmStatus status."
+		::= { envTh2sensorEntry 57 }
+envTh2sensor_58_Hum82AlarmStatus OBJECT-TYPE
+		SYNTAX INTEGER {
+			normal(0),
+			highhum(1),
+			lowhum(2),
+			invalid(3) }
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION
+		"envTh2sensor_58_Hum82AlarmStatus status."
+		::= { envTh2sensorEntry 58 }
+envTh2sensor_59_Hum92AlarmStatus OBJECT-TYPE
+		SYNTAX INTEGER {
+			normal(0),
+			highhum(1),
+			lowhum(2),
+			invalid(3) }
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION
+		"envTh2sensor_59_Hum92AlarmStatus status."
+		::= { envTh2sensorEntry 59 }
+envTh2sensor_60_HumA2AlarmStatus OBJECT-TYPE
+		SYNTAX INTEGER {
+			normal(0),
+			highhum(1),
+			lowhum(2),
+			invalid(3) }
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION
+		"envTh2sensor_60_HumA2AlarmStatus status."
+		::= { envTh2sensorEntry 60 }
+envTh2sensor_61_HumB2AlarmStatus OBJECT-TYPE
+		SYNTAX INTEGER {
+			normal(0),
+			highhum(1),
+			lowhum(2),
+			invalid(3) }
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION
+		"envTh2sensor_61_HumB2AlarmStatus status."
+		::= { envTh2sensorEntry 61 }
+envTh2sensor_62_HumC2AlarmStatus OBJECT-TYPE
+		SYNTAX INTEGER {
+			normal(0),
+			highhum(1),
+			lowhum(2),
+			invalid(3) }
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION
+		"envTh2sensor_62_HumC2AlarmStatus status."
+		::= { envTh2sensorEntry 62 }
+envTh2sensor_63_HumD2AlarmStatus OBJECT-TYPE
+		SYNTAX INTEGER {
+			normal(0),
+			highhum(1),
+			lowhum(2),
+			invalid(3) }
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION
+		"envTh2sensor_63_HumD2AlarmStatus status."
+		::= { envTh2sensorEntry 63 }
+envTh2sensor_64_HumE2AlarmStatus OBJECT-TYPE
+		SYNTAX INTEGER {
+			normal(0),
+			highhum(1),
+			lowhum(2),
+			invalid(3) }
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION
+		"envTh2sensor_64_HumE2AlarmStatus status."
+		::= { envTh2sensorEntry 64 }
+envTh2sensor_65_HumF2AlarmStatus OBJECT-TYPE
+		SYNTAX INTEGER {
+			normal(0),
+			highhum(1),
+			lowhum(2),
+			invalid(3) }
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION
+		"envTh2sensor_65_HumF2AlarmStatus status."
+		::= { envTh2sensorEntry 65 }
+envTh2sensor_66_Temp02CommStatus OBJECT-TYPE
+		SYNTAX INTEGER {
+			normal(0),
+			failure(1) }
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION
+		"envTh2sensor_66_Temp02CommStatus status."
+		::= { envTh2sensorEntry 66 }
+envTh2sensor_67_Temp12CommStatus OBJECT-TYPE
+		SYNTAX INTEGER {
+			normal(0),
+			failure(1) }
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION
+		"envTh2sensor_67_Temp12CommStatus status."
+		::= { envTh2sensorEntry 67 }
+envTh2sensor_68_Temp22CommStatus OBJECT-TYPE
+		SYNTAX INTEGER {
+			normal(0),
+			failure(1) }
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION
+		"envTh2sensor_68_Temp22CommStatus status."
+		::= { envTh2sensorEntry 68 }
+envTh2sensor_69_Temp32CommStatus OBJECT-TYPE
+		SYNTAX INTEGER {
+			normal(0),
+			failure(1) }
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION
+		"envTh2sensor_69_Temp32CommStatus status."
+		::= { envTh2sensorEntry 69 }
+envTh2sensor_70_Temp42CommStatus OBJECT-TYPE
+		SYNTAX INTEGER {
+			normal(0),
+			failure(1) }
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION
+		"envTh2sensor_70_Temp42CommStatus status."
+		::= { envTh2sensorEntry 70 }
+envTh2sensor_71_Temp52CommStatus OBJECT-TYPE
+		SYNTAX INTEGER {
+			normal(0),
+			failure(1) }
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION
+		"envTh2sensor_71_Temp52CommStatus status."
+		::= { envTh2sensorEntry 71 }
+envTh2sensor_72_Temp62CommStatus OBJECT-TYPE
+		SYNTAX INTEGER {
+			normal(0),
+			failure(1) }
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION
+		"envTh2sensor_72_Temp62CommStatus status."
+		::= { envTh2sensorEntry 72 }
+envTh2sensor_73_Temp72CommStatus OBJECT-TYPE
+		SYNTAX INTEGER {
+			normal(0),
+			failure(1) }
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION
+		"envTh2sensor_73_Temp72CommStatus status."
+		::= { envTh2sensorEntry 73 }
+envTh2sensor_74_Temp82CommStatus OBJECT-TYPE
+		SYNTAX INTEGER {
+			normal(0),
+			failure(1) }
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION
+		"envTh2sensor_74_Temp82CommStatus status."
+		::= { envTh2sensorEntry 74 }
+envTh2sensor_75_Temp92CommStatus OBJECT-TYPE
+		SYNTAX INTEGER {
+			normal(0),
+			failure(1) }
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION
+		"envTh2sensor_75_Temp92CommStatus status."
+		::= { envTh2sensorEntry 75 }
+envTh2sensor_76_TempA2CommStatus OBJECT-TYPE
+		SYNTAX INTEGER {
+			normal(0),
+			failure(1) }
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION
+		"envTh2sensor_76_TempA2CommStatus status."
+		::= { envTh2sensorEntry 76 }
+envTh2sensor_77_TempB2CommStatus OBJECT-TYPE
+		SYNTAX INTEGER {
+			normal(0),
+			failure(1) }
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION
+		"envTh2sensor_77_TempB2CommStatus status."
+		::= { envTh2sensorEntry 77 }
+envTh2sensor_78_TempC2CommStatus OBJECT-TYPE
+		SYNTAX INTEGER {
+			normal(0),
+			failure(1) }
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION
+		"envTh2sensor_78_TempC2CommStatus status."
+		::= { envTh2sensorEntry 78 }
+envTh2sensor_79_TempD2CommStatus OBJECT-TYPE
+		SYNTAX INTEGER {
+			normal(0),
+			failure(1) }
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION
+		"envTh2sensor_79_TempD2CommStatus status."
+		::= { envTh2sensorEntry 79 }
+envTh2sensor_80_TempE2CommStatus OBJECT-TYPE
+		SYNTAX INTEGER {
+			normal(0),
+			failure(1) }
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION
+		"envTh2sensor_80_TempE2CommStatus status."
+		::= { envTh2sensorEntry 80 }
+envTh2sensor_81_TempF2CommStatus OBJECT-TYPE
+		SYNTAX INTEGER {
+			normal(0),
+			failure(1) }
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION
+		"envTh2sensor_81_TempF2CommStatus status."
+		::= { envTh2sensorEntry 81 }
+envTh2sensor_82_CommunicationStatus OBJECT-TYPE
+		SYNTAX INTEGER {
+			normal(0),
+			failure(1) }
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION
+		"envTh2sensor_82_CommunicationStatus status."
+		::= { envTh2sensorEntry 82 }
+envTh2sensor_83_SensorNumber OBJECT-TYPE
+		SYNTAX Integer32
+		
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION
+		"envTh2sensor_83_SensorNumber stored as 1."
+		::= { envTh2sensorEntry 83 }
+envTh2sensor_84_TH2AlarmNumber OBJECT-TYPE
+		SYNTAX Integer32
+		
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION
+		"envTh2sensor_84_TH2AlarmNumber stored as 1."
+		::= { envTh2sensorEntry 84 }
+envTh2sensor_85_ClearSensorCommFailAlarm OBJECT-TYPE
+		SYNTAX INTEGER {
+			clear(1) }
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+		"envTh2sensor_85_ClearSensorCommFailAlarm status."
+		::= { envTh2sensorEntry 85 }
+envTh2sensor_86_Temp02Alarmhystersis OBJECT-TYPE
+		SYNTAX Integer32
+		
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+		"envTh2sensor_86_Temp02Alarmhystersis stored as 0.1℃."
+		::= { envTh2sensorEntry 86 }
+envTh2sensor_87_Temp12Alarmhystersis OBJECT-TYPE
+		SYNTAX Integer32
+		
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+		"envTh2sensor_87_Temp12Alarmhystersis stored as 0.1℃."
+		::= { envTh2sensorEntry 87 }
+envTh2sensor_88_Temp22Alarmhystersis OBJECT-TYPE
+		SYNTAX Integer32
+		
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+		"envTh2sensor_88_Temp22Alarmhystersis stored as 0.1℃."
+		::= { envTh2sensorEntry 88 }
+envTh2sensor_89_Temp32Alarmhystersis OBJECT-TYPE
+		SYNTAX Integer32
+		
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+		"envTh2sensor_89_Temp32Alarmhystersis stored as 0.1℃."
+		::= { envTh2sensorEntry 89 }
+envTh2sensor_90_Temp42Alarmhystersis OBJECT-TYPE
+		SYNTAX Integer32
+		
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+		"envTh2sensor_90_Temp42Alarmhystersis stored as 0.1℃."
+		::= { envTh2sensorEntry 90 }
+envTh2sensor_91_Temp52Alarmhystersis OBJECT-TYPE
+		SYNTAX Integer32
+		
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+		"envTh2sensor_91_Temp52Alarmhystersis stored as 0.1℃."
+		::= { envTh2sensorEntry 91 }
+envTh2sensor_92_Temp62Alarmhystersis OBJECT-TYPE
+		SYNTAX Integer32
+		
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+		"envTh2sensor_92_Temp62Alarmhystersis stored as 0.1℃."
+		::= { envTh2sensorEntry 92 }
+envTh2sensor_93_Temp72Alarmhystersis OBJECT-TYPE
+		SYNTAX Integer32
+		
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+		"envTh2sensor_93_Temp72Alarmhystersis stored as 0.1℃."
+		::= { envTh2sensorEntry 93 }
+envTh2sensor_94_Temp82Alarmhystersis OBJECT-TYPE
+		SYNTAX Integer32
+		
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+		"envTh2sensor_94_Temp82Alarmhystersis stored as 0.1℃."
+		::= { envTh2sensorEntry 94 }
+envTh2sensor_95_Temp92Alarmhystersis OBJECT-TYPE
+		SYNTAX Integer32
+		
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+		"envTh2sensor_95_Temp92Alarmhystersis stored as 0.1℃."
+		::= { envTh2sensorEntry 95 }
+envTh2sensor_96_TempA2Alarmhystersis OBJECT-TYPE
+		SYNTAX Integer32
+		
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+		"envTh2sensor_96_TempA2Alarmhystersis stored as 0.1℃."
+		::= { envTh2sensorEntry 96 }
+envTh2sensor_97_TempB2Alarmhystersis OBJECT-TYPE
+		SYNTAX Integer32
+		
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+		"envTh2sensor_97_TempB2Alarmhystersis stored as 0.1℃."
+		::= { envTh2sensorEntry 97 }
+envTh2sensor_98_TempC2Alarmhystersis OBJECT-TYPE
+		SYNTAX Integer32
+		
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+		"envTh2sensor_98_TempC2Alarmhystersis stored as 0.1℃."
+		::= { envTh2sensorEntry 98 }
+envTh2sensor_99_TempD2Alarmhystersis OBJECT-TYPE
+		SYNTAX Integer32
+		
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+		"envTh2sensor_99_TempD2Alarmhystersis stored as 0.1℃."
+		::= { envTh2sensorEntry 99 }
+envTh2sensor_100_TempE2Alarmhystersis OBJECT-TYPE
+		SYNTAX Integer32
+		
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+		"envTh2sensor_100_TempE2Alarmhystersis stored as 0.1℃."
+		::= { envTh2sensorEntry 100 }
+envTh2sensor_101_TempF2Alarmhystersis OBJECT-TYPE
+		SYNTAX Integer32
+		
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+		"envTh2sensor_101_TempF2Alarmhystersis stored as 0.1℃."
+		::= { envTh2sensorEntry 101 }
+envTh2sensor_102_HighTemp02Alarmlimit OBJECT-TYPE
+		SYNTAX Integer32
+		
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+		"envTh2sensor_102_HighTemp02Alarmlimit stored as 0.1℃."
+		::= { envTh2sensorEntry 102 }
+envTh2sensor_103_HighTemp12Alarmlimit OBJECT-TYPE
+		SYNTAX Integer32
+		
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+		"envTh2sensor_103_HighTemp12Alarmlimit stored as 0.1℃."
+		::= { envTh2sensorEntry 103 }
+envTh2sensor_104_HighTemp22Alarmlimit OBJECT-TYPE
+		SYNTAX Integer32
+		
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+		"envTh2sensor_104_HighTemp22Alarmlimit stored as 0.1℃."
+		::= { envTh2sensorEntry 104 }
+envTh2sensor_105_HighTemp32Alarmlimit OBJECT-TYPE
+		SYNTAX Integer32
+		
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+		"envTh2sensor_105_HighTemp32Alarmlimit stored as 0.1℃."
+		::= { envTh2sensorEntry 105 }
+envTh2sensor_106_HighTemp42Alarmlimit OBJECT-TYPE
+		SYNTAX Integer32
+		
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+		"envTh2sensor_106_HighTemp42Alarmlimit stored as 0.1℃."
+		::= { envTh2sensorEntry 106 }
+envTh2sensor_107_HighTemp52Alarmlimit OBJECT-TYPE
+		SYNTAX Integer32
+		
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+		"envTh2sensor_107_HighTemp52Alarmlimit stored as 0.1℃."
+		::= { envTh2sensorEntry 107 }
+envTh2sensor_108_HighTemp62Alarmlimit OBJECT-TYPE
+		SYNTAX Integer32
+		
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+		"envTh2sensor_108_HighTemp62Alarmlimit stored as 0.1℃."
+		::= { envTh2sensorEntry 108 }
+envTh2sensor_109_HighTemp72Alarmlimit OBJECT-TYPE
+		SYNTAX Integer32
+		
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+		"envTh2sensor_109_HighTemp72Alarmlimit stored as 0.1℃."
+		::= { envTh2sensorEntry 109 }
+envTh2sensor_110_HighTemp82Alarmlimit OBJECT-TYPE
+		SYNTAX Integer32
+		
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+		"envTh2sensor_110_HighTemp82Alarmlimit stored as 0.1℃."
+		::= { envTh2sensorEntry 110 }
+envTh2sensor_111_HighTemp92Alarmlimit OBJECT-TYPE
+		SYNTAX Integer32
+		
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+		"envTh2sensor_111_HighTemp92Alarmlimit stored as 0.1℃."
+		::= { envTh2sensorEntry 111 }
+envTh2sensor_112_HighTempA2Alarmlimit OBJECT-TYPE
+		SYNTAX Integer32
+		
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+		"envTh2sensor_112_HighTempA2Alarmlimit stored as 0.1℃."
+		::= { envTh2sensorEntry 112 }
+envTh2sensor_113_HighTempB2Alarmlimit OBJECT-TYPE
+		SYNTAX Integer32
+		
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+		"envTh2sensor_113_HighTempB2Alarmlimit stored as 0.1℃."
+		::= { envTh2sensorEntry 113 }
+envTh2sensor_114_HighTempC2Alarmlimit OBJECT-TYPE
+		SYNTAX Integer32
+		
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+		"envTh2sensor_114_HighTempC2Alarmlimit stored as 0.1℃."
+		::= { envTh2sensorEntry 114 }
+envTh2sensor_115_HighTempD2Alarmlimit OBJECT-TYPE
+		SYNTAX Integer32
+		
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+		"envTh2sensor_115_HighTempD2Alarmlimit stored as 0.1℃."
+		::= { envTh2sensorEntry 115 }
+envTh2sensor_116_HighTempE2Alarmlimit OBJECT-TYPE
+		SYNTAX Integer32
+		
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+		"envTh2sensor_116_HighTempE2Alarmlimit stored as 0.1℃."
+		::= { envTh2sensorEntry 116 }
+envTh2sensor_117_HighTempF2Alarmlimit OBJECT-TYPE
+		SYNTAX Integer32
+		
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+		"envTh2sensor_117_HighTempF2Alarmlimit stored as 0.1℃."
+		::= { envTh2sensorEntry 117 }
+envTh2sensor_118_LowTemp02Alarmlimit OBJECT-TYPE
+		SYNTAX Integer32
+		
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+		"envTh2sensor_118_LowTemp02Alarmlimit stored as 0.1℃."
+		::= { envTh2sensorEntry 118 }
+envTh2sensor_119_LowTemp12Alarmlimit OBJECT-TYPE
+		SYNTAX Integer32
+		
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+		"envTh2sensor_119_LowTemp12Alarmlimit stored as 0.1℃."
+		::= { envTh2sensorEntry 119 }
+envTh2sensor_120_LowTemp22Alarmlimit OBJECT-TYPE
+		SYNTAX Integer32
+		
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+		"envTh2sensor_120_LowTemp22Alarmlimit stored as 0.1℃."
+		::= { envTh2sensorEntry 120 }
+envTh2sensor_121_LowTemp32Alarmlimit OBJECT-TYPE
+		SYNTAX Integer32
+		
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+		"envTh2sensor_121_LowTemp32Alarmlimit stored as 0.1℃."
+		::= { envTh2sensorEntry 121 }
+envTh2sensor_122_LowTemp42Alarmlimit OBJECT-TYPE
+		SYNTAX Integer32
+		
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+		"envTh2sensor_122_LowTemp42Alarmlimit stored as 0.1℃."
+		::= { envTh2sensorEntry 122 }
+envTh2sensor_123_LowTemp52Alarmlimit OBJECT-TYPE
+		SYNTAX Integer32
+		
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+		"envTh2sensor_123_LowTemp52Alarmlimit stored as 0.1℃."
+		::= { envTh2sensorEntry 123 }
+envTh2sensor_124_LowTemp62Alarmlimit OBJECT-TYPE
+		SYNTAX Integer32
+		
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+		"envTh2sensor_124_LowTemp62Alarmlimit stored as 0.1℃."
+		::= { envTh2sensorEntry 124 }
+envTh2sensor_125_LowTemp72Alarmlimit OBJECT-TYPE
+		SYNTAX Integer32
+		
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+		"envTh2sensor_125_LowTemp72Alarmlimit stored as 0.1℃."
+		::= { envTh2sensorEntry 125 }
+envTh2sensor_126_LowTemp82Alarmlimit OBJECT-TYPE
+		SYNTAX Integer32
+		
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+		"envTh2sensor_126_LowTemp82Alarmlimit stored as 0.1℃."
+		::= { envTh2sensorEntry 126 }
+envTh2sensor_127_LowTemp92Alarmlimit OBJECT-TYPE
+		SYNTAX Integer32
+		
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+		"envTh2sensor_127_LowTemp92Alarmlimit stored as 0.1℃."
+		::= { envTh2sensorEntry 127 }
+envTh2sensor_128_LowTempA2Alarmlimit OBJECT-TYPE
+		SYNTAX Integer32
+		
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+		"envTh2sensor_128_LowTempA2Alarmlimit stored as 0.1℃."
+		::= { envTh2sensorEntry 128 }
+envTh2sensor_129_LowTempB2Alarmlimit OBJECT-TYPE
+		SYNTAX Integer32
+		
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+		"envTh2sensor_129_LowTempB2Alarmlimit stored as 0.1℃."
+		::= { envTh2sensorEntry 129 }
+envTh2sensor_130_LowTempC2Alarmlimit OBJECT-TYPE
+		SYNTAX Integer32
+		
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+		"envTh2sensor_130_LowTempC2Alarmlimit stored as 0.1℃."
+		::= { envTh2sensorEntry 130 }
+envTh2sensor_131_LowTempD2Alarmlimit OBJECT-TYPE
+		SYNTAX Integer32
+		
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+		"envTh2sensor_131_LowTempD2Alarmlimit stored as 0.1℃."
+		::= { envTh2sensorEntry 131 }
+envTh2sensor_132_LowTempE2Alarmlimit OBJECT-TYPE
+		SYNTAX Integer32
+		
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+		"envTh2sensor_132_LowTempE2Alarmlimit stored as 0.1℃."
+		::= { envTh2sensorEntry 132 }
+envTh2sensor_133_LowTempF2Alarmlimit OBJECT-TYPE
+		SYNTAX Integer32
+		
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+		"envTh2sensor_133_LowTempF2Alarmlimit stored as 0.1℃."
+		::= { envTh2sensorEntry 133 }
+envTh2sensor_134_Hum02Alarmhystersis OBJECT-TYPE
+		SYNTAX Integer32
+		
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+		"envTh2sensor_134_Hum02Alarmhystersis stored as 0.1%."
+		::= { envTh2sensorEntry 134 }
+envTh2sensor_135_Hum12Alarmhystersis OBJECT-TYPE
+		SYNTAX Integer32
+		
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+		"envTh2sensor_135_Hum12Alarmhystersis stored as 0.1%."
+		::= { envTh2sensorEntry 135 }
+envTh2sensor_136_Hum22Alarmhystersis OBJECT-TYPE
+		SYNTAX Integer32
+		
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+		"envTh2sensor_136_Hum22Alarmhystersis stored as 0.1%."
+		::= { envTh2sensorEntry 136 }
+envTh2sensor_137_Hum32Alarmhystersis OBJECT-TYPE
+		SYNTAX Integer32
+		
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+		"envTh2sensor_137_Hum32Alarmhystersis stored as 0.1%."
+		::= { envTh2sensorEntry 137 }
+envTh2sensor_138_Hum42Alarmhystersis OBJECT-TYPE
+		SYNTAX Integer32
+		
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+		"envTh2sensor_138_Hum42Alarmhystersis stored as 0.1%."
+		::= { envTh2sensorEntry 138 }
+envTh2sensor_139_Hum52Alarmhystersis OBJECT-TYPE
+		SYNTAX Integer32
+		
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+		"envTh2sensor_139_Hum52Alarmhystersis stored as 0.1%."
+		::= { envTh2sensorEntry 139 }
+envTh2sensor_140_Hum62Alarmhystersis OBJECT-TYPE
+		SYNTAX Integer32
+		
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+		"envTh2sensor_140_Hum62Alarmhystersis stored as 0.1%."
+		::= { envTh2sensorEntry 140 }
+envTh2sensor_141_Hum72Alarmhystersis OBJECT-TYPE
+		SYNTAX Integer32
+		
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+		"envTh2sensor_141_Hum72Alarmhystersis stored as 0.1%."
+		::= { envTh2sensorEntry 141 }
+envTh2sensor_142_Hum82Alarmhystersis OBJECT-TYPE
+		SYNTAX Integer32
+		
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+		"envTh2sensor_142_Hum82Alarmhystersis stored as 0.1%."
+		::= { envTh2sensorEntry 142 }
+envTh2sensor_143_Hum92Alarmhystersis OBJECT-TYPE
+		SYNTAX Integer32
+		
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+		"envTh2sensor_143_Hum92Alarmhystersis stored as 0.1%."
+		::= { envTh2sensorEntry 143 }
+envTh2sensor_144_HumA2Alarmhystersis OBJECT-TYPE
+		SYNTAX Integer32
+		
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+		"envTh2sensor_144_HumA2Alarmhystersis stored as 0.1%."
+		::= { envTh2sensorEntry 144 }
+envTh2sensor_145_HumB2Alarmhystersis OBJECT-TYPE
+		SYNTAX Integer32
+		
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+		"envTh2sensor_145_HumB2Alarmhystersis stored as 0.1%."
+		::= { envTh2sensorEntry 145 }
+envTh2sensor_146_HumC2Alarmhystersis OBJECT-TYPE
+		SYNTAX Integer32
+		
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+		"envTh2sensor_146_HumC2Alarmhystersis stored as 0.1%."
+		::= { envTh2sensorEntry 146 }
+envTh2sensor_147_HumD2Alarmhystersis OBJECT-TYPE
+		SYNTAX Integer32
+		
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+		"envTh2sensor_147_HumD2Alarmhystersis stored as 0.1%."
+		::= { envTh2sensorEntry 147 }
+envTh2sensor_148_HumE2Alarmhystersis OBJECT-TYPE
+		SYNTAX Integer32
+		
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+		"envTh2sensor_148_HumE2Alarmhystersis stored as 0.1%."
+		::= { envTh2sensorEntry 148 }
+envTh2sensor_149_HumF2Alarmhystersis OBJECT-TYPE
+		SYNTAX Integer32
+		
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+		"envTh2sensor_149_HumF2Alarmhystersis stored as 0.1%."
+		::= { envTh2sensorEntry 149 }
+envTh2sensor_150_HighHum02Alarmlimit OBJECT-TYPE
+		SYNTAX Integer32
+		
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+		"envTh2sensor_150_HighHum02Alarmlimit stored as 0.1%."
+		::= { envTh2sensorEntry 150 }
+envTh2sensor_151_HighHum12Alarmlimit OBJECT-TYPE
+		SYNTAX Integer32
+		
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+		"envTh2sensor_151_HighHum12Alarmlimit stored as 0.1%."
+		::= { envTh2sensorEntry 151 }
+envTh2sensor_152_HighHum22Alarmlimit OBJECT-TYPE
+		SYNTAX Integer32
+		
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+		"envTh2sensor_152_HighHum22Alarmlimit stored as 0.1%."
+		::= { envTh2sensorEntry 152 }
+envTh2sensor_153_HighHum32Alarmlimit OBJECT-TYPE
+		SYNTAX Integer32
+		
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+		"envTh2sensor_153_HighHum32Alarmlimit stored as 0.1%."
+		::= { envTh2sensorEntry 153 }
+envTh2sensor_154_HighHum42Alarmlimit OBJECT-TYPE
+		SYNTAX Integer32
+		
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+		"envTh2sensor_154_HighHum42Alarmlimit stored as 0.1%."
+		::= { envTh2sensorEntry 154 }
+envTh2sensor_155_HighHum52Alarmlimit OBJECT-TYPE
+		SYNTAX Integer32
+		
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+		"envTh2sensor_155_HighHum52Alarmlimit stored as 0.1%."
+		::= { envTh2sensorEntry 155 }
+envTh2sensor_156_HighHum62Alarmlimit OBJECT-TYPE
+		SYNTAX Integer32
+		
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+		"envTh2sensor_156_HighHum62Alarmlimit stored as 0.1%."
+		::= { envTh2sensorEntry 156 }
+envTh2sensor_157_HighHum72Alarmlimit OBJECT-TYPE
+		SYNTAX Integer32
+		
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+		"envTh2sensor_157_HighHum72Alarmlimit stored as 0.1%."
+		::= { envTh2sensorEntry 157 }
+envTh2sensor_158_HighHum82Alarmlimit OBJECT-TYPE
+		SYNTAX Integer32
+		
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+		"envTh2sensor_158_HighHum82Alarmlimit stored as 0.1%."
+		::= { envTh2sensorEntry 158 }
+envTh2sensor_159_HighHum92Alarmlimit OBJECT-TYPE
+		SYNTAX Integer32
+		
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+		"envTh2sensor_159_HighHum92Alarmlimit stored as 0.1%."
+		::= { envTh2sensorEntry 159 }
+envTh2sensor_160_HighHumA2Alarmlimit OBJECT-TYPE
+		SYNTAX Integer32
+		
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+		"envTh2sensor_160_HighHumA2Alarmlimit stored as 0.1%."
+		::= { envTh2sensorEntry 160 }
+envTh2sensor_161_HighHumB2Alarmlimit OBJECT-TYPE
+		SYNTAX Integer32
+		
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+		"envTh2sensor_161_HighHumB2Alarmlimit stored as 0.1%."
+		::= { envTh2sensorEntry 161 }
+envTh2sensor_162_HighHumC2Alarmlimit OBJECT-TYPE
+		SYNTAX Integer32
+		
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+		"envTh2sensor_162_HighHumC2Alarmlimit stored as 0.1%."
+		::= { envTh2sensorEntry 162 }
+envTh2sensor_163_HighHumD2Alarmlimit OBJECT-TYPE
+		SYNTAX Integer32
+		
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+		"envTh2sensor_163_HighHumD2Alarmlimit stored as 0.1%."
+		::= { envTh2sensorEntry 163 }
+envTh2sensor_164_HighHumE2Alarmlimit OBJECT-TYPE
+		SYNTAX Integer32
+		
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+		"envTh2sensor_164_HighHumE2Alarmlimit stored as 0.1%."
+		::= { envTh2sensorEntry 164 }
+envTh2sensor_165_HighHumF2Alarmlimit OBJECT-TYPE
+		SYNTAX Integer32
+		
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+		"envTh2sensor_165_HighHumF2Alarmlimit stored as 0.1%."
+		::= { envTh2sensorEntry 165 }
+envTh2sensor_166_LowHum02Alarmlimit OBJECT-TYPE
+		SYNTAX Integer32
+		
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+		"envTh2sensor_166_LowHum02Alarmlimit stored as 0.1%."
+		::= { envTh2sensorEntry 166 }
+envTh2sensor_167_LowHum12Alarmlimit OBJECT-TYPE
+		SYNTAX Integer32
+		
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+		"envTh2sensor_167_LowHum12Alarmlimit stored as 0.1%."
+		::= { envTh2sensorEntry 167 }
+envTh2sensor_168_LowHum22Alarmlimit OBJECT-TYPE
+		SYNTAX Integer32
+		
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+		"envTh2sensor_168_LowHum22Alarmlimit stored as 0.1%."
+		::= { envTh2sensorEntry 168 }
+envTh2sensor_169_LowHum32Alarmlimit OBJECT-TYPE
+		SYNTAX Integer32
+		
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+		"envTh2sensor_169_LowHum32Alarmlimit stored as 0.1%."
+		::= { envTh2sensorEntry 169 }
+envTh2sensor_170_LowHum42Alarmlimit OBJECT-TYPE
+		SYNTAX Integer32
+		
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+		"envTh2sensor_170_LowHum42Alarmlimit stored as 0.1%."
+		::= { envTh2sensorEntry 170 }
+envTh2sensor_171_LowHum52Alarmlimit OBJECT-TYPE
+		SYNTAX Integer32
+		
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+		"envTh2sensor_171_LowHum52Alarmlimit stored as 0.1%."
+		::= { envTh2sensorEntry 171 }
+envTh2sensor_172_LowHum62Alarmlimit OBJECT-TYPE
+		SYNTAX Integer32
+		
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+		"envTh2sensor_172_LowHum62Alarmlimit stored as 0.1%."
+		::= { envTh2sensorEntry 172 }
+envTh2sensor_173_LowHum72Alarmlimit OBJECT-TYPE
+		SYNTAX Integer32
+		
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+		"envTh2sensor_173_LowHum72Alarmlimit stored as 0.1%."
+		::= { envTh2sensorEntry 173 }
+envTh2sensor_174_LowHum82Alarmlimit OBJECT-TYPE
+		SYNTAX Integer32
+		
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+		"envTh2sensor_174_LowHum82Alarmlimit stored as 0.1%."
+		::= { envTh2sensorEntry 174 }
+envTh2sensor_175_LowHum92Alarmlimit OBJECT-TYPE
+		SYNTAX Integer32
+		
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+		"envTh2sensor_175_LowHum92Alarmlimit stored as 0.1%."
+		::= { envTh2sensorEntry 175 }
+envTh2sensor_176_LowHumA2Alarmlimit OBJECT-TYPE
+		SYNTAX Integer32
+		
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+		"envTh2sensor_176_LowHumA2Alarmlimit stored as 0.1%."
+		::= { envTh2sensorEntry 176 }
+envTh2sensor_177_LowHumB2Alarmlimit OBJECT-TYPE
+		SYNTAX Integer32
+		
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+		"envTh2sensor_177_LowHumB2Alarmlimit stored as 0.1%."
+		::= { envTh2sensorEntry 177 }
+envTh2sensor_178_LowHumC2Alarmlimit OBJECT-TYPE
+		SYNTAX Integer32
+		
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+		"envTh2sensor_178_LowHumC2Alarmlimit stored as 0.1%."
+		::= { envTh2sensorEntry 178 }
+envTh2sensor_179_LowHumD2Alarmlimit OBJECT-TYPE
+		SYNTAX Integer32
+		
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+		"envTh2sensor_179_LowHumD2Alarmlimit stored as 0.1%."
+		::= { envTh2sensorEntry 179 }
+envTh2sensor_180_LowHumE2Alarmlimit OBJECT-TYPE
+		SYNTAX Integer32
+		
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+		"envTh2sensor_180_LowHumE2Alarmlimit stored as 0.1%."
+		::= { envTh2sensorEntry 180 }
+envTh2sensor_181_LowHumF2Alarmlimit OBJECT-TYPE
+		SYNTAX Integer32
+		
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+		"envTh2sensor_181_LowHumF2Alarmlimit stored as 0.1%."
+		::= { envTh2sensorEntry 181 }
+envTh2sensor_182_AllHighTempAlarmlimit OBJECT-TYPE
+		SYNTAX Integer32
+		
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+		"envTh2sensor_182_AllHighTempAlarmlimit stored as 0.1℃."
+		::= { envTh2sensorEntry 182 }
+envTh2sensor_183_AllLowTempAlarmlimit OBJECT-TYPE
+		SYNTAX Integer32
+		
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+		"envTh2sensor_183_AllLowTempAlarmlimit stored as 0.1℃."
+		::= { envTh2sensorEntry 183 }
+envTh2sensor_184_AllHighHumAlarmlimit OBJECT-TYPE
+		SYNTAX Integer32
+		
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+		"envTh2sensor_184_AllHighHumAlarmlimit stored as 0.1%."
+		::= { envTh2sensorEntry 184 }
+envTh2sensor_185_AllLowHumAlarmlimit OBJECT-TYPE
+		SYNTAX Integer32
+		
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+		"envTh2sensor_185_AllLowHumAlarmlimit stored as 0.1%."
+		::= { envTh2sensorEntry 185 }
+
+------------------------------------------------------------
+-- 4didi { 13400.3.5.565 }
+------------------------------------------------------------
+env-4didi OBJECT IDENTIFIER ::= { env 565 }
+env4didiTable OBJECT-TYPE
+		SYNTAX			SEQUENCE OF Env4didiEntry
+		MAX-ACCESS		not-accessible
+		STATUS			current
+		DESCRIPTION	"env4didiTable"
+		::=			{ env-4didi 1 }
+env4didiEntry OBJECT-TYPE
+		SYNTAX			Env4didiEntry
+		MAX-ACCESS		not-accessible
+		STATUS			current
+		DESCRIPTION		"env4didiEntry"
+		INDEX			{ env4didiIndex }
+		::=				{ env4didiTable 1 }
+Env4didiEntry ::= SEQUENCE {
+		env4didiIndex					Integer32,
+		env4didi_2_DI1					INTEGER,
+		env4didi_3_DI2					INTEGER,
+		env4didi_4_Smoke1					INTEGER,
+		env4didi_5_Smoke2					INTEGER,
+		env4didi_6_DO1					INTEGER,
+		env4didi_7_DO2					INTEGER,
+		env4didi_8_DI1LoseStatus					INTEGER,
+		env4didi_9_DI2LoseStatus					INTEGER,
+		env4didi_10_Smoke1LoseStatus					INTEGER,
+		env4didi_11_Smoke2LoseStatus					INTEGER,
+		env4didi_12_DO1LoseStatus					INTEGER,
+		env4didi_13_DO2LoseStatus					INTEGER,
+		env4didi_14_DayOfTheWeek					INTEGER,
+		env4didi_15_CurrentTime					Integer32,
+		env4didi_16_TodayAlarmShieldOrNot					INTEGER,
+		env4didi_17_TodayAlarmShieldOrNot					INTEGER,
+		env4didi_18_TodayAlarmShieldOrNot					INTEGER,
+		env4didi_19_TimeAlarmShieldOrNot					INTEGER,
+		env4didi_20_AlarmShield					INTEGER,
+		env4didi_21_SENSOR2OvercurrentProtection					INTEGER,
+		env4didi_22_SENSOR1OvercurrentProtection					INTEGER,
+		env4didi_23_DI1OvercurrentProtection					INTEGER,
+		env4didi_24_DI2OvercurrentProtection					INTEGER,
+		env4didi_25_Smoke1OvercurrentProtection					INTEGER,
+		env4didi_26_Smoke2OvercurrentProtection					INTEGER,
+		env4didi_27_DO1OvercurrentProtection					INTEGER,
+		env4didi_28_DO2OvercurrentProtection					INTEGER,
+		env4didi_29_DO1OvercurrentProtection					INTEGER,
+		env4didi_30_DO2OvercurrentProtection					INTEGER,
+		env4didi_31_ClearDI1FallOFFAlarm					INTEGER,
+		env4didi_32_ClearDI2FallOFFAlarm					INTEGER,
+		env4didi_33_ClearSmoke1FallOFFAlarm					INTEGER,
+		env4didi_34_ClearSmoke2FallOFFAlarm					INTEGER,
+		env4didi_35_DO1OutPutState					INTEGER,
+		env4didi_36_DO2OutPutState					INTEGER,
+		env4didi_37_DI1ConfigStatus					INTEGER,
+		env4didi_38_DI2ConfigStatus					INTEGER,
+		env4didi_39_Smoke1ConfigStatus					INTEGER,
+		env4didi_40_Smoke2ConfigStatus					INTEGER,
+		env4didi_41_DO1ConfigStatus					INTEGER,
+		env4didi_42_DO2ConfigStatus					INTEGER,
+		env4didi_43_DI1AlarmCriterion					INTEGER,
+		env4didi_44_DI2AlarmCriterion					INTEGER,
+		env4didi_45_Smoke1AlarmCriterion					INTEGER,
+		env4didi_46_Smoke2AlarmCriterion					INTEGER,
+		env4didi_47_DI1AlarmShield					INTEGER,
+		env4didi_48_DI2AlarmShield					INTEGER,
+		env4didi_49_Smoke1AlarmShield					INTEGER,
+		env4didi_50_Smoke2AlarmShield					INTEGER,
+		env4didi_51_DO1AlarmShield					INTEGER,
+		env4didi_52_DO2AlarmShield					INTEGER,
+		env4didi_53_MondayAlarmShieldConfig					INTEGER,
+		env4didi_54_TuesdayAlarmShieldConfig					INTEGER,
+		env4didi_55_WednesdayAlarmShieldConfig					INTEGER,
+		env4didi_56_ThursdayAlarmShieldConfig					INTEGER,
+		env4didi_57_FridayAlarmShieldConfig					INTEGER,
+		env4didi_58_SaturdayAlarmShieldConfig					INTEGER,
+		env4didi_59_SundayAlarmShieldConfig					INTEGER,
+		env4didi_60_AlarmShieldStartTime					Integer32,
+		env4didi_61_AlarmShieldEndTime					Integer32 }
+env4didiIndex OBJECT-TYPE
+		SYNTAX Integer32(1..61)
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION
+		"env4didi System Entry Index."
+		::= { env4didiEntry 1 }
+env4didi_2_DI1 OBJECT-TYPE
+		SYNTAX INTEGER {
+			normal(0),
+			alarm(1),
+			notlose(2),
+			notconnected(3),
+			overcurrentprotection(4) }
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION
+		"env4didi_2_DI1 status."
+		::= { env4didiEntry 2 }
+env4didi_3_DI2 OBJECT-TYPE
+		SYNTAX INTEGER {
+			normal(0),
+			alarm(1),
+			notlose(2),
+			notconnected(3),
+			overcurrentprotection(4) }
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION
+		"env4didi_3_DI2 status."
+		::= { env4didiEntry 3 }
+env4didi_4_Smoke1 OBJECT-TYPE
+		SYNTAX INTEGER {
+			normal(0),
+			alarm(1),
+			notlose(2),
+			notconnected(3),
+			overcurrentprotection(4) }
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION
+		"env4didi_4_Smoke1 status."
+		::= { env4didiEntry 4 }
+env4didi_5_Smoke2 OBJECT-TYPE
+		SYNTAX INTEGER {
+			normal(0),
+			alarm(1),
+			notlose(2),
+			notconnected(3),
+			overcurrentprotection(4) }
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION
+		"env4didi_5_Smoke2 status."
+		::= { env4didiEntry 5 }
+env4didi_6_DO1 OBJECT-TYPE
+		SYNTAX INTEGER {
+			open(0),
+			close(1) }
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION
+		"env4didi_6_DO1 status."
+		::= { env4didiEntry 6 }
+env4didi_7_DO2 OBJECT-TYPE
+		SYNTAX INTEGER {
+			open(0),
+			close(1) }
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION
+		"env4didi_7_DO2 status."
+		::= { env4didiEntry 7 }
+env4didi_8_DI1LoseStatus OBJECT-TYPE
+		SYNTAX INTEGER {
+			normal(0),
+			commfailure(1) }
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION
+		"env4didi_8_DI1LoseStatus status."
+		::= { env4didiEntry 8 }
+env4didi_9_DI2LoseStatus OBJECT-TYPE
+		SYNTAX INTEGER {
+			normal(0),
+			commfailure(1) }
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION
+		"env4didi_9_DI2LoseStatus status."
+		::= { env4didiEntry 9 }
+env4didi_10_Smoke1LoseStatus OBJECT-TYPE
+		SYNTAX INTEGER {
+			normal(0),
+			commfailure(1) }
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION
+		"env4didi_10_Smoke1LoseStatus status."
+		::= { env4didiEntry 10 }
+env4didi_11_Smoke2LoseStatus OBJECT-TYPE
+		SYNTAX INTEGER {
+			normal(0),
+			commfailure(1) }
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION
+		"env4didi_11_Smoke2LoseStatus status."
+		::= { env4didiEntry 11 }
+env4didi_12_DO1LoseStatus OBJECT-TYPE
+		SYNTAX INTEGER {
+			normal(0),
+			commfailure(1) }
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION
+		"env4didi_12_DO1LoseStatus status."
+		::= { env4didiEntry 12 }
+env4didi_13_DO2LoseStatus OBJECT-TYPE
+		SYNTAX INTEGER {
+			normal(0),
+			commfailure(1) }
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION
+		"env4didi_13_DO2LoseStatus status."
+		::= { env4didiEntry 13 }
+env4didi_14_DayOfTheWeek OBJECT-TYPE
+		SYNTAX Integer32
+		
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION
+		"env4didi_14_DayOfTheWeek stored as 1."
+		::= { env4didiEntry 14 }
+env4didi_15_CurrentTime OBJECT-TYPE
+		SYNTAX Integer32
+		
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION
+		"env4didi_15_CurrentTime stored as 0.1Hour."
+		::= { env4didiEntry 15 }
+env4didi_16_TodayAlarmShieldOrNot OBJECT-TYPE
+		SYNTAX INTEGER {
+			normal(0),
+			commfailure(1) }
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION
+		"env4didi_16_TodayAlarmShieldOrNot status."
+		::= { env4didiEntry 16 }
+env4didi_17_TodayAlarmShieldOrNot OBJECT-TYPE
+		SYNTAX INTEGER {
+			normal(0),
+			commfailure(1) }
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION
+		"env4didi_17_TodayAlarmShieldOrNot status."
+		::= { env4didiEntry 17 }
+env4didi_18_TodayAlarmShieldOrNot OBJECT-TYPE
+		SYNTAX INTEGER {
+			normal(0),
+			commfailure(1) }
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION
+		"env4didi_18_TodayAlarmShieldOrNot status."
+		::= { env4didiEntry 18 }
+env4didi_19_TimeAlarmShieldOrNot OBJECT-TYPE
+		SYNTAX INTEGER {
+			normal(0),
+			commfailure(1) }
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION
+		"env4didi_19_TimeAlarmShieldOrNot status."
+		::= { env4didiEntry 19 }
+env4didi_20_AlarmShield OBJECT-TYPE
+		SYNTAX INTEGER {
+			normal(0),
+			commfailure(1) }
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION
+		"env4didi_20_AlarmShield status."
+		::= { env4didiEntry 20 }
+env4didi_21_SENSOR2OvercurrentProtection OBJECT-TYPE
+		SYNTAX INTEGER {
+			normal(0),
+			alarm(1) }
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION
+		"env4didi_21_SENSOR2OvercurrentProtection status."
+		::= { env4didiEntry 21 }
+env4didi_22_SENSOR1OvercurrentProtection OBJECT-TYPE
+		SYNTAX INTEGER {
+			normal(0),
+			alarm(1) }
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION
+		"env4didi_22_SENSOR1OvercurrentProtection status."
+		::= { env4didiEntry 22 }
+env4didi_23_DI1OvercurrentProtection OBJECT-TYPE
+		SYNTAX INTEGER {
+			normal(0),
+			alarm(1) }
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION
+		"env4didi_23_DI1OvercurrentProtection status."
+		::= { env4didiEntry 23 }
+env4didi_24_DI2OvercurrentProtection OBJECT-TYPE
+		SYNTAX INTEGER {
+			normal(0),
+			alarm(1) }
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION
+		"env4didi_24_DI2OvercurrentProtection status."
+		::= { env4didiEntry 24 }
+env4didi_25_Smoke1OvercurrentProtection OBJECT-TYPE
+		SYNTAX INTEGER {
+			normal(0),
+			alarm(1) }
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION
+		"env4didi_25_Smoke1OvercurrentProtection status."
+		::= { env4didiEntry 25 }
+env4didi_26_Smoke2OvercurrentProtection OBJECT-TYPE
+		SYNTAX INTEGER {
+			normal(0),
+			alarm(1) }
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION
+		"env4didi_26_Smoke2OvercurrentProtection status."
+		::= { env4didiEntry 26 }
+env4didi_27_DO1OvercurrentProtection OBJECT-TYPE
+		SYNTAX INTEGER {
+			normal(0),
+			alarm(1) }
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION
+		"env4didi_27_DO1OvercurrentProtection status."
+		::= { env4didiEntry 27 }
+env4didi_28_DO2OvercurrentProtection OBJECT-TYPE
+		SYNTAX INTEGER {
+			normal(0),
+			alarm(1) }
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION
+		"env4didi_28_DO2OvercurrentProtection status."
+		::= { env4didiEntry 28 }
+env4didi_29_DO1OvercurrentProtection OBJECT-TYPE
+		SYNTAX INTEGER {
+			normal(0),
+			alarm(1) }
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION
+		"env4didi_29_DO1OvercurrentProtection status."
+		::= { env4didiEntry 29 }
+env4didi_30_DO2OvercurrentProtection OBJECT-TYPE
+		SYNTAX INTEGER {
+			normal(0),
+			alarm(1) }
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION
+		"env4didi_30_DO2OvercurrentProtection status."
+		::= { env4didiEntry 30 }
+env4didi_31_ClearDI1FallOFFAlarm OBJECT-TYPE
+		SYNTAX INTEGER {
+			clear(1) }
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+		"env4didi_31_ClearDI1FallOFFAlarm status."
+		::= { env4didiEntry 31 }
+env4didi_32_ClearDI2FallOFFAlarm OBJECT-TYPE
+		SYNTAX INTEGER {
+			clear(1) }
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+		"env4didi_32_ClearDI2FallOFFAlarm status."
+		::= { env4didiEntry 32 }
+env4didi_33_ClearSmoke1FallOFFAlarm OBJECT-TYPE
+		SYNTAX INTEGER {
+			clear(1) }
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+		"env4didi_33_ClearSmoke1FallOFFAlarm status."
+		::= { env4didiEntry 33 }
+env4didi_34_ClearSmoke2FallOFFAlarm OBJECT-TYPE
+		SYNTAX INTEGER {
+			clear(1) }
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+		"env4didi_34_ClearSmoke2FallOFFAlarm status."
+		::= { env4didiEntry 34 }
+env4didi_35_DO1OutPutState OBJECT-TYPE
+		SYNTAX INTEGER {
+			open(0),
+			close(1) }
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+		"env4didi_35_DO1OutPutState status."
+		::= { env4didiEntry 36 }
+env4didi_36_DO2OutPutState OBJECT-TYPE
+		SYNTAX INTEGER {
+			open(0),
+			close(1) }
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+		"env4didi_36_DO2OutPutState status."
+		::= { env4didiEntry 37 }
+env4didi_37_DI1ConfigStatus OBJECT-TYPE
+		SYNTAX INTEGER {
+			installed(0),
+			notinstalled(1) }
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+		"env4didi_37_DI1ConfigStatus status."
+		::= { env4didiEntry 38 }
+env4didi_38_DI2ConfigStatus OBJECT-TYPE
+		SYNTAX INTEGER {
+			installed(0),
+			notinstalled(1) }
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+		"env4didi_38_DI2ConfigStatus status."
+		::= { env4didiEntry 39 }
+env4didi_39_Smoke1ConfigStatus OBJECT-TYPE
+		SYNTAX INTEGER {
+			installed(0),
+			notinstalled(1) }
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+		"env4didi_39_Smoke1ConfigStatus status."
+		::= { env4didiEntry 40 }
+env4didi_40_Smoke2ConfigStatus OBJECT-TYPE
+		SYNTAX INTEGER {
+			installed(0),
+			notinstalled(1) }
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+		"env4didi_40_Smoke2ConfigStatus status."
+		::= { env4didiEntry 41 }
+env4didi_41_DO1ConfigStatus OBJECT-TYPE
+		SYNTAX INTEGER {
+			installed(0),
+			notinstalled(1) }
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+		"env4didi_41_DO1ConfigStatus status."
+		::= { env4didiEntry 42 }
+env4didi_42_DO2ConfigStatus OBJECT-TYPE
+		SYNTAX INTEGER {
+			installed(0),
+			notinstalled(1) }
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+		"env4didi_42_DO2ConfigStatus status."
+		::= { env4didiEntry 43 }
+env4didi_43_DI1AlarmCriterion OBJECT-TYPE
+		SYNTAX INTEGER {
+			close(0),
+			open(1) }
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+		"env4didi_43_DI1AlarmCriterion status."
+		::= { env4didiEntry 44 }
+env4didi_44_DI2AlarmCriterion OBJECT-TYPE
+		SYNTAX INTEGER {
+			close(0),
+			open(1) }
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+		"env4didi_44_DI2AlarmCriterion status."
+		::= { env4didiEntry 45 }
+env4didi_45_Smoke1AlarmCriterion OBJECT-TYPE
+		SYNTAX INTEGER {
+			close(0),
+			open(1) }
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+		"env4didi_45_Smoke1AlarmCriterion status."
+		::= { env4didiEntry 46 }
+env4didi_46_Smoke2AlarmCriterion OBJECT-TYPE
+		SYNTAX INTEGER {
+			close(0),
+			open(1) }
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+		"env4didi_46_Smoke2AlarmCriterion status."
+		::= { env4didiEntry 47 }
+env4didi_47_DI1AlarmShield OBJECT-TYPE
+		SYNTAX INTEGER {
+			notshield(0),
+			shield(1) }
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+		"env4didi_47_DI1AlarmShield status."
+		::= { env4didiEntry 48 }
+env4didi_48_DI2AlarmShield OBJECT-TYPE
+		SYNTAX INTEGER {
+			notshield(0),
+			shield(1) }
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+		"env4didi_48_DI2AlarmShield status."
+		::= { env4didiEntry 49 }
+env4didi_49_Smoke1AlarmShield OBJECT-TYPE
+		SYNTAX INTEGER {
+			notshield(0),
+			shield(1) }
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+		"env4didi_49_Smoke1AlarmShield status."
+		::= { env4didiEntry 50 }
+env4didi_50_Smoke2AlarmShield OBJECT-TYPE
+		SYNTAX INTEGER {
+			notshield(0),
+			shield(1) }
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+		"env4didi_50_Smoke2AlarmShield status."
+		::= { env4didiEntry 51 }
+env4didi_51_DO1AlarmShield OBJECT-TYPE
+		SYNTAX INTEGER {
+			notshield(0),
+			shield(1) }
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+		"env4didi_51_DO1AlarmShield status."
+		::= { env4didiEntry 52 }
+env4didi_52_DO2AlarmShield OBJECT-TYPE
+		SYNTAX INTEGER {
+			notshield(0),
+			shield(1) }
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+		"env4didi_52_DO2AlarmShield status."
+		::= { env4didiEntry 53 }
+env4didi_53_MondayAlarmShieldConfig OBJECT-TYPE
+		SYNTAX INTEGER {
+			notshield(0),
+			shield(1) }
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+		"env4didi_53_MondayAlarmShieldConfig status."
+		::= { env4didiEntry 54 }
+env4didi_54_TuesdayAlarmShieldConfig OBJECT-TYPE
+		SYNTAX INTEGER {
+			notshield(0),
+			shield(1) }
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+		"env4didi_54_TuesdayAlarmShieldConfig status."
+		::= { env4didiEntry 55 }
+env4didi_55_WednesdayAlarmShieldConfig OBJECT-TYPE
+		SYNTAX INTEGER {
+			notshield(0),
+			shield(1) }
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+		"env4didi_55_WednesdayAlarmShieldConfig status."
+		::= { env4didiEntry 56 }
+env4didi_56_ThursdayAlarmShieldConfig OBJECT-TYPE
+		SYNTAX INTEGER {
+			notshield(0),
+			shield(1) }
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+		"env4didi_56_ThursdayAlarmShieldConfig status."
+		::= { env4didiEntry 57 }
+env4didi_57_FridayAlarmShieldConfig OBJECT-TYPE
+		SYNTAX INTEGER {
+			notshield(0),
+			shield(1) }
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+		"env4didi_57_FridayAlarmShieldConfig status."
+		::= { env4didiEntry 58 }
+env4didi_58_SaturdayAlarmShieldConfig OBJECT-TYPE
+		SYNTAX INTEGER {
+			notshield(0),
+			shield(1) }
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+		"env4didi_58_SaturdayAlarmShieldConfig status."
+		::= { env4didiEntry 59 }
+env4didi_59_SundayAlarmShieldConfig OBJECT-TYPE
+		SYNTAX INTEGER {
+			notshield(0),
+			shield(1) }
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+		"env4didi_59_SundayAlarmShieldConfig status."
+		::= { env4didiEntry 60 }
+env4didi_60_AlarmShieldStartTime OBJECT-TYPE
+		SYNTAX Integer32
+		
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+		"env4didi_60_AlarmShieldStartTime stored as 0.1Hour."
+		::= { env4didiEntry 61 }
+env4didi_61_AlarmShieldEndTime OBJECT-TYPE
+		SYNTAX Integer32
+		
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+		"env4didi_61_AlarmShieldEndTime stored as 0.1Hour."
+		::= { env4didiEntry 62 }
+
+------------------------------------------------------------
+-- 4disensor { 13400.3.5.502 }
+------------------------------------------------------------
+env-4disensor OBJECT IDENTIFIER ::= { env 502 }
+env4disensorTable OBJECT-TYPE
+		SYNTAX			SEQUENCE OF Env4disensorEntry
+		MAX-ACCESS		not-accessible
+		STATUS			current
+		DESCRIPTION	"env4disensorTable"
+		::=			{ env-4disensor 1 }
+env4disensorEntry OBJECT-TYPE
+		SYNTAX			Env4disensorEntry
+		MAX-ACCESS		not-accessible
+		STATUS			current
+		DESCRIPTION		"env4disensorEntry"
+		INDEX			{ env4disensorIndex }
+		::=				{ env4disensorTable 1 }
+Env4disensorEntry ::= SEQUENCE {
+		env4disensorIndex					Integer32,
+		env4disensor_2_User4DI01DI1					INTEGER,
+		env4disensor_3_User4DI01DI2					INTEGER,
+		env4disensor_4_User4DI01DI3					INTEGER,
+		env4disensor_5_User4DI01DI4					INTEGER,
+		env4disensor_6_User4DI10DI1					INTEGER,
+		env4disensor_7_User4DI10DI2					INTEGER,
+		env4disensor_8_User4DI10DI3					INTEGER,
+		env4disensor_9_User4DI10DI4					INTEGER,
+		env4disensor_10_User4DI11DI1					INTEGER,
+		env4disensor_11_User4DI11DI2					INTEGER,
+		env4disensor_12_User4DI11DI3					INTEGER,
+		env4disensor_13_User4DI11DI4					INTEGER,
+		env4disensor_14_User4DI20DI1					INTEGER,
+		env4disensor_15_User4DI20DI2					INTEGER,
+		env4disensor_16_User4DI20DI3					INTEGER,
+		env4disensor_17_User4DI20DI4					INTEGER,
+		env4disensor_18_Fixed4DI01Door1					INTEGER,
+		env4disensor_19_Fixed4DI01Door2					INTEGER,
+		env4disensor_20_Fixed4DI01Water					INTEGER,
+		env4disensor_21_Fixed4DI01Smoke					INTEGER,
+		env4disensor_22_Fixed4DI10Door1					INTEGER,
+		env4disensor_23_Fixed4DI10Door2					INTEGER,
+		env4disensor_24_Fixed4DI10Water					INTEGER,
+		env4disensor_25_Fixed4DI10Smoke					INTEGER,
+		env4disensor_26_Fixed4DI11Door1					INTEGER,
+		env4disensor_27_Fixed4DI11Door2					INTEGER,
+		env4disensor_28_Fixed4DI11Water					INTEGER,
+		env4disensor_29_Fixed4DI11Smoke					INTEGER,
+		env4disensor_30_Fixed4DI20Door1					INTEGER,
+		env4disensor_31_Fixed4DI20Door2					INTEGER,
+		env4disensor_32_Fixed4DI20Water					INTEGER,
+		env4disensor_33_Fixed4DI20Smoke					INTEGER,
+		env4disensor_34_4DI01CommStatus					INTEGER,
+		env4disensor_35_4DI10CommStatus					INTEGER,
+		env4disensor_36_4DI11CommStatus					INTEGER,
+		env4disensor_37_4DI20CommStatus					INTEGER,
+		env4disensor_38_4DINumber					INTEGER,
+		env4disensor_39_DayoftheWeek					INTEGER,
+		env4disensor_40_CurrentTime					Integer32,
+		env4disensor_41_TodayAlarmShieldornot					INTEGER,
+		env4disensor_42_TodayAlarmShieldornot					INTEGER,
+		env4disensor_43_TodayAlarmShieldornot					INTEGER,
+		env4disensor_44_TimeAlarmShieldornot					INTEGER,
+		env4disensor_45_AlarmShieldornot					INTEGER,
+		env4disensor_46_Uninstall4DI01					INTEGER,
+		env4disensor_47_Uninstall4DI10					INTEGER,
+		env4disensor_48_Uninstall4DI11					INTEGER,
+		env4disensor_49_Uninstall4DI20					INTEGER,
+		env4disensor_50_Clear4DICommFailAlarm					INTEGER,
+		env4disensor_51_User4DI01DI1AlarmCriterion					INTEGER,
+		env4disensor_52_User4DI01DI2AlarmCriterion					INTEGER,
+		env4disensor_53_User4DI01DI3AlarmCriterion					INTEGER,
+		env4disensor_54_User4DI01DI4AlarmCriterion					INTEGER,
+		env4disensor_55_User4DI10DI1AlarmCriterion					INTEGER,
+		env4disensor_56_User4DI10DI2AlarmCriterion					INTEGER,
+		env4disensor_57_User4DI10DI3AlarmCriterion					INTEGER,
+		env4disensor_58_User4DI10DI4AlarmCriterion					INTEGER,
+		env4disensor_59_User4DI11DI1AlarmCriterion					INTEGER,
+		env4disensor_60_User4DI11DI2AlarmCriterion					INTEGER,
+		env4disensor_61_User4DI11DI3AlarmCriterion					INTEGER,
+		env4disensor_62_User4DI11DI4AlarmCriterion					INTEGER,
+		env4disensor_63_User4DI20DI1AlarmCriterion					INTEGER,
+		env4disensor_64_User4DI20DI2AlarmCriterion					INTEGER,
+		env4disensor_65_User4DI20DI3AlarmCriterion					INTEGER,
+		env4disensor_66_User4DI20DI4AlarmCriterion					INTEGER,
+		env4disensor_67_User4DI01DI1AlarmShieldEnable					INTEGER,
+		env4disensor_68_User4DI01DI2AlarmShieldEnable					INTEGER,
+		env4disensor_69_User4DI01DI3AlarmShieldEnable					INTEGER,
+		env4disensor_70_User4DI01DI4AlarmShieldEnable					INTEGER,
+		env4disensor_71_User4DI10DI1AlarmShieldEnable					INTEGER,
+		env4disensor_72_User4DI10DI2AlarmShieldEnable					INTEGER,
+		env4disensor_73_User4DI10DI3AlarmShieldEnable					INTEGER,
+		env4disensor_74_User4DI10DI4AlarmShieldEnable					INTEGER,
+		env4disensor_75_User4DI11DI1AlarmShieldEnable					INTEGER,
+		env4disensor_76_User4DI11DI2AlarmShieldEnable					INTEGER,
+		env4disensor_77_User4DI11DI3AlarmShieldEnable					INTEGER,
+		env4disensor_78_User4DI20DI1AlarmShieldEnable					INTEGER,
+		env4disensor_79_User4DI20DI2AlarmShieldEnable					INTEGER,
+		env4disensor_80_User4DI20DI3AlarmShieldEnable					INTEGER,
+		env4disensor_81_User4DI20DI4AlarmShieldEnable					INTEGER,
+		env4disensor_82_0017AlarmShieldEnable					INTEGER,
+		env4disensor_83_MondayAlarmShieldConfig					INTEGER,
+		env4disensor_84_TuesdayAlarmShieldConfig					INTEGER,
+		env4disensor_85_WednesdayAlarmShieldConfig					INTEGER,
+		env4disensor_86_ThursdayAlarmShieldConfig					INTEGER,
+		env4disensor_87_FridayAlarmShieldConfig					INTEGER,
+		env4disensor_88_SaturdayAlarmShieldConfig					INTEGER,
+		env4disensor_89_SundayAlarmShieldConfig					INTEGER,
+		env4disensor_90_AlarmShieldStartTime					Integer32,
+		env4disensor_91_AlarmShieldEndTime					Integer32 }
+env4disensorIndex OBJECT-TYPE
+		SYNTAX Integer32(1..91)
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION
+		"env4disensor System Entry Index."
+		::= { env4disensorEntry 1 }
+env4disensor_2_User4DI01DI1 OBJECT-TYPE
+		SYNTAX INTEGER {
+			normal(0),
+			alarm(1),
+			uninstalled(2),
+			leave(3) }
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION
+		"env4disensor_2_User4DI01DI1 status."
+		::= { env4disensorEntry 2 }
+env4disensor_3_User4DI01DI2 OBJECT-TYPE
+		SYNTAX INTEGER {
+			normal(0),
+			alarm(1),
+			uninstalled(2),
+			leave(3) }
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION
+		"env4disensor_3_User4DI01DI2 status."
+		::= { env4disensorEntry 3 }
+env4disensor_4_User4DI01DI3 OBJECT-TYPE
+		SYNTAX INTEGER {
+			normal(0),
+			alarm(1),
+			uninstalled(2),
+			leave(3) }
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION
+		"env4disensor_4_User4DI01DI3 status."
+		::= { env4disensorEntry 4 }
+env4disensor_5_User4DI01DI4 OBJECT-TYPE
+		SYNTAX INTEGER {
+			normal(0),
+			alarm(1),
+			uninstalled(2),
+			leave(3) }
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION
+		"env4disensor_5_User4DI01DI4 status."
+		::= { env4disensorEntry 5 }
+env4disensor_6_User4DI10DI1 OBJECT-TYPE
+		SYNTAX INTEGER {
+			normal(0),
+			alarm(1),
+			uninstalled(2),
+			leave(3) }
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION
+		"env4disensor_6_User4DI10DI1 status."
+		::= { env4disensorEntry 6 }
+env4disensor_7_User4DI10DI2 OBJECT-TYPE
+		SYNTAX INTEGER {
+			normal(0),
+			alarm(1),
+			uninstalled(2),
+			leave(3) }
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION
+		"env4disensor_7_User4DI10DI2 status."
+		::= { env4disensorEntry 7 }
+env4disensor_8_User4DI10DI3 OBJECT-TYPE
+		SYNTAX INTEGER {
+			normal(0),
+			alarm(1),
+			uninstalled(2),
+			leave(3) }
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION
+		"env4disensor_8_User4DI10DI3 status."
+		::= { env4disensorEntry 8 }
+env4disensor_9_User4DI10DI4 OBJECT-TYPE
+		SYNTAX INTEGER {
+			normal(0),
+			alarm(1),
+			uninstalled(2),
+			leave(3) }
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION
+		"env4disensor_9_User4DI10DI4 status."
+		::= { env4disensorEntry 9 }
+env4disensor_10_User4DI11DI1 OBJECT-TYPE
+		SYNTAX INTEGER {
+			normal(0),
+			alarm(1),
+			uninstalled(2),
+			leave(3) }
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION
+		"env4disensor_10_User4DI11DI1 status."
+		::= { env4disensorEntry 10 }
+env4disensor_11_User4DI11DI2 OBJECT-TYPE
+		SYNTAX INTEGER {
+			normal(0),
+			alarm(1),
+			uninstalled(2),
+			leave(3) }
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION
+		"env4disensor_11_User4DI11DI2 status."
+		::= { env4disensorEntry 11 }
+env4disensor_12_User4DI11DI3 OBJECT-TYPE
+		SYNTAX INTEGER {
+			normal(0),
+			alarm(1),
+			uninstalled(2),
+			leave(3) }
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION
+		"env4disensor_12_User4DI11DI3 status."
+		::= { env4disensorEntry 12 }
+env4disensor_13_User4DI11DI4 OBJECT-TYPE
+		SYNTAX INTEGER {
+			normal(0),
+			alarm(1),
+			uninstalled(2),
+			leave(3) }
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION
+		"env4disensor_13_User4DI11DI4 status."
+		::= { env4disensorEntry 13 }
+env4disensor_14_User4DI20DI1 OBJECT-TYPE
+		SYNTAX INTEGER {
+			normal(0),
+			alarm(1),
+			uninstalled(2),
+			leave(3) }
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION
+		"env4disensor_14_User4DI20DI1 status."
+		::= { env4disensorEntry 14 }
+env4disensor_15_User4DI20DI2 OBJECT-TYPE
+		SYNTAX INTEGER {
+			normal(0),
+			alarm(1),
+			uninstalled(2),
+			leave(3) }
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION
+		"env4disensor_15_User4DI20DI2 status."
+		::= { env4disensorEntry 15 }
+env4disensor_16_User4DI20DI3 OBJECT-TYPE
+		SYNTAX INTEGER {
+			normal(0),
+			alarm(1),
+			uninstalled(2),
+			leave(3) }
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION
+		"env4disensor_16_User4DI20DI3 status."
+		::= { env4disensorEntry 16 }
+env4disensor_17_User4DI20DI4 OBJECT-TYPE
+		SYNTAX INTEGER {
+			normal(0),
+			alarm(1),
+			uninstalled(2),
+			leave(3) }
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION
+		"env4disensor_17_User4DI20DI4 status."
+		::= { env4disensorEntry 17 }
+env4disensor_18_Fixed4DI01Door1 OBJECT-TYPE
+		SYNTAX INTEGER {
+			normal(0),
+			alarm(1),
+			uninstalled(2),
+			leave(3) }
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION
+		"env4disensor_18_Fixed4DI01Door1 status."
+		::= { env4disensorEntry 18 }
+env4disensor_19_Fixed4DI01Door2 OBJECT-TYPE
+		SYNTAX INTEGER {
+			normal(0),
+			alarm(1),
+			uninstalled(2),
+			leave(3) }
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION
+		"env4disensor_19_Fixed4DI01Door2 status."
+		::= { env4disensorEntry 19 }
+env4disensor_20_Fixed4DI01Water OBJECT-TYPE
+		SYNTAX INTEGER {
+			normal(0),
+			alarm(1),
+			uninstalled(2),
+			leave(3) }
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION
+		"env4disensor_20_Fixed4DI01Water status."
+		::= { env4disensorEntry 20 }
+env4disensor_21_Fixed4DI01Smoke OBJECT-TYPE
+		SYNTAX INTEGER {
+			normal(0),
+			alarm(1),
+			uninstalled(2),
+			leave(3) }
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION
+		"env4disensor_21_Fixed4DI01Smoke status."
+		::= { env4disensorEntry 21 }
+env4disensor_22_Fixed4DI10Door1 OBJECT-TYPE
+		SYNTAX INTEGER {
+			normal(0),
+			alarm(1),
+			uninstalled(2),
+			leave(3) }
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION
+		"env4disensor_22_Fixed4DI10Door1 status."
+		::= { env4disensorEntry 22 }
+env4disensor_23_Fixed4DI10Door2 OBJECT-TYPE
+		SYNTAX INTEGER {
+			normal(0),
+			alarm(1),
+			uninstalled(2),
+			leave(3) }
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION
+		"env4disensor_23_Fixed4DI10Door2 status."
+		::= { env4disensorEntry 23 }
+env4disensor_24_Fixed4DI10Water OBJECT-TYPE
+		SYNTAX INTEGER {
+			normal(0),
+			alarm(1),
+			uninstalled(2),
+			leave(3) }
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION
+		"env4disensor_24_Fixed4DI10Water status."
+		::= { env4disensorEntry 24 }
+env4disensor_25_Fixed4DI10Smoke OBJECT-TYPE
+		SYNTAX INTEGER {
+			normal(0),
+			alarm(1),
+			uninstalled(2),
+			leave(3) }
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION
+		"env4disensor_25_Fixed4DI10Smoke status."
+		::= { env4disensorEntry 25 }
+env4disensor_26_Fixed4DI11Door1 OBJECT-TYPE
+		SYNTAX INTEGER {
+			normal(0),
+			alarm(1),
+			uninstalled(2),
+			leave(3) }
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION
+		"env4disensor_26_Fixed4DI11Door1 status."
+		::= { env4disensorEntry 26 }
+env4disensor_27_Fixed4DI11Door2 OBJECT-TYPE
+		SYNTAX INTEGER {
+			normal(0),
+			alarm(1),
+			uninstalled(2),
+			leave(3) }
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION
+		"env4disensor_27_Fixed4DI11Door2 status."
+		::= { env4disensorEntry 27 }
+env4disensor_28_Fixed4DI11Water OBJECT-TYPE
+		SYNTAX INTEGER {
+			normal(0),
+			alarm(1),
+			uninstalled(2),
+			leave(3) }
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION
+		"env4disensor_28_Fixed4DI11Water status."
+		::= { env4disensorEntry 28 }
+env4disensor_29_Fixed4DI11Smoke OBJECT-TYPE
+		SYNTAX INTEGER {
+			normal(0),
+			alarm(1),
+			uninstalled(2),
+			leave(3) }
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION
+		"env4disensor_29_Fixed4DI11Smoke status."
+		::= { env4disensorEntry 29 }
+env4disensor_30_Fixed4DI20Door1 OBJECT-TYPE
+		SYNTAX INTEGER {
+			normal(0),
+			alarm(1),
+			uninstalled(2),
+			leave(3) }
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION
+		"env4disensor_30_Fixed4DI20Door1 status."
+		::= { env4disensorEntry 30 }
+env4disensor_31_Fixed4DI20Door2 OBJECT-TYPE
+		SYNTAX INTEGER {
+			normal(0),
+			alarm(1),
+			uninstalled(2),
+			leave(3) }
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION
+		"env4disensor_31_Fixed4DI20Door2 status."
+		::= { env4disensorEntry 31 }
+env4disensor_32_Fixed4DI20Water OBJECT-TYPE
+		SYNTAX INTEGER {
+			normal(0),
+			alarm(1),
+			uninstalled(2),
+			leave(3) }
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION
+		"env4disensor_32_Fixed4DI20Water status."
+		::= { env4disensorEntry 32 }
+env4disensor_33_Fixed4DI20Smoke OBJECT-TYPE
+		SYNTAX INTEGER {
+			normal(0),
+			alarm(1),
+			uninstalled(2),
+			leave(3) }
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION
+		"env4disensor_33_Fixed4DI20Smoke status."
+		::= { env4disensorEntry 33 }
+env4disensor_34_4DI01CommStatus OBJECT-TYPE
+		SYNTAX INTEGER {
+			normal(0),
+			failure(1) }
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION
+		"env4disensor_34_4DI01CommStatus status."
+		::= { env4disensorEntry 34 }
+env4disensor_35_4DI10CommStatus OBJECT-TYPE
+		SYNTAX INTEGER {
+			normal(0),
+			failure(1) }
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION
+		"env4disensor_35_4DI10CommStatus status."
+		::= { env4disensorEntry 35 }
+env4disensor_36_4DI11CommStatus OBJECT-TYPE
+		SYNTAX INTEGER {
+			normal(0),
+			failure(1) }
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION
+		"env4disensor_36_4DI11CommStatus status."
+		::= { env4disensorEntry 36 }
+env4disensor_37_4DI20CommStatus OBJECT-TYPE
+		SYNTAX INTEGER {
+			normal(0),
+			failure(1) }
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION
+		"env4disensor_37_4DI20CommStatus status."
+		::= { env4disensorEntry 37 }
+env4disensor_38_4DINumber OBJECT-TYPE
+		SYNTAX Integer32
+		
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION
+		"env4disensor_38_4DINumber stored as 1."
+		::= { env4disensorEntry 38 }
+env4disensor_39_DayoftheWeek OBJECT-TYPE
+		SYNTAX Integer32
+		
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION
+		"env4disensor_39_DayoftheWeek stored as 1."
+		::= { env4disensorEntry 39 }
+env4disensor_40_CurrentTime OBJECT-TYPE
+		SYNTAX Integer32
+		
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION
+		"env4disensor_40_CurrentTime stored as 0.1Hour."
+		::= { env4disensorEntry 40 }
+env4disensor_41_TodayAlarmShieldornot OBJECT-TYPE
+		SYNTAX INTEGER {
+			noshield(0),
+			shieldbytime(1) }
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION
+		"env4disensor_41_TodayAlarmShieldornot status."
+		::= { env4disensorEntry 41 }
+env4disensor_42_TodayAlarmShieldornot OBJECT-TYPE
+		SYNTAX INTEGER {
+			noshield(0),
+			shieldbytime(1) }
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION
+		"env4disensor_42_TodayAlarmShieldornot status."
+		::= { env4disensorEntry 42 }
+env4disensor_43_TodayAlarmShieldornot OBJECT-TYPE
+		SYNTAX INTEGER {
+			noshield(0),
+			shieldbytime(1) }
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION
+		"env4disensor_43_TodayAlarmShieldornot status."
+		::= { env4disensorEntry 43 }
+env4disensor_44_TimeAlarmShieldornot OBJECT-TYPE
+		SYNTAX INTEGER {
+			noshield(0),
+			shieldbytime(1) }
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION
+		"env4disensor_44_TimeAlarmShieldornot status."
+		::= { env4disensorEntry 44 }
+env4disensor_45_AlarmShieldornot OBJECT-TYPE
+		SYNTAX INTEGER {
+			noshield(0),
+			shieldbytime(1) }
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION
+		"env4disensor_45_AlarmShieldornot status."
+		::= { env4disensorEntry 45 }
+env4disensor_46_Uninstall4DI01 OBJECT-TYPE
+		SYNTAX INTEGER {
+			door1di1(0),
+			door2di2(1),
+			waterdi3(2),
+			smokedi4(3),
+			alldi(4) }
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+		"env4disensor_46_Uninstall4DI01 status."
+		::= { env4disensorEntry 50 }
+env4disensor_47_Uninstall4DI10 OBJECT-TYPE
+		SYNTAX INTEGER {
+			door1di1(0),
+			door2di2(1),
+			waterdi3(2),
+			smokedi4(3),
+			alldi(4) }
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+		"env4disensor_47_Uninstall4DI10 status."
+		::= { env4disensorEntry 51 }
+env4disensor_48_Uninstall4DI11 OBJECT-TYPE
+		SYNTAX INTEGER {
+			door1di1(0),
+			door2di2(1),
+			waterdi3(2),
+			smokedi4(3),
+			alldi(4) }
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+		"env4disensor_48_Uninstall4DI11 status."
+		::= { env4disensorEntry 52 }
+env4disensor_49_Uninstall4DI20 OBJECT-TYPE
+		SYNTAX INTEGER {
+			door1di1(0),
+			door2di2(1),
+			waterdi3(2),
+			smokedi4(3),
+			alldi(4) }
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+		"env4disensor_49_Uninstall4DI20 status."
+		::= { env4disensorEntry 53 }
+env4disensor_50_Clear4DICommFailAlarm OBJECT-TYPE
+		SYNTAX INTEGER {
+			clear(1) }
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+		"env4disensor_50_Clear4DICommFailAlarm status."
+		::= { env4disensorEntry 54 }
+env4disensor_51_User4DI01DI1AlarmCriterion OBJECT-TYPE
+		SYNTAX INTEGER {
+			open(0),
+			close(1) }
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+		"env4disensor_51_User4DI01DI1AlarmCriterion status."
+		::= { env4disensorEntry 55 }
+env4disensor_52_User4DI01DI2AlarmCriterion OBJECT-TYPE
+		SYNTAX INTEGER {
+			open(0),
+			close(1) }
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+		"env4disensor_52_User4DI01DI2AlarmCriterion status."
+		::= { env4disensorEntry 56 }
+env4disensor_53_User4DI01DI3AlarmCriterion OBJECT-TYPE
+		SYNTAX INTEGER {
+			open(0),
+			close(1) }
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+		"env4disensor_53_User4DI01DI3AlarmCriterion status."
+		::= { env4disensorEntry 57 }
+env4disensor_54_User4DI01DI4AlarmCriterion OBJECT-TYPE
+		SYNTAX INTEGER {
+			open(0),
+			close(1) }
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+		"env4disensor_54_User4DI01DI4AlarmCriterion status."
+		::= { env4disensorEntry 58 }
+env4disensor_55_User4DI10DI1AlarmCriterion OBJECT-TYPE
+		SYNTAX INTEGER {
+			open(0),
+			close(1) }
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+		"env4disensor_55_User4DI10DI1AlarmCriterion status."
+		::= { env4disensorEntry 59 }
+env4disensor_56_User4DI10DI2AlarmCriterion OBJECT-TYPE
+		SYNTAX INTEGER {
+			open(0),
+			close(1) }
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+		"env4disensor_56_User4DI10DI2AlarmCriterion status."
+		::= { env4disensorEntry 60 }
+env4disensor_57_User4DI10DI3AlarmCriterion OBJECT-TYPE
+		SYNTAX INTEGER {
+			open(0),
+			close(1) }
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+		"env4disensor_57_User4DI10DI3AlarmCriterion status."
+		::= { env4disensorEntry 61 }
+env4disensor_58_User4DI10DI4AlarmCriterion OBJECT-TYPE
+		SYNTAX INTEGER {
+			open(0),
+			close(1) }
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+		"env4disensor_58_User4DI10DI4AlarmCriterion status."
+		::= { env4disensorEntry 62 }
+env4disensor_59_User4DI11DI1AlarmCriterion OBJECT-TYPE
+		SYNTAX INTEGER {
+			open(0),
+			close(1) }
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+		"env4disensor_59_User4DI11DI1AlarmCriterion status."
+		::= { env4disensorEntry 63 }
+env4disensor_60_User4DI11DI2AlarmCriterion OBJECT-TYPE
+		SYNTAX INTEGER {
+			open(0),
+			close(1) }
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+		"env4disensor_60_User4DI11DI2AlarmCriterion status."
+		::= { env4disensorEntry 64 }
+env4disensor_61_User4DI11DI3AlarmCriterion OBJECT-TYPE
+		SYNTAX INTEGER {
+			open(0),
+			close(1) }
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+		"env4disensor_61_User4DI11DI3AlarmCriterion status."
+		::= { env4disensorEntry 65 }
+env4disensor_62_User4DI11DI4AlarmCriterion OBJECT-TYPE
+		SYNTAX INTEGER {
+			open(0),
+			close(1) }
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+		"env4disensor_62_User4DI11DI4AlarmCriterion status."
+		::= { env4disensorEntry 66 }
+env4disensor_63_User4DI20DI1AlarmCriterion OBJECT-TYPE
+		SYNTAX INTEGER {
+			open(0),
+			close(1) }
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+		"env4disensor_63_User4DI20DI1AlarmCriterion status."
+		::= { env4disensorEntry 67 }
+env4disensor_64_User4DI20DI2AlarmCriterion OBJECT-TYPE
+		SYNTAX INTEGER {
+			open(0),
+			close(1) }
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+		"env4disensor_64_User4DI20DI2AlarmCriterion status."
+		::= { env4disensorEntry 68 }
+env4disensor_65_User4DI20DI3AlarmCriterion OBJECT-TYPE
+		SYNTAX INTEGER {
+			open(0),
+			close(1) }
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+		"env4disensor_65_User4DI20DI3AlarmCriterion status."
+		::= { env4disensorEntry 69 }
+env4disensor_66_User4DI20DI4AlarmCriterion OBJECT-TYPE
+		SYNTAX INTEGER {
+			open(0),
+			close(1) }
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+		"env4disensor_66_User4DI20DI4AlarmCriterion status."
+		::= { env4disensorEntry 70 }
+env4disensor_67_User4DI01DI1AlarmShieldEnable OBJECT-TYPE
+		SYNTAX INTEGER {
+			disable(0),
+			enable(1) }
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+		"env4disensor_67_User4DI01DI1AlarmShieldEnable status."
+		::= { env4disensorEntry 71 }
+env4disensor_68_User4DI01DI2AlarmShieldEnable OBJECT-TYPE
+		SYNTAX INTEGER {
+			disable(0),
+			enable(1) }
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+		"env4disensor_68_User4DI01DI2AlarmShieldEnable status."
+		::= { env4disensorEntry 72 }
+env4disensor_69_User4DI01DI3AlarmShieldEnable OBJECT-TYPE
+		SYNTAX INTEGER {
+			disable(0),
+			enable(1) }
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+		"env4disensor_69_User4DI01DI3AlarmShieldEnable status."
+		::= { env4disensorEntry 73 }
+env4disensor_70_User4DI01DI4AlarmShieldEnable OBJECT-TYPE
+		SYNTAX INTEGER {
+			disable(0),
+			enable(1) }
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+		"env4disensor_70_User4DI01DI4AlarmShieldEnable status."
+		::= { env4disensorEntry 74 }
+env4disensor_71_User4DI10DI1AlarmShieldEnable OBJECT-TYPE
+		SYNTAX INTEGER {
+			disable(0),
+			enable(1) }
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+		"env4disensor_71_User4DI10DI1AlarmShieldEnable status."
+		::= { env4disensorEntry 75 }
+env4disensor_72_User4DI10DI2AlarmShieldEnable OBJECT-TYPE
+		SYNTAX INTEGER {
+			disable(0),
+			enable(1) }
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+		"env4disensor_72_User4DI10DI2AlarmShieldEnable status."
+		::= { env4disensorEntry 76 }
+env4disensor_73_User4DI10DI3AlarmShieldEnable OBJECT-TYPE
+		SYNTAX INTEGER {
+			disable(0),
+			enable(1) }
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+		"env4disensor_73_User4DI10DI3AlarmShieldEnable status."
+		::= { env4disensorEntry 77 }
+env4disensor_74_User4DI10DI4AlarmShieldEnable OBJECT-TYPE
+		SYNTAX INTEGER {
+			disable(0),
+			enable(1) }
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+		"env4disensor_74_User4DI10DI4AlarmShieldEnable status."
+		::= { env4disensorEntry 78 }
+env4disensor_75_User4DI11DI1AlarmShieldEnable OBJECT-TYPE
+		SYNTAX INTEGER {
+			disable(0),
+			enable(1) }
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+		"env4disensor_75_User4DI11DI1AlarmShieldEnable status."
+		::= { env4disensorEntry 79 }
+env4disensor_76_User4DI11DI2AlarmShieldEnable OBJECT-TYPE
+		SYNTAX INTEGER {
+			disable(0),
+			enable(1) }
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+		"env4disensor_76_User4DI11DI2AlarmShieldEnable status."
+		::= { env4disensorEntry 80 }
+env4disensor_77_User4DI11DI3AlarmShieldEnable OBJECT-TYPE
+		SYNTAX INTEGER {
+			disable(0),
+			enable(1) }
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+		"env4disensor_77_User4DI11DI3AlarmShieldEnable status."
+		::= { env4disensorEntry 81 }
+env4disensor_78_User4DI20DI1AlarmShieldEnable OBJECT-TYPE
+		SYNTAX INTEGER {
+			disable(0),
+			enable(1) }
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+		"env4disensor_78_User4DI20DI1AlarmShieldEnable status."
+		::= { env4disensorEntry 82 }
+env4disensor_79_User4DI20DI2AlarmShieldEnable OBJECT-TYPE
+		SYNTAX INTEGER {
+			disable(0),
+			enable(1) }
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+		"env4disensor_79_User4DI20DI2AlarmShieldEnable status."
+		::= { env4disensorEntry 83 }
+env4disensor_80_User4DI20DI3AlarmShieldEnable OBJECT-TYPE
+		SYNTAX INTEGER {
+			disable(0),
+			enable(1) }
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+		"env4disensor_80_User4DI20DI3AlarmShieldEnable status."
+		::= { env4disensorEntry 84 }
+env4disensor_81_User4DI20DI4AlarmShieldEnable OBJECT-TYPE
+		SYNTAX INTEGER {
+			disable(0),
+			enable(1) }
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+		"env4disensor_81_User4DI20DI4AlarmShieldEnable status."
+		::= { env4disensorEntry 85 }
+env4disensor_82_0017AlarmShieldEnable OBJECT-TYPE
+		SYNTAX INTEGER {
+			disable(0),
+			enable(1) }
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+		"env4disensor_82_0017AlarmShieldEnable status."
+		::= { env4disensorEntry 86 }
+env4disensor_83_MondayAlarmShieldConfig OBJECT-TYPE
+		SYNTAX INTEGER {
+			noshield(0),
+			shieldbytime(1) }
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+		"env4disensor_83_MondayAlarmShieldConfig status."
+		::= { env4disensorEntry 87 }
+env4disensor_84_TuesdayAlarmShieldConfig OBJECT-TYPE
+		SYNTAX INTEGER {
+			noshield(0),
+			shieldbytime(1) }
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+		"env4disensor_84_TuesdayAlarmShieldConfig status."
+		::= { env4disensorEntry 88 }
+env4disensor_85_WednesdayAlarmShieldConfig OBJECT-TYPE
+		SYNTAX INTEGER {
+			noshield(0),
+			shieldbytime(1) }
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+		"env4disensor_85_WednesdayAlarmShieldConfig status."
+		::= { env4disensorEntry 89 }
+env4disensor_86_ThursdayAlarmShieldConfig OBJECT-TYPE
+		SYNTAX INTEGER {
+			noshield(0),
+			shieldbytime(1) }
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+		"env4disensor_86_ThursdayAlarmShieldConfig status."
+		::= { env4disensorEntry 90 }
+env4disensor_87_FridayAlarmShieldConfig OBJECT-TYPE
+		SYNTAX INTEGER {
+			noshield(0),
+			shieldbytime(1) }
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+		"env4disensor_87_FridayAlarmShieldConfig status."
+		::= { env4disensorEntry 91 }
+env4disensor_88_SaturdayAlarmShieldConfig OBJECT-TYPE
+		SYNTAX INTEGER {
+			noshield(0),
+			shieldbytime(1) }
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+		"env4disensor_88_SaturdayAlarmShieldConfig status."
+		::= { env4disensorEntry 92 }
+env4disensor_89_SundayAlarmShieldConfig OBJECT-TYPE
+		SYNTAX INTEGER {
+			noshield(0),
+			shieldbytime(1) }
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+		"env4disensor_89_SundayAlarmShieldConfig status."
+		::= { env4disensorEntry 93 }
+env4disensor_90_AlarmShieldStartTime OBJECT-TYPE
+		SYNTAX Integer32
+		
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+		"env4disensor_90_AlarmShieldStartTime stored as 1h."
+		::= { env4disensorEntry 94 }
+env4disensor_91_AlarmShieldEndTime OBJECT-TYPE
+		SYNTAX Integer32
+		
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+		"env4disensor_91_AlarmShieldEndTime stored as 1h."
+		::= { env4disensorEntry 95 }
+
+------------------------------------------------------------
+-- 8diaidiai { 13400.3.5.529 }
+------------------------------------------------------------
+env-8diaidiai OBJECT IDENTIFIER ::= { env 529 }
+env8diaidiaiTable OBJECT-TYPE
+		SYNTAX			SEQUENCE OF Env8diaidiaiEntry
+		MAX-ACCESS		not-accessible
+		STATUS			current
+		DESCRIPTION	"env8diaidiaiTable"
+		::=			{ env-8diaidiai 1 }
+env8diaidiaiEntry OBJECT-TYPE
+		SYNTAX			Env8diaidiaiEntry
+		MAX-ACCESS		not-accessible
+		STATUS			current
+		DESCRIPTION		"env8diaidiaiEntry"
+		INDEX			{ env8diaidiaiIndex }
+		::=				{ env8diaidiaiTable 1 }
+Env8diaidiaiEntry ::= SEQUENCE {
+		env8diaidiaiIndex					Integer32,
+		env8diaidiai_2_QuenchAlarm					INTEGER,
+		env8diaidiai_3_HeliumAlarm					INTEGER,
+		env8diaidiai_4_PowerAvailableAlarm					INTEGER,
+		env8diaidiai_5_ACAlarm					INTEGER,
+		env8diaidiai_6_ChillerAlarm					INTEGER,
+		env8diaidiai_7_Port6Spare					INTEGER,
+		env8diaidiai_8_Port7Spare					INTEGER,
+		env8diaidiai_9_Port8Spare					INTEGER,
+		env8diaidiai_10_QUENCHALARM					INTEGER,
+		env8diaidiai_11_HELIUMALARM					INTEGER,
+		env8diaidiai_12_CHILLERALARM					INTEGER,
+		env8diaidiai_13_ACALARM					INTEGER,
+		env8diaidiai_14_POWERAVAILABLE					INTEGER,
+		env8diaidiai_15_Port6Spare					INTEGER,
+		env8diaidiai_16_Port7Spare					INTEGER,
+		env8diaidiai_17_Port8Status					INTEGER,
+		env8diaidiai_18_AIV1					Integer32,
+		env8diaidiai_19_AIV2					Integer32,
+		env8diaidiai_20_AIV3					Integer32,
+		env8diaidiai_21_AIV4					Integer32,
+		env8diaidiai_22_AIV5					Integer32,
+		env8diaidiai_23_AIV6					Integer32,
+		env8diaidiai_24_AIV7					Integer32,
+		env8diaidiai_25_AIV8					Integer32,
+		env8diaidiai_26_AII1					Integer32,
+		env8diaidiai_27_AII2					Integer32,
+		env8diaidiai_28_AII3					Integer32,
+		env8diaidiai_29_AII4					Integer32,
+		env8diaidiai_30_AII5					Integer32,
+		env8diaidiai_31_AII6					Integer32,
+		env8diaidiai_32_AII7					Integer32,
+		env8diaidiai_33_AII8					Integer32,
+		env8diaidiai_34_Port1SampleValue					Integer32,
+		env8diaidiai_35_Port2SampleValue					Integer32,
+		env8diaidiai_36_Port3SampleValue					Integer32,
+		env8diaidiai_37_Port4SampleValue					Integer32,
+		env8diaidiai_38_Port5SampleValue					Integer32,
+		env8diaidiai_39_Port6SampleValue					Integer32,
+		env8diaidiai_40_Port7SampleValue					Integer32,
+		env8diaidiai_41_Port8SampleValue					Integer32,
+		env8diaidiai_42_ClearPort1FallOffAlarm					INTEGER,
+		env8diaidiai_43_ClearPort2FallOffAlarm					INTEGER,
+		env8diaidiai_44_ClearPort3FallOffAlarm					INTEGER,
+		env8diaidiai_45_ClearPort4FallOffAlarm					INTEGER,
+		env8diaidiai_46_ClearPort5FallOffAlarm					INTEGER,
+		env8diaidiai_47_ClearPort6FallOffAlarm					INTEGER,
+		env8diaidiai_48_ClearPort7FallOffAlarm					INTEGER,
+		env8diaidiai_49_ClearPort8FallOffAlarm					INTEGER,
+		env8diaidiai_50_Port1ConfigStatus					INTEGER,
+		env8diaidiai_51_Port2ConfigStatus					INTEGER,
+		env8diaidiai_52_Port3ConfigStatus					INTEGER,
+		env8diaidiai_53_Port4ConfigStatus					INTEGER,
+		env8diaidiai_54_Port5ConfigStatus					INTEGER,
+		env8diaidiai_55_Port6ConfigStatus					INTEGER,
+		env8diaidiai_56_Port7ConfigStatus					INTEGER,
+		env8diaidiai_57_Port8ConfigStatus					INTEGER,
+		env8diaidiai_58_Port1SampleValueLowerRangeLimit					Integer32,
+		env8diaidiai_59_Port1SampleValueUpperRangeLimit					Integer32,
+		env8diaidiai_60_Port1SampleValueLowerAlarmLimit					Integer32,
+		env8diaidiai_61_Port1SampleValueUpperAlarmLimit					Integer32,
+		env8diaidiai_62_Port2SampleValueLowerRangeLimit					Integer32,
+		env8diaidiai_63_Port2SampleValueUpperRangeLimit					Integer32,
+		env8diaidiai_64_Port2SampleValueLowerAlarmLimit					Integer32,
+		env8diaidiai_65_Port2SampleValueUpperAlarmLimit					Integer32,
+		env8diaidiai_66_Port3SampleValueLowerRangeLimit					Integer32,
+		env8diaidiai_67_Port3SampleValueUpperRangeLimit					Integer32,
+		env8diaidiai_68_Port3SampleValueLowerAlarmLimit					Integer32,
+		env8diaidiai_69_Port3SampleValueUpperAlarmLimit					Integer32,
+		env8diaidiai_70_Port4SampleValueLowerRangeLimit					Integer32,
+		env8diaidiai_71_Port4SampleValueUpperRangeLimit					Integer32,
+		env8diaidiai_72_Port4SampleValueLowerAlarmLimit					Integer32,
+		env8diaidiai_73_Port4SampleValueUpperAlarmLimit					Integer32,
+		env8diaidiai_74_Port5SampleValueLowerRangeLimit					Integer32,
+		env8diaidiai_75_Port5SampleValueUpperRangeLimit					Integer32,
+		env8diaidiai_76_Port5SampleValueLowerAlarmLimit					Integer32,
+		env8diaidiai_77_Port5SampleValueUpperAlarmLimit					Integer32,
+		env8diaidiai_78_Port6SampleValueLowerRangeLimit					Integer32,
+		env8diaidiai_79_Port6SampleValueUpperRangeLimit					Integer32,
+		env8diaidiai_80_Port6SampleValueLowerAlarmLimit					Integer32,
+		env8diaidiai_81_Port6SampleValueUpperAlarmLimit					Integer32,
+		env8diaidiai_82_Port7SampleValueLowerRangeLimit					Integer32,
+		env8diaidiai_83_Port7SampleValueUpperRangeLimit					Integer32,
+		env8diaidiai_84_Port7SampleValueLowerAlarmLimit					Integer32,
+		env8diaidiai_85_Port7SampleValueUpperAlarmLimit					Integer32,
+		env8diaidiai_86_Port8SampleValueLowerRangeLimit					Integer32,
+		env8diaidiai_87_Port8SampleValueUpperRangeLimit					Integer32,
+		env8diaidiai_88_Port8SampleValueLowerAlarmLimit					Integer32,
+		env8diaidiai_89_Port8SampleValueUpperAlarmLimit					Integer32,
+		env8diaidiai_90_QuenchAlarmAlarmCriterion					INTEGER,
+		env8diaidiai_91_HeliumAlarmAlarmCriterion					INTEGER,
+		env8diaidiai_92_PowerAvailableAlarmAlarmCriterion					INTEGER,
+		env8diaidiai_93_ACAlarmAlarmCriterion					INTEGER,
+		env8diaidiai_94_ChillerAlarmAlarmCriterion					INTEGER,
+		env8diaidiai_95_Port6SpareAlarmCriterion					INTEGER,
+		env8diaidiai_96_Port7SpareAlarmCriterion					INTEGER,
+		env8diaidiai_97_Port8SpareAlarmCriterion					INTEGER }
+env8diaidiaiIndex OBJECT-TYPE
+		SYNTAX Integer32(1..97)
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION
+		"env8diaidiai System Entry Index."
+		::= { env8diaidiaiEntry 1 }
+env8diaidiai_2_QuenchAlarm OBJECT-TYPE
+		SYNTAX INTEGER {
+			normal(0),
+			alarm(1),
+			overcurrentprotection(2) }
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION
+		"env8diaidiai_2_QuenchAlarm status."
+		::= { env8diaidiaiEntry 2 }
+env8diaidiai_3_HeliumAlarm OBJECT-TYPE
+		SYNTAX INTEGER {
+			normal(0),
+			alarm(1),
+			overcurrentprotection(2) }
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION
+		"env8diaidiai_3_HeliumAlarm status."
+		::= { env8diaidiaiEntry 3 }
+env8diaidiai_4_PowerAvailableAlarm OBJECT-TYPE
+		SYNTAX INTEGER {
+			normal(0),
+			alarm(1),
+			overcurrentprotection(2) }
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION
+		"env8diaidiai_4_PowerAvailableAlarm status."
+		::= { env8diaidiaiEntry 4 }
+env8diaidiai_5_ACAlarm OBJECT-TYPE
+		SYNTAX INTEGER {
+			normal(0),
+			alarm(1),
+			overcurrentprotection(2) }
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION
+		"env8diaidiai_5_ACAlarm status."
+		::= { env8diaidiaiEntry 5 }
+env8diaidiai_6_ChillerAlarm OBJECT-TYPE
+		SYNTAX INTEGER {
+			normal(0),
+			alarm(1),
+			overcurrentprotection(2) }
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION
+		"env8diaidiai_6_ChillerAlarm status."
+		::= { env8diaidiaiEntry 6 }
+env8diaidiai_7_Port6Spare OBJECT-TYPE
+		SYNTAX INTEGER {
+			normal(0),
+			alarm(1),
+			overcurrentprotection(2) }
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION
+		"env8diaidiai_7_Port6Spare status."
+		::= { env8diaidiaiEntry 7 }
+env8diaidiai_8_Port7Spare OBJECT-TYPE
+		SYNTAX INTEGER {
+			normal(0),
+			alarm(1),
+			overcurrentprotection(2) }
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION
+		"env8diaidiai_8_Port7Spare status."
+		::= { env8diaidiaiEntry 8 }
+env8diaidiai_9_Port8Spare OBJECT-TYPE
+		SYNTAX INTEGER {
+			normal(0),
+			alarm(1),
+			overcurrentprotection(2) }
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION
+		"env8diaidiai_9_Port8Spare status."
+		::= { env8diaidiaiEntry 9 }
+env8diaidiai_10_QUENCHALARM OBJECT-TYPE
+		SYNTAX INTEGER {
+			normal(0),
+			notconnected(1),
+			notinstalled(2) }
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION
+		"env8diaidiai_10_QUENCHALARM status."
+		::= { env8diaidiaiEntry 10 }
+env8diaidiai_11_HELIUMALARM OBJECT-TYPE
+		SYNTAX INTEGER {
+			normal(0),
+			notconnected(1),
+			notinstalled(2) }
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION
+		"env8diaidiai_11_HELIUMALARM status."
+		::= { env8diaidiaiEntry 11 }
+env8diaidiai_12_CHILLERALARM OBJECT-TYPE
+		SYNTAX INTEGER {
+			normal(0),
+			notconnected(1),
+			notinstalled(2) }
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION
+		"env8diaidiai_12_CHILLERALARM status."
+		::= { env8diaidiaiEntry 12 }
+env8diaidiai_13_ACALARM OBJECT-TYPE
+		SYNTAX INTEGER {
+			normal(0),
+			notconnected(1),
+			notinstalled(2) }
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION
+		"env8diaidiai_13_ACALARM status."
+		::= { env8diaidiaiEntry 13 }
+env8diaidiai_14_POWERAVAILABLE OBJECT-TYPE
+		SYNTAX INTEGER {
+			normal(0),
+			notconnected(1),
+			notinstalled(2) }
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION
+		"env8diaidiai_14_POWERAVAILABLE status."
+		::= { env8diaidiaiEntry 14 }
+env8diaidiai_15_Port6Spare OBJECT-TYPE
+		SYNTAX INTEGER {
+			normal(0),
+			notconnected(1),
+			notinstalled(2) }
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION
+		"env8diaidiai_15_Port6Spare status."
+		::= { env8diaidiaiEntry 15 }
+env8diaidiai_16_Port7Spare OBJECT-TYPE
+		SYNTAX INTEGER {
+			normal(0),
+			notconnected(1),
+			notinstalled(2) }
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION
+		"env8diaidiai_16_Port7Spare status."
+		::= { env8diaidiaiEntry 16 }
+env8diaidiai_17_Port8Status OBJECT-TYPE
+		SYNTAX INTEGER {
+			normal(0),
+			notconnected(1),
+			notinstalled(2) }
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION
+		"env8diaidiai_17_Port8Status status."
+		::= { env8diaidiaiEntry 17 }
+env8diaidiai_18_AIV1 OBJECT-TYPE
+		SYNTAX Integer32
+		
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION
+		"env8diaidiai_18_AIV1 stored as 0.1V."
+		::= { env8diaidiaiEntry 18 }
+env8diaidiai_19_AIV2 OBJECT-TYPE
+		SYNTAX Integer32
+		
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION
+		"env8diaidiai_19_AIV2 stored as 0.1V."
+		::= { env8diaidiaiEntry 19 }
+env8diaidiai_20_AIV3 OBJECT-TYPE
+		SYNTAX Integer32
+		
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION
+		"env8diaidiai_20_AIV3 stored as 0.1V."
+		::= { env8diaidiaiEntry 20 }
+env8diaidiai_21_AIV4 OBJECT-TYPE
+		SYNTAX Integer32
+		
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION
+		"env8diaidiai_21_AIV4 stored as 0.1V."
+		::= { env8diaidiaiEntry 21 }
+env8diaidiai_22_AIV5 OBJECT-TYPE
+		SYNTAX Integer32
+		
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION
+		"env8diaidiai_22_AIV5 stored as 0.1V."
+		::= { env8diaidiaiEntry 22 }
+env8diaidiai_23_AIV6 OBJECT-TYPE
+		SYNTAX Integer32
+		
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION
+		"env8diaidiai_23_AIV6 stored as 0.1V."
+		::= { env8diaidiaiEntry 23 }
+env8diaidiai_24_AIV7 OBJECT-TYPE
+		SYNTAX Integer32
+		
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION
+		"env8diaidiai_24_AIV7 stored as 0.1V."
+		::= { env8diaidiaiEntry 24 }
+env8diaidiai_25_AIV8 OBJECT-TYPE
+		SYNTAX Integer32
+		
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION
+		"env8diaidiai_25_AIV8 stored as 0.1V."
+		::= { env8diaidiaiEntry 25 }
+env8diaidiai_26_AII1 OBJECT-TYPE
+		SYNTAX Integer32
+		
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION
+		"env8diaidiai_26_AII1 stored as 0.1mA."
+		::= { env8diaidiaiEntry 26 }
+env8diaidiai_27_AII2 OBJECT-TYPE
+		SYNTAX Integer32
+		
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION
+		"env8diaidiai_27_AII2 stored as 0.1mA."
+		::= { env8diaidiaiEntry 27 }
+env8diaidiai_28_AII3 OBJECT-TYPE
+		SYNTAX Integer32
+		
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION
+		"env8diaidiai_28_AII3 stored as 0.1mA."
+		::= { env8diaidiaiEntry 28 }
+env8diaidiai_29_AII4 OBJECT-TYPE
+		SYNTAX Integer32
+		
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION
+		"env8diaidiai_29_AII4 stored as 0.1mA."
+		::= { env8diaidiaiEntry 29 }
+env8diaidiai_30_AII5 OBJECT-TYPE
+		SYNTAX Integer32
+		
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION
+		"env8diaidiai_30_AII5 stored as 0.1mA."
+		::= { env8diaidiaiEntry 30 }
+env8diaidiai_31_AII6 OBJECT-TYPE
+		SYNTAX Integer32
+		
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION
+		"env8diaidiai_31_AII6 stored as 0.1mA."
+		::= { env8diaidiaiEntry 31 }
+env8diaidiai_32_AII7 OBJECT-TYPE
+		SYNTAX Integer32
+		
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION
+		"env8diaidiai_32_AII7 stored as 0.1mA."
+		::= { env8diaidiaiEntry 32 }
+env8diaidiai_33_AII8 OBJECT-TYPE
+		SYNTAX Integer32
+		
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION
+		"env8diaidiai_33_AII8 stored as 0.1mA."
+		::= { env8diaidiaiEntry 33 }
+env8diaidiai_34_Port1SampleValue OBJECT-TYPE
+		SYNTAX Integer32
+		
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION
+		"env8diaidiai_34_Port1SampleValue stored as 0.1."
+		::= { env8diaidiaiEntry 50 }
+env8diaidiai_35_Port2SampleValue OBJECT-TYPE
+		SYNTAX Integer32
+		
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION
+		"env8diaidiai_35_Port2SampleValue stored as 0.1."
+		::= { env8diaidiaiEntry 51 }
+env8diaidiai_36_Port3SampleValue OBJECT-TYPE
+		SYNTAX Integer32
+		
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION
+		"env8diaidiai_36_Port3SampleValue stored as 0.1."
+		::= { env8diaidiaiEntry 52 }
+env8diaidiai_37_Port4SampleValue OBJECT-TYPE
+		SYNTAX Integer32
+		
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION
+		"env8diaidiai_37_Port4SampleValue stored as 0.1."
+		::= { env8diaidiaiEntry 53 }
+env8diaidiai_38_Port5SampleValue OBJECT-TYPE
+		SYNTAX Integer32
+		
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION
+		"env8diaidiai_38_Port5SampleValue stored as 0.1."
+		::= { env8diaidiaiEntry 54 }
+env8diaidiai_39_Port6SampleValue OBJECT-TYPE
+		SYNTAX Integer32
+		
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION
+		"env8diaidiai_39_Port6SampleValue stored as 0.1."
+		::= { env8diaidiaiEntry 55 }
+env8diaidiai_40_Port7SampleValue OBJECT-TYPE
+		SYNTAX Integer32
+		
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION
+		"env8diaidiai_40_Port7SampleValue stored as 0.1."
+		::= { env8diaidiaiEntry 56 }
+env8diaidiai_41_Port8SampleValue OBJECT-TYPE
+		SYNTAX Integer32
+		
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION
+		"env8diaidiai_41_Port8SampleValue stored as 0.1."
+		::= { env8diaidiaiEntry 57 }
+env8diaidiai_42_ClearPort1FallOffAlarm OBJECT-TYPE
+		SYNTAX INTEGER {
+			clear(1) }
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+		"env8diaidiai_42_ClearPort1FallOffAlarm status."
+		::= { env8diaidiaiEntry 58 }
+env8diaidiai_43_ClearPort2FallOffAlarm OBJECT-TYPE
+		SYNTAX INTEGER {
+			clear(1) }
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+		"env8diaidiai_43_ClearPort2FallOffAlarm status."
+		::= { env8diaidiaiEntry 59 }
+env8diaidiai_44_ClearPort3FallOffAlarm OBJECT-TYPE
+		SYNTAX INTEGER {
+			clear(1) }
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+		"env8diaidiai_44_ClearPort3FallOffAlarm status."
+		::= { env8diaidiaiEntry 60 }
+env8diaidiai_45_ClearPort4FallOffAlarm OBJECT-TYPE
+		SYNTAX INTEGER {
+			clear(1) }
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+		"env8diaidiai_45_ClearPort4FallOffAlarm status."
+		::= { env8diaidiaiEntry 61 }
+env8diaidiai_46_ClearPort5FallOffAlarm OBJECT-TYPE
+		SYNTAX INTEGER {
+			clear(1) }
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+		"env8diaidiai_46_ClearPort5FallOffAlarm status."
+		::= { env8diaidiaiEntry 62 }
+env8diaidiai_47_ClearPort6FallOffAlarm OBJECT-TYPE
+		SYNTAX INTEGER {
+			clear(1) }
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+		"env8diaidiai_47_ClearPort6FallOffAlarm status."
+		::= { env8diaidiaiEntry 63 }
+env8diaidiai_48_ClearPort7FallOffAlarm OBJECT-TYPE
+		SYNTAX INTEGER {
+			clear(1) }
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+		"env8diaidiai_48_ClearPort7FallOffAlarm status."
+		::= { env8diaidiaiEntry 64 }
+env8diaidiai_49_ClearPort8FallOffAlarm OBJECT-TYPE
+		SYNTAX INTEGER {
+			clear(1) }
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+		"env8diaidiai_49_ClearPort8FallOffAlarm status."
+		::= { env8diaidiaiEntry 65 }
+env8diaidiai_50_Port1ConfigStatus OBJECT-TYPE
+		SYNTAX INTEGER {
+			diinput(0),
+			aivoltageinput(1),
+			aicurrentinput(2),
+			notinstalled(3) }
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+		"env8diaidiai_50_Port1ConfigStatus status."
+		::= { env8diaidiaiEntry 66 }
+env8diaidiai_51_Port2ConfigStatus OBJECT-TYPE
+		SYNTAX INTEGER {
+			diinput(0),
+			aivoltageinput(1),
+			aicurrentinput(2),
+			notinstalled(3) }
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+		"env8diaidiai_51_Port2ConfigStatus status."
+		::= { env8diaidiaiEntry 67 }
+env8diaidiai_52_Port3ConfigStatus OBJECT-TYPE
+		SYNTAX INTEGER {
+			diinput(0),
+			aivoltageinput(1),
+			aicurrentinput(2),
+			notinstalled(3) }
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+		"env8diaidiai_52_Port3ConfigStatus status."
+		::= { env8diaidiaiEntry 68 }
+env8diaidiai_53_Port4ConfigStatus OBJECT-TYPE
+		SYNTAX INTEGER {
+			diinput(0),
+			aivoltageinput(1),
+			aicurrentinput(2),
+			notinstalled(3) }
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+		"env8diaidiai_53_Port4ConfigStatus status."
+		::= { env8diaidiaiEntry 69 }
+env8diaidiai_54_Port5ConfigStatus OBJECT-TYPE
+		SYNTAX INTEGER {
+			diinput(0),
+			aivoltageinput(1),
+			aicurrentinput(2),
+			notinstalled(3) }
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+		"env8diaidiai_54_Port5ConfigStatus status."
+		::= { env8diaidiaiEntry 70 }
+env8diaidiai_55_Port6ConfigStatus OBJECT-TYPE
+		SYNTAX INTEGER {
+			diinput(0),
+			aivoltageinput(1),
+			aicurrentinput(2),
+			notinstalled(3) }
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+		"env8diaidiai_55_Port6ConfigStatus status."
+		::= { env8diaidiaiEntry 71 }
+env8diaidiai_56_Port7ConfigStatus OBJECT-TYPE
+		SYNTAX INTEGER {
+			diinput(0),
+			aivoltageinput(1),
+			aicurrentinput(2),
+			notinstalled(3) }
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+		"env8diaidiai_56_Port7ConfigStatus status."
+		::= { env8diaidiaiEntry 72 }
+env8diaidiai_57_Port8ConfigStatus OBJECT-TYPE
+		SYNTAX INTEGER {
+			diinput(0),
+			aivoltageinput(1),
+			aicurrentinput(2),
+			notinstalled(3) }
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+		"env8diaidiai_57_Port8ConfigStatus status."
+		::= { env8diaidiaiEntry 73 }
+env8diaidiai_58_Port1SampleValueLowerRangeLimit OBJECT-TYPE
+		SYNTAX Integer32
+		
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+		"env8diaidiai_58_Port1SampleValueLowerRangeLimit stored as 1."
+		::= { env8diaidiaiEntry 74 }
+env8diaidiai_59_Port1SampleValueUpperRangeLimit OBJECT-TYPE
+		SYNTAX Integer32
+		
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+		"env8diaidiai_59_Port1SampleValueUpperRangeLimit stored as 1."
+		::= { env8diaidiaiEntry 75 }
+env8diaidiai_60_Port1SampleValueLowerAlarmLimit OBJECT-TYPE
+		SYNTAX Integer32
+		
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+		"env8diaidiai_60_Port1SampleValueLowerAlarmLimit stored as 1."
+		::= { env8diaidiaiEntry 76 }
+env8diaidiai_61_Port1SampleValueUpperAlarmLimit OBJECT-TYPE
+		SYNTAX Integer32
+		
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+		"env8diaidiai_61_Port1SampleValueUpperAlarmLimit stored as 1."
+		::= { env8diaidiaiEntry 77 }
+env8diaidiai_62_Port2SampleValueLowerRangeLimit OBJECT-TYPE
+		SYNTAX Integer32
+		
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+		"env8diaidiai_62_Port2SampleValueLowerRangeLimit stored as 1."
+		::= { env8diaidiaiEntry 78 }
+env8diaidiai_63_Port2SampleValueUpperRangeLimit OBJECT-TYPE
+		SYNTAX Integer32
+		
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+		"env8diaidiai_63_Port2SampleValueUpperRangeLimit stored as 1."
+		::= { env8diaidiaiEntry 79 }
+env8diaidiai_64_Port2SampleValueLowerAlarmLimit OBJECT-TYPE
+		SYNTAX Integer32
+		
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+		"env8diaidiai_64_Port2SampleValueLowerAlarmLimit stored as 1."
+		::= { env8diaidiaiEntry 80 }
+env8diaidiai_65_Port2SampleValueUpperAlarmLimit OBJECT-TYPE
+		SYNTAX Integer32
+		
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+		"env8diaidiai_65_Port2SampleValueUpperAlarmLimit stored as 1."
+		::= { env8diaidiaiEntry 81 }
+env8diaidiai_66_Port3SampleValueLowerRangeLimit OBJECT-TYPE
+		SYNTAX Integer32
+		
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+		"env8diaidiai_66_Port3SampleValueLowerRangeLimit stored as 1."
+		::= { env8diaidiaiEntry 82 }
+env8diaidiai_67_Port3SampleValueUpperRangeLimit OBJECT-TYPE
+		SYNTAX Integer32
+		
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+		"env8diaidiai_67_Port3SampleValueUpperRangeLimit stored as 1."
+		::= { env8diaidiaiEntry 83 }
+env8diaidiai_68_Port3SampleValueLowerAlarmLimit OBJECT-TYPE
+		SYNTAX Integer32
+		
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+		"env8diaidiai_68_Port3SampleValueLowerAlarmLimit stored as 1."
+		::= { env8diaidiaiEntry 84 }
+env8diaidiai_69_Port3SampleValueUpperAlarmLimit OBJECT-TYPE
+		SYNTAX Integer32
+		
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+		"env8diaidiai_69_Port3SampleValueUpperAlarmLimit stored as 1."
+		::= { env8diaidiaiEntry 85 }
+env8diaidiai_70_Port4SampleValueLowerRangeLimit OBJECT-TYPE
+		SYNTAX Integer32
+		
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+		"env8diaidiai_70_Port4SampleValueLowerRangeLimit stored as 1."
+		::= { env8diaidiaiEntry 86 }
+env8diaidiai_71_Port4SampleValueUpperRangeLimit OBJECT-TYPE
+		SYNTAX Integer32
+		
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+		"env8diaidiai_71_Port4SampleValueUpperRangeLimit stored as 1."
+		::= { env8diaidiaiEntry 87 }
+env8diaidiai_72_Port4SampleValueLowerAlarmLimit OBJECT-TYPE
+		SYNTAX Integer32
+		
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+		"env8diaidiai_72_Port4SampleValueLowerAlarmLimit stored as 1."
+		::= { env8diaidiaiEntry 88 }
+env8diaidiai_73_Port4SampleValueUpperAlarmLimit OBJECT-TYPE
+		SYNTAX Integer32
+		
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+		"env8diaidiai_73_Port4SampleValueUpperAlarmLimit stored as 1."
+		::= { env8diaidiaiEntry 89 }
+env8diaidiai_74_Port5SampleValueLowerRangeLimit OBJECT-TYPE
+		SYNTAX Integer32
+		
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+		"env8diaidiai_74_Port5SampleValueLowerRangeLimit stored as 1."
+		::= { env8diaidiaiEntry 90 }
+env8diaidiai_75_Port5SampleValueUpperRangeLimit OBJECT-TYPE
+		SYNTAX Integer32
+		
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+		"env8diaidiai_75_Port5SampleValueUpperRangeLimit stored as 1."
+		::= { env8diaidiaiEntry 91 }
+env8diaidiai_76_Port5SampleValueLowerAlarmLimit OBJECT-TYPE
+		SYNTAX Integer32
+		
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+		"env8diaidiai_76_Port5SampleValueLowerAlarmLimit stored as 1."
+		::= { env8diaidiaiEntry 92 }
+env8diaidiai_77_Port5SampleValueUpperAlarmLimit OBJECT-TYPE
+		SYNTAX Integer32
+		
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+		"env8diaidiai_77_Port5SampleValueUpperAlarmLimit stored as 1."
+		::= { env8diaidiaiEntry 93 }
+env8diaidiai_78_Port6SampleValueLowerRangeLimit OBJECT-TYPE
+		SYNTAX Integer32
+		
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+		"env8diaidiai_78_Port6SampleValueLowerRangeLimit stored as 1."
+		::= { env8diaidiaiEntry 94 }
+env8diaidiai_79_Port6SampleValueUpperRangeLimit OBJECT-TYPE
+		SYNTAX Integer32
+		
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+		"env8diaidiai_79_Port6SampleValueUpperRangeLimit stored as 1."
+		::= { env8diaidiaiEntry 95 }
+env8diaidiai_80_Port6SampleValueLowerAlarmLimit OBJECT-TYPE
+		SYNTAX Integer32
+		
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+		"env8diaidiai_80_Port6SampleValueLowerAlarmLimit stored as 1."
+		::= { env8diaidiaiEntry 96 }
+env8diaidiai_81_Port6SampleValueUpperAlarmLimit OBJECT-TYPE
+		SYNTAX Integer32
+		
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+		"env8diaidiai_81_Port6SampleValueUpperAlarmLimit stored as 1."
+		::= { env8diaidiaiEntry 97 }
+env8diaidiai_82_Port7SampleValueLowerRangeLimit OBJECT-TYPE
+		SYNTAX Integer32
+		
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+		"env8diaidiai_82_Port7SampleValueLowerRangeLimit stored as 1."
+		::= { env8diaidiaiEntry 98 }
+env8diaidiai_83_Port7SampleValueUpperRangeLimit OBJECT-TYPE
+		SYNTAX Integer32
+		
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+		"env8diaidiai_83_Port7SampleValueUpperRangeLimit stored as 1."
+		::= { env8diaidiaiEntry 99 }
+env8diaidiai_84_Port7SampleValueLowerAlarmLimit OBJECT-TYPE
+		SYNTAX Integer32
+		
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+		"env8diaidiai_84_Port7SampleValueLowerAlarmLimit stored as 1."
+		::= { env8diaidiaiEntry 100 }
+env8diaidiai_85_Port7SampleValueUpperAlarmLimit OBJECT-TYPE
+		SYNTAX Integer32
+		
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+		"env8diaidiai_85_Port7SampleValueUpperAlarmLimit stored as 1."
+		::= { env8diaidiaiEntry 101 }
+env8diaidiai_86_Port8SampleValueLowerRangeLimit OBJECT-TYPE
+		SYNTAX Integer32
+		
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+		"env8diaidiai_86_Port8SampleValueLowerRangeLimit stored as 1."
+		::= { env8diaidiaiEntry 102 }
+env8diaidiai_87_Port8SampleValueUpperRangeLimit OBJECT-TYPE
+		SYNTAX Integer32
+		
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+		"env8diaidiai_87_Port8SampleValueUpperRangeLimit stored as 1."
+		::= { env8diaidiaiEntry 103 }
+env8diaidiai_88_Port8SampleValueLowerAlarmLimit OBJECT-TYPE
+		SYNTAX Integer32
+		
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+		"env8diaidiai_88_Port8SampleValueLowerAlarmLimit stored as 1."
+		::= { env8diaidiaiEntry 104 }
+env8diaidiai_89_Port8SampleValueUpperAlarmLimit OBJECT-TYPE
+		SYNTAX Integer32
+		
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+		"env8diaidiai_89_Port8SampleValueUpperAlarmLimit stored as 1."
+		::= { env8diaidiaiEntry 105 }
+env8diaidiai_90_QuenchAlarmAlarmCriterion OBJECT-TYPE
+		SYNTAX INTEGER {
+			close(0),
+			open(1) }
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+		"env8diaidiai_90_QuenchAlarmAlarmCriterion status."
+		::= { env8diaidiaiEntry 106 }
+env8diaidiai_91_HeliumAlarmAlarmCriterion OBJECT-TYPE
+		SYNTAX INTEGER {
+			close(0),
+			open(1) }
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+		"env8diaidiai_91_HeliumAlarmAlarmCriterion status."
+		::= { env8diaidiaiEntry 107 }
+env8diaidiai_92_PowerAvailableAlarmAlarmCriterion OBJECT-TYPE
+		SYNTAX INTEGER {
+			close(0),
+			open(1) }
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+		"env8diaidiai_92_PowerAvailableAlarmAlarmCriterion status."
+		::= { env8diaidiaiEntry 108 }
+env8diaidiai_93_ACAlarmAlarmCriterion OBJECT-TYPE
+		SYNTAX INTEGER {
+			close(0),
+			open(1) }
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+		"env8diaidiai_93_ACAlarmAlarmCriterion status."
+		::= { env8diaidiaiEntry 109 }
+env8diaidiai_94_ChillerAlarmAlarmCriterion OBJECT-TYPE
+		SYNTAX INTEGER {
+			close(0),
+			open(1) }
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+		"env8diaidiai_94_ChillerAlarmAlarmCriterion status."
+		::= { env8diaidiaiEntry 110 }
+env8diaidiai_95_Port6SpareAlarmCriterion OBJECT-TYPE
+		SYNTAX INTEGER {
+			close(0),
+			open(1) }
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+		"env8diaidiai_95_Port6SpareAlarmCriterion status."
+		::= { env8diaidiaiEntry 111 }
+env8diaidiai_96_Port7SpareAlarmCriterion OBJECT-TYPE
+		SYNTAX INTEGER {
+			close(0),
+			open(1) }
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+		"env8diaidiai_96_Port7SpareAlarmCriterion status."
+		::= { env8diaidiaiEntry 112 }
+env8diaidiai_97_Port8SpareAlarmCriterion OBJECT-TYPE
+		SYNTAX INTEGER {
+			close(0),
+			open(1) }
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+		"env8diaidiai_97_Port8SpareAlarmCriterion status."
+		::= { env8diaidiaiEntry 113 }
+
+
+
+------------------------------------------------------------
+-- System Alarm Trap Table { 13400.3.254 }
+------------------------------------------------------------
+		
+systemAlarmTrapTable OBJECT-TYPE
+	SYNTAX SEQUENCE OF SystemAlarmTrapEntry
+	MAX-ACCESS not-accessible
+	STATUS current
+	DESCRIPTION "System Table holding information about the submitted alarm traps."
+	::= { dcs 254 }
+
+systemAlarmTrapEntry OBJECT-TYPE
+	SYNTAX SystemAlarmTrapEntry
+	MAX-ACCESS not-accessible
+	STATUS current
+	DESCRIPTION "An entry (conceptual row) in the systemAlarmTrapTable."
+	INDEX { systemAlarmIndex }
+	::= { systemAlarmTrapTable 1 }
+
+SystemAlarmTrapEntry ::= SEQUENCE {
+	systemAlarmIndex 			Counter32,
+	systemAlarmTime 			DisplayString,
+	systemAlarmStatusChange 	AlarmStatusChange,
+	systemAlarmSeverity 		AlarmSeverity,
+	systemAlarmDescription 		DisplayString,
+	systemAlarmId 				Integer32,
+	systemAlarmEquipId 			Integer32,
+	systemAlarmEquipTypeId		Integer32}
+
+systemAlarmIndex OBJECT-TYPE
+	SYNTAX Counter32
+	MAX-ACCESS read-only
+	STATUS current
+	DESCRIPTION "The unique sequence number of this alarm trap."
+	::= { systemAlarmTrapEntry 1 }
+
+systemAlarmTime OBJECT-TYPE
+	SYNTAX DisplayString
+	MAX-ACCESS read-only
+	STATUS current
+	DESCRIPTION "Local date and time when event occured, format as YYYY-MM-DD hh:mm:ss."
+	::= { systemAlarmTrapEntry 2 }
+
+systemAlarmStatusChange OBJECT-TYPE
+	SYNTAX AlarmStatusChange
+	MAX-ACCESS read-only
+	STATUS current
+	DESCRIPTION "Indicates 'activated' (0) or 'deactivated' (1) alarm events."
+	::= { systemAlarmTrapEntry 3 }
+
+systemAlarmSeverity OBJECT-TYPE
+	SYNTAX AlarmSeverity
+	MAX-ACCESS read-only
+	STATUS current
+	DESCRIPTION "The severity of the alarm. One of
+		(1) informational
+		(2) warning
+		(3) critical"
+	::= { systemAlarmTrapEntry 4 }
+	
+systemAlarmDescription OBJECT-TYPE
+	SYNTAX DisplayString
+	MAX-ACCESS read-only
+	STATUS current
+	DESCRIPTION "Free-text description of alarm."
+	::= { systemAlarmTrapEntry 5 }
+	
+systemAlarmId OBJECT-TYPE
+	SYNTAX Integer32
+	MAX-ACCESS read-only
+	STATUS current
+	DESCRIPTION "Alarm id."
+	::= { systemAlarmTrapEntry 6 }
+	
+systemAlarmEquipId OBJECT-TYPE
+	SYNTAX Integer32
+	MAX-ACCESS read-only
+	STATUS current
+	DESCRIPTION "Alarm equipment id."
+	::= { systemAlarmTrapEntry 7 }	
+
+systemAlarmEquipTypeId OBJECT-TYPE
+	SYNTAX Integer32
+	MAX-ACCESS read-only
+	STATUS current
+	DESCRIPTION "Alarm equipment type id."
+	::= { systemAlarmTrapEntry 8 }
+	
+	
+------------------------------------------------------------
+-- System Alarm Trap { 13400.3.255 }
+------------------------------------------------------------
+
+systemAlarmTrap OBJECT IDENTIFIER ::= { dcs 255 }
+
+systemAlarmTrapDefine NOTIFICATION-TYPE
+	OBJECTS {
+		systemAlarmIndex,
+		systemAlarmTime,
+		systemAlarmStatusChange,
+		systemAlarmSeverity,
+		systemAlarmDescription,
+		systemAlarmId,
+		systemAlarmEquipId,
+		systemAlarmEquipTypeId }
+	STATUS current
+	DESCRIPTION "
+		An alarm trap is sent when an alarm occurs (activated) or
+		returns to normal state (deactivated). Alarm traps are logged
+		in alarmTrapTable. Variables in this trap:
+		* systemAlarmIndex - The unique sequence number of this alarm trap.
+		* systemAlarmTime - Date and time when event occured (local time).
+		* systemAlarmStatusChange - (0) activated or (1) deactivated.
+		* systemAlarmSeverity - The severity of the alarm..
+		* systemAlarmId - Alarm id.
+		* systemAlarmEquipId - Alarm equipment id.
+		* systemAlarmEquipTypeId - Alarm equipment type id."
+	::= { systemAlarmTrap 1 }
+	
+	
+------------------------------------------------------------
+-- End of MIB definitions
+------------------------------------------------------------
+END
+

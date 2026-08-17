@@ -1,0 +1,162 @@
+PBF-MIB DEFINITIONS ::= BEGIN
+IMPORTS
+    MODULE-IDENTITY, OBJECT-TYPE,
+    Integer32, Unsigned32, Counter32, Counter64,
+    Gauge32, IpAddress
+        FROM SNMPv2-SMI
+    TEXTUAL-CONVENTION, RowStatus, DateAndTime,
+    TruthValue
+        FROM SNMPv2-TC
+    orgServices
+        FROM VERSA-MIB
+;
+
+pbf MODULE-IDENTITY
+    LAST-UPDATED "201505130000Z"
+    ORGANIZATION "Versa Networks"
+    CONTACT-INFO "
+        2953 Bunker Hill Lane, Suite 210
+        Santa Clara, CA - 95035 (USA)
+        Email: support@versa-networks.com"
+    DESCRIPTION "Enterprise MIB for Versa Networks'
+Policy Based Forwarding solution"
+    REVISION "201505130000Z"
+    DESCRIPTION "Initial revision"
+    ::= { orgServices 6 }
+
+ConfdString ::= TEXTUAL-CONVENTION
+    DISPLAY-HINT "1t"
+    STATUS      current
+    DESCRIPTION "xs: and confd: types mapped to strings"
+    SYNTAX      OCTET STRING
+
+String ::= TEXTUAL-CONVENTION
+    DISPLAY-HINT "1t"
+    STATUS      current
+    DESCRIPTION "xs:string"
+    SYNTAX      OCTET STRING
+
+pbfPolicyTable OBJECT-TYPE
+    SYNTAX      SEQUENCE OF PbfPolicyEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "Display statistics of the pbf rules"
+    ::= { pbf 1 }
+
+pbfPolicyEntry OBJECT-TYPE
+    SYNTAX      PbfPolicyEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION ""
+    INDEX { pbfPolicyOrgId, pbfPolicyId, pbfPolicyRuleOrder, pbfPolicyRuleId }
+        ::= { pbfPolicyTable 1 }
+
+PbfPolicyEntry ::=
+    SEQUENCE {
+        pbfPolicyOrgId Unsigned32,
+        pbfPolicyId Unsigned32,
+        pbfPolicyRuleOrder Unsigned32,
+        pbfPolicyRuleId Unsigned32,
+        pbfPolicyOrgName String,
+        pbfPolicyName String,
+        pbfPolicyRuleName String,
+        pbfPolicyHitCount ConfdString,
+        pbfPolicySkipCount ConfdString,
+        pbfPolicyNexthopStatus String,
+        pbfPolicyKeepAliveSent ConfdString,
+        pbfPolicyKeepAliveRcvd ConfdString,
+        pbfPolicyNexthopLastFlapped String
+    }
+
+pbfPolicyOrgId OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "Organization Id"
+    ::= { pbfPolicyEntry 1 }
+
+pbfPolicyId OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "Policy Id"
+    ::= { pbfPolicyEntry 2 }
+
+pbfPolicyRuleOrder OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "rule order"
+    ::= { pbfPolicyEntry 3 }
+
+pbfPolicyRuleId OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "rule order"
+    ::= { pbfPolicyEntry 4 }
+
+pbfPolicyOrgName OBJECT-TYPE
+    SYNTAX      String
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Name of the Organization"
+    ::= { pbfPolicyEntry 5 }
+
+pbfPolicyName OBJECT-TYPE
+    SYNTAX      String
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Name of the policy"
+    ::= { pbfPolicyEntry 6 }
+
+pbfPolicyRuleName OBJECT-TYPE
+    SYNTAX      String
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "rule name"
+    ::= { pbfPolicyEntry 7 }
+
+pbfPolicyHitCount OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total flow hits on pbf rule"
+    ::= { pbfPolicyEntry 8 }
+
+pbfPolicySkipCount OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total skips of pbf rule due to nexthop down"
+    ::= { pbfPolicyEntry 9 }
+
+pbfPolicyNexthopStatus OBJECT-TYPE
+    SYNTAX      String
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Nexthop status up/down"
+    ::= { pbfPolicyEntry 10 }
+
+pbfPolicyKeepAliveSent OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Number of keepalive messages sent to configured monitor address"
+    ::= { pbfPolicyEntry 11 }
+
+pbfPolicyKeepAliveRcvd OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Number of keepalive messages received from configured monitor address"
+    ::= { pbfPolicyEntry 12 }
+
+pbfPolicyNexthopLastFlapped OBJECT-TYPE
+    SYNTAX      String
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Time since nexthop monitor entered current state"
+    ::= { pbfPolicyEntry 13 }
+
+END

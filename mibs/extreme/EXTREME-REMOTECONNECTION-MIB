@@ -1,0 +1,462 @@
+-- ################################################################################
+
+-- -------------------------------------------------------------
+EXTREME-REMOTECONNECTION-MIB DEFINITIONS ::= BEGIN
+-- -------------------------------------------------------------
+
+IMPORTS
+    MODULE-IDENTITY, OBJECT-TYPE, NOTIFICATION-TYPE
+        FROM SNMPv2-SMI
+    MODULE-COMPLIANCE, OBJECT-GROUP, NOTIFICATION-GROUP
+        FROM SNMPv2-CONF
+    InetAddressType, InetAddress
+        FROM INET-ADDRESS-MIB
+    DisplayString
+        FROM RFC1213-MIB
+    extremeAgent
+        FROM EXTREME-BASE-MIB;
+
+extremeRemoteConnectionMIB MODULE-IDENTITY
+    LAST-UPDATED    "202105310840Z"  -- Mon May  31 08:40 UTC 2021
+    ORGANIZATION    "Extreme Networks, Inc."
+    CONTACT-INFO
+        "Postal:    Extreme Networks, Inc.
+                    6480 Via Del Oro
+                    San Jose, CA 95119 USA
+         Phone:     +1 408-579-2800
+         Toll-free: +1 888-257-3000
+         E-mail:    support@extremenetworks.com
+         WWW:       https://www.extremenetworks.com"
+    DESCRIPTION     "This MIB module contains remote connection
+                    information. This can be used to generate
+                    traps when remote connection related
+                    events occur."
+    ::= { extremeAgent 53 }
+
+-- -------------------------------------------------------------
+-- Branches of the Remote Connection MIB
+-- -------------------------------------------------------------
+
+extremeRCNotifications
+    OBJECT IDENTIFIER ::= { extremeRemoteConnectionMIB 0 }
+extremeRCTelnetObjects
+    OBJECT IDENTIFIER ::= { extremeRemoteConnectionMIB 1 }
+extremeRCSSHObjects
+    OBJECT IDENTIFIER ::= { extremeRemoteConnectionMIB 2 }
+extremeRCConformance
+    OBJECT IDENTIFIER ::= { extremeRemoteConnectionMIB 99 }
+
+-- -------------------------------------------------------------
+-- Remote Connection Telnet Branch
+-- -------------------------------------------------------------
+
+extremeRCTelnetLastLoginUser OBJECT-TYPE
+    SYNTAX        DisplayString    (SIZE(0..33))
+    MAX-ACCESS    read-only
+    STATUS        current
+    DESCRIPTION
+        "Username of last login through telnet."
+    ::= { extremeRCTelnetObjects 1 }
+
+extremeRCTelnetLastLoginType OBJECT-TYPE
+    SYNTAX        InetAddressType { unknown(0), ipv4(1), ipv6(2) }
+    MAX-ACCESS    read-only
+    STATUS        current
+    DESCRIPTION
+        "IP address type of last telnet login."
+    ::= { extremeRCTelnetObjects 2 }
+
+extremeRCTelnetLastLoginHost OBJECT-TYPE
+    SYNTAX        InetAddress (SIZE(1..64))
+    MAX-ACCESS    read-only
+    STATUS        current
+    DESCRIPTION
+        "IP address of last telnet login."
+    ::= { extremeRCTelnetObjects 3 }
+
+extremeRCTelnetLastLoginTime OBJECT-TYPE
+    SYNTAX        DisplayString (SIZE(1..32))
+    MAX-ACCESS    read-only
+    STATUS        current
+    DESCRIPTION
+        "Last telnet login time."
+    ::= { extremeRCTelnetObjects 4 }
+
+extremeRCTelnetLastLogoutUser OBJECT-TYPE
+    SYNTAX        DisplayString    (SIZE(0..33))
+    MAX-ACCESS    read-only
+    STATUS        current
+    DESCRIPTION
+        "Username of last logout from telnet."
+    ::= { extremeRCTelnetObjects 5 }
+
+extremeRCTelnetLastLogoutType OBJECT-TYPE
+    SYNTAX        InetAddressType { unknown(0), ipv4(1), ipv6(2) }
+    MAX-ACCESS    read-only
+    STATUS        current
+    DESCRIPTION
+        "IP address type of last telnet logout."
+    ::= { extremeRCTelnetObjects 6 }
+
+extremeRCTelnetLastLogoutHost OBJECT-TYPE
+    SYNTAX        InetAddress (SIZE(1..64))
+    MAX-ACCESS    read-only
+    STATUS        current
+    DESCRIPTION
+        "IP address of last telnet logout."
+    ::= { extremeRCTelnetObjects 7 }
+
+extremeRCTelnetLastLogoutTime OBJECT-TYPE
+    SYNTAX        DisplayString (SIZE(1..32))
+    MAX-ACCESS    read-only
+    STATUS        current
+    DESCRIPTION
+        "Last telnet logout time."
+    ::= { extremeRCTelnetObjects 8 }
+
+extremeRCTelnetLastAuthFailUser OBJECT-TYPE
+    SYNTAX        DisplayString    (SIZE(0..33))
+    MAX-ACCESS    read-only
+    STATUS        current
+    DESCRIPTION
+        "Username of last failed authentication
+        through telnet."
+    ::= { extremeRCTelnetObjects 9 }
+
+extremeRCTelnetLastAuthFailType OBJECT-TYPE
+    SYNTAX        InetAddressType { unknown(0), ipv4(1), ipv6(2) }
+    MAX-ACCESS    read-only
+    STATUS        current
+    DESCRIPTION
+        "IP address type of last telnet authentication
+         failure."
+    ::= { extremeRCTelnetObjects 10 }
+
+extremeRCTelnetLastAuthFailHost OBJECT-TYPE
+    SYNTAX        InetAddress (SIZE(1..64))
+    MAX-ACCESS    read-only
+    STATUS        current
+    DESCRIPTION
+        "IP address of last telnet authentication failure."
+    ::= { extremeRCTelnetObjects 11 }
+
+extremeRCTelnetLastAuthFailTime OBJECT-TYPE
+    SYNTAX        DisplayString (SIZE(1..32))
+    MAX-ACCESS    read-only
+    STATUS        current
+    DESCRIPTION
+        "Last telnet authentication failure time."
+    ::= { extremeRCTelnetObjects 12 }
+
+-- -------------------------------------------------------------
+-- Remote Connection SSH Branch
+-- -------------------------------------------------------------
+
+extremeRCSSHLastLoginUser OBJECT-TYPE
+    SYNTAX        DisplayString    (SIZE(0..33))
+    MAX-ACCESS    read-only
+    STATUS        current
+    DESCRIPTION
+        "Username of last login through SSH."
+    ::= { extremeRCSSHObjects 1 }
+
+extremeRCSSHLastLoginType OBJECT-TYPE
+    SYNTAX        InetAddressType { unknown(0), ipv4(1), ipv6(2) }
+    MAX-ACCESS    read-only
+    STATUS        current
+    DESCRIPTION
+        "IP address type of last SSH login."
+    ::= { extremeRCSSHObjects 2 }
+
+extremeRCSSHLastLoginHost OBJECT-TYPE
+    SYNTAX        InetAddress (SIZE(1..64))
+    MAX-ACCESS    read-only
+    STATUS        current
+    DESCRIPTION
+        "IP address of last SSH login."
+    ::= { extremeRCSSHObjects 3 }
+
+extremeRCSSHLastLoginTime OBJECT-TYPE
+    SYNTAX        DisplayString (SIZE(1..32))
+    MAX-ACCESS    read-only
+    STATUS        current
+    DESCRIPTION
+        "Last SSH login time."
+    ::= { extremeRCSSHObjects 4 }
+
+extremeRCSSHLastLogoutUser OBJECT-TYPE
+    SYNTAX        DisplayString    (SIZE(0..33))
+    MAX-ACCESS    read-only
+    STATUS        current
+    DESCRIPTION
+        "Username of last logout from SSH."
+    ::= { extremeRCSSHObjects 5 }
+
+extremeRCSSHLastLogoutType OBJECT-TYPE
+    SYNTAX        InetAddressType { unknown(0), ipv4(1), ipv6(2) }
+    MAX-ACCESS    read-only
+    STATUS        current
+    DESCRIPTION
+        "IP address type of last SSH logout."
+    ::= { extremeRCSSHObjects 6 }
+
+extremeRCSSHLastLogoutHost OBJECT-TYPE
+    SYNTAX        InetAddress (SIZE(1..64))
+    MAX-ACCESS    read-only
+    STATUS        current
+    DESCRIPTION
+        "IP address of last SSH logout."
+    ::= { extremeRCSSHObjects 7 }
+
+extremeRCSSHLastLogoutTime OBJECT-TYPE
+    SYNTAX        DisplayString (SIZE(1..32))
+    MAX-ACCESS    read-only
+    STATUS        current
+    DESCRIPTION
+        "Last SSH logout time."
+    ::= { extremeRCSSHObjects 8 }
+
+extremeRCSSHLastAuthFailUser OBJECT-TYPE
+    SYNTAX        DisplayString    (SIZE(0..33))
+    MAX-ACCESS    read-only
+    STATUS        current
+    DESCRIPTION
+        "Username of last failed authentication
+        through SSH."
+    ::= { extremeRCSSHObjects 9 }
+
+extremeRCSSHLastAuthFailType OBJECT-TYPE
+    SYNTAX        InetAddressType { unknown(0), ipv4(1), ipv6(2) }
+    MAX-ACCESS    read-only
+    STATUS        current
+    DESCRIPTION
+        "IP address type of last SSH authentication
+         failure."
+    ::= { extremeRCSSHObjects 10 }
+
+extremeRCSSHLastAuthFailHost OBJECT-TYPE
+    SYNTAX        InetAddress (SIZE(1..64))
+    MAX-ACCESS    read-only
+    STATUS        current
+    DESCRIPTION
+        "IP address of last SSH authentication failure."
+    ::= { extremeRCSSHObjects 11 }
+
+extremeRCSSHLastAuthFailTime OBJECT-TYPE
+    SYNTAX        DisplayString (SIZE(1..32))
+    MAX-ACCESS    read-only
+    STATUS        current
+    DESCRIPTION
+        "Last SSH authentication failure time."
+    ::= { extremeRCSSHObjects 12 }
+
+-- -------------------------------------------------------------
+--  Remote Connection Notification Branch
+-- -------------------------------------------------------------
+
+extremeRCTelnetSessionLogin NOTIFICATION-TYPE
+    OBJECTS { extremeRCTelnetLastLoginType,
+              extremeRCTelnetLastLoginHost,
+              extremeRCTelnetLastLoginTime }
+    STATUS  current
+    DESCRIPTION
+        "When a user login through telnet, this trap is sent
+        with information of IP address of user
+        and time of login."
+    ::= { extremeRCNotifications 1 }
+
+extremeRCTelnetSessionLogout NOTIFICATION-TYPE
+    OBJECTS { extremeRCTelnetLastLogoutType,
+              extremeRCTelnetLastLogoutHost,
+              extremeRCTelnetLastLogoutTime }
+    STATUS  current
+    DESCRIPTION
+        "When a user logout telnet session, this trap is sent
+        with information of IP address of user
+        and time of logout."
+    ::= { extremeRCNotifications 2 }
+
+extremeRCTelnetAuthFailed NOTIFICATION-TYPE
+    OBJECTS { extremeRCTelnetLastAuthFailUser,
+              extremeRCTelnetLastAuthFailType,
+              extremeRCTelnetLastAuthFailHost,
+              extremeRCTelnetLastAuthFailTime }
+    STATUS  current
+    DESCRIPTION
+        "When a telnet authentication request 
+        is failed, this trap is sent with details
+        of username, IP address and time of attempt."
+    ::= { extremeRCNotifications 3 }
+
+extremeRCSSHSessionLogin NOTIFICATION-TYPE
+    OBJECTS { extremeRCSSHLastLoginType,
+              extremeRCSSHLastLoginHost,
+              extremeRCSSHLastLoginTime }
+    STATUS  current
+    DESCRIPTION
+        "When a user login through SSH, this trap is sent
+        with information of IP address of user
+        and time of login."
+    ::= { extremeRCNotifications 4 }
+
+extremeRCSSHSessionLogout NOTIFICATION-TYPE
+    OBJECTS { extremeRCSSHLastLogoutType,
+              extremeRCSSHLastLogoutHost,
+              extremeRCSSHLastLogoutTime }
+    STATUS  current
+    DESCRIPTION
+        "When a user logout SSH session, this trap is sent
+        with information of IP address of user
+        and time of logout."
+    ::= { extremeRCNotifications 5 }
+
+extremeRCSSHAuthFailed NOTIFICATION-TYPE
+    OBJECTS { extremeRCSSHLastAuthFailUser,
+              extremeRCSSHLastAuthFailType,
+              extremeRCSSHLastAuthFailHost,
+              extremeRCSSHLastAuthFailTime }
+    STATUS  current
+    DESCRIPTION
+        "When an SSH authentication request
+        is failed, this trap is sent with details
+        of username, IP address and time of attempt."
+    ::= { extremeRCNotifications 6 }
+
+-- -------------------------------------------------------------
+--            Conformance information
+-- -------------------------------------------------------------
+
+extremeRCMIBGroups      OBJECT IDENTIFIER
+          ::= { extremeRCConformance 1 }
+
+extremeRCMIBCompliances OBJECT IDENTIFIER
+          ::= { extremeRCConformance 2 }
+
+-- -------------------------------------------------------------
+--             Units of conformance
+-- -------------------------------------------------------------
+
+extremeRCMIBTelnetLoginGroup OBJECT-GROUP
+    OBJECTS { extremeRCTelnetLastLoginUser,
+              extremeRCTelnetLastLoginType,
+              extremeRCTelnetLastLoginHost,
+              extremeRCTelnetLastLoginTime }
+    STATUS  current
+    DESCRIPTION
+        "These objects are required for last
+        login information."
+        ::= { extremeRCMIBGroups 1 }
+
+extremeRCMIBTelnetLogoutGroup OBJECT-GROUP
+    OBJECTS { extremeRCTelnetLastLogoutUser,
+              extremeRCTelnetLastLogoutType,
+              extremeRCTelnetLastLogoutHost,
+              extremeRCTelnetLastLogoutTime }
+    STATUS  current
+    DESCRIPTION
+        "These objects are required for last
+        logout information."
+        ::= { extremeRCMIBGroups 2 }
+
+extremeRCMIBTelnetAuthFailGroup OBJECT-GROUP
+    OBJECTS { extremeRCTelnetLastAuthFailUser,
+              extremeRCTelnetLastAuthFailType,
+              extremeRCTelnetLastAuthFailHost,
+              extremeRCTelnetLastAuthFailTime }
+    STATUS  current
+    DESCRIPTION
+        "These objects are required for last
+        authentication failure information."
+        ::= { extremeRCMIBGroups 3 }
+
+extremeRCMIBSSHLoginGroup OBJECT-GROUP
+    OBJECTS { extremeRCSSHLastLoginUser,
+              extremeRCSSHLastLoginType,
+              extremeRCSSHLastLoginHost,
+              extremeRCSSHLastLoginTime }
+    STATUS  current
+    DESCRIPTION
+        "These objects are required for last
+        login information."
+        ::= { extremeRCMIBGroups 4 }
+
+extremeRCMIBSSHLogoutGroup OBJECT-GROUP
+    OBJECTS { extremeRCSSHLastLogoutUser,
+              extremeRCSSHLastLogoutType,
+              extremeRCSSHLastLogoutHost,
+              extremeRCSSHLastLogoutTime }
+    STATUS  current
+    DESCRIPTION
+        "These objects are required for last
+        logout information."
+        ::= { extremeRCMIBGroups 5 }
+
+extremeRCMIBSSHAuthFailGroup OBJECT-GROUP
+    OBJECTS { extremeRCSSHLastAuthFailUser,
+              extremeRCSSHLastAuthFailType,
+              extremeRCSSHLastAuthFailHost,
+              extremeRCSSHLastAuthFailTime }
+    STATUS  current
+    DESCRIPTION
+        "These objects are required for last
+        authentication failure information."
+        ::= { extremeRCMIBGroups 6 }
+
+extremeRCMIBTelnetNotificationGroup NOTIFICATION-GROUP
+    NOTIFICATIONS   {
+        extremeRCTelnetSessionLogin,
+        extremeRCTelnetSessionLogout,
+        extremeRCTelnetAuthFailed
+        }
+    STATUS  current
+    DESCRIPTION
+        "This group is used for Telnet connection
+        related  notifications."
+        ::= { extremeRCMIBGroups 7 }
+
+extremeRCMIBSSHNotificationGroup NOTIFICATION-GROUP
+    NOTIFICATIONS   {
+        extremeRCSSHSessionLogin,
+        extremeRCSSHSessionLogout,
+        extremeRCSSHAuthFailed
+        }
+    STATUS  current
+    DESCRIPTION
+        "This group is used for SSH connection
+        related notifications."
+        ::= { extremeRCMIBGroups 8 }
+
+-- -------------------------------------------------------------
+--             Compliance Statements
+-- -------------------------------------------------------------
+extremeRCMIBTelnetCompliance MODULE-COMPLIANCE
+    STATUS      current
+    DESCRIPTION
+        "The compliance statement. These groups are required 
+        to monitor the basic telnet connection activities."
+    MODULE
+        MANDATORY-GROUPS
+            {
+                extremeRCMIBTelnetLoginGroup,
+                extremeRCMIBTelnetLogoutGroup,
+                extremeRCMIBTelnetAuthFailGroup,
+                extremeRCMIBTelnetNotificationGroup
+            }
+    ::= { extremeRCMIBCompliances 1 }
+
+extremeRCMIBSSHCompliance MODULE-COMPLIANCE
+    STATUS  current
+    DESCRIPTION
+        "The compliance statement.These groups are required 
+        to monitor the basic SSH connection activities."
+    MODULE
+        MANDATORY-GROUPS
+            {
+                extremeRCMIBSSHLoginGroup,
+                extremeRCMIBSSHLogoutGroup,
+                extremeRCMIBSSHAuthFailGroup,
+                extremeRCMIBSSHNotificationGroup
+            }
+    ::= { extremeRCMIBCompliances 2 }
+-- -------------------------------------------------------------
+    END

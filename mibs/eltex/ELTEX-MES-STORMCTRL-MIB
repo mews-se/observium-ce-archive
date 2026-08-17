@@ -1,0 +1,112 @@
+ELTEX-MES-STORMCTRL-MIB DEFINITIONS ::= BEGIN
+
+-- Title:                Eltex MES Storm-control Configuration
+-- Version:              2.0
+-- Date:                 29-Oct-2015
+
+IMPORTS
+    MODULE-IDENTITY, OBJECT-TYPE, NOTIFICATION-TYPE,
+    Unsigned32                                       FROM SNMPv2-SMI
+    TruthValue                                       FROM SNMPv2-TC
+    InterfaceIndex                                   FROM IF-MIB
+    eltMes                                           FROM ELTEX-MES
+    rlStormCtrlRateLimCfgEntry                       FROM RADLAN-STORMCTRL-MIB;
+
+eltMesStormCtrl MODULE-IDENTITY
+                LAST-UPDATED "201510290000Z"
+                ORGANIZATION "Eltex Enterprise Co, Ltd."
+                CONTACT-INFO
+                      "www.eltex.nsk.ru"
+                DESCRIPTION
+                    "This private MIB module defines Eltex's private storm-control MIBs."
+
+                REVISION "201510290000Z"
+                DESCRIPTION
+                    "Added eltStormCtrlAction field to eltStormCtrlConfigTable.
+                    Added value 'shutdown' to EltStormControlStatusType."
+
+                REVISION "201412300000Z"
+                DESCRIPTION
+                    "Initial revision."
+        ::= { eltMes 77 }
+
+--
+-- MIB Groups
+--
+
+eltMesStormCtrlMIBObjects     OBJECT IDENTIFIER ::=
+                                { eltMesStormCtrl 1 }
+
+eltMesStormCtrlConfig         OBJECT IDENTIFIER ::=
+                                { eltMesStormCtrlMIBObjects 1 }
+
+--
+-- Textual Conventions
+--
+
+EltStormCtrlActionType ::= INTEGER {
+        none(1),
+        trap(2),
+        shutdown(3),
+        trapAndShutdown(4)
+    }
+
+--------------------------------------------------------------------------------
+-- eltStormCtrlRateLimCfgTable
+--------------------------------------------------------------------------------
+
+eltStormCtrlRateLimCfgTable OBJECT-TYPE
+    SYNTAX SEQUENCE OF EltStormCtrlRateLimCfgEntry
+    MAX-ACCESS not-accessible
+    STATUS current
+    DESCRIPTION
+        "The table contains additional settings to
+         storm-control and rate-limit for each port."
+    ::= { eltMesStormCtrlConfig 3 }
+
+eltStormCtrlRateLimCfgEntry OBJECT-TYPE
+    SYNTAX  EltStormCtrlRateLimCfgEntry
+    MAX-ACCESS  not-accessible
+    STATUS  current
+    DESCRIPTION
+        "The entry contains additional settings to
+         storm-control and rate-limit for each port."
+    AUGMENTS { rlStormCtrlRateLimCfgEntry }
+    ::= { eltStormCtrlRateLimCfgTable 1 }
+
+EltStormCtrlRateLimCfgEntry ::= SEQUENCE {
+    eltStormCtrlRateLimCfgPpsAction         EltStormCtrlActionType,
+    eltStormCtrlRateLimCfgRatePps           Unsigned32,
+    eltStormCtrlRateLimCfgBurstSizePackets  Unsigned32
+}
+
+eltStormCtrlRateLimCfgPpsAction OBJECT-TYPE
+    SYNTAX  EltStormCtrlActionType
+    MAX-ACCESS  read-write
+    STATUS  current
+    DESCRIPTION
+        "Send a trap when a storm occurs on a port or/and shut down a port when a storm occurs on the port."
+    ::= { eltStormCtrlRateLimCfgEntry 1 }
+
+eltStormCtrlRateLimCfgRatePps OBJECT-TYPE
+    SYNTAX  Unsigned32
+    MAX-ACCESS  read-write
+    STATUS  current
+    DESCRIPTION
+        "Block the flooding of packets when the value in pps specified is reached.
+         Rate equal to 0 means that the rate limit does not apply
+         to traffic."
+    DEFVAL { 0 }
+    ::= { eltStormCtrlRateLimCfgEntry 2 }
+
+eltStormCtrlRateLimCfgBurstSizePackets OBJECT-TYPE
+    SYNTAX  Unsigned32
+    MAX-ACCESS  read-write
+    STATUS  current
+    DESCRIPTION
+        "Committed burst in packets."
+    DEFVAL { 0 }
+    ::= { eltStormCtrlRateLimCfgEntry 3 }
+
+END
+

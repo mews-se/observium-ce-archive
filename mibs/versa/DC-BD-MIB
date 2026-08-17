@@ -1,0 +1,959 @@
+DC-BD-MIB DEFINITIONS ::= BEGIN
+
+  -- PRODUCT-SHORT-NAME BD
+
+  IMPORTS
+    MODULE-IDENTITY,
+    OBJECT-TYPE,
+    Unsigned32,
+    Counter32,
+    Counter64
+      FROM SNMPv2-SMI
+
+    TEXTUAL-CONVENTION,
+    TruthValue,
+    RowStatus,
+    MacAddress
+      FROM SNMPv2-TC
+
+    InterfaceIndex
+      FROM IF-MIB
+
+    MODULE-COMPLIANCE,
+    OBJECT-GROUP
+      FROM SNMPv2-CONF
+
+    AdminStatus,
+    BaseOperStatus,
+    EntityIndex,
+    L2BridgeDomainType,
+    NumericIndex,
+    SjStatus
+      FROM DC-MASTER-TC;
+
+  bdMib MODULE-IDENTITY
+    LAST-UPDATED "201409040000Z" -- Thu Sep 4 00:00:00 GMT 2014
+    ORGANIZATION "Metaswitch Networks"
+    CONTACT-INFO
+                 "Postal: Metaswitch Networks
+                          100 Church Street
+                          Enfield
+                          EN2 6BQ
+                          United Kingdom
+                  Tel:    +44 20 8366 1177
+                  E-mail: info@metaswitch.com"
+    DESCRIPTION  "Metaswitch BD Stub MIB."
+    ::= { iso
+          member-body(2)
+          gb(826)
+          national (0)
+          eng-ltd (1)
+          dataConnectionLtd (1578918)
+          adg (5)
+          stubs (3)
+          29 }
+
+  bdObjects       OBJECT IDENTIFIER ::= { bdMib 1 } -- BD Stub tables
+  bdConformance   OBJECT IDENTIFIER ::= { bdMib 2 } -- Module conformance
+
+-------------------------------------------------------------------------------
+
+--
+-- Textual conventions
+--
+
+  BdSjIfId ::= TEXTUAL-CONVENTION
+    STATUS      current
+    DESCRIPTION "The type of interface to which a join applies."
+    SYNTAX      INTEGER {
+                  ifAtgBdpi(2038431744)   -- Interface IF_ATG_BDPI
+                }
+
+  BdIfPortState ::= TEXTUAL-CONVENTION
+    STATUS      current
+    DESCRIPTION "The current forwarding state of a port."
+    SYNTAX      INTEGER {
+                  init(0),
+                  disabled(1),
+                  learning(2),
+                  forwarding(3),
+                  blocked(4),
+                  listening(5)
+                }
+
+  BdFdbStatusType ::= TEXTUAL-CONVENTION
+  STATUS      current
+  DESCRIPTION
+          "The current status of an FDB MAC entry.
+
+           The meanings of the values are:
+           -  other(1) - none of the following,
+           -  invalid(2) - this entry is no longer valid (for
+              example, it was learned but has since aged out), but
+              has not yet been flushed from the table,
+           -  learned(3) - the FDB entry has been learned and is
+              being used,
+           -  self(4) - the entry represents one of the device's
+              addresses.  The value of bdFdbOutIfIndex indicates
+              which of the device's interfaces has this address,
+           -  mgmt(5) - the FDB entry has been statically configured
+              by management."
+  SYNTAX      INTEGER {
+                other(1),
+                invalid(2),
+                learned(3),
+                self(4),
+                mgmt(5)
+              }
+
+  BdSwDataplaneVariant ::= TEXTUAL-CONVENTION
+    STATUS      current
+    DESCRIPTION "The dataplane implementation to be used."
+    SYNTAX      INTEGER {
+                  lx(1),
+                  ovs(2),
+                  p4(3)
+                }
+
+-------------------------------------------------------------------------------
+
+--
+-- The BD Stub Entity Table.
+--
+
+  bdEntTable OBJECT-TYPE
+    SYNTAX      SEQUENCE OF BdEntEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "Each entry in this table represents a BD stub entity."
+    ::= { bdObjects 1 }
+
+  bdEntEntry OBJECT-TYPE
+    SYNTAX      BdEntEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "Each entry represents a BD stub entity."
+    INDEX { bdEntIndex }
+    ::= { bdEntTable 1 }
+
+  BdEntEntry ::= SEQUENCE {
+      bdEntIndex              EntityIndex,
+      bdEntRowStatus          RowStatus,
+      bdEntAdminStatus        AdminStatus,
+      bdEntOperStatus         BaseOperStatus,
+      bdEntBridgeIndex        NumericIndex,
+      bdEntEmulateProgramming TruthValue,
+      bdEntProfileIndex       NumericIndex,
+      bdEntDataPlaneChanges   Unsigned32,
+      bdEntEnableOvs          TruthValue,
+      bdEntSwDataplane        BdSwDataplaneVariant,
+      bdEntAllowFdbLookup     TruthValue
+    }
+
+  bdEntIndex OBJECT-TYPE
+    SYNTAX      EntityIndex
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "Identifies a BD stub entity.  This is also the unique
+                 identifier of the Bridge associated with this BD stub."
+    ::= { bdEntEntry 1 }
+
+  bdEntRowStatus OBJECT-TYPE
+    SYNTAX      RowStatus
+    MAX-ACCESS  read-create
+    STATUS      current
+    DESCRIPTION "The row status for this BD stub Entity Table entry, used
+                 to create and destroy table entries."
+    ::= { bdEntEntry 2 }
+
+  bdEntAdminStatus OBJECT-TYPE
+    SYNTAX      AdminStatus
+    MAX-ACCESS  read-create
+    STATUS      current
+    DESCRIPTION "The administrative status of this BD stub entity, used to
+                 activate and deactivate the BD stub."
+    DEFVAL      { adminStatusUp }
+    ::= { bdEntEntry 3 }
+
+  bdEntOperStatus OBJECT-TYPE
+    SYNTAX      BaseOperStatus
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "The current operational status of this BD stub entity."
+    ::= { bdEntEntry 4 }
+
+  bdEntBridgeIndex OBJECT-TYPE
+    SYNTAX      NumericIndex
+    MAX-ACCESS  read-create
+    STATUS      current
+    DESCRIPTION "The number of the Layer 2 Bridge that the BD stub will
+                 control.  For example, if set to 1, the BD stub will
+                 control bridge br1, if set to 12, the BD stub will control
+                 bridge br12."
+    ::= { bdEntEntry 5 }
+
+  bdEntEmulateProgramming OBJECT-TYPE
+    SYNTAX      TruthValue
+    MAX-ACCESS  read-create
+    STATUS      current
+    DESCRIPTION "Whether the BD stub should emulate programming.  If this
+                 field is set to 'true', the BD stub will act as a BDPI
+                 join slave but will not make any OS calls and will not
+                 program any state.  This field should be set to 'true' if
+                 the BD stub is being run on an emulated machine, and
+                 should usually be left as 'false' otherwise.  This field
+                 is only relevant when using the Linux variant of the stub.
+
+                 Changing the value of this field while the BD stub is
+                 active will cause the BD stub to immediately deactivate,
+                 then re-activate."
+    DEFVAL      { false }
+    ::= { bdEntEntry 6 }
+
+  bdEntProfileIndex OBJECT-TYPE
+    SYNTAX      NumericIndex
+    MAX-ACCESS  read-create
+    STATUS      current
+    DESCRIPTION "The profile index for the BDPI join to the Layer 2 VPN
+                 Manager that is used to manage VPLS bridge domains.
+
+                 This field is only used when the stub is being used to
+                 control VPLS bridge domains.
+
+                 Changing the value of this field while the VLAN stub is
+                 active will cause the VLAN stub to immediately deactivate,
+                 then re-activate."
+    ::= { bdEntEntry 7 }
+
+  bdEntDataPlaneChanges OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "FOR TEST PURPOSES ONLY.  The number of times that the BD stub
+                 has made a change to the data plane programming.
+
+                 This is 0 at the start of day, and is incremented whenever the
+                 BD stub makes a call into the data plane that results in a
+                 change to the data plane programming."
+    ::= { bdEntEntry 8 }
+
+  bdEntEnableOvs OBJECT-TYPE
+    SYNTAX      TruthValue
+    MAX-ACCESS  read-create
+    STATUS      current
+    DESCRIPTION "This field is now deprecated - use bdEntSwDataplane.
+
+                 FOR TEST PURPOSES ONLY.  Whether to enable Open vSwitch
+                 support in the sample Linux integration variant of the
+                 stub.
+
+                 The stub will program the Open vSwitch dataplane if OVS
+                 support is compiled in and if this field is set to 'true'.
+
+                 Changing the value of this field while the BD stub is
+                 active will cause the BD stub to immediately deactivate,
+                 then re-activate."
+    DEFVAL { false }
+    ::= { bdEntEntry 9 }
+
+  bdEntSwDataplane OBJECT-TYPE
+    SYNTAX      BdSwDataplaneVariant
+    MAX-ACCESS  read-create
+    STATUS      current
+    DESCRIPTION "FOR TEST PURPOSES ONLY.  The software dataplane
+                 integration to be used in the sample Linux integration
+                 variant of the stub.
+
+                 The stub will program the Linux dataplane if this field is
+                 set to BD_SW_DATAPLANE_VARIANT_LX.
+
+                 The stub will program the Open vSwitch dataplane if OVS
+                 support is compiled in and if this field is set to
+                 BD_SW_DATAPLANE_VARIANT_OVS.
+
+                 The stub will program the P4 dataplane if P4 support is
+                 compiled in and if this field is set to
+                 BD_SW_DATAPLANE_VARIANT_P4.
+
+                 Changing the value of this field while the BD stub is
+                 active will cause the BD stub to immediately deactivate,
+                 then re-activate."
+    DEFVAL { lx }
+    ::= { bdEntEntry 10 }
+
+  bdEntAllowFdbLookup OBJECT-TYPE
+    SYNTAX      TruthValue
+    MAX-ACCESS  read-create
+    STATUS      current
+    DESCRIPTION "When using multiple instances of the BD stub it is
+                 possible that only one of these instances should be
+                 allowed to read FDB entries from the dataplane.  If this
+                 field is set to 'true' then the BD stub will call into the
+                 dataplane to fill in requests for a row in the bdFdbTable.
+                 Otherwise, no call will be made."
+    DEFVAL { true }
+    ::= { bdEntEntry 11 }
+
+-------------------------------------------------------------------------------
+
+--
+-- BD Stub Slave Join Table
+--
+
+  bdSjTable OBJECT-TYPE
+    SYNTAX      SEQUENCE OF BdSjEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "This table contains information on joins for which BD stub
+                 entities are acting as slaves.  Each row in this table
+                 represents one slave join in a particular BD stub entity."
+    ::= { bdObjects 2 }
+
+  bdSjEntry OBJECT-TYPE
+    SYNTAX      BdSjEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "An entry (conceptual row) representing a slave join in a
+                 particular BD stub entity."
+    INDEX { bdSjEntIndex,
+            bdSjInterfaceId,
+            bdSjPartnerType,
+            bdSjPartnerIndex,
+            bdSjSubIndex }
+    ::= { bdSjTable 1 }
+
+  BdSjEntry ::= SEQUENCE {
+      bdSjEntIndex     EntityIndex,
+      bdSjInterfaceId  BdSjIfId,
+      bdSjPartnerType  Unsigned32,
+      bdSjPartnerIndex Unsigned32,
+      bdSjSubIndex     Unsigned32,
+      bdSjJoinStatus   SjStatus
+    }
+
+  bdSjEntIndex OBJECT-TYPE
+    SYNTAX      EntityIndex
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "Identifies a BD stub entity."
+    ::= { bdSjEntry 1 }
+
+  bdSjInterfaceId OBJECT-TYPE
+    SYNTAX      BdSjIfId
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "Identifies the interface of this slave join."
+    ::= { bdSjEntry 2 }
+
+  bdSjPartnerType OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "Identifies the process type of master entity that has
+                 joined to this slave."
+    ::= { bdSjEntry 3 }
+
+  bdSjPartnerIndex OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "Identifies the entity index of the master entity that has
+                 joined to this slave."
+    ::= { bdSjEntry 4 }
+
+  bdSjSubIndex OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "This permits a master and slave to have multiple
+                 simultaneous joins of the same type."
+    ::= { bdSjEntry 5 }
+
+  bdSjJoinStatus OBJECT-TYPE
+    SYNTAX      SjStatus
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "The current join status of this slave join."
+    ::= { bdSjEntry 6 }
+
+-------------------------------------------------------------------------------
+
+--
+-- BD Stub Interface Table
+--
+
+  bdInterfaceTable OBJECT-TYPE
+    SYNTAX      SEQUENCE OF BdInterfaceEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "Rows in this MIB table represent an interface in the
+                 dataplane that is a member of a bridge that the BD stub can
+                 control state for.  On creation/destruction of this row, the
+                 O/S-specific implementation of the BD stub will perform
+                 sufficient dataplane programming to configure the interface
+                 as a member of the bridge."
+    ::= { bdObjects 3 }
+
+  bdInterfaceEntry OBJECT-TYPE
+    SYNTAX      BdInterfaceEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "An entry (conceptual row) representing an interface in the
+                 dataplane that is a member of a bridge that the BD stub can
+                 control state for."
+    INDEX { bdInterfaceEntIndex,
+            bdInterfaceIndex }
+
+    ::= { bdInterfaceTable 1 }
+
+  BdInterfaceEntry ::= SEQUENCE {
+      bdInterfaceEntIndex         EntityIndex,
+      bdInterfaceIndex            InterfaceIndex,
+      bdInterfaceRowStatus        RowStatus,
+      bdInterfaceAdminStatus      AdminStatus,
+      bdInterfaceOperStatus       BaseOperStatus,
+      bdInterfacePortState        BdIfPortState,
+      bdInterfaceDefaultPortState BdIfPortState
+    }
+
+  bdInterfaceEntIndex OBJECT-TYPE
+    SYNTAX      EntityIndex
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "Identifies a BD stub entity."
+    ::= { bdInterfaceEntry 1 }
+
+  bdInterfaceIndex OBJECT-TYPE
+    SYNTAX      InterfaceIndex
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "The interface index of the interface."
+    ::= { bdInterfaceEntry 2 }
+
+  bdInterfaceRowStatus OBJECT-TYPE
+    SYNTAX      RowStatus
+    MAX-ACCESS  read-create
+    STATUS      current
+    DESCRIPTION "The row status for this MIB Table entry, used to create
+                 and destroy table entries."
+    ::= { bdInterfaceEntry 3 }
+
+  bdInterfaceAdminStatus OBJECT-TYPE
+    SYNTAX      AdminStatus
+    MAX-ACCESS  read-create
+    STATUS      current
+    DESCRIPTION "The administrative status of this interface, used to
+                 activate and deactivate interfaces."
+    DEFVAL      { adminStatusUp }
+    ::= { bdInterfaceEntry 4 }
+
+  bdInterfaceOperStatus OBJECT-TYPE
+    SYNTAX      BaseOperStatus
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "The current operational status of this interface.  Note
+                 that if activation of this interface fails, for example if
+                 soft dataplane configuration failed or, in a hard
+                 dataplane, the interface is not a member of the bridge,
+                 the oper status of the bridge will be
+                 AMB_BASE_OPER_STATUS_FAILD_PERM."
+    ::= { bdInterfaceEntry 5 }
+
+  bdInterfacePortState OBJECT-TYPE
+    SYNTAX      BdIfPortState
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "The currently programmed port state of this interface."
+    ::= { bdInterfaceEntry 6 }
+
+  bdInterfaceDefaultPortState OBJECT-TYPE
+    SYNTAX      BdIfPortState
+    MAX-ACCESS  read-create
+    STATUS      current
+    DESCRIPTION "The default port state of this interface.  This field is
+                 used to enable an interface on a bridge in the absence of
+                 a Layer 2 protocol that controls the port state
+                 dynamically.
+
+                 This must always be set to AMB_BD_IF_PORT_ST_BLOCKED if
+                 the port state is being managed by a Layer 2 protocol
+                 (such as DC-ERPS or DC-STP)."
+    DEFVAL      { blocked }
+    ::= { bdInterfaceEntry 7 }
+
+-------------------------------------------------------------------------------
+
+--
+-- BD Stub Port State Table (Read-Only)
+--
+
+  bdPortStateTable OBJECT-TYPE
+    SYNTAX      SEQUENCE OF BdPortStateEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "This read-only MIB table reports the configured port state
+                 for a VLAN ID on an interface."
+    ::= { bdObjects 4 }
+
+  bdPortStateEntry OBJECT-TYPE
+    SYNTAX      BdPortStateEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "An entry (conceptual row) represents the port state for a
+                 VLAN ID on an interface managed by the BD stub."
+    INDEX { bdPortStateEntIndex,
+            bdPortStateInterfaceIndex,
+            bdPortStateVlanId }
+    ::= { bdPortStateTable 1 }
+
+  BdPortStateEntry ::= SEQUENCE {
+      bdPortStateEntIndex       EntityIndex,
+      bdPortStateInterfaceIndex Unsigned32,
+      bdPortStateVlanId         Unsigned32,
+      bdPortStateState          BdIfPortState
+    }
+
+  bdPortStateEntIndex OBJECT-TYPE
+    SYNTAX      EntityIndex
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "Identifies a BD stub entity."
+    ::= { bdPortStateEntry 1 }
+
+  bdPortStateInterfaceIndex OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "The interface index."
+    ::= { bdPortStateEntry 2 }
+
+  bdPortStateVlanId OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "The VLAN ID."
+    ::= { bdPortStateEntry 3 }
+
+  bdPortStateState OBJECT-TYPE
+    SYNTAX      BdIfPortState
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "The port state configured for this VLAN ID on this
+                 interface."
+    ::= { bdPortStateEntry 4 }
+
+-------------------------------------------------------------------------------
+
+--
+-- BD Stub Bridge Domain Table
+--
+
+  bdBridgeDomainTable OBJECT-TYPE
+    SYNTAX      SEQUENCE OF BdBridgeDomainEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "This read-only MIB table reports the set of interfaces
+                 associated with a VLAN ID, that is, the set of interfaces
+                 associated with a Bridge Domain."
+    ::= { bdObjects 5 }
+
+  bdBridgeDomainEntry OBJECT-TYPE
+    SYNTAX      BdBridgeDomainEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "An entry (conceptual row) representing a Bridge Domain
+                 managed by the BD stub."
+    INDEX { bdBridgeDomainEntIndex,
+            bdBridgeDomainType,
+            bdBridgeDomainId,
+            bdBridgeDomainSubId,
+            bdBridgeDomainInterfaceIndex
+          }
+    ::= { bdBridgeDomainTable 1 }
+
+  BdBridgeDomainEntry ::= SEQUENCE {
+      bdBridgeDomainEntIndex       EntityIndex,
+      bdBridgeDomainType           L2BridgeDomainType,
+      bdBridgeDomainId             Unsigned32,
+      bdBridgeDomainSubId          Unsigned32,
+      bdBridgeDomainInterfaceIndex Unsigned32
+    }
+
+  bdBridgeDomainEntIndex OBJECT-TYPE
+    SYNTAX      EntityIndex
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "Identifies a BD stub entity."
+    ::= { bdBridgeDomainEntry 1 }
+
+  bdBridgeDomainType OBJECT-TYPE
+    SYNTAX      L2BridgeDomainType
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "The Bridge Domain type of the Bridge Domain."
+    ::= { bdBridgeDomainEntry 2 }
+
+  bdBridgeDomainId OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "The principal identifier for this Bridge Domain."
+    ::= { bdBridgeDomainEntry 3 }
+
+  bdBridgeDomainSubId OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "The secondary identifier for this Bridge Domain."
+    ::= { bdBridgeDomainEntry 4 }
+
+  bdBridgeDomainInterfaceIndex OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "The interface index."
+    ::= { bdBridgeDomainEntry 5 }
+
+-------------------------------------------------------------------------------
+
+--
+-- BD Stub Bridge Domain Statistics Table
+--
+
+  bdStatsTable OBJECT-TYPE
+    SYNTAX      SEQUENCE OF BdStatsEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "This read-only MIB table reports statistics for Bridge
+                 Domains."
+    ::= { bdObjects 6 }
+
+  bdStatsEntry OBJECT-TYPE
+    SYNTAX      BdStatsEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "An entry (conceptual row) representing statistics for
+                 a Bridge Domain managed by the BD stub."
+    INDEX { bdStatsEntityIndex,
+            bdStatsBdType,
+            bdStatsBdIndex,
+            bdStatsBdSubIndex }
+    ::= { bdStatsTable 1 }
+
+  BdStatsEntry ::= SEQUENCE {
+      bdStatsEntityIndex           EntityIndex,
+      bdStatsBdType                L2BridgeDomainType,
+      bdStatsBdIndex               Unsigned32,
+      bdStatsBdSubIndex            Unsigned32,
+      bdStatsMacsLearned           Counter32,
+      bdStatsUnicastPackets        Counter64,
+      bdStatsUnicastBytes          Counter64,
+      bdStatsMulticastPackets      Counter64,
+      bdStatsMulticastBytes        Counter64,
+      bdStatsBroadcastPackets      Counter64,
+      bdStatsBroadcastBytes        Counter64,
+      bdStatsDiscardPackets        Counter64,
+      bdStatsDiscardBytes          Counter64
+    }
+
+  bdStatsEntityIndex OBJECT-TYPE
+    SYNTAX      EntityIndex
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "The entity index of the component reporting Bridge Domain
+                 statistics."
+    ::= { bdStatsEntry 1 }
+
+  bdStatsBdType OBJECT-TYPE
+    SYNTAX      L2BridgeDomainType
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "The type of Bridge Domain."
+    ::= { bdStatsEntry 2 }
+
+  bdStatsBdIndex OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "The principle identifier for the Bridge Domain.  This is
+                 the VLAN ID, VPWS index or VPLS index, depending on the
+                 type."
+    ::= { bdStatsEntry 3 }
+
+  bdStatsBdSubIndex OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "A secondary identifier for the Bridge Domain.  For Bridge
+                 Domains of type VLAN or VPLS it is set to 0.  For Bridge
+                 Domains of type VPWS it is set to the attachment circuit
+                 interface index."
+    ::= { bdStatsEntry 4 }
+
+  bdStatsMacsLearned OBJECT-TYPE
+    SYNTAX      Counter32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Current count of learned MAC addresses in the Filtering
+                 Database of this Bridge Domain."
+    ::= { bdStatsEntry 5 }
+
+  bdStatsUnicastPackets OBJECT-TYPE
+    SYNTAX      Counter64
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Count of unicast packets forwarded by this Bridge Domain."
+    ::= { bdStatsEntry 6 }
+
+  bdStatsUnicastBytes OBJECT-TYPE
+    SYNTAX      Counter64
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Count of bytes in unicast frames forwarded by this Bridge
+                 Domain."
+    ::= { bdStatsEntry 7 }
+
+  bdStatsMulticastPackets OBJECT-TYPE
+    SYNTAX      Counter64
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Count of multicast packets forwarded by this Bridge
+                 Domain."
+    ::= { bdStatsEntry 8 }
+
+  bdStatsMulticastBytes OBJECT-TYPE
+    SYNTAX      Counter64
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Count of bytes in multicast frames forwarded by this
+                 Bridge Domain."
+    ::= { bdStatsEntry 9 }
+
+  bdStatsBroadcastPackets OBJECT-TYPE
+    SYNTAX      Counter64
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Count of broadcast packets forwarded by this Bridge
+                 Domain."
+    ::= { bdStatsEntry 10 }
+
+  bdStatsBroadcastBytes OBJECT-TYPE
+    SYNTAX      Counter64
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Count of bytes in broadcast frames forwarded by this
+                 Bridge Domain."
+    ::= { bdStatsEntry 11 }
+
+  bdStatsDiscardPackets OBJECT-TYPE
+    SYNTAX      Counter64
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Count of discarded packets forwarded by this Bridge
+                 Domain."
+    ::= { bdStatsEntry 12 }
+
+  bdStatsDiscardBytes OBJECT-TYPE
+    SYNTAX      Counter64
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Count of bytes in discarded frames forwarded by this
+                 Bridge Domain."
+    ::= { bdStatsEntry 13 }
+
+-------------------------------------------------------------------------------
+
+--
+-- BD Stub FDB MAC Entry Table
+--
+
+  bdFdbTable OBJECT-TYPE
+    SYNTAX      SEQUENCE OF BdFdbEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "Table of FDB entries for a Bridge Domain."
+    ::= { bdObjects 7 }
+
+  bdFdbEntry OBJECT-TYPE
+    SYNTAX      BdFdbEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "An entry (conceptual row) representing FDB MAC entry for
+                 a Bridge Domain managed by the BD stub."
+    INDEX { bdFdbEntityIndex,
+            bdFdbBdType,
+            bdFdbBdIndex,
+            bdFdbBdSubIndex,
+            bdFdbMacAddress,
+            bdFdbOutIfIndex }
+    ::= { bdFdbTable 1 }
+
+  BdFdbEntry ::= SEQUENCE {
+      bdFdbEntityIndex       EntityIndex,
+      bdFdbBdType            L2BridgeDomainType,
+      bdFdbBdIndex           Unsigned32,
+      bdFdbBdSubIndex        Unsigned32,
+      bdFdbMacAddress        MacAddress,
+      bdFdbOutIfIndex        InterfaceIndex,
+      bdFdbStatus            BdFdbStatusType
+    }
+
+  bdFdbEntityIndex OBJECT-TYPE
+    SYNTAX      EntityIndex
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "The entity index of the component reporting Bridge Domain
+                 information."
+    ::= { bdFdbEntry 1 }
+
+  bdFdbBdType OBJECT-TYPE
+    SYNTAX      L2BridgeDomainType
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "The type of Bridge Domain."
+    ::= { bdFdbEntry 2 }
+
+  bdFdbBdIndex OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "The principle identifier for the Bridge Domain.  This is
+                 VPLS index, VPWS index or VLAN ID depending on type."
+    ::= { bdFdbEntry 3 }
+
+  bdFdbBdSubIndex OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "A secondary identifier for the Bridge Domain.  For VPLS
+                 and VLAN Bridge Domains it is set to 0.  For VPWS Bridge
+                 Domains this is equal to Attachment Circuit interface
+                 index."
+    ::= { bdFdbEntry 4 }
+
+  bdFdbMacAddress OBJECT-TYPE
+    SYNTAX      MacAddress
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "MAC address."
+    ::= { bdFdbEntry 5 }
+
+  bdFdbOutIfIndex OBJECT-TYPE
+    SYNTAX      InterfaceIndex
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "Output interface for this FDB entry."
+    ::= { bdFdbEntry 6 }
+
+  bdFdbStatus OBJECT-TYPE
+    SYNTAX      BdFdbStatusType
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "The status of this entry.
+
+                 -  other(1) - none of the following.
+
+                 -  invalid(2) - this entry is no longer valid (for
+                 example, it was learned but has since aged out), but
+                 has not yet been flushed from the table.
+
+                 -  learned(3) - the FDB entry has been learned and is
+                 being used.
+
+                 -  self(4) - the entry represents one of the device's
+                 addresses.  The value of bdFdbOutIfIndex indicates
+                 which of the device's interfaces has this address.
+
+                 -  mgmt(5) - the FDB entry has been statically configured
+                 by management."
+    ::= { bdFdbEntry 7 }
+
+-------------------------------------------------------------------------------
+
+--
+-- BD Stub Conformance statement
+--
+
+ bdCompliances
+    OBJECT IDENTIFIER ::= { bdConformance 1 }
+
+ bdGroups
+    OBJECT IDENTIFIER ::= { bdConformance 2 }
+
+--
+-- Module compliance is divided into two categories:
+--   - Full compliance (including DC-VLAN Manager integration)
+--   - Support for DC-L2VPN VPLS integration only
+--
+
+ bdFullCompliance MODULE-COMPLIANCE
+     STATUS current
+     DESCRIPTION "The module is implemented with support for DC-VLAN Manager
+                  integration and DC-L2VPN VPLS integration."
+     MODULE -- this module
+       MANDATORY-GROUPS {
+                          bdBaseGroup,
+                          bdVlanGroup
+                        }
+     ::= { bdCompliances 1 }
+
+ bdVplsCompliance MODULE-COMPLIANCE
+     STATUS current
+     DESCRIPTION "The module is implemented with support for DC-L2VPN VPLS
+                  integration."
+     MODULE -- this module
+       MANDATORY-GROUPS {
+                          bdBaseGroup
+                        }
+     ::= { bdCompliances 2 }
+
+--
+
+ bdBaseGroup OBJECT-GROUP
+    OBJECTS {
+              bdEntRowStatus,
+              bdEntAdminStatus,
+              bdEntOperStatus,
+              bdEntBridgeIndex,
+              bdEntEmulateProgramming,
+              bdEntProfileIndex,
+              bdEntDataPlaneChanges,
+              bdEntEnableOvs,
+              bdEntSwDataplane,
+              bdEntAllowFdbLookup,
+              bdSjJoinStatus,
+              bdStatsMacsLearned,
+              bdStatsUnicastPackets,
+              bdStatsUnicastBytes,
+              bdStatsMulticastPackets,
+              bdStatsMulticastBytes,
+              bdStatsBroadcastPackets,
+              bdStatsBroadcastBytes,
+              bdStatsDiscardPackets,
+              bdStatsDiscardBytes,
+              bdFdbStatus
+            }
+    STATUS  current
+    DESCRIPTION
+        "Objects that are common to all styles of BD Stub implementations."
+    ::= { bdGroups 1 }
+
+ bdVlanGroup OBJECT-GROUP
+    OBJECTS {
+              bdInterfaceRowStatus,
+              bdInterfaceAdminStatus,
+              bdInterfaceOperStatus,
+              bdInterfacePortState,
+              bdInterfaceDefaultPortState,
+              bdBridgeDomainInterfaceIndex,
+              bdPortStateState
+            }
+    STATUS  current
+    DESCRIPTION
+        "Objects that are specific to BD Stub implementation required for
+         DC-VLAN Manager integration."
+    ::= { bdGroups 2 }
+
+-------------------------------------------------------------------------------
+
+END

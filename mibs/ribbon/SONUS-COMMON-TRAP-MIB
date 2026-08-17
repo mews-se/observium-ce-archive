@@ -1,0 +1,111 @@
+-- Sonus Common Trap MIB
+--
+-- This module includes common trap reporting objects and notifications
+-- for all Sonus next generation devices
+--
+
+SONUS-COMMON-TRAP-MIB
+
+
+
+DEFINITIONS ::= BEGIN
+
+IMPORTS
+	MODULE-IDENTITY, OBJECT-TYPE, NOTIFICATION-TYPE, Unsigned32
+		FROM SNMPv2-SMI
+	DateAndTime, DisplayString
+		FROM SNMPv2-TC
+	sonusCspsNotificationMIBs
+		FROM SONUS-SMI
+	SonusAlarmLevel, SonusShelfIndex, SonusSlotIndex, SonusName
+		FROM SONUS-COMMON-TC;
+
+sonusCommonTrapMIB MODULE-IDENTITY
+	LAST-UPDATED "202003090000Z"
+	ORGANIZATION "Sonus Networks, Inc."
+	CONTACT-INFO
+    "   Customer Support    
+        Sonus Networks, Inc.
+        4 Technology Park Drive
+        Westford, MA 01886
+        USA
+
+        Tel: 978-614-8100
+        Fax: 978-614-8609"
+	DESCRIPTION
+		"The MIB Module for common management of all Sonus devices."
+	::= { sonusCspsNotificationMIBs 1 }
+
+sonusCommonServicesNotifications OBJECT IDENTIFIER ::= { sonusCommonTrapMIB 1 }
+sonusCommonServicesNotificationPrefix OBJECT IDENTIFIER ::= { sonusCommonServicesNotifications 0 }
+sonusCommonServicesNotificationObjects  OBJECT IDENTIFIER ::= { sonusCommonServicesNotifications 1 }
+
+sonusAlarmNodeID OBJECT-TYPE
+	SYNTAX       Unsigned32
+	MAX-ACCESS   read-only
+	STATUS       current
+	DESCRIPTION
+		"The unique indentifier of trap generating device."
+	::= { sonusCommonServicesNotificationObjects 1 }
+
+sonusAlarmLevel OBJECT-TYPE
+	SYNTAX       SonusAlarmLevel
+	MAX-ACCESS   read-only
+	STATUS       current
+	DESCRIPTION
+                "The severity level of the event that generated the trap."
+    ::= { sonusCommonServicesNotificationObjects 2 }
+
+sonusAlarmSequenceId  OBJECT-TYPE
+	SYNTAX       Unsigned32
+	MAX-ACCESS   read-only
+	STATUS       current
+	DESCRIPTION
+				"A consecutive number assigned to each trap in a
+				 sequence of traps that are sent to one management client.
+				 Each management client has its own set of sequence IDs."
+    ::= { sonusCommonServicesNotificationObjects 3 }
+
+sonusAlarmTime   OBJECT-TYPE
+	SYNTAX       DateAndTime
+	MAX-ACCESS   read-only
+	STATUS       current
+	DESCRIPTION
+				"The date and time of the event that generated the trap."
+    ::= { sonusCommonServicesNotificationObjects 4 }
+
+sonusAlarmDescription OBJECT-TYPE
+	SYNTAX       OCTET STRING(SIZE (0..1023))
+	MAX-ACCESS   read-only
+	STATUS       current
+	DESCRIPTION
+                "A description of the alarm that generated the trap."
+    ::= { sonusCommonServicesNotificationObjects 5 }
+
+sonusShelfIndex OBJECT-TYPE
+	SYNTAX       SonusShelfIndex
+	MAX-ACCESS   read-only
+	STATUS       current
+	DESCRIPTION
+				"The shelf index of the event that generated the trap."
+	::= { sonusCommonServicesNotificationObjects 6 }
+
+sonusSlotIndex OBJECT-TYPE
+	SYNTAX       SonusSlotIndex
+	MAX-ACCESS   read-only
+	STATUS       current
+	DESCRIPTION
+				"The slot index of the event that generated the trap."
+	::= { sonusCommonServicesNotificationObjects 7 }
+
+--
+--	Temporary - this should be comming from somewhere else
+--
+sonusServerID OBJECT-TYPE
+	SYNTAX       SonusName
+	MAX-ACCESS   read-only
+	STATUS       current
+	DESCRIPTION
+                "The identifier (name) of the server card."
+	::= { sonusCommonServicesNotificationObjects 8 }
+END

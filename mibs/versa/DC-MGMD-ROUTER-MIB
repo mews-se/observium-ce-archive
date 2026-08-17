@@ -1,0 +1,3874 @@
+DC-MGMD-ROUTER-MIB DEFINITIONS ::= BEGIN
+   -- PRODUCT-SHORT-NAME mgmd_rtr
+
+IMPORTS
+    MODULE-IDENTITY, OBJECT-TYPE,
+    Counter32, Gauge32, Unsigned32,
+    TimeTicks                        FROM SNMPv2-SMI
+    InetAddress,
+    InetAddressType,
+    InetAddressIPv4,
+    InetAddressIPv6                  FROM INET-ADDRESS-MIB
+    TEXTUAL-CONVENTION,
+    RowStatus, TruthValue            FROM SNMPv2-TC
+    MODULE-COMPLIANCE, OBJECT-GROUP  FROM SNMPv2-CONF
+    InterfaceIndex                   FROM IF-MIB
+    AdminStatus, NpgOperStatus,
+    EntityIndex,
+    StdAccessListListIndexOrZero,
+    ExtAccessListListIndexOrZero,
+    InterfaceScope,
+    L2BridgeDomainType               FROM DC-MASTER-TC
+    MrpmType                         FROM DC-MCAST-ROUTING-TC;
+
+dcmgmdRouterMib MODULE-IDENTITY
+    LAST-UPDATED "201501220000Z" -- Jan 22 2015
+    ORGANIZATION "Data Connection Ltd."
+    CONTACT-INFO "Postal: Data Connection Ltd.
+                          100 Church Street
+                          Enfield
+                          Middlesex EN2 6BQ
+                          United Kingdom
+                  Tel:    +44 20 83661177
+                  E-mail: dcigmp@dataconnection.com"
+    DESCRIPTION
+            "The MIB module for management of the DC-IGMP Router
+            product.  This is closely based on the router-side tables in
+            the IETF's MGMD-STD-MIB, currently defined in
+            draft-ietf-magma-mgmd-mib-08."
+  ::= { iso
+        member-body(2)
+        gb(826)
+-- Versa changed national from 0 to 42
+        national(42)
+        eng-ltd(1)
+        dataConnectionLtd(1578918)
+        adg(5)
+        igrt(86) 1}
+
+-- DC additions {
+
+MgmdRouterSrcFltMode ::= TEXTUAL-CONVENTION
+  STATUS      current
+  DESCRIPTION "The source filter mode."
+  SYNTAX      INTEGER {
+                srcFltModeInclude(1), -- include
+                srcFltModeExclude(2)  -- exclude
+              }
+
+MgmdRouterIfIsMrouterCfg ::= TEXTUAL-CONVENTION
+  STATUS      current
+  DESCRIPTION "IGMP snooping configuration values for determining whether
+               an interface is a multicast router interface - that is, an
+               interface towards a multicast router, or IGMP device acting
+               like a multicast router."
+  SYNTAX      INTEGER {
+                always(1),
+                learnQueries(2),
+                never(3)
+              }
+
+MgmdRouterFailureReason ::= TEXTUAL-CONVENTION
+  STATUS      current
+  DESCRIPTION "Reasons for MIB entries in tables in this MIB being in a failed
+               state."
+  SYNTAX      INTEGER {
+                none(0),
+                noInterface(1),
+                mismatchedAddressType(2),
+                memoryAllocFailure(3),
+                rejected(4),
+                invalidGroup(5),
+                invalidSource(6)
+              }
+
+MgmdRouterIncExcStateType ::= TEXTUAL-CONVENTION
+  STATUS      current
+  DESCRIPTION "Type of include/exclude mode state stored by IGMP Router."
+  SYNTAX      INTEGER {
+                dynamic(1),
+                static(2)
+              }
+
+MgmdRouterGisStateType ::= TEXTUAL-CONVENTION
+  STATUS      current
+  DESCRIPTION "Type of include/exclude mode state stored by IGMP Router, and
+               whether the state is SSM-mapped."
+  SYNTAX      BITS {
+                dynamic(1),
+                static(2),
+                ssmMapping(4)
+              }
+
+-- } End DC additions
+
+mgmdRouterMibObjects     OBJECT IDENTIFIER ::= { dcmgmdRouterMib 1 }
+
+-- DC additions {
+
+
+--
+--  The DC-MGMD Router Entity Table
+--
+
+mgmdRouterEntTable OBJECT-TYPE
+-- FAMILY-SHORT-NAME qgr_ent
+    SYNTAX     SEQUENCE OF MgmdRouterEntEntry
+    MAX-ACCESS not-accessible
+    STATUS     current
+    DESCRIPTION
+            "This table is used to create and manage DC-IGMP/MLD Router
+            entities.  A row in this table corresponds to a single
+            DC-IGMP/MLD Router entity."
+    ::= { mgmdRouterMibObjects 1 }
+
+mgmdRouterEntEntry OBJECT-TYPE
+    SYNTAX     MgmdRouterEntEntry
+    MAX-ACCESS not-accessible
+    STATUS     current
+    DESCRIPTION
+            "An entry (conceptual row) representing a DC-IGMP Router
+            entity."
+    INDEX      { mgmdRouterEntIndex }
+    ::= { mgmdRouterEntTable 1 }
+
+MgmdRouterEntEntry ::= SEQUENCE {
+    mgmdRouterEntIndex                       EntityIndex,
+    mgmdRouterEntAddressType                 InetAddressType,
+    mgmdRouterEntRowStatus                   RowStatus,
+    mgmdRouterEntAdminStatus                 AdminStatus,
+    mgmdRouterEntOperStatus                  NpgOperStatus,
+    mgmdRouterEntMrpmType                    MrpmType,
+    mgmdRouterEntMrpmEntIndex                EntityIndex,
+    mgmdRouterEntSsmGroupSpace               StdAccessListListIndexOrZero,
+    mgmdRouterEntStatsValidQueries           Counter32,
+    mgmdRouterEntStatsValidReports           Counter32,
+    mgmdRouterEntStatsValidLeaves            Counter32,
+    mgmdRouterEntStatsValidTotal             Counter32,
+    mgmdRouterEntStatsFltrdVersion           Counter32,
+    mgmdRouterEntStatsFltrdQryVer            Counter32,
+    mgmdRouterEntStatsFilteredLimit          Counter32,
+    mgmdRouterEntStatsFltrdGrpSrc            Counter32,
+    mgmdRouterEntStatsFltrdLinkLcl           Counter32,
+    mgmdRouterEntStatsFilteredOther          Counter32,
+    mgmdRouterEntStatsFilteredTotal          Counter32,
+    mgmdRouterEntStatsBadChecksum            Counter32,
+    mgmdRouterEntStatsBadRtrAlert            Counter32,
+    mgmdRouterEntStatsBadSSMRange            Counter32,
+    mgmdRouterEntStatsBadOther               Counter32,
+    mgmdRouterEntStatsBadTotal               Counter32,
+    mgmdRouterEntStatsSentQueries            Counter32,
+    mgmdRouterEntStatsSnoopQries             Counter32,
+    mgmdRouterEntStatsReset                  TruthValue,
+    mgmdRouterEntSnoopBrdgeDomType           L2BridgeDomainType,
+    mgmdRouterEntSnoopBrdgeDomId             Unsigned32,
+    mgmdRouterEntSnoopBrdgeDomSubId          Unsigned32,
+    mgmdRouterEntSnoopQrySrcAddrIp4          InetAddressIPv4,
+    mgmdRouterEntSnoopQrySrcAddrIp6          InetAddressIPv6,
+    mgmdRouterEntSnoopQuerier                TruthValue,
+    mgmdRouterEntScope                       InterfaceScope,
+    mgmdRouterEntI3Index                     EntityIndex,
+    mgmdRouterEntSckIndex                    EntityIndex,
+    mgmdRouterEntBdiiIndex                   EntityIndex,
+    mgmdRouterEntSnoopDisableBdii            TruthValue,
+    mgmdRouterEntBdiiRetryTimeout            Unsigned32,
+    mgmdRouterEntBdiiFailTimeout             Unsigned32,
+-- Begin Versa change {
+    mgmdRouterEntRtiName                     OCTET STRING,
+-- End Versa change }
+    mgmdRouterEntClearState                  TruthValue
+}
+
+mgmdRouterEntIndex OBJECT-TYPE
+    SYNTAX     EntityIndex
+    MAX-ACCESS not-accessible
+    STATUS     current
+    DESCRIPTION
+            "The entity index value identifying the entity."
+    ::= { mgmdRouterEntEntry 1 }
+
+mgmdRouterEntAddressType OBJECT-TYPE
+    SYNTAX     InetAddressType
+    MAX-ACCESS read-create
+    STATUS     current
+    DESCRIPTION
+            "The protocol type supported by this entity.
+
+            This object can only be changed when there are no rows configured
+            in the mgmdRouterInterfaceTable and either the admin status of this
+            row is admin down or the row status of this row is not in service.
+
+            Only ipv4 and ipv6 are supported."
+
+    DEFVAL { ipv4 }
+    ::= { mgmdRouterEntEntry 2 }
+
+mgmdRouterEntRowStatus OBJECT-TYPE
+    SYNTAX       RowStatus
+    MAX-ACCESS   read-create
+    STATUS       current
+    DESCRIPTION
+            "Used to create and delete the entity."
+    ::= { mgmdRouterEntEntry 3 }
+
+mgmdRouterEntAdminStatus OBJECT-TYPE
+    SYNTAX       AdminStatus
+    MAX-ACCESS   read-create
+    STATUS       current
+    DESCRIPTION
+            "The desired administrative state of the entity."
+    DEFVAL { adminStatusUp }
+    ::= { mgmdRouterEntEntry 4 }
+
+mgmdRouterEntOperStatus OBJECT-TYPE
+    SYNTAX       NpgOperStatus
+    MAX-ACCESS   read-only
+    STATUS       current
+    DESCRIPTION
+            "The current operational state of the entity."
+    ::= { mgmdRouterEntEntry 5 }
+
+mgmdRouterEntMrpmType OBJECT-TYPE
+    SYNTAX     MrpmType
+    MAX-ACCESS read-create
+    STATUS     current
+    DESCRIPTION
+            "The protocol type of the Multicast Routing Protocol
+             Manager (MRPM) to join to.  Together with
+             mgmdRouterEntMrpmEntIndex, this uniquely identifies the
+             MRPM entity.
+
+             To configure this entity to perform IGMP proxy, instruct
+             it to join to an MRPM performing IGMP proxy, by setting
+             this field to 'igmpproxy'.
+
+             To configure this entity to perform IGMP snooping,
+             instruct it to join to an MRPM performing IGMP snooping,
+             by setting this field to 'igmpsnooping'.
+
+             A value of 'none' is not valid.
+
+             This object cannot be changed while the row is active.
+
+             The field is not expected to be exposed to end users and
+             is not expected to change during the lifetime of the
+             DC-IGMP entity.  As such, this object follows the
+             replaceOnlyWhileDisabled behavior."
+    DEFVAL { pim }
+    ::= { mgmdRouterEntEntry 6 }
+
+mgmdRouterEntMrpmEntIndex OBJECT-TYPE
+    SYNTAX     EntityIndex
+    MAX-ACCESS read-create
+    STATUS     current
+    DESCRIPTION
+            "The entity index value of the Multicast Routing
+            Protocol Manager (MRPM) to join to.  Together with
+            mgmdRouterEntMrpmType, this uniquely identifies the MRPM
+            entity.
+
+            This object cannot be changed while the row is active.
+
+            The field is not expected to be exposed to end users and
+            is not expected to change during the lifetime of the
+            DC-IGMP entity.  As such, this object follows the
+            replaceOnlyWhileDisabled behavior."
+    DEFVAL     { 1 }
+    ::= { mgmdRouterEntEntry 7 }
+
+mgmdRouterEntSsmGroupSpace OBJECT-TYPE
+    SYNTAX       StdAccessListListIndexOrZero
+    MAX-ACCESS   read-create
+    STATUS       current
+    DESCRIPTION
+            "The definition of the SSM address range to be used by this entity.
+
+            The entity will apply SSM semantics to any group address that is
+            included in the access list identified by this object.
+
+            If the value of this object is 0, the IANA-specified SSM address
+            space is used."
+    DEFVAL     { 0 }
+    ::= { mgmdRouterEntEntry 8 }
+
+mgmdRouterEntStatsValidQueries OBJECT-TYPE
+    SYNTAX     Counter32
+    MAX-ACCESS read-only
+    STATUS     current
+    DESCRIPTION
+             "The number of received queries that were processed as valid (not
+             bad or filtered out), since the Router entity was activated.
+
+             This counter covers all interfaces, and is reset on entity
+             activation, or when mgmdRouterEntStatsReset is set to TRUE.
+
+             This value can wrap."
+    ::= { mgmdRouterEntEntry 9 }
+
+mgmdRouterEntStatsValidReports OBJECT-TYPE
+    SYNTAX     Counter32
+    MAX-ACCESS read-only
+    STATUS     current
+    DESCRIPTION
+             "The number of received reports that were processed as valid (not
+             bad or filtered out), since the Router entity was activated.
+
+             IGMPv3 and MLDv2 reports containing multiple records are counted
+             once for each valid record.
+
+             This counter covers all interfaces, and is reset on entity
+             activation, or when mgmdRouterEntStatsReset is set to TRUE.
+
+             This value can wrap."
+    ::= { mgmdRouterEntEntry 10 }
+
+mgmdRouterEntStatsValidLeaves OBJECT-TYPE
+    SYNTAX     Counter32
+    MAX-ACCESS read-only
+    STATUS     current
+    DESCRIPTION
+             "The number of received IGMPv2 leave or MLDv1 done reports that
+             were processed as valid (not bad or filtered out), since the
+             Router entity was activated.
+
+             This counter covers all interfaces, and is reset on entity
+             activation, or when mgmdRouterEntStatsReset is set to TRUE.
+
+             This value can wrap."
+    ::= { mgmdRouterEntEntry 11 }
+
+mgmdRouterEntStatsValidTotal OBJECT-TYPE
+    SYNTAX     Counter32
+    MAX-ACCESS read-only
+    STATUS     current
+    DESCRIPTION
+             "The total number of queries, reports and leaves that were
+             processed as valid (not bad or filtered out), since the Router
+             entity was activated.
+
+             This counter covers all interfaces, and is reset on entity
+             activation, or when mgmdRouterEntStatsReset is set to TRUE.
+
+             This value can wrap."
+    ::= { mgmdRouterEntEntry 12 }
+
+mgmdRouterEntStatsFltrdVersion OBJECT-TYPE
+    SYNTAX     Counter32
+    MAX-ACCESS read-only
+    STATUS     current
+    DESCRIPTION
+             "The number of reports that were not processed because they failed
+             a protocol version filter, since the Router entity was activated.
+
+             This counter covers all interfaces, and is reset on entity
+             activation, or when mgmdRouterEntStatsReset is set to TRUE.
+
+             This value can wrap."
+    ::= { mgmdRouterEntEntry 13 }
+
+mgmdRouterEntStatsFltrdQryVer OBJECT-TYPE
+    SYNTAX     Counter32
+    MAX-ACCESS read-only
+    STATUS     current
+    DESCRIPTION
+             "The number of received queries that were not processed
+             because their version clashed with the configured version for the,
+             interface they arrived on, since the Router entity was activated.
+
+             This counter covers all interfaces, and is reset on entity
+             activation, or when mgmdRouterEntStatsReset is set to TRUE.
+
+             This value can wrap."
+    ::= { mgmdRouterEntEntry 14 }
+
+mgmdRouterEntStatsFilteredLimit OBJECT-TYPE
+    SYNTAX     Counter32
+    MAX-ACCESS read-only
+    STATUS     current
+    DESCRIPTION
+             "The number of groups and sources that were not processed because
+             they exceeded a group or source state limit, since the Router
+             entity was activated.
+
+             IGMPv3 and MLDv2 reports containing multiple records and multiple
+             sources are counted once for each filtered group record, and once
+             for each filtered source.
+
+             This counter covers all interfaces, and is reset on entity
+             activation, or when mgmdRouterEntStatsReset is set to TRUE.
+
+             This value can wrap."
+    ::= { mgmdRouterEntEntry 15 }
+
+mgmdRouterEntStatsFltrdGrpSrc OBJECT-TYPE
+    SYNTAX     Counter32
+    MAX-ACCESS read-only
+    STATUS     current
+    DESCRIPTION
+             "The number of groups and sources that were not processed because
+             they were excluded by a filter, since the Router entity was
+             activated.
+
+             IGMPv3 and MLDv2 reports containing multiple records and multiple
+             sources are counted once for each filtered group record, and once
+             for each filtered source.
+
+             This counter covers all interfaces, and is reset on entity
+             activation, or when mgmdRouterEntStatsReset is set to TRUE.
+
+             This value can wrap."
+    ::= { mgmdRouterEntEntry 16 }
+
+mgmdRouterEntStatsFltrdLinkLcl OBJECT-TYPE
+    SYNTAX     Counter32
+    MAX-ACCESS read-only
+    STATUS     current
+    DESCRIPTION
+            "The number of reports that were not processed because they
+             were for a link-local multicast address, since the Router
+             entity was activated.
+
+             IGMPv3 and MLDv2 reports containing multiple records are
+             counted once for each filtered group record.
+
+             This counter covers all interfaces, and is reset on entity
+             activation, or when mgmdRouterEntStatsReset is set to
+             TRUE.
+
+             This value can wrap."
+    ::= { mgmdRouterEntEntry 17 }
+
+mgmdRouterEntStatsFilteredOther OBJECT-TYPE
+    SYNTAX     Counter32
+    MAX-ACCESS read-only
+    STATUS     current
+    DESCRIPTION
+            "The number of queries and reports that were not processed
+             for some other reason, since the Router entity was
+             activated.
+
+             IGMPv3 and MLDv2 reports containing multiple records and
+             multiple sources are counted once for each filtered group
+             record, and once for each filtered source.
+
+             This counter covers all interfaces, and is reset on entity
+             activation, or when mgmdRouterEntStatsReset is set to
+             TRUE.
+
+             This value can wrap."
+    ::= { mgmdRouterEntEntry 18 }
+
+mgmdRouterEntStatsFilteredTotal OBJECT-TYPE
+    SYNTAX     Counter32
+    MAX-ACCESS read-only
+    STATUS     current
+    DESCRIPTION
+             "The total number of filtered queries, groups and sources in
+             received messages that were not processed because they failed a
+             filter, since the Router entity was activated.
+
+             This counter covers all interfaces, and is reset on entity
+             activation, or when mgmdRouterEntStatsReset is set to TRUE.
+
+             This value can wrap."
+    ::= { mgmdRouterEntEntry 19 }
+
+mgmdRouterEntStatsBadChecksum OBJECT-TYPE
+    SYNTAX     Counter32
+    MAX-ACCESS read-only
+    STATUS     current
+    DESCRIPTION
+             "The number of received messages that were not processed
+             because they had a bad checksum, since the Router entity was
+             activated.
+
+             This counter covers all interfaces, and is reset on entity
+             activation, or when mgmdRouterEntStatsReset is set to TRUE.
+
+             This value can wrap."
+    ::= { mgmdRouterEntEntry 20 }
+
+mgmdRouterEntStatsBadRtrAlert OBJECT-TYPE
+    SYNTAX     Counter32
+    MAX-ACCESS read-only
+    STATUS     current
+    DESCRIPTION
+             "The number of received messages that were not processed
+             because they were missing the router alert option, since the
+             Router entity was activated.
+
+             This counter covers all interfaces, and is reset on entity
+             activation, or when mgmdRouterEntStatsReset is set to TRUE.
+
+             This value can wrap."
+    ::= { mgmdRouterEntEntry 21 }
+
+mgmdRouterEntStatsBadSSMRange OBJECT-TYPE
+    SYNTAX     Counter32
+    MAX-ACCESS read-only
+    STATUS     current
+    DESCRIPTION
+             "The number of records in received messages that were not
+             processed because they represent whole group join/leave
+             operations for a group in the SSM address range, since the Router
+             entity was activated.
+
+             This counter applies to IGMPv3 and MLDv2 reports only.
+
+             This counter covers all interfaces, and is reset on entity
+             activation, or when mgmdRouterEntStatsReset is set to TRUE.
+
+             This value can wrap."
+    ::= { mgmdRouterEntEntry 22 }
+
+mgmdRouterEntStatsBadOther OBJECT-TYPE
+    SYNTAX     Counter32
+    MAX-ACCESS read-only
+    STATUS     current
+    DESCRIPTION
+             "The number of received messages that were not processed because
+             of some non-conformance other than checksum, router alert, or SSM
+             clash, since the Router entity was activated.
+
+             This counter covers all interfaces, and is reset on entity
+             activation, or when mgmdRouterEntStatsReset is set to TRUE.
+
+             This value can wrap."
+    ::= { mgmdRouterEntEntry 23 }
+
+mgmdRouterEntStatsBadTotal OBJECT-TYPE
+    SYNTAX     Counter32
+    MAX-ACCESS read-only
+    STATUS     current
+    DESCRIPTION
+             "The total number of received records and messages that were not
+             processed because of some non-conformance, since the Router
+             entity was activated.
+
+             This counter covers all interfaces, and is reset on entity
+             activation, or when mgmdRouterEntStatsReset is set to TRUE.
+
+             This value can wrap."
+    ::= { mgmdRouterEntEntry 24 }
+
+mgmdRouterEntStatsSentQueries OBJECT-TYPE
+    SYNTAX     Counter32
+    MAX-ACCESS read-only
+    STATUS     current
+    DESCRIPTION
+            "The total number of queries sent by this Router entity
+             since it was activated.
+
+             This counter covers all interfaces, and is reset on entity
+             activation, or when mgmdRouterEntStatsReset is set to
+             TRUE.
+
+             This value can wrap."
+    ::= { mgmdRouterEntEntry 25 }
+
+mgmdRouterEntStatsSnoopQries OBJECT-TYPE
+    SYNTAX     Counter32
+    MAX-ACCESS read-only
+    STATUS     current
+    DESCRIPTION
+            "The total number of queries received from non-Querier
+             snooping switches (that is, queries with the unspecified
+             address as the source IP address, 0.0.0.0 for IPv4, :: for
+             IPv6) by this Router entity since it was activated.
+
+             This counter covers all interfaces, and is reset on entity
+             activation, or when mgmdRouterEntStatsReset is set to
+             TRUE.
+
+             This value can wrap."
+    ::= { mgmdRouterEntEntry 26 }
+
+mgmdRouterEntStatsReset OBJECT-TYPE
+    SYNTAX     TruthValue
+    MAX-ACCESS read-create
+    STATUS     current
+    DESCRIPTION
+            "Set this object to 'true' to reset all stats counters in this
+             table.
+
+            Reading the value of this object has no meaning."
+    DEFVAL { false }
+    ::= { mgmdRouterEntEntry 27 }
+
+
+  mgmdRouterEntSnoopBrdgeDomType OBJECT-TYPE
+    SYNTAX      L2BridgeDomainType
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+            "The type of bridge domain supported by this entity.  This
+             value is learned from the MRPM join partner.
+
+             This field is only relevant for IGMP snooping.  If the
+             entity is not joined to an MRPM performing IGMP snooping,
+             this field is set to 'none'."
+    ::= { mgmdRouterEntEntry 28 }
+
+  mgmdRouterEntSnoopBrdgeDomId OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+            "The principal ID of the bridge domain supported by this
+             entity.  This value is learned from the MRPM join partner.
+
+             This field is only valid if mgmdRouterEntSnoopBrdgeDomType
+             is not 'none'.  Otherwise, this field is set to
+             AMB_L2_BRIDGE_DOMAIN_ID_MIN.
+
+             The interpretation of this value depends upon the value of
+             mgmdRouterEntSnoopBrdgeDomType.
+
+             This field is only relevant for IGMP snooping."
+    ::= { mgmdRouterEntEntry 29 }
+
+  mgmdRouterEntSnoopBrdgeDomSubId OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+            "The secondary ID of the bridge domain supported by this
+             entity.  This value is learned from the MRPM join partner.
+
+             This field is only valid if mgmdRouterEntSnoopBrdgeDomType
+             is 'vpws' or 'vpls'.  Otherwise, this field is set to
+             AMB_L2_BRIDGE_DOMAIN_ID_MIN.
+
+             The interpretation of this value depends upon the value of
+             mgmdRouterEntSnoopBrdgeDomType.
+
+             This field is only relevant for IGMP snooping."
+    ::= { mgmdRouterEntEntry 30 }
+
+  mgmdRouterEntSnoopQrySrcAddrIp4 OBJECT-TYPE
+    SYNTAX      InetAddressIPv4
+    MAX-ACCESS  read-create
+    STATUS      current
+    DESCRIPTION
+            "If the entity is performing IGMP snooping, this is the
+             source IPv4 address for all types of Query message that it
+             originates.
+
+             The default value is the unspecified address (0.0.0.0).
+
+             This field has no effect on received Query messages that
+             are then flooded - their source IP address is unchanged.
+
+             If the entity is not performing IGMP snooping, or
+             mgmdRouterEntAddressType is not 'ipv4', this field has no
+             effect."
+    ::= { mgmdRouterEntEntry 31 }
+
+  mgmdRouterEntSnoopQrySrcAddrIp6 OBJECT-TYPE
+    SYNTAX      InetAddressIPv6
+    MAX-ACCESS  read-create
+    STATUS      current
+    DESCRIPTION
+            "If the entity is performing IGMP snooping, this is the
+             source IPv6 address for all types of Query message that it
+             originates.
+
+             The default value is the unspecified address (::).
+
+             This field has no effect on received Query messages that
+             are then flooded - their source IP address is unchanged.
+
+             If the entity is not performing IGMP snooping, or
+             mgmdRouterEntAddressType is not 'ipv6', this field has no
+             effect."
+    ::= { mgmdRouterEntEntry 32 }
+
+  mgmdRouterEntSnoopQuerier OBJECT-TYPE
+    SYNTAX      TruthValue
+    MAX-ACCESS  read-create
+    STATUS      current
+    DESCRIPTION
+            "If the entity is performing IGMP snooping, set this field
+             to 'true' to enable origination of periodic General Query
+             messages.
+
+             The source address to use on these Query messages is
+             specified by mgmdRouterEntSnoopQrySrcAddrIp4 or
+             mgmdRouterEntSnoopQrySrcAddrIp6.
+
+             On a typical subnet, a multicast router originates
+             periodic General Query messages.  If there is no multicast
+             router, periodic General Query messages must be originated
+             by a snooping switch instead.
+
+             If mgmdRouterInterfaceMrouterCfgd is set to 'always' for
+             any interface, the entity does not originate periodic
+             General Query messages and this field has no effect.
+
+             Regardless of the value of this field, the entity
+             originates General Query messages immediately after IGMP
+             snooping starts/restarts running on the interface, in
+             order to achieve faster convergence of group membership
+             state.  This start/restart can be triggered by
+             administrative events (activation of the interface, or the
+             entity) or network events (a layer 2 topology change, or
+             recovery of a failed interface).
+
+             If the entity is not performing IGMP snooping, this field
+             has no effect."
+    DEFVAL { false }
+    ::= { mgmdRouterEntEntry 33 }
+
+  mgmdRouterEntScope OBJECT-TYPE
+    SYNTAX      InterfaceScope
+    MAX-ACCESS  read-create
+    STATUS      current
+    DESCRIPTION
+            "The scope of interfaces to be used by this entity.
+
+             When this entity requests information about interfaces,
+             the request includes the scope of information that the
+             component wishes to receive.  Only interfaces with
+             matching scope are distributed to the component.
+
+             For example, this may be used to indicate that this entity
+             operates at the scope of a specified line card.
+
+             The first byte in the array specifies how many subsequent
+             bytes are valid.  Otherwise, the meaning of the bytes in
+             this array are opaque to this entity.
+
+             The default value is a 1-byte array, with value 0x00.  The
+             reference implementation of the I3 stub interprets the
+             default value to mean that the entity supports all
+             interfaces.
+
+             This object cannot be changed while the row is active.
+
+             The field is not expected to be exposed to end users and
+             is not expected to change during the lifetime of the
+             DC-IGMP entity.  As such, this object follows the
+             replaceOnlyWhileDisabled behavior."
+    DEFVAL { ''h }
+    ::= { mgmdRouterEntEntry 34 }
+
+mgmdRouterEntI3Index OBJECT-TYPE
+    SYNTAX     EntityIndex
+    MAX-ACCESS read-create
+    STATUS     current
+    DESCRIPTION
+            "The entity index of the I3 instance to which DC-IGMP
+            should join.
+
+            This object cannot be changed while the row is active.
+
+            The field is not expected to be exposed to end users and
+            is not expected to change during the lifetime of the
+            DC-IGMP entity.  As such, this object follows the
+            replaceOnlyWhileDisabled behavior."
+    DEFVAL     { 1 }
+    ::= { mgmdRouterEntEntry 35 }
+
+mgmdRouterEntSckIndex OBJECT-TYPE
+    SYNTAX     EntityIndex
+    MAX-ACCESS read-create
+    STATUS     current
+    DESCRIPTION
+            "The entity index of the Sockets stub instance to which
+            DC-IGMP should join.
+
+            This object cannot be changed while the row is active.
+
+            The field is not expected to be exposed to end users and
+            is not expected to change during the lifetime of the
+            DC-IGMP entity.  As such, this object follows the
+            replaceOnlyWhileDisabled behavior."
+    DEFVAL     { 1 }
+    ::= { mgmdRouterEntEntry 36 }
+
+mgmdRouterEntBdiiIndex OBJECT-TYPE
+    SYNTAX     EntityIndex
+    MAX-ACCESS read-create
+    STATUS     current
+    DESCRIPTION
+            "The entity index of the BDII instance to which DC-IGMP
+            should join.
+
+            This object cannot be changed while the row is active.
+
+            The field is not expected to be exposed to end users and
+            is not expected to change during the lifetime of the
+            DC-IGMP entity.  As such, this object follows the
+            replaceOnlyWhileDisabled behavior."
+    DEFVAL     { 1 }
+    ::= { mgmdRouterEntEntry 37 }
+
+mgmdRouterEntSnoopDisableBdii OBJECT-TYPE
+    SYNTAX     TruthValue
+    MAX-ACCESS read-create
+    STATUS     current
+    DESCRIPTION
+            "If the entity is performing IGMP snooping, DC-IGMP can
+            maintain either a BDII join or an I3 join to get active
+            topology information.  Set this field to 'false' to enable
+            usage of a BDII join for this purpose.  Set this field to
+            'true' to enable usage of an I3 join instead.
+
+            If the entity is not performing IGMP snooping, this field
+            has no effect.
+
+            This object cannot be changed while the row is active.
+
+            The field is not expected to be exposed to end users and
+            is not expected to change during the lifetime of the
+            DC-IGMP entity.  As such, this object follows the
+            replaceOnlyWhileDisabled behavior."
+    DEFVAL     { false }
+    ::= { mgmdRouterEntEntry 38 }
+
+mgmdRouterEntBdiiRetryTimeout OBJECT-TYPE
+    SYNTAX     Unsigned32
+    MAX-ACCESS read-create
+    STATUS     current
+    DESCRIPTION
+            "The time the local router will wait before re-querying
+            the bridge domain manager."
+    DEFVAL     { 30000 }
+    ::= { mgmdRouterEntEntry 39 }
+
+mgmdRouterEntBdiiFailTimeout OBJECT-TYPE
+    SYNTAX     Unsigned32
+    MAX-ACCESS read-create
+    STATUS     current
+    DESCRIPTION
+            "The time the local router will wait after the BDII join
+            has failed before discarding all information learned over
+            the BDII."
+    DEFVAL     { 60000 }
+    ::= { mgmdRouterEntEntry 40 }
+
+
+
+-- } End DC additions
+
+-- Begin Versa change {
+
+ mgmdRouterEntRtiName OBJECT-TYPE
+    SYNTAX      OCTET STRING (SIZE (0..128))
+    MAX-ACCESS  read-create
+    STATUS      current
+    DESCRIPTION "This value describes routing instance name. This value
+                 is passed, while configuring the routing instance."
+    ::= { mgmdRouterEntEntry 41  }
+
+-- End Versa change }
+
+mgmdRouterEntClearState OBJECT-TYPE
+    SYNTAX     TruthValue
+    MAX-ACCESS read-create
+    STATUS     current
+    DESCRIPTION
+            "Set this object to 'true' to cause this entity
+            to remove all group membership state.
+
+            When read, this field always returns false."
+    DEFVAL     { false }
+    ::= { mgmdRouterEntEntry 42 }
+
+--
+--  The DC-MGMD Router Interface Table
+--
+
+mgmdRouterInterfaceTable OBJECT-TYPE
+-- FAMILY-SHORT-NAME qgr_if
+    SYNTAX     SEQUENCE OF MgmdRouterInterfaceEntry
+    MAX-ACCESS not-accessible
+    STATUS     current
+    DESCRIPTION
+-- DC modifications {
+--                   Text clarification
+            "This table is used to create and manage interfaces on which
+             IGMP or MLD is enabled."
+-- } End DC modifications
+    ::= { mgmdRouterMibObjects 3 }
+
+mgmdRouterInterfaceEntry OBJECT-TYPE
+    SYNTAX     MgmdRouterInterfaceEntry
+    MAX-ACCESS not-accessible
+    STATUS     current
+    DESCRIPTION
+            "An entry (conceptual row) representing an interface on
+            which IGMP or MLD is enabled."
+-- DC modifications {
+--                   Added entity index as primary index field
+    INDEX      { mgmdRouterEntIndex,
+-- } End DC modifications
+                 mgmdRouterInterfaceIfIndex,
+                 mgmdRouterInterfaceQuerierType }
+    ::= { mgmdRouterInterfaceTable 1 }
+
+MgmdRouterInterfaceEntry ::= SEQUENCE {
+    mgmdRouterInterfaceIfIndex                   InterfaceIndex,
+    mgmdRouterInterfaceQuerierType               InetAddressType,
+    mgmdRouterInterfaceQuerier                   InetAddress,
+    mgmdRouterInterfaceQryInterval               Unsigned32,
+    mgmdRouterInterfaceStatus                    RowStatus,
+-- DC additions {
+    mgmdRouterInterfaceAdminStatus               AdminStatus,
+    mgmdRouterInterfaceOperStatus                NpgOperStatus,
+-- } End DC additions
+    mgmdRouterInterfaceVersion                   Unsigned32,
+    mgmdRouterInterfaceQryMaxRspTme              Unsigned32,
+    mgmdRouterInterfaceQrierUpTime               TimeTicks,
+    mgmdRouterInterfaceQrierExpTme               TimeTicks,
+    mgmdRouterInterfaceWrongVQries               Counter32,
+    mgmdRouterInterfaceJoins                     Counter32,
+-- DC removals {
+--              Proxy interface is a per entity object, not per interface
+--     mgmdRouterInterfaceProxyIfIndex             InterfaceIndexOrZero,
+-- } End DC removals
+-- DC additions {
+    mgmdRouterInterfaceGroupsLimit               Unsigned32,
+    mgmdRouterInterfaceSourcesLimit              Unsigned32,
+-- } End DC additions
+    mgmdRouterInterfaceGroups                    Gauge32,
+-- DC additions {
+    mgmdRouterInterfaceSources                   Gauge32,
+-- } End DC additions
+    mgmdRouterInterfaceRobustness                Unsigned32,
+    mgmdRouterInterfaceLstMemQryIvl              Unsigned32,
+    mgmdRouterInterfaceLstMemQryCnt              Unsigned32,
+    mgmdRouterInterfaceStartQryIvl               Unsigned32,
+    mgmdRouterInterfaceStartQryCnt               Unsigned32,
+-- DC additions {
+    mgmdRouterInterfaceDrpNoRtrAlrt              TruthValue,
+    mgmdRouterInterfaceDrpIgmpV1                 TruthValue,
+    mgmdRouterInterfaceDpIgmpV2MldV1             TruthValue,
+    mgmdRouterInterfaceImmedtLeave               TruthValue,
+    mgmdRouterInterfaceAllowASMList              StdAccessListListIndexOrZero,
+    mgmdRouterInterfaceAllowSSMList              ExtAccessListListIndexOrZero,
+    mgmdRouterInterfaceQryBefImmdLv              TruthValue,
+    mgmdRouterInterfaceFailedJoins               Counter32,
+    mgmdRouterInterfaceGenQrySent                Counter32,
+    mgmdRouterInterfaceSpecQrySent               Counter32,
+    mgmdRouterInterfaceTotlRcvdMsgs              Counter32,
+    mgmdRouterInterfaceIgmpV1                    Counter32,
+    mgmdRouterInterfaceIgmpV2MldV1               Counter32,
+    mgmdRouterInterfaceIgmpV3MldV2               Counter32,
+    mgmdRouterInterfaceInvalidMsgs               Counter32,
+    mgmdRouterInterfacePeakGroups                Unsigned32,
+    mgmdRouterInterfaceEnableStats               TruthValue,
+    mgmdRouterInterfaceAllowSGList               ExtAccessListListIndexOrZero,
+    mgmdRouterInterfaceQrRobustness              Unsigned32,
+    mgmdRouterInterfaceQrQryIvl                  Unsigned32,
+    mgmdRouterInterfaceQrQryMaxRspT              Unsigned32,
+    mgmdRouterInterfaceQrLstQryIvl               Unsigned32,
+    mgmdRouterInterfaceStatsUpTime               TimeTicks,
+    mgmdRouterInterfaceMrouterCfgd               MgmdRouterIfIsMrouterCfg,
+    mgmdRouterInterfaceMrouterShow               TruthValue,
+    mgmdRouterInterfaceProxyUpstrIf              TruthValue,
+    mgmdRouterInterfacePassive                   TruthValue,
+    mgmdRouterInterfaceV2MldV1QSent              Counter32,
+    mgmdRouterInterfaceV2MldV1QRcvd              Counter32,
+    mgmdRouterInterfaceV2MldV1RRcvd              Counter32,
+    mgmdRouterInterfaceV2MldV1LRcvd              Counter32,
+    mgmdRouterInterfaceV3MldV2QSent              Counter32,
+    mgmdRouterInterfaceV3MldV2QRcvd              Counter32,
+    mgmdRouterInterfaceV3MldV2RRcvd              Counter32,
+    mgmdRouterInterfaceInvChecksum               Counter32,
+    mgmdRouterInterfaceInvalidLen                Counter32,
+    mgmdRouterInterfaceInvLocalIP                Counter32,
+    mgmdRouterInterfaceInvSubnet                 Counter32,
+    mgmdRouterInterfaceInvNonQuerier             Counter32,
+    mgmdRouterInterfaceWrongVRep                 Counter32,
+    mgmdRouterInterfaceInvMsgType                Counter32,
+    mgmdRouterInterfaceInvV2Reports              Counter32,
+    mgmdRouterInterfaceInvV3Reports              Counter32,
+    mgmdRouterInterfaceInvLeaves                 Counter32,
+    mgmdRouterInterfaceBadRtrAlert               Counter32,
+    mgmdRouterInterfaceLstMQrCntCfg              Unsigned32,
+    mgmdRouterInterfaceStQryIvlCfg               Unsigned32,
+    mgmdRouterInterfaceStQryCntCfg               Unsigned32,
+    mgmdRouterInterfaceQueryExpTime              Unsigned32,
+    mgmdRouterInterfaceExplTracking              TruthValue
+-- } End DC additions
+}
+
+-- DC additions {
+
+-- This object is imported from the mgmdRouterEntTable.  For the DC
+-- implementation of a MIB Get response, this exists as a conceptual
+-- object in the row.
+--
+-- mgmdRouterEntIndex OBJECT-TYPE
+--  ::= { mgmdRouterInterfaceEntry 1 }
+
+-- } End DC additions
+
+mgmdRouterInterfaceIfIndex OBJECT-TYPE
+    SYNTAX     InterfaceIndex
+    MAX-ACCESS not-accessible
+    STATUS     current
+    DESCRIPTION
+            "The ifIndex value of the interface for which IGMP or MLD
+            is enabled.  The table is indexed by the ifIndex value and
+            the InetAddressType to allow for interfaces which may be
+            configured in both IPv4 and IPv6 modes."
+    ::= { mgmdRouterInterfaceEntry 2 }
+
+mgmdRouterInterfaceQuerierType OBJECT-TYPE
+    SYNTAX     InetAddressType
+    MAX-ACCESS not-accessible
+    STATUS     current
+    DESCRIPTION
+            "The address type of this interface.  This entry along with
+             the ifIndex value acts as the index to the
+             mgmdRouterInterface table.  A physical interface may be
+-- DC modifications {
+--                   Text clarification
+             configured in multiple modes concurrently (for example, in
+             IPv4 and IPv6 modes connected to the same interface),
+-- } End DC modifications
+             however the traffic is considered to be logically separate.
+-- DC modifications {
+
+             This must match the entity address type
+             mgmdRouterEntAddressType."
+-- } End DC modifications
+
+    ::= { mgmdRouterInterfaceEntry 3 }
+
+mgmdRouterInterfaceQuerier OBJECT-TYPE
+-- DC modifications {
+--                   Add size constraints
+    SYNTAX     InetAddress (SIZE(4|16))
+-- } End DC modifications
+    MAX-ACCESS read-only
+    STATUS     current
+
+    DESCRIPTION
+            "The address of the IGMP or MLD Querier on the IP subnet to
+-- DC modifications {
+--                   Text clarification
+            which this interface is attached.  The InetAddressType (for
+            example, IPv4 or IPv6), is identified by the
+-- } End DC modifications
+            mgmdRouterInterfaceQuerierType variable in the
+            mgmdRouterInterface table."
+    ::= { mgmdRouterInterfaceEntry 4 }
+
+mgmdRouterInterfaceQryInterval OBJECT-TYPE
+    SYNTAX     Unsigned32 (1..31744)
+    UNITS      "seconds"
+    MAX-ACCESS read-create
+    STATUS     current
+    DESCRIPTION
+-- DC modifications {
+--                   Text clarification
+            "The desired value of Query Interval on this interface.
+
+             The frequency at which IGMP or MLD General Query packets
+             are transmitted on this interface.
+
+             For IGMPv3/MLDv2, if the entity is not the querier on this
+             interface, this configured value will be overridden if the
+             querier sends a non-zero QQI value in its Query messages.
+             The in-use value can be read from
+             mgmdRouterInterfaceQrQryIvl."
+-- } End DC modifications
+    DEFVAL     { 125 }
+    ::= { mgmdRouterInterfaceEntry 5 }
+
+mgmdRouterInterfaceStatus OBJECT-TYPE
+    SYNTAX     RowStatus
+    MAX-ACCESS read-create
+    STATUS     current
+    DESCRIPTION
+-- DC modifications {
+--                   Text clarification
+            "The status of this MIB row.
+
+            The activation of a row enables the router side of IGMP or
+            MLD on the interface.  The destruction of a row disables the
+            router side of IGMP or MLD on the interface.
+
+            All writeable objects in this entry can be modified when the
+            status of this entry is active."
+-- } End DC modifications
+    ::= { mgmdRouterInterfaceEntry 6 }
+
+-- DC additions {
+mgmdRouterInterfaceAdminStatus OBJECT-TYPE
+    SYNTAX       AdminStatus
+    MAX-ACCESS   read-create
+    STATUS       current
+    DESCRIPTION
+            "The desired administrative state of the interface."
+    DEFVAL { adminStatusUp }
+    ::= { mgmdRouterInterfaceEntry 7 }
+
+mgmdRouterInterfaceOperStatus OBJECT-TYPE
+    SYNTAX       NpgOperStatus
+    MAX-ACCESS   read-only
+    STATUS       current
+    DESCRIPTION
+            "The current operational state of the interface."
+    ::= { mgmdRouterInterfaceEntry 8 }
+
+-- } End DC additions
+
+mgmdRouterInterfaceVersion OBJECT-TYPE
+    SYNTAX     Unsigned32 (1..3)
+    MAX-ACCESS read-create
+    STATUS     current
+    DESCRIPTION
+            "The version of MGMD which is running on this interface.
+             Value 1 applies to IGMPv1 routers only.  Value 2 applies
+             to IGMPv2 and MLDv1 routers, and value 3 applies to IGMPv3
+             and MLDv2 routers.
+
+             This object can be used to configure a router / snooping
+             querier capable of running any version.  For IGMP and MLD
+             to function correctly, all routers / snooping queriers on
+-- DC modifications {
+--                   Text clarification
+             a LAN must be configured to run the same version on that
+             LAN.
+-- } End DC modifications
+
+             For IGMP snooping, this configured value will not be used
+             if the entity is not the querier on this interface."
+-- Versa changed  default value
+    DEFVAL     { 2 }
+    ::= { mgmdRouterInterfaceEntry 9 }
+
+mgmdRouterInterfaceQryMaxRspTme OBJECT-TYPE
+-- DC modifications { - see additional DESCRIPTION text for range change
+    SYNTAX     Unsigned32 (0..83876)
+-- } End DC modifications
+    UNITS      "tenths of seconds"
+    MAX-ACCESS read-create
+    STATUS     current
+    DESCRIPTION
+            "The desired value of Maximum Query Response Time for this
+             interface.
+
+             The Maximum Query Response Time is advertised in MGMDv2 or
+             v3 queries on this interface.
+
+-- DC modifications {
+--                   Describe range and potential rounding, clarify text.
+             Different versions of IGMP and MLD support different
+             maximum values in protocol messages.  Accordingly, while
+             83876 is the absolute maximum, the allowed range may be
+             smaller, depending on the configured protocol and version
+             for this interface.
+
+             MLDv2 supports values up to 83876 (10ths of seconds).
+             MLDv1 supports values up to 655 (10ths of seconds).
+             IGMPv3 supports values up to 31744 (10ths of seconds).
+             IGMPv2 supports values up to 255 (10ths of seconds).
+             IGMPv1 does not support variable response times.
+
+             This interval is stored with the same exponential encoding
+             format used for protocol packets.  Values above 327 will
+             be rounded down to the next lower value that can be
+             expressed by MLDv2.
+
+             For IGMPv3/MLDv2 or IGMP snooping, this configured value
+             will not be used if the entity is not the querier on this
+             interface.  The in-use value can be read from
+             mgmdRouterInterfaceQrQryMaxRspT."
+-- } End DC modifications
+    DEFVAL     { 100 }
+    ::= { mgmdRouterInterfaceEntry 10 }
+
+mgmdRouterInterfaceQrierUpTime OBJECT-TYPE
+    SYNTAX     TimeTicks
+    MAX-ACCESS read-only
+    STATUS     current
+
+    DESCRIPTION
+            "The time since mgmdRouterInterfaceQuerier was last
+            changed."
+-- DC removals {
+--              Default meaningless for read-only fields
+--  DEFVAL     { 0 }
+-- } End DC removals
+    ::= { mgmdRouterInterfaceEntry 11 }
+
+mgmdRouterInterfaceQrierExpTme OBJECT-TYPE
+    SYNTAX     TimeTicks
+    MAX-ACCESS read-only
+    STATUS     current
+    DESCRIPTION
+            "The amount of time remaining before the Other Querier
+            Present Timer expires.  If the local system is the querier,
+            the value of this object is zero."
+    ::= { mgmdRouterInterfaceEntry 12 }
+
+mgmdRouterInterfaceWrongVQries OBJECT-TYPE
+    SYNTAX     Counter32
+    MAX-ACCESS read-only
+    STATUS     current
+    DESCRIPTION
+             "The number of general queries received whose IGMP or MLD
+             version does not match the equivalent
+             mgmdRouterInterfaceVersion, over the lifetime of the row
+             entry.  Both IGMP and MLD require that all routers on a LAN
+             be configured to run the same version.  Thus, if any
+             general queries are received with the wrong version, this
+             indicates a configuration error.
+
+-- DC addition {
+--              Add mgmdRouterInterfaceEnableStats object
+             This counter is only returned on a GET operation for this
+             MIB row if mgmdRouterInterfaceEnableStats is set to
+             'true'.
+
+             This counter is reset to zero when the MIB row is initially
+             created, and when mgmdRouterInterfaceEnableStats is
+             modified to 'true'.  At other times it behaves like an
+             SNMP counter, in that it only increases, never decreases,
+             and is subject to wrap."
+-- } End DC addition
+    ::= { mgmdRouterInterfaceEntry 13 }
+
+mgmdRouterInterfaceJoins OBJECT-TYPE
+    SYNTAX     Counter32
+    MAX-ACCESS read-only
+    STATUS     current
+    DESCRIPTION
+            "The number of times a group membership has been added on
+            this interface; that is, the number of times an entry for
+            this interface has been added to the Cache Table.  This
+            object gives an indication of the amount of IGMP or MLD
+            activity over the lifetime of the row entry.
+
+-- DC modifications {
+--              Add mgmdRouterInterfaceEnableStats object
+--              Default meaningless for read-only fields
+            This counter is only returned on a GET operation for this
+            MIB row if mgmdRouterInterfaceEnableStats is set to
+            'true'.
+
+            This counter is reset to zero when the MIB row is initially
+            created, and when mgmdRouterInterfaceEnableStats is
+            modified to 'true'.  At other times it behaves like an
+            SNMP counter, in that it only increases, never decreases,
+            and is subject to wrap."
+--  DEFVAL     { 0 }
+-- } End DC modifications
+    ::= { mgmdRouterInterfaceEntry 14 }
+
+-- DC removals {
+--
+-- This object configures proxy functionality, and hence will be
+-- supported by the DC-IGMP Proxy component.
+--
+-- mgmdRouterInterfaceProxyIfIndex OBJECT-TYPE
+--     SYNTAX     InterfaceIndexOrZero
+--     MAX-ACCESS read-create
+--     STATUS     current
+--     DESCRIPTION
+--             "Some devices implement a form of IGMP or MLD proxying
+--             whereby memberships learned on the interface represented
+--             by this row, cause Host Membership Reports to be sent on
+--             the interface whose ifIndex value is given by this
+--             object.  Such a device would implement the
+--             mgmdV2RouterMibGroup only on its router interfaces (those
+--             interfaces with non-zero
+--             mgmdRouterInterfaceProxyIfIndex).  Typically, the value
+--             of this object is 0, indicating that no proxying is being
+--             done."
+--     DEFVAL     { 0 }
+--     ::= { mgmdRouterInterfaceEntry 12 }
+--
+-- } End DC removals
+
+-- DC additions {
+
+mgmdRouterInterfaceGroupsLimit OBJECT-TYPE
+    SYNTAX       Unsigned32
+    MAX-ACCESS   read-create
+    STATUS       current
+    DESCRIPTION
+            "The maximum number of entries for this interface in the
+            RouterCache Table.  If this object is 0, there is no limit."
+    DEFVAL     { 0 }
+    ::= { mgmdRouterInterfaceEntry 15 }
+
+mgmdRouterInterfaceSourcesLimit OBJECT-TYPE
+    SYNTAX       Unsigned32
+    MAX-ACCESS   read-create
+    STATUS       current
+    DESCRIPTION
+            "The maximum number of entries for this interface in the
+            RouterSrcList Table.  If this object is 0, there is no
+            limit."
+    DEFVAL     { 0 }
+    ::= { mgmdRouterInterfaceEntry 16 }
+
+-- } End DC additions
+
+mgmdRouterInterfaceGroups OBJECT-TYPE
+    SYNTAX     Gauge32
+    MAX-ACCESS read-only
+    STATUS     current
+    DESCRIPTION
+            "The current number of entries for this interface in the
+            RouterCache Table.
+
+-- DC modifications {
+--              Add text for gauge behavior
+            This field is an SNMP gauge.  It can increase or decrease,
+            but never wraps."
+--              Default meaningless for read-only fields
+--  DEFVAL     { 0 }
+-- } End DC modifications
+    ::= { mgmdRouterInterfaceEntry 17 }
+
+-- DC additions {
+
+mgmdRouterInterfaceSources OBJECT-TYPE
+    SYNTAX     Gauge32
+    MAX-ACCESS read-only
+    STATUS     current
+    DESCRIPTION
+            "The current number of entries for this interface in the
+            mgmdRouterSrcList Table.
+
+            This includes sources which are not visible in
+            mgmdRouterSrcList because they don't match the mode of their
+            parent group - for example explicitly included sources for a
+            group in exclude mode.
+
+            This field is an SNMP gauge.  It can increase or decrease,
+            but never wraps."
+    ::= { mgmdRouterInterfaceEntry 18 }
+
+-- } End DC additions
+
+mgmdRouterInterfaceRobustness OBJECT-TYPE
+    SYNTAX     Unsigned32 (1..255)
+    MAX-ACCESS read-create
+    STATUS     current
+    DESCRIPTION
+-- DC modifications {
+            "The desired value of Robustness on this interface.
+-- } End DC modifications
+
+             The Robustness Variable allows tuning for the expected
+             packet loss on a subnet.  If a subnet is expected to be
+-- DC modifications {
+--                   Text clarification
+             lossy, the Robustness Variable may be increased.  IGMP and
+             MLD is robust to (Robustness Variable-1) packet losses.
+
+             This configured value will not be used if one or more of
+             the following are true.
+
+             -  The entity is configured to use IGMPv3/MLDv2 and the
+             local device is not the querier on this interface.
+
+             -  The entity configured to use IGMP snooping and to
+             perform immediate-leave processing, and the local
+             device is not the querier.
+
+             The querier's value can be read from
+             mgmdRouterInterfaceQrRobustness."
+-- } End DC modifications
+    DEFVAL     { 2 }
+    ::= { mgmdRouterInterfaceEntry 19 }
+
+mgmdRouterInterfaceLstMemQryIvl OBJECT-TYPE
+-- DC modifications {
+--                   - Use 1 tenth of a second (rather than 0) as the minimum
+--                     value, because this field is used as the time between
+--                     Group-Specific and Source-Specific Query messages.
+--                   - See DESCRIPTION for the amended upper limit.
+    SYNTAX     Unsigned32 (1..83876)
+-- } End DC modifications
+    UNITS      "tenths of seconds"
+    MAX-ACCESS read-create
+    STATUS     current
+    DESCRIPTION
+-- DC modifications {
+--                   - Explain how this field interacts with
+--                     mgmdRouterInterfaceImmedtLeave and
+--                     mgmdRouterInterfaceQryBefImmdLv.
+--                   - Describe potential rounding.
+--
+            "The desired value of Last Member Query Interval on this
+             interface.
+
+             The Last Member Query Interval is the Max Response Time
+             inserted into Group-Specific and Group-and-Source-specific
+             Queries sent in response to Leave messages, and is also
+             the amount of time between successive Specific Query
+             messages.  This value may be tuned to modify the leave
+             latency of the network.  A reduced value results in
+             reduced time to detect the loss of the last member of a
+             group.
+
+             The value of this object is irrelevant if
+             mgmdRouterInterfaceVersion is 1.
+
+             The value of this object is also irrelevant if this
+             interface is configured to use immediate-leave behavior
+             without a last member query - that is, if
+             mgmdRouterInterfaceImmedtLeave is 'true' and
+             mgmdRouterInterfaceQryBefImmdLv is 'false'.
+
+             Different versions of IGMP and MLD support different
+             maximum values in protocol messages.  Accordingly, while
+             83876 is the absolute maximum, the allowed range may be
+             smaller, depending on the configured protocol and version
+             for this interface.
+
+             MLDv2 supports values up to 83876 (10ths of seconds).
+             MLDv1 supports values up to 655 (10ths of seconds).
+             IGMPv3 supports values up to 31744 (10ths of seconds).
+             IGMPv2 supports values up to 255 (10ths of seconds).
+             IGMPv1 does not support specific queries.
+
+             This interval is stored with the same exponential encoding
+             format used for protocol packets.  Values above 327 will
+             be rounded down to the next lower value that can be
+             expressed by MLDv2.
+
+             For IGMPv3/MLDv2, if the entity is not performing IGMP
+             snooping, this configured value will not be used if the
+             local router is not the querier on this interface.  The
+             in-use value can be read from
+             mgmdRouterInterfaceQrLstQryIvl."
+-- } End DC modifications
+    DEFVAL     { 10 }
+    ::= { mgmdRouterInterfaceEntry 20 }
+
+mgmdRouterInterfaceLstMemQryCnt OBJECT-TYPE
+    SYNTAX     Unsigned32 (1..255)
+    MAX-ACCESS read-only
+    STATUS     current
+    DESCRIPTION
+            "Represents the number of Group-specific and
+            Group-and-Source-specific queries sent by the router before
+            it assumes there are no local members."
+-- DC removals {
+--              Default meaningless for read-only fields
+--  DEFVAL     { 2 }
+-- } End DC removals
+    ::= { mgmdRouterInterfaceEntry 21 }
+
+mgmdRouterInterfaceStartQryIvl OBJECT-TYPE
+    SYNTAX     Unsigned32 (1..31744)
+    UNITS      "seconds"
+    MAX-ACCESS read-only
+    STATUS     current
+    DESCRIPTION
+            "This variable represents the interval between General
+            Queries sent by a Querier on startup."
+-- DC removals {
+--              Default meaningless for read-only fields
+--  DEFVAL     { 31 }  0.25 * mgmdRouterInterfaceQryInterval
+-- } End DC removals
+    ::= { mgmdRouterInterfaceEntry 22 }
+
+mgmdRouterInterfaceStartQryCnt OBJECT-TYPE
+    SYNTAX     Unsigned32 (1..255)
+    MAX-ACCESS read-only
+    STATUS     current
+    DESCRIPTION
+            "Represents the number of Queries sent out on startup
+            separated by the Startup Query Interval."
+-- DC removals {
+--              Default meaningless for read-only fields
+--  DEFVAL     { 2 }
+-- } End DC removals
+    ::= { mgmdRouterInterfaceEntry 23 }
+
+-- DC additions {
+
+mgmdRouterInterfaceDrpNoRtrAlrt OBJECT-TYPE
+    SYNTAX       TruthValue
+    MAX-ACCESS   read-create
+    STATUS       current
+    DESCRIPTION
+            "If this object is set to 'true', the router ignores any
+            MGMD packets that do not have the Router Alert option set.
+            Ignoring these packets provides improved security, because
+            it is desirable for routers not to forward forged MGMD
+            packets (legitimate packets have a TTL/Hop Limit of 1), and
+            this is easier to achieve if legitimate packets have the
+            Router Alert option set.  However, ignoring these packets
+            breaks backwards compatibility with IGMPv1 implementations,
+            and with early implementations of IGMPv2.  For MLD, this
+            object is read-only and is always set to 'true'."
+    DEFVAL     { false }
+    ::= { mgmdRouterInterfaceEntry 24 }
+
+mgmdRouterInterfaceDrpIgmpV1 OBJECT-TYPE
+    SYNTAX       TruthValue
+    MAX-ACCESS   read-create
+    STATUS       current
+    DESCRIPTION
+            "If this object is set to 'true', the router ignores any
+            IGMPv1 packets.  Ignoring these packets provides improved
+            security, by preventing a forged IGMPv1 packet putting the
+            group into IGMPv1 compatibility mode and hence disabling
+            'fast leave' and 'source filtering' functionality.  However,
+            ignoring these packets breaks backwards compatibility with
+            IGMPv1 implementations.  For MLD, this object has no effect."
+    DEFVAL     { false }
+    ::= { mgmdRouterInterfaceEntry 25 }
+
+mgmdRouterInterfaceDpIgmpV2MldV1 OBJECT-TYPE
+    SYNTAX       TruthValue
+    MAX-ACCESS   read-create
+    STATUS       current
+    DESCRIPTION
+            "If this object is set to 'true', the router ignores any
+            IGMPv2 or MLDv1 packets.  Ignoring these packets provides
+            improved security, by preventing a forged IGMPv2 or MLDv1
+            packet putting the group into back compatibility mode and
+            hence disabling 'source filtering' functionality.  However,
+            ignoring these packets breaks backwards compatibility with
+            IGMPv2 and MLDv1 implementations."
+    DEFVAL     { false }
+    ::= { mgmdRouterInterfaceEntry 26 }
+
+mgmdRouterInterfaceImmedtLeave OBJECT-TYPE
+    SYNTAX       TruthValue
+    MAX-ACCESS   read-create
+    STATUS       current
+    DESCRIPTION
+            "If this object is set to 'true', then when the router
+            receives a request to leave a group or source, it
+            immediately updates the routing table without running a
+            timer.  If mgmdRouterInterfaceExplTracking is also 'true'
+            then it only leaves immediately when the last host leaves.
+
+            If the mgmdRouterInterfaceQryBefImmdLv object is 'false',
+            then the router does not issue a 'last member' query.
+            This behavior is only useful when the interface has a
+            single connected host.
+
+            If the mgmdRouterInterfaceQryBefImmdLv is 'true', then the
+            router also issues a last member query, with Max Response
+            Time defined by the mgmdRouterInterfaceLstMemQryIvl
+            option.  This behavior is useful in scenarios where it is
+            important for the router to leave the group quickly, even
+            though there is the possibility of a second connected host
+            that still needs to be joined to the group or source."
+    DEFVAL     { false }
+    ::= { mgmdRouterInterfaceEntry 27 }
+
+mgmdRouterInterfaceAllowASMList OBJECT-TYPE
+    SYNTAX       StdAccessListListIndexOrZero
+    MAX-ACCESS   read-create
+    STATUS       current
+    DESCRIPTION
+            "The interface will ignore requests to join any ASM group
+            address that is not included in the standard access list
+            with a list index corresponding to the value configured
+            for this object.  This filter applies to both (*,G) and
+            (S,G) state for ASM groups.
+
+            If the value of this object is 0, no requests are ignored
+            as a result of this object.
+
+            If both this object and the mgmdRouterInterfaceAllowSGList
+            object are set to non-zero values, then a request to join
+            an ASM group/source pair is only accepted if it passes
+            through both filters."
+    DEFVAL     { 0 }
+    ::= { mgmdRouterInterfaceEntry 28 }
+
+mgmdRouterInterfaceAllowSSMList OBJECT-TYPE
+    SYNTAX       ExtAccessListListIndexOrZero
+    MAX-ACCESS   read-create
+    STATUS       current
+    DESCRIPTION
+            "For an SSM group, the interface will ignore requests to
+            join any group/source pair that is not included in the
+            extended access list with a list index corresponding to
+            the value configured for this object.
+
+            If the value of this object is 0, no requests are ignored
+            as a result of this object.
+
+            This object is retained for back-compatibility, but it is
+            deprecated by the mgmdRouterInterfaceAllowSGList object.
+            If both of these (S,G) filters are set to non-zero values,
+            then both take effect for SSM groups - that is, a request
+            to join an SSM group/source pair is only accepted if it
+            passes through both filters."
+    DEFVAL     { 0 }
+    ::= { mgmdRouterInterfaceEntry 29 }
+
+mgmdRouterInterfaceQryBefImmdLv OBJECT-TYPE
+    SYNTAX       TruthValue
+    MAX-ACCESS   read-create
+    STATUS       current
+    DESCRIPTION
+            "If this object and the mgmdRouterInterfaceImmedtLeave
+            object are both set to 'true', then when the router
+            receives a request to leave a group or source, it
+            immediately updates the routing table without running a
+            timer.  However, it also sends a single Group Specific
+            Query message, with Max Response Time given by the
+            mgmdRouterInterfaceLstMemQryIvl object.
+
+            This behavior gives a zero leave latency, so that
+            multicast traffic ceases as soon as possible for the given
+            group, but also allows for there being another connected
+            host that still wants this traffic.
+
+            This behavior is useful when there is the
+            possibility of a second connected host that still needs to
+            be joined, but when it is preferable for the router to
+            leave the group quickly (for example for bandwidth
+            reasons) even if this means a short break in the multicast
+            data for any second connected host.
+
+            Note that there is no robustness with the Specific Query;
+            it is sent only once, whatever the value of
+            mgmdRouterInterfaceRobustness.
+
+            This object has no effect when the
+            mgmdRouterInterfaceImmedtLeave object is set to 'false'."
+    DEFVAL     { false }
+    ::= { mgmdRouterInterfaceEntry 30 }
+
+mgmdRouterInterfaceFailedJoins OBJECT-TYPE
+    SYNTAX              Counter32
+    MAX-ACCESS          read-only
+    STATUS              current
+    DESCRIPTION
+            "The number of failed joins received for this interface -
+            that is, the number of times a group membership could not
+            be added on this interface.
+
+            This counter is only returned on a GET operation for this
+            MIB row if mgmdRouterInterfaceEnableStats is set to
+            'true'.
+
+            This counter is reset to zero when the MIB row is initially
+            created, and when mgmdRouterInterfaceEnableStats is
+            modified to 'true'.  At other times it behaves like an
+            SNMP counter, in that it only increases, never decreases,
+            and is subject to wrap."
+    ::= { mgmdRouterInterfaceEntry 31 }
+
+mgmdRouterInterfaceGenQrySent OBJECT-TYPE
+    SYNTAX              Counter32
+    MAX-ACCESS          read-only
+    STATUS              current
+    DESCRIPTION
+            "The number of General Queries sent for this interface.
+
+            This counter is only returned on a GET operation for this
+            MIB row if mgmdRouterInterfaceEnableStats is set to
+            'true'.
+
+            This counter is reset to zero when the MIB row is
+            initially created, and when mgmdRouterInterfaceEnableStats
+            is modified to 'true'.  At other times it behaves like an
+            SNMP counter, in that it only increases, never decreases,
+            and is subject to wrap."
+        ::= { mgmdRouterInterfaceEntry 32 }
+
+mgmdRouterInterfaceSpecQrySent OBJECT-TYPE
+    SYNTAX              Counter32
+    MAX-ACCESS          read-only
+    STATUS              current
+    DESCRIPTION
+            "The number of Specific Queries sent for this interface.
+
+            This counter is only returned on a GET operation for this
+            MIB row if mgmdRouterInterfaceEnableStats is set to
+            'true'.
+
+            This counter is reset to zero when the MIB row is
+            initially created, and when mgmdRouterInterfaceEnableStats
+            is modified to 'true'.  At other times it behaves like an
+            SNMP counter, in that it only increases, never decreases,
+            and is subject to wrap."
+    ::= { mgmdRouterInterfaceEntry 33 }
+
+mgmdRouterInterfaceTotlRcvdMsgs OBJECT-TYPE
+    SYNTAX              Counter32
+    MAX-ACCESS          read-only
+    STATUS              current
+    DESCRIPTION
+            "The total number of all IGMP or MLD messages received for
+            this interface.  This includes both valid messages and
+            invalid messages, including those where the version cannot
+            be determined.
+
+            This counter is only returned on a GET operation for this
+            MIB row if mgmdRouterInterfaceEnableStats is set to
+            'true'.
+
+            This counter is reset to zero when the MIB row is
+            initially created, and when mgmdRouterInterfaceEnableStats
+            is modified to 'true'.  At other times it behaves like an
+            SNMP counter, in that it only increases, never decreases,
+            and is subject to wrap."
+        ::= { mgmdRouterInterfaceEntry 34 }
+
+mgmdRouterInterfaceIgmpV1 OBJECT-TYPE
+    SYNTAX              Counter32
+    MAX-ACCESS          read-only
+    STATUS              current
+    DESCRIPTION
+            "The number of IGMPv1 messages received for this interface.
+            This includes both valid and invalid messages.
+
+            This counter is only returned on a GET operation for this
+            MIB row if mgmdRouterInterfaceEnableStats is set to
+            'true'.
+
+            This counter is reset to zero when the MIB row is initially
+            created, and when mgmdRouterInterfaceEnableStats is
+            modified to 'true'.  At other times it behaves like an
+            SNMP counter, in that it only increases, never decreases,
+            and is subject to wrap."
+    ::= { mgmdRouterInterfaceEntry 35 }
+
+mgmdRouterInterfaceIgmpV2MldV1 OBJECT-TYPE
+    SYNTAX              Counter32
+    MAX-ACCESS          read-only
+    STATUS              current
+    DESCRIPTION
+            "The number of IGMPv2 or MLDv1 messages received for this
+            interface.  This includes both valid and invalid messages.
+
+            This counter is only returned on a GET operation for this
+            MIB row if mgmdRouterInterfaceEnableStats is set to
+            'true'.
+
+            This counter is reset to zero when the MIB row is initially
+            created, and when mgmdRouterInterfaceEnableStats is
+            modified to 'true'.  At other times it behaves like an
+            SNMP counter, in that it only increases, never decreases,
+            and is subject to wrap."
+    ::= { mgmdRouterInterfaceEntry 36 }
+
+mgmdRouterInterfaceIgmpV3MldV2 OBJECT-TYPE
+    SYNTAX              Counter32
+    MAX-ACCESS          read-only
+    STATUS              current
+    DESCRIPTION
+            "The number of IGMPv3 or MLDv2 messages received for this
+            interface.  This includes both valid and invalid messages.
+
+            This counter is only returned on a GET operation for this
+            MIB row if mgmdRouterInterfaceEnableStats is set to
+            'true'.
+
+            This counter is reset to zero when the MIB row is initially
+            created, and when mgmdRouterInterfaceEnableStats is
+            modified to 'true'.  At other times it behaves like an
+            SNMP counter, in that it only increases, never decreases,
+            and is subject to wrap."
+    ::= { mgmdRouterInterfaceEntry 37 }
+
+mgmdRouterInterfaceInvalidMsgs OBJECT-TYPE
+    SYNTAX              Counter32
+    MAX-ACCESS          read-only
+    STATUS              current
+    DESCRIPTION
+            "The number of Invalid IGMP or MLD messages received for this
+            interface.
+
+            This counter is only returned on a GET operation for this
+            MIB row if mgmdRouterInterfaceEnableStats is set to
+            'true'.
+
+            This counter is reset to zero when the MIB row is initially
+            created, and when mgmdRouterInterfaceEnableStats is
+            modified to 'true'.  At other times it behaves like an
+            SNMP counter, in that it only increases, never decreases,
+            and is subject to wrap."
+    ::= { mgmdRouterInterfaceEntry 38 }
+
+mgmdRouterInterfacePeakGroups OBJECT-TYPE
+    SYNTAX              Unsigned32
+    MAX-ACCESS          read-only
+    STATUS              current
+    DESCRIPTION
+            "The maximum number of multicast groups that have been active
+            on the interface.  This is equal to the peak value of the
+            mgmdRouterInterfaceGroups gauge.
+
+            This field is only returned on a GET operation for this
+            MIB row if mgmdRouterInterfaceEnableStats is set to 'true'.
+
+            This field is reset back to the current value of
+            mgmdRouterInterfaceGroups when
+            mgmdRouterInterfaceEnableStats is modified to 'true'."
+    ::= { mgmdRouterInterfaceEntry 39 }
+
+mgmdRouterInterfaceEnableStats OBJECT-TYPE
+SYNTAX     TruthValue
+MAX-ACCESS read-create
+    STATUS     current
+    DESCRIPTION
+            "This object defines whether DC-IGMP returns
+            interface-specific statistics on MIB GET operations for
+            this interface's MIB row.
+
+            If this object is modified from 'true' to 'false' and back
+            to 'true', the statistics fields are reset."
+    DEFVAL { true }
+    ::= { mgmdRouterInterfaceEntry 40 }
+
+mgmdRouterInterfaceAllowSGList OBJECT-TYPE
+    SYNTAX       ExtAccessListListIndexOrZero
+    MAX-ACCESS   read-create
+    STATUS       current
+    DESCRIPTION
+            "The interface will ignore requests to join any
+            group/source pair that is not included in the extended
+            access list with a list index corresponding to the value
+            configured for this object.
+
+            If the value of this object is 0, no requests are ignored
+            as a result of this object.
+
+            This object deprecates the mgmdRouterInterfaceAllowSSMList
+            object.  If both of these (S,G) filters are set to
+            non-zero values, then both take effect for SSM groups -
+            that is, a request to join an SSM group/source pair is
+            only accepted if it passes through both filters.
+
+            If both this object and the
+            mgmdRouterInterfaceAllowASMList object are set to non-zero
+            values, then a request to join an ASM group/source pair is
+            only accepted if it passes through both filters."
+    DEFVAL     { 0 }
+    ::= { mgmdRouterInterfaceEntry 41 }
+
+mgmdRouterInterfaceQrRobustness OBJECT-TYPE
+    SYNTAX     Unsigned32 (1..255)
+    MAX-ACCESS read-only
+    STATUS     current
+    DESCRIPTION
+            "The value of Robustness in use on this interface.
+
+             The Robustness Variable allows tuning for the expected
+             packet loss on a subnet.  If a subnet is expected to be
+             lossy, the Robustness Variable may be increased.  IGMP and
+             MLD is robust to (Robustness Variable-1) packet losses.
+
+             For IGMPv3/MLDv2 or IGMP snooping, this may differ from
+             the value configured using mgmdRouterInterfaceRobustness
+             if the local router is not the querier on this interface."
+    ::= { mgmdRouterInterfaceEntry 42 }
+
+mgmdRouterInterfaceQrQryIvl OBJECT-TYPE
+    SYNTAX     Unsigned32 (1..31744)
+    UNITS      "seconds"
+    MAX-ACCESS read-only
+    STATUS     current
+    DESCRIPTION
+            "The value of Query Interval in use on this interface.
+
+             The frequency at which IGMP or MLD General Query packets
+             are transmitted on this interface.
+
+             For IGMPv3/MLDv2 or IGMP snooping, this may differ from
+             the value configured using mgmdRouterInterfaceQryInterval
+             if the local router is not the querier on this interface."
+    ::= { mgmdRouterInterfaceEntry 43 }
+
+mgmdRouterInterfaceQrQryMaxRspT OBJECT-TYPE
+    SYNTAX     Unsigned32 (0..83876)
+    UNITS      "tenths of seconds"
+    MAX-ACCESS read-only
+    STATUS     current
+    DESCRIPTION
+            "The value of Maximum Query Response Time in use on this
+             interface.
+
+             For IGMPv3/MLDv2 or IGMP snooping, this may differ from
+             the value configured using mgmdRouterInterfaceQryMaxRspTme
+             if the local router is not the querier on this interface.
+
+             In all other cases, this will equal
+             mgmdRouterInterfaceQryMaxRspTme."
+    ::= { mgmdRouterInterfaceEntry 44 }
+
+mgmdRouterInterfaceQrLstQryIvl OBJECT-TYPE
+    SYNTAX     Unsigned32 (1..83876)
+    UNITS      "tenths of seconds"
+    MAX-ACCESS read-only
+    STATUS     current
+    DESCRIPTION
+            "The value of Last Member Query Interval in use on this
+             interface.
+
+             The Last Member Query Interval is the Max Response Time
+             inserted into Group-Specific and Group-and-Source-specific
+             Queries sent in response to Leave messages, and is also
+             the amount of time between successive Specific Query
+             messages.  This value may be tuned to modify the leave
+             latency of the network.  A reduced value results in
+             reduced time to detect the loss of the last member of a
+             group.
+
+             The value of this object is irrelevant if
+             mgmdRouterInterfaceVersion is 1.
+
+             The value of this object is also irrelevant if this
+             interface is configured to use immediate-leave behavior
+             without a last member query - that is, if
+             mgmdRouterInterfaceImmedtLeave is 'true' and
+             mgmdRouterInterfaceQryBefImmdLv is 'false'.
+
+             For IGMPv3/MLDv2, this may differ from the value
+             configured using mgmdRouterInterfaceLstMemQryIvl if the
+             entity is not performing IGMP snooping, and the local
+             router is not the querier on this interface."
+    ::= { mgmdRouterInterfaceEntry 45 }
+
+mgmdRouterInterfaceStatsUpTime  OBJECT-TYPE
+    SYNTAX     TimeTicks
+    MAX-ACCESS read-only
+    STATUS     current
+    DESCRIPTION
+            "The time since the statistics counters for this interface
+             were last reset.
+
+             This field is reset to zero when
+             mgmdRouterInterfaceEnableStats is modified to 'true'.
+
+             This value may wrap."
+    ::= { mgmdRouterInterfaceEntry 46 }
+
+  mgmdRouterInterfaceMrouterCfgd OBJECT-TYPE
+    SYNTAX      MgmdRouterIfIsMrouterCfg
+    MAX-ACCESS  read-create
+    STATUS      current
+    DESCRIPTION
+            "If the entity is performing IGMP snooping, this field
+             specifies the conditions that need to be satisfied for
+             this interface to be considered a multicast router
+             interface.
+
+             A key result of being a multicast router interface is that
+             switching of multicast data frames onto the interface is
+             not inhibited by IGMP snooping - a copy of every multicast
+             data frame that arrives over another interface will be
+             switched to each multicast router interface.
+
+             If the entity is not performing IGMP snooping, this field
+             has no effect."
+    DEFVAL { learnQueries }
+    ::= { mgmdRouterInterfaceEntry 47 }
+
+  mgmdRouterInterfaceMrouterShow OBJECT-TYPE
+    SYNTAX      TruthValue
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+            "This field is 'true' if the interface is a multicast
+             router interface.
+
+             If the entity is not performing IGMP snooping, this field
+             is not used, and is always set to 'false'."
+    ::= { mgmdRouterInterfaceEntry 48 }
+
+  mgmdRouterInterfaceProxyUpstrIf OBJECT-TYPE
+    SYNTAX      TruthValue
+    MAX-ACCESS  read-create
+    STATUS      current
+    DESCRIPTION
+            "If the entity is performing IGMP proxy, set this field to
+             'true' to indicate that this is an upstream interface.
+
+             An interface is an upstream interface if the route towards
+             the root of the IGMP proxy tree goes out of the interface.
+
+             An IGMP proxy device must not run the router portion of
+             IGMP on an upstream interface.  Hence this entity does not
+             run IGMP on an upstream interface, and does not return
+             information about the remote Querier in the objects in
+             the MIB row for an upstream interface.
+
+             An IGMP proxy device must have an upstream interface.  To
+             provide resilience to upstream interface failure, the
+             device might have more than one upstream interface.  If
+             so, the device proxies group membership state onto one of
+             the upstream interfaces; the others are standby upstream
+             interfaces, ready to be used if the current upstream
+             interface fails.  The upstream interface to use is chosen
+             by the MRPM entity that this entity is joined to.
+
+             If the value of this object changes while this interface
+             is active, this entity will deactivate the interface, then
+             reactivate it using the new value.  The change of value
+             might cause a change to the upstream interface chosen by
+             the MRPM entity, so there might be a temporary data outage
+             while the new data path is set up across the network.
+
+             If the entity is not performing IGMP proxy, this field has
+             no effect."
+    DEFVAL { false }
+    ::= { mgmdRouterInterfaceEntry 49 }
+
+  mgmdRouterInterfacePassive OBJECT-TYPE
+    SYNTAX      TruthValue
+    MAX-ACCESS  read-create
+    STATUS      current
+    DESCRIPTION
+            "Whether IGMP/MLD signaling should be suppressed on this
+             interface.
+
+             This is used when the administrator knows that there are
+             no IGMP/MLD-capable hosts downstream of the interface and
+             therefore that no IGMP/MLD messages (Queries) should be
+             sent on that interface.  IGMP/MLD messages received on the
+             interface are processed as normal.
+
+             This is expected to be used in conjunction with static
+             IGMP configuration on the interface so that multicast
+             traffic will be forwarded to non-IGMP/MLD capable hosts.
+             See mgmdRouterSrcListCfgTable and mgmdRouterCacheCfgTable."
+    DEFVAL { false }
+    ::= { mgmdRouterInterfaceEntry 50 }
+
+  mgmdRouterInterfaceV2MldV1QSent OBJECT-TYPE
+      SYNTAX              Counter32
+      MAX-ACCESS          read-only
+      STATUS              current
+      DESCRIPTION
+              "The number of IGMPv2 or MLDv1 Query messages sent for this
+              interface."
+      ::= { mgmdRouterInterfaceEntry 51 }
+
+  mgmdRouterInterfaceV2MldV1QRcvd OBJECT-TYPE
+      SYNTAX              Counter32
+      MAX-ACCESS          read-only
+      STATUS              current
+      DESCRIPTION
+              "The number of IGMPv2 or MLDv1 Query messages received for
+              this interface.  This includes both valid and invalid
+              messages."
+      ::= { mgmdRouterInterfaceEntry 52 }
+
+  mgmdRouterInterfaceV2MldV1RRcvd OBJECT-TYPE
+      SYNTAX              Counter32
+      MAX-ACCESS          read-only
+      STATUS              current
+      DESCRIPTION
+              "The number of IGMPv2 or MLDv1 Report messages received for
+              this interface.  This includes both valid and invalid
+              messages."
+      ::= { mgmdRouterInterfaceEntry 53 }
+
+  mgmdRouterInterfaceV2MldV1LRcvd OBJECT-TYPE
+      SYNTAX              Counter32
+      MAX-ACCESS          read-only
+      STATUS              current
+      DESCRIPTION
+              "The number of IGMPv2 or MLDv1 Leave messages received for
+              this interface.  This includes both valid and invalid
+              messages."
+      ::= { mgmdRouterInterfaceEntry 54 }
+
+  mgmdRouterInterfaceV3MldV2QSent OBJECT-TYPE
+      SYNTAX              Counter32
+      MAX-ACCESS          read-only
+      STATUS              current
+      DESCRIPTION
+              "The number of IGMPv3 or MLDv2 Query messages sent for this
+              interface."
+      ::= { mgmdRouterInterfaceEntry 55 }
+
+  mgmdRouterInterfaceV3MldV2QRcvd OBJECT-TYPE
+      SYNTAX              Counter32
+      MAX-ACCESS          read-only
+      STATUS              current
+      DESCRIPTION
+              "The number of IGMPv3 or MLDv2 Query messages received for
+              this interface.  This includes both valid and invalid
+              messages."
+      ::= { mgmdRouterInterfaceEntry 56 }
+
+  mgmdRouterInterfaceV3MldV2RRcvd OBJECT-TYPE
+      SYNTAX              Counter32
+      MAX-ACCESS          read-only
+      STATUS              current
+      DESCRIPTION
+              "The number of IGMPv3 or MLDv2 Report messages received for
+              this interface.  This includes both valid and invalid
+              messages."
+      ::= { mgmdRouterInterfaceEntry 57 }
+
+  mgmdRouterInterfaceInvChecksum OBJECT-TYPE
+      SYNTAX              Counter32
+      MAX-ACCESS          read-only
+      STATUS              current
+      DESCRIPTION
+              "The number of messages received for this interface that
+              were not processed because they had a bad checksum."
+      ::= { mgmdRouterInterfaceEntry 58 }
+
+  mgmdRouterInterfaceInvalidLen OBJECT-TYPE
+      SYNTAX              Counter32
+      MAX-ACCESS          read-only
+      STATUS              current
+      DESCRIPTION
+              "The number of Invalid IGMP or MLD messages received for
+              this interface with a bad length."
+      ::= { mgmdRouterInterfaceEntry 59 }
+
+  mgmdRouterInterfaceInvLocalIP OBJECT-TYPE
+      SYNTAX              Counter32
+      MAX-ACCESS          read-only
+      STATUS              current
+      DESCRIPTION
+              "The number of Invalid IGMP or MLD messages received for
+              this interface with an invalid local IP address."
+      ::= { mgmdRouterInterfaceEntry 60 }
+
+  mgmdRouterInterfaceInvSubnet OBJECT-TYPE
+      SYNTAX              Counter32
+      MAX-ACCESS          read-only
+      STATUS              current
+      DESCRIPTION
+              "The number of Invalid IGMP or MLD messages received for
+              this interface with an invalid source subnet."
+      ::= { mgmdRouterInterfaceEntry 61 }
+
+  mgmdRouterInterfaceInvNonQuerier OBJECT-TYPE
+      SYNTAX              Counter32
+      MAX-ACCESS          read-only
+      STATUS              current
+      DESCRIPTION
+              "The number of Invalid IGMP or MLD query messages received
+              for this interface from a non-querier."
+      ::= { mgmdRouterInterfaceEntry 62 }
+
+  mgmdRouterInterfaceWrongVRep OBJECT-TYPE
+      SYNTAX              Counter32
+      MAX-ACCESS          read-only
+      STATUS              current
+      DESCRIPTION
+              "The number of Report messages received whose IGMP or MLD
+              version does not match the equivalent
+              mgmdRouterInterfaceVersion, over the lifetime of the row
+              entry.  Both IGMP and MLD require that all routers on a
+              LAN be configured to run the same version.  Thus, if any
+              Report messages are received with the wrong version, this
+              indicates a configuration error."
+      ::= { mgmdRouterInterfaceEntry 63 }
+
+  mgmdRouterInterfaceInvMsgType OBJECT-TYPE
+      SYNTAX              Counter32
+      MAX-ACCESS          read-only
+      STATUS              current
+      DESCRIPTION
+              "The number of Invalid IGMP or MLD messages received for
+              this interface that were rejected because they had an
+              invalid message type."
+      ::= { mgmdRouterInterfaceEntry 64 }
+
+  mgmdRouterInterfaceInvV2Reports OBJECT-TYPE
+      SYNTAX              Counter32
+      MAX-ACCESS          read-only
+      STATUS              current
+      DESCRIPTION
+              "The number of Invalid IGMPv2 or MLDv1 Report messages
+              received for this interface."
+      ::= { mgmdRouterInterfaceEntry 65 }
+
+  mgmdRouterInterfaceInvV3Reports OBJECT-TYPE
+      SYNTAX              Counter32
+      MAX-ACCESS          read-only
+      STATUS              current
+      DESCRIPTION
+              "The number of Invalid IGMPv3 or MLDv2 Report messages
+              received for this interface."
+      ::= { mgmdRouterInterfaceEntry 66 }
+
+  mgmdRouterInterfaceInvLeaves OBJECT-TYPE
+      SYNTAX              Counter32
+      MAX-ACCESS          read-only
+      STATUS              current
+      DESCRIPTION
+              "The number of Invalid IGMP or MLD Leave messages received
+              for this interface."
+      ::= { mgmdRouterInterfaceEntry 67 }
+
+  mgmdRouterInterfaceBadRtrAlert OBJECT-TYPE
+      SYNTAX              Counter32
+      MAX-ACCESS          read-only
+      STATUS              current
+      DESCRIPTION
+              "The number of received messages on this interface that
+              were not processed because they were missing the router
+              alert option."
+      ::= { mgmdRouterInterfaceEntry 68 }
+
+  mgmdRouterInterfaceLstMQrCntCfg OBJECT-TYPE
+      SYNTAX     Unsigned32 (0..255)
+      MAX-ACCESS read-create
+      STATUS     current
+      DESCRIPTION
+              "The number of Group-specific and Group-and-Source-specific
+              queries sent by the router before it assumes there are no
+              local members.
+
+              If this field is set to 0, then the value of
+              mgmdRouterInterfaceRobustness is used for this count.  The
+              value in use can be obtained from the read-only
+              mgmdRouterInterfaceLstMemQryCnt field."
+      DEFVAL     { 0 }
+      ::= { mgmdRouterInterfaceEntry 69 }
+
+  mgmdRouterInterfaceStQryIvlCfg OBJECT-TYPE
+      SYNTAX     Unsigned32 (0..31744)
+      UNITS      "seconds"
+      MAX-ACCESS read-create
+      STATUS     current
+      DESCRIPTION
+              "The interval between General Queries sent by a Querier on
+              startup.
+
+              If this field is set to 0, then the value of
+              mgmdRouterInterfaceQryInterval / 4 is used for this
+              interval.  The value in use can be obtained from the
+              read-only mgmdRouterInterfaceStartQryIvl field."
+      DEFVAL     { 0 }
+      ::= { mgmdRouterInterfaceEntry 70 }
+
+  mgmdRouterInterfaceStQryCntCfg OBJECT-TYPE
+      SYNTAX     Unsigned32 (0..255)
+      MAX-ACCESS read-create
+      STATUS     current
+      DESCRIPTION
+              "The number of Queries sent out on startup separated by the
+              Startup Query Interval.
+
+              If this field is set to 0, then the value of
+              mgmdRouterInterfaceRobustness is used for this count.  The
+              value in use can be obtained from the read-only
+              mgmdRouterInterfaceStartQryCnt field."
+      DEFVAL     { 0 }
+      ::= { mgmdRouterInterfaceEntry 71 }
+
+  mgmdRouterInterfaceQueryExpTime OBJECT-TYPE
+      SYNTAX     Unsigned32
+      MAX-ACCESS read-only
+      STATUS     current
+      DESCRIPTION
+              "The time (in milliseconds) until the next Query message is
+              sent on this interface."
+      ::= { mgmdRouterInterfaceEntry 72 }
+
+  mgmdRouterInterfaceExplTracking OBJECT-TYPE
+      SYNTAX     TruthValue
+      MAX-ACCESS read-create
+      STATUS     current
+      DESCRIPTION
+              "If this object and the mgmdRouterInterfaceImmedtLeave
+               object are set to 'true' and the
+               mgmdRouterInterfaceQryBefImmdLv object is set to 'false',
+               then the router tracks the set of hosts that have
+               membership of each (*,G) or (S,G).  The router will only
+               leave immediately if there are no hosts remaining.
+
+               If mgmdRouterInterfaceImmedtLeave is also set to 'true',
+               then the router will only leave immediately if there are
+               no hosts remaining.
+
+               Explicit host tracking is only performed if all hosts are
+               IGMPv3/MLDv2 or IGMPv2/MLDv1.  Note that tracking will only
+               operate correctly in the presence of IGMPv2/MLDv1 hosts if
+               they do not suppress Reports.
+
+               If this field is changed from 'true' to 'false' then
+               all host state on the interface will be removed.
+
+               If this field is changed from 'false' to 'true' then
+               host state will be created as membership reports are
+               received.  Until full state has been learnt it is possible
+               that there could be hosts on the interface that the router
+               does not yet have state for, and so a leave request could
+               result in forwarding state being removed immediately."
+       DEFVAL { false }
+      ::= { mgmdRouterInterfaceEntry 73 }
+
+-- } End DC additions
+
+
+--
+--  The DC-MGMD Router Cache Table
+--
+
+mgmdRouterCacheTable OBJECT-TYPE
+-- FAMILY-SHORT-NAME qgr_gi
+    SYNTAX     SEQUENCE OF MgmdRouterCacheEntry
+    MAX-ACCESS not-accessible
+    STATUS     current
+    DESCRIPTION
+-- DC modifications {
+-- Correct the error in the description of this table
+            "The (conceptual) table listing the interfaces that are
+             members of a particular group.
+
+             This table includes entries for group memberships learned
+             over IGMP/MLD as well as memberships statically configured
+             through mgmdRouterCacheCfgTable and
+             mgmdRouterSrcListCfgTable.  This includes both (G,I) and
+             (G,I,S) memberships.
+
+             There are two MIB tables that are suitable for reading (G,I)
+             state - mgmdRouterCacheTable and mgmdRouterPerEntCacheTable.
+             These tables contain the same objects, but their indexing is
+             different.
+
+             For IGMP snooping, the administrator must read the
+             mgmdRouterPerEntCacheTable.  The mgmdRouterCacheTable is not
+             supported (because a single row in that table would
+             correspond to multiple objects, one per bridge domain).
+
+             When not performing IGMP snooping, the administrator can use
+             either table.  In systems in which there are a large number
+             of Router entities, there might be a performance benefit to
+             using the mgmdRouterPerEntCacheTable for queries for which
+             only a subset of Router entities are of interest.
+
+             For example, if an entity index corresponds to a particular
+             line card, and the administrator is interested in (G,I)
+             state for only one line card, then walking this table for a
+             particular entity index returns the (G,I) state for the
+             interfaces on that line card only (whereas
+             mgmdRouterCacheTable returns (G,I) state for all interfaces
+             on the device).
+
+             (The possible performance benefit arises because to get the
+             rows in mgmdRouterPerEntCacheTable, MIB Manager queries a
+             single Router entity per row, whereas to get the rows in
+             mgmdRouterCacheTable, MIB Manager queries every Router
+             entity per row)."
+-- } End DC modifications
+    ::= { mgmdRouterMibObjects 4 }
+
+mgmdRouterCacheEntry OBJECT-TYPE
+    SYNTAX     MgmdRouterCacheEntry
+    MAX-ACCESS not-accessible
+    STATUS     current
+    DESCRIPTION
+            "An entry (conceptual row) in the mgmdRouterCacheTable."
+    INDEX      { mgmdRouterCacheAddressType,
+                 mgmdRouterCacheAddress,
+                 mgmdRouterCacheIfIndex }
+    ::= { mgmdRouterCacheTable 1 }
+
+MgmdRouterCacheEntry ::= SEQUENCE {
+    mgmdRouterCacheAddressType        InetAddressType,
+    mgmdRouterCacheAddress            InetAddress,
+    mgmdRouterCacheIfIndex            InterfaceIndex,
+    mgmdRouterCacheLastReporter       InetAddress,
+    mgmdRouterCacheUpTime             TimeTicks,
+    mgmdRouterCacheExpiryTime         TimeTicks,
+    mgmdRouterCacheExclModeExpTimer
+                                      TimeTicks,
+    mgmdRouterCacheVersion1HostTimer  TimeTicks,
+    mgmdRouterCacheVersion2HostTimer  TimeTicks,
+-- DC modifications {
+--                   Use TC for filter mode
+    mgmdRouterCacheSourceFilterMode   MgmdRouterSrcFltMode,
+-- } End DC modifications
+    mgmdRouterCacheType               MgmdRouterIncExcStateType
+}
+
+mgmdRouterCacheAddressType OBJECT-TYPE
+    SYNTAX     InetAddressType
+    MAX-ACCESS not-accessible
+    STATUS     current
+    DESCRIPTION
+            "The address type of the mgmdRouterCacheTable entry.  This
+            value applies to both the mgmdRouterCacheAddress and the
+            mgmdRouterCacheLastReporter entries."
+    ::= { mgmdRouterCacheEntry 1 }
+
+mgmdRouterCacheAddress OBJECT-TYPE
+    SYNTAX     InetAddress (SIZE(4|16))
+    MAX-ACCESS not-accessible
+    STATUS     current
+    DESCRIPTION
+            "The IP multicast group address for which this entry
+-- DC modifications {
+--                   Text clarification
+            contains information.  The InetAddressType (for example,
+            IPv4 or IPv6), is identified by the
+-- } End DC modifications
+            mgmdRouterCacheAddressType variable in the mgmdRouterCache
+            table."
+    ::= { mgmdRouterCacheEntry 2 }
+
+mgmdRouterCacheIfIndex OBJECT-TYPE
+    SYNTAX     InterfaceIndex
+    MAX-ACCESS not-accessible
+    STATUS     current
+    DESCRIPTION
+            "The interface for which this entry contains information
+            for an IP multicast group address."
+    ::= { mgmdRouterCacheEntry 3 }
+
+mgmdRouterCacheLastReporter OBJECT-TYPE
+-- DC modifications {
+--                   Add size constraint
+    SYNTAX     InetAddress (SIZE(4|16))
+-- } End DC modifications
+    MAX-ACCESS read-only
+    STATUS     current
+    DESCRIPTION
+            "The IP address of the source of the last membership report
+             received for this IP Multicast group address on this
+             interface.  If no membership report has been received,
+-- DC modifications {
+--                   Text clarification
+             this object has the value ::.  The InetAddressType (for
+             example, IPv4 or IPv6), is identified by the
+-- } End DC modifications
+             mgmdRouterCacheAddressType variable in the mgmdRouterCache
+             table."
+    ::= { mgmdRouterCacheEntry 4 }
+
+mgmdRouterCacheUpTime OBJECT-TYPE
+    SYNTAX     TimeTicks
+    MAX-ACCESS read-only
+    STATUS     current
+    DESCRIPTION
+            "The time elapsed since this entry was created."
+    ::= { mgmdRouterCacheEntry 5 }
+
+mgmdRouterCacheExpiryTime OBJECT-TYPE
+    SYNTAX     TimeTicks
+    MAX-ACCESS read-only
+    STATUS     current
+    DESCRIPTION
+            "This value represents the time remaining before the Group
+             Membership Interval state expires.
+
+-- DC modifications {
+             The value will be zero for entries with either:
+             -  a filter mode of include
+             -  a statically configured membership (regardless of any
+                matching learned memberships)."
+-- } End DC modifications
+    ::= { mgmdRouterCacheEntry 6 }
+
+mgmdRouterCacheExclModeExpTimer OBJECT-TYPE
+    SYNTAX     TimeTicks
+    MAX-ACCESS read-only
+    STATUS     current
+    DESCRIPTION
+            "This value is applicable only to MGMDv3 compatible
+            routers, and represents the time remaining before the
+            interface EXCLUDE state expires and the interface state
+            transitions to INCLUDE mode. This value can never be
+            greater than mgmdRouterCacheExpiryTime."
+    ::= { mgmdRouterCacheEntry 7 }
+
+mgmdRouterCacheVersion1HostTimer OBJECT-TYPE
+    SYNTAX     TimeTicks
+    MAX-ACCESS read-only
+    STATUS     current
+-- DC modifications {
+--                   Text clarification
+    DESCRIPTION
+            "The time remaining until the local router will assume that
+            there are no longer any IGMP version 1 members on the IP
+            subnet attached to this interface.  Upon hearing any IGMPv1
+            Membership Report, this value is reset to the group
+            membership timer.  While this time remaining is non-zero,
+            the local router ignores any IGMPv2 Leave Group messages and
+            some types of IGMPv3 and MLDv2 Membership Report messages
+            for this group that it receives on this interface.
+
+            The value will be zero for entries for statically
+            configured memberships (regardless of any matching learned
+            memberships)."
+-- } End DC modifications
+    ::= { mgmdRouterCacheEntry 8 }
+
+mgmdRouterCacheVersion2HostTimer OBJECT-TYPE
+    SYNTAX     TimeTicks
+    MAX-ACCESS read-only
+    STATUS     current
+-- DC modifications {
+--                   Text clarification
+    DESCRIPTION
+            "The time remaining until the local router will assume that
+            there are no longer any IGMPv2 or MLDv1 members on the IP
+            subnet attached to this interface.  Upon hearing an IGMPv2
+            or MLDv1 Membership Report, this value is reset to the group
+            membership timer.  While this time remaining is non-zero,
+            the local router ignores some types of IGMPv3 and MLDv2
+            Membership Report messages, but, assuming no IGMPv1 hosts
+            have been detected, does not ignore any IGMPv2 or MLDv1
+            Leave Group messages for this group that it receives on this
+            interface.
+
+            The value will be zero for entries for statically
+            configured memberships (regardless of any matching learned
+            memberships)."
+-- } End DC modifications
+    ::= { mgmdRouterCacheEntry 9 }
+
+mgmdRouterCacheSourceFilterMode OBJECT-TYPE
+-- DC modifications {
+--                   Use TC
+    SYNTAX     MgmdRouterSrcFltMode
+-- } End DC modifications
+    MAX-ACCESS read-only
+    STATUS     current
+-- DC modifications {
+--                   Text clarification
+    DESCRIPTION
+            "The source filter mode for this cache entry.  The value
+            indicates the relevance of the corresponding source list
+            entries in the mgmdRouterSrcList Table for IGMPv3 and MLDv2
+            interfaces."
+-- } End DC modifications
+    ::= { mgmdRouterCacheEntry 10 }
+
+mgmdRouterCacheType  OBJECT-TYPE
+    SYNTAX     MgmdRouterIncExcStateType
+    MAX-ACCESS read-only
+    STATUS     current
+    DESCRIPTION
+             "The type of membership this entry represents.  This is
+             currently either learned through IGMP/MLD or is statically
+             configured through the mgmdRouterCacheCfgTable."
+    ::= { mgmdRouterCacheEntry 11 }
+
+--
+--  The DC-MGMD Router Reverse interface/cache lookup Table
+--
+
+-- DC modifications {
+--
+-- For consistency with the other router-side tables, we have changed
+-- the name of this table from mgmdInverseRouterCacheTable to
+-- mgmdRouterInverseCacheTable, and similarly for the objects within it.
+--
+-- } End DC modifications
+--
+
+mgmdRouterInverseCacheTable OBJECT-TYPE
+-- FAMILY-SHORT-NAME qgr_gi_inv
+    SYNTAX     SEQUENCE OF MgmdRouterInverseCacheEntry
+    MAX-ACCESS not-accessible
+    STATUS     current
+    DESCRIPTION
+-- DC modifications {
+-- Correct the error in the description of this table
+            "The (conceptual) table listing the IP multicast groups for
+             which there are members on a particular router interface.
+
+             This is a reverse lookup table for entries in the
+             mgmdRouterCacheTable / mgmdRouterPerEntCacheTable.
+
+             This table includes entries for group memberships learned
+             over IGMP/MLD as well as memberships statically configured
+             through mgmdRouterCacheCfgTable."
+-- } End DC modifications
+    ::= { mgmdRouterMibObjects 5 }
+
+mgmdRouterInverseCacheEntry OBJECT-TYPE
+    SYNTAX     MgmdRouterInverseCacheEntry
+    MAX-ACCESS not-accessible
+    STATUS     current
+    DESCRIPTION
+            "An entry (conceptual row) in the
+            mgmdRouterInverseCacheTable."
+-- DC modifications {
+--                   Add entity index to index fields, and use fields from
+--                   parent (mgmdRouterInterfaceTable) this extends.
+    INDEX      { mgmdRouterEntIndex,
+                 mgmdRouterInterfaceIfIndex,
+                 mgmdRouterInterfaceQuerierType,
+-- } End DC modifications
+                 mgmdRouterInverseCacheAddress }
+    ::= { mgmdRouterInverseCacheTable 1 }
+
+MgmdRouterInverseCacheEntry ::= SEQUENCE {
+    mgmdRouterInverseCacheAddress            InetAddress,
+-- DC additions {
+--               Include all fields from the cache table in the
+--               inverse cache table.
+    mgmdRouterInverseCacheLstReprtr          InetAddress,
+    mgmdRouterInverseCacheUpTime             TimeTicks,
+    mgmdRouterInverseCacheExpTime            TimeTicks,
+    mgmdRouterInverseCacheExlExpTmr
+                                             TimeTicks,
+    mgmdRouterInverseCacheV1HostTmr          TimeTicks,
+    mgmdRouterInverseCacheV2HostTmr          TimeTicks,
+    mgmdRouterInverseCacheSrcFltMde          MgmdRouterSrcFltMode,
+    mgmdRouterInverseCacheType               MgmdRouterIncExcStateType
+-- } End DC additions
+}
+
+-- DC additions {
+
+-- This object is imported from the mgmdRouterEntTable.  For the DC
+-- implementation of a MIB Get response, this exists as a conceptual
+-- object in the row.
+--
+-- mgmdRouterEntIndex OBJECT-TYPE
+--  ::= { mgmdRouterInverseCacheEntry 1 }
+
+-- } End DC additions
+
+-- DC modifications {
+
+-- These object are imported from the mgmdRouterInterfaceTable.  For the
+-- DC implementation of a MIB Get response, these exist as conceptual
+-- objects in the row.
+--
+-- mgmdRouterInterfaceIfIndex OBJECT-TYPE
+--  ::= { mgmdRouterInverseCacheEntry 2 }
+--
+-- mgmdRouterInterfaceQuerierType OBJECT-TYPE
+--  ::= { mgmdRouterInverseCacheEntry 3 }
+
+-- } End DC modifications
+
+mgmdRouterInverseCacheAddress OBJECT-TYPE
+    SYNTAX     InetAddress (SIZE(4|16))
+-- DC modifications {
+--                   All index fields must have MAX-ACCESS not-accessible
+    MAX-ACCESS not-accessible
+-- } End DC modifications
+    STATUS     current
+-- DC modifications {
+--                   Text clarification
+    DESCRIPTION
+            "The IP multicast group address for which this entry
+            contains information about an interface.  The
+            InetAddressType (for example, IPv4 or IPv6), is identified
+            by the mgmdRouterInterfaceQuerierType variable in the
+            mgmdRouterInterfaceTable."
+-- } End DC modifications
+    ::= { mgmdRouterInverseCacheEntry 4 }
+
+-- DC additions {
+--               Include all fields from the cache table in the
+--               inverse cache table.
+
+mgmdRouterInverseCacheLstReprtr OBJECT-TYPE
+    SYNTAX     InetAddress (SIZE(4|16))
+    MAX-ACCESS read-only
+    STATUS     current
+    DESCRIPTION
+            "The IP address of the source of the last membership report
+             received for this IP Multicast group address on this
+             interface.  If no membership report has been received,
+-- DC modifications {
+--                   Text clarification
+             this object has the value ::.  The InetAddressType (for
+             example, IPv4 or IPv6), is identified by the
+-- } End DC modifications
+             mgmdRouterInterfaceQuerierType variable in the
+             mgmdRouterInterfaceTable table."
+    ::= { mgmdRouterInverseCacheEntry 5 }
+
+mgmdRouterInverseCacheUpTime OBJECT-TYPE
+    SYNTAX     TimeTicks
+    MAX-ACCESS read-only
+    STATUS     current
+    DESCRIPTION
+            "The time elapsed since this entry was created."
+    ::= { mgmdRouterInverseCacheEntry 6 }
+
+mgmdRouterInverseCacheExpTime OBJECT-TYPE
+    SYNTAX     TimeTicks
+    MAX-ACCESS read-only
+    STATUS     current
+    DESCRIPTION
+            "This value represents the time remaining
+            before the Group Membership Interval state expires.
+
+            The value will be zero for entries for statically
+            configured memberships (regardless of any matching learned
+            memberships)."
+    ::= { mgmdRouterInverseCacheEntry 7 }
+
+mgmdRouterInverseCacheExlExpTmr OBJECT-TYPE
+    SYNTAX     TimeTicks
+    MAX-ACCESS read-only
+    STATUS     current
+    DESCRIPTION
+            "This value is applicable only to MGMDv3 compatible
+            routers, and represents the time remaining before the
+            interface EXCLUDE state expires and the interface state
+            transitions to INCLUDE mode. This value can never be
+            greater than mgmdRouterInverseCacheExpTime."
+    ::= { mgmdRouterInverseCacheEntry 8 }
+
+mgmdRouterInverseCacheV1HostTmr OBJECT-TYPE
+    SYNTAX     TimeTicks
+    MAX-ACCESS read-only
+    STATUS     current
+-- DC modifications {
+--                   Text clarification
+    DESCRIPTION
+            "The time remaining until the local router will assume that
+            there are no longer any IGMP version 1 members on the IP
+            subnet attached to this interface.  Upon hearing any IGMPv1
+            Membership Report, this value is reset to the group
+            membership timer.  While this time remaining is non-zero,
+            the local router ignores any IGMPv2 Leave Group messages and
+            some types of IGMPv3 and MLDv2 Membership Report messages
+            for this group that it receives on this interface.
+
+            The value will be zero for entries for statically
+            configured memberships (regardless of any matching learned
+            memberships)."
+-- } End DC modifications
+    ::= { mgmdRouterInverseCacheEntry 9 }
+
+mgmdRouterInverseCacheV2HostTmr OBJECT-TYPE
+    SYNTAX     TimeTicks
+    MAX-ACCESS read-only
+    STATUS     current
+-- DC modifications {
+--                   Text clarification
+    DESCRIPTION
+            "The time remaining until the local router will assume that
+            there are no longer any IGMPv2 or MLDv1 members on the IP
+            subnet attached to this interface.  Upon hearing an IGMPv2
+            or MLDv1 Membership Report, this value is reset to the group
+            membership timer.  While this time remaining is non-zero,
+            the local router ignores some types of IGMPv3 and MLDv2
+            Membership Report messages, but, assuming no IGMPv1 hosts
+            have been detected, does not ignore any IGMPv2 or MLDv1
+            Leave Group messages for this group that it receives on this
+            interface.
+
+            The value will be zero for entries for statically
+            configured memberships (regardless of any matching learned
+            memberships)."
+-- } End DC modifications
+    ::= { mgmdRouterInverseCacheEntry 10 }
+
+mgmdRouterInverseCacheSrcFltMde OBJECT-TYPE
+    SYNTAX     MgmdRouterSrcFltMode
+    MAX-ACCESS read-only
+    STATUS     current
+    DESCRIPTION
+            "The source filter mode for this cache entry.  The value
+            indicates the relevance of the corresponding source list
+            entries in the mgmdRouterSrcList Table for IGMPv3 and MLDv2
+            interfaces."
+    ::= { mgmdRouterInverseCacheEntry 11 }
+
+mgmdRouterInverseCacheType  OBJECT-TYPE
+    SYNTAX     MgmdRouterIncExcStateType
+    MAX-ACCESS read-only
+    STATUS     current
+    DESCRIPTION
+             "The type of membership this entry represents.  This is
+             currently either learned through IGMP/MLD or is statically
+             configured through the mgmdRouterCacheCfgTable."
+    ::= { mgmdRouterInverseCacheEntry 15 }
+
+-- } End DC additions
+
+
+--
+--  The DC-MGMD Router Source List Table
+--
+
+mgmdRouterSrcListTable OBJECT-TYPE
+-- FAMILY-SHORT-NAME qgr_gis
+    SYNTAX     SEQUENCE OF MgmdRouterSrcListEntry
+    MAX-ACCESS not-accessible
+    STATUS     current
+    DESCRIPTION
+            "The (conceptual) table listing the Source List entries
+             corresponding to each interface and multicast group pair on
+             a router.
+-- DC additions {
+             This table includes entries for:
+             -  group memberships learned over IGMP/MLD, including those
+                with sources configured using SSM mapping, and
+             -  memberships statically configured through
+                mgmdRouterSrcListCfgTable.
+
+             Each entry will also appear in mgmdRouterPerEntSrcListTable.
+
+             Note that this table does not include the entity index at
+             the start of the OID.  This provides a more flexible lookup,
+             but in a system with many Router entities, the trade-off is
+             that the performance is not as good.  See the description of
+             mgmdRouterCacheTable for details.
+
+             Hence in most cases it is better to use
+             mgmdRouterPerEntSrcListTable instead.
+
+             This table is not used for IGMP snooping, because a single
+             row in this table would correspond to multiple objects (one
+             per bridge domain).  Use mgmdRouterPerEntSrcListTable
+             instead."
+-- End DC additions
+    ::= { mgmdRouterMibObjects 6 }
+
+mgmdRouterSrcListEntry OBJECT-TYPE
+    SYNTAX     MgmdRouterSrcListEntry
+    MAX-ACCESS not-accessible
+    STATUS     current
+    DESCRIPTION
+            "An entry (conceptual row) in the mgmdRouterSrcListTable."
+-- DC modifications {
+--                   Use fields from parent (mgmdRouterCacheTable) table this
+--                   extends.
+    INDEX      { mgmdRouterCacheAddressType,
+                 mgmdRouterCacheAddress,
+                 mgmdRouterCacheIfIndex,
+-- } End DC modifications
+                 mgmdRouterSrcListHostAddress }
+    ::= { mgmdRouterSrcListTable 1 }
+
+MgmdRouterSrcListEntry ::= SEQUENCE {
+    mgmdRouterSrcListHostAddress        InetAddress,
+    mgmdRouterSrcListExpire             TimeTicks,
+-- DC additions {
+    mgmdRouterSrcListSrcFilterMode      MgmdRouterSrcFltMode,
+-- } End DC additions
+    mgmdRouterSrcListType               MgmdRouterGisStateType,
+    mgmdRouterSrcListUpTime             TimeTicks
+
+}
+
+-- DC modifications {
+
+-- These objects are imported from the mgmdRouterCacheTable.  For the DC
+-- implementation of a MIB Get response, these exist as conceptual
+-- objects in the row.
+--
+-- mgmdRouterCacheAddressType OBJECT-TYPE
+--  ::= { mgmdRouterSrcListEntry 1 }
+--
+-- mgmdRouterCacheAddress OBJECT-TYPE
+--  ::= { mgmdRouterSrcListEntry 2 }
+--
+-- mgmdRouterCacheIfIndex OBJECT-TYPE
+--  ::= { mgmdRouterSrcListEntry 3 }
+
+-- } End DC modifications
+
+mgmdRouterSrcListHostAddress OBJECT-TYPE
+    SYNTAX     InetAddress (SIZE(4|16))
+-- DC modifications {
+--                   Part of index, so not-accessible, not read-only
+    MAX-ACCESS not-accessible
+-- } End DC modifications
+    STATUS     current
+    DESCRIPTION
+-- DC modifications {
+            "The host address to which this entry corresponds.  The
+            value of mgmdRouterSrcListSrcFilterMode indicates whether
+            this Host address is included or excluded.  The
+            InetAddressType of this address is specified by
+            mgmdRouterCacheAddressType."
+-- } End DC modifications
+    ::= { mgmdRouterSrcListEntry 4 }
+
+mgmdRouterSrcListExpire OBJECT-TYPE
+    SYNTAX     TimeTicks
+    MAX-ACCESS read-only
+    STATUS     current
+    DESCRIPTION
+            "This value (when non-zero) indicates the time left prior
+            to the expiration of the SrcList entry.
+
+            The value will be zero for entries with either:
+            -  a filter mode of exclude
+            -  a statically configured membership (regardless of any
+            matching learned memberships)."
+    ::= { mgmdRouterSrcListEntry 5 }
+
+-- DC additions {
+
+mgmdRouterSrcListSrcFilterMode OBJECT-TYPE
+    SYNTAX     MgmdRouterSrcFltMode
+    MAX-ACCESS read-only
+    STATUS     current
+    DESCRIPTION
+            "The source filter mode for the group address and interface
+            that this entry corresponds to.  That is, this object always
+            has the same value as mgmdRouterCacheSourceFilterMode.  This
+            object provides a convenient check whether the source filter
+            mode has changed while attempting to obtain the complete
+            source list for a row in the mgmdRouterCacheTable."
+    ::= { mgmdRouterSrcListEntry 6 }
+
+mgmdRouterSrcListType OBJECT-TYPE
+    SYNTAX     MgmdRouterGisStateType
+    MAX-ACCESS read-only
+    STATUS     current
+    DESCRIPTION
+            "The type of membership this entry represents.  The flags
+             have the following meanings.
+
+             -  static: The membership is statically configured.
+
+             -  dynamic: The membership is requested by a host, either
+                as an (S,G) membership, or an SSM mapped (*,G)
+                membership.
+
+             -  ssm-mapped: SSM mapping configuration exists for this
+                (S,G) pair in the mgmdRouterSrcCfgTable and the group
+                membership has been requested by a host.  This flag
+                will never be set without the 'dynamic' flag."
+    ::= { mgmdRouterSrcListEntry 10 }
+
+mgmdRouterSrcListUpTime OBJECT-TYPE
+    SYNTAX     TimeTicks
+    MAX-ACCESS read-only
+    STATUS     current
+    DESCRIPTION
+            "The time elapsed since this entry was created in
+             hundredths of seconds."
+    ::= { mgmdRouterSrcListEntry 11 }
+
+--
+--  The DC-MGMD Router per-entity cache lookup Table
+--
+
+mgmdRouterPerEntCacheTable OBJECT-TYPE
+-- FAMILY-SHORT-NAME qgr_egi
+    SYNTAX     SEQUENCE OF MgmdRouterPerEntCacheEntry
+    MAX-ACCESS not-accessible
+    STATUS     current
+    DESCRIPTION
+            "The (conceptual) table listing the interfaces that are
+             members of a particular group.
+
+             There are two MIB tables that are suitable for reading (G,I)
+             state - mgmdRouterCacheTable and mgmdRouterPerEntCacheTable.
+             These tables contain the same objects, but their indexing is
+             different.
+
+             For IGMP snooping, the administrator must read the
+             mgmdRouterPerEntCacheTable.  The mgmdRouterCacheTable is not
+             supported (because a single row in that table would
+             correspond to multiple objects, one per bridge domain).
+
+             When not performing IGMP snooping, the administrator can use
+             either table.  In systems in which there are a large number
+             of Router entities, there might be a performance benefit to
+             using the mgmdRouterPerEntCacheTable for queries for which
+             only a subset of Router entities are of interest.
+
+             For example, if an entity index corresponds to a particular
+             line card, and the administrator is interested in (G,I)
+             state for only one line card, then walking this table for a
+             particular entity index returns the (G,I) state for the
+             interfaces on that line card only (whereas
+             mgmdRouterCacheTable returns (G,I) state for all interfaces
+             on the device).
+
+             (The possible performance benefit arises because to get the
+             rows in mgmdRouterPerEntCacheTable, MIB Manager queries a
+             single Router entity per row, whereas to get the rows in
+             mgmdRouterCacheTable, MIB Manager queries every Router
+             entity per row)."
+    ::= { mgmdRouterMibObjects 7 }
+
+mgmdRouterPerEntCacheEntry OBJECT-TYPE
+    SYNTAX     MgmdRouterPerEntCacheEntry
+    MAX-ACCESS not-accessible
+    STATUS     current
+    DESCRIPTION
+            "An entry (conceptual row) in the
+            mgmdRouterPerEntCacheTable."
+    INDEX      { mgmdRouterEntIndex,
+                 mgmdRouterPerEntCacheAddrType,
+                 mgmdRouterPerEntCacheAddress,
+                 mgmdRouterPerEntCacheIfIndex }
+    ::= { mgmdRouterPerEntCacheTable 1 }
+
+MgmdRouterPerEntCacheEntry ::= SEQUENCE {
+    mgmdRouterPerEntCacheAddrType               InetAddressType,
+    mgmdRouterPerEntCacheAddress                InetAddress,
+    mgmdRouterPerEntCacheIfIndex                InterfaceIndex,
+    mgmdRouterPerEntCacheLstReportr             InetAddress,
+    mgmdRouterPerEntCacheUpTime                 TimeTicks,
+    mgmdRouterPerEntCacheExpiryTime             TimeTicks,
+    mgmdRouterPerEntCacheExclExpTmr             TimeTicks,
+    mgmdRouterPerEntCacheV1HstTimer             TimeTicks,
+    mgmdRouterPerEntCacheV2HstTimer             TimeTicks,
+    mgmdRouterPerEntCacheSrcFltMode             MgmdRouterSrcFltMode,
+    mgmdRouterPerEntCacheSrcType                MgmdRouterIncExcStateType
+}
+
+mgmdRouterPerEntCacheAddrType OBJECT-TYPE
+    SYNTAX      InetAddressType
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION
+            "The address type of the mgmdRouterPerEntCacheTable entry.
+             This value applies to both mgmdRouterPerEntCacheAddress
+             and mgmdRouterPerEntCacheLstReportr."
+    ::= { mgmdRouterPerEntCacheEntry 1 }
+
+mgmdRouterPerEntCacheAddress OBJECT-TYPE
+    SYNTAX      InetAddress
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION
+            "The IP multicast group address for which this entry
+             contains information.  The InetAddressType (for example,
+             IPv4 or IPv6), is identified by
+             mgmdRouterPerEntCacheAddrType."
+    ::= { mgmdRouterPerEntCacheEntry 2 }
+
+mgmdRouterPerEntCacheIfIndex OBJECT-TYPE
+    SYNTAX      InterfaceIndex
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION
+            "The interface for which this entry contains information
+             for an IP multicast group address."
+    ::= { mgmdRouterPerEntCacheEntry 3 }
+
+mgmdRouterPerEntCacheLstReportr OBJECT-TYPE
+    SYNTAX      InetAddress
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+            "The IP address of the source of the last membership report
+             received for this IP Multicast group address on this
+             interface.  If no membership report has been received,
+             this object has the value ::.  The InetAddressType (for
+             example, IPv4 or IPv6), is identified by
+             mgmdRouterPerEntCacheAddressType."
+    ::= { mgmdRouterPerEntCacheEntry 4 }
+
+mgmdRouterPerEntCacheUpTime OBJECT-TYPE
+    SYNTAX      TimeTicks
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+            "The time elapsed since this entry was created."
+    ::= { mgmdRouterPerEntCacheEntry 5 }
+
+mgmdRouterPerEntCacheExpiryTime OBJECT-TYPE
+    SYNTAX      TimeTicks
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+            "This value represents the time remaining before the Group
+             Membership Interval state expires.  The value will be zero
+             for entries with a filter mode of include."
+    ::= { mgmdRouterPerEntCacheEntry 6 }
+
+mgmdRouterPerEntCacheExclExpTmr OBJECT-TYPE
+    SYNTAX      TimeTicks
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+            "This value is applicable only to MGMDv3 compatible
+             routers, and represents the time remaining before the
+             interface EXCLUDE state expires and the interface state
+             transitions to INCLUDE mode.  This value can never be
+             greater than mgmdRouterPerEntCacheExpiryTime."
+    ::= { mgmdRouterPerEntCacheEntry 7 }
+
+mgmdRouterPerEntCacheV1HstTimer OBJECT-TYPE
+    SYNTAX      TimeTicks
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+            "The time remaining until the local router will assume that
+             there are no longer any IGMP version 1 members on the IP
+             subnet attached to this interface.  Upon hearing any
+             IGMPv1 Membership Report, this value is reset to the group
+             membership timer.  While this time remaining is non-zero,
+             the local router ignores any IGMPv2 Leave Group messages
+             and some types of IGMPv3 and MLDv2 Membership Report
+             messages for this group that it receives on this
+             interface."
+    ::= { mgmdRouterPerEntCacheEntry 8 }
+
+mgmdRouterPerEntCacheV2HstTimer OBJECT-TYPE
+    SYNTAX      TimeTicks
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+            "The time remaining until the local router will assume that
+             there are no longer any IGMPv2 or MLDv1 members on the IP
+             subnet attached to this interface.  Upon hearing an IGMPv2
+             or MLDv1 Membership Report, this value is reset to the
+             group membership timer.  While this time remaining is
+             non-zero, the local router ignores some types of IGMPv3
+             and MLDv2 Membership Report messages, but, assuming no
+             IGMPv1 hosts have been detected, does not ignore any
+             IGMPv2 or MLDv1 Leave Group messages for this group that
+             it receives on this interface."
+    ::= { mgmdRouterPerEntCacheEntry 9 }
+
+mgmdRouterPerEntCacheSrcFltMode OBJECT-TYPE
+    SYNTAX      MgmdRouterSrcFltMode
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+            "The source filter mode for this cache entry.  The value
+             indicates the relevance of the corresponding source list
+             entries in the mgmdRouterPerEntSrcList Table for IGMPv3
+             and MLDv2 interfaces."
+    ::= { mgmdRouterPerEntCacheEntry 10 }
+
+mgmdRouterPerEntCacheSrcType OBJECT-TYPE
+    SYNTAX      MgmdRouterIncExcStateType
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+               "The type of membership this entry represents.  This is
+                currently either learned through IGMP/MLD or is statically
+                configured through the mgmdRouterCacheCfgTable."
+    ::= { mgmdRouterPerEntCacheEntry 12 }
+
+--
+--  The DC-MGMD Router per-entity source lookup Table
+--
+
+mgmdRouterPerEntSrcListTable OBJECT-TYPE
+-- FAMILY-SHORT-NAME qgr_egis
+    SYNTAX     SEQUENCE OF MgmdRouterPerEntSrcListEntry
+    MAX-ACCESS not-accessible
+    STATUS     current
+    DESCRIPTION
+            "The (conceptual) table listing the Source List entries
+             corresponding to each interface and multicast group pair on
+             a router.
+
+             A row in this table contains the same set of objects as a
+             row in mgmdRouterSrcListTable, but the indexing of the row
+             is different.  Typically it is better to use this table -
+             see the description of mgmdRouterSrcListTable for details."
+    ::= { mgmdRouterMibObjects 8 }
+
+mgmdRouterPerEntSrcListEntry OBJECT-TYPE
+    SYNTAX     MgmdRouterPerEntSrcListEntry
+    MAX-ACCESS not-accessible
+    STATUS     current
+    DESCRIPTION
+            "An entry (conceptual row) in the
+            mgmdRouterPerEntSrcListTable."
+    INDEX      { mgmdRouterEntIndex,
+                 mgmdRouterPerEntCacheAddrType,
+                 mgmdRouterPerEntCacheAddress,
+                 mgmdRouterPerEntCacheIfIndex,
+                 mgmdRouterPerEntSrcListHstAddr }
+    ::= { mgmdRouterPerEntSrcListTable 1 }
+
+MgmdRouterPerEntSrcListEntry ::= SEQUENCE {
+    mgmdRouterPerEntSrcListHstAddr            InetAddress,
+    mgmdRouterPerEntSrcListExpire             TimeTicks,
+    mgmdRouterPerEntSrcListFltMode            MgmdRouterSrcFltMode,
+    mgmdRouterPerEntSrcListType               MgmdRouterGisStateType,
+    mgmdRouterPerEntSrcCacheUpTime            TimeTicks
+}
+
+mgmdRouterPerEntSrcListHstAddr OBJECT-TYPE
+    SYNTAX      InetAddress
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "The host address to which this entry corresponds.  The
+                 value of mgmdRouterPerEntSrcListFltMode indicates whether
+                 this Host address is included or excluded.  The
+                 InetAddressType of this address is specified by
+                 mgmdRouterPerEntCacheAddrType."
+    ::= { mgmdRouterPerEntSrcListEntry 4 }
+
+mgmdRouterPerEntSrcListExpire OBJECT-TYPE
+    SYNTAX      TimeTicks
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "This value (when non-zero) indicates the time left prior
+                 to the expiration of this row.  If the corresponding
+                 mgmdRouterPerEntCacheTable row is in EXCLUDE mode, this
+                 object is always zero, and this row expires at the same
+                 time as the mgmdRouterPerEntCacheTable row."
+    ::= { mgmdRouterPerEntSrcListEntry 5 }
+
+mgmdRouterPerEntSrcListFltMode OBJECT-TYPE
+    SYNTAX      MgmdRouterSrcFltMode
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "The source filter mode for the group address and interface
+                 that this entry corresponds to.  That is, this object
+                 always has the same value as
+                 mgmdRouterPerEntCacheSrcFltMode.  This object provides a
+                 convenient check whether the source filter mode has
+                 changed while attempting to obtain the complete source
+                 list for a row in the mgmdRouterPerEntCacheTable."
+    ::= { mgmdRouterPerEntSrcListEntry 6 }
+
+mgmdRouterPerEntSrcListType OBJECT-TYPE
+    SYNTAX      MgmdRouterGisStateType
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+            "The type of membership this entry represents.  The flags
+             have the following meanings.
+
+             -  static: The membership is statically configured.
+
+             -  dynamic: The membership is requested by a host, either
+                as an (S,G) membership, or an SSM mapped (*,G)
+                membership.
+
+             -  ssm-mapped: SSM mapping configuration exists for this
+                (S,G) pair in the mgmdRouterSrcCfgTable and the group
+                membership has been requested by a host.  This flag
+                will never be set without the 'dynamic' flag."
+    ::= { mgmdRouterPerEntSrcListEntry 8 }
+
+mgmdRouterPerEntSrcCacheUpTime OBJECT-TYPE
+    SYNTAX     TimeTicks
+    MAX-ACCESS read-only
+    STATUS     current
+    DESCRIPTION
+            "The time elapsed since this entry was created in
+             hundredths of seconds."
+    ::= { mgmdRouterPerEntSrcListEntry 9 }
+-- } End DC additions
+
+--
+-- The DC-MGMD Router Cache Config Table
+--
+
+  mgmdRouterCacheCfgTable OBJECT-TYPE
+    SYNTAX      SEQUENCE OF MgmdRouterCacheCfgEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "This table is used to statically configure exclude mode
+                state on a particular interface - i.e. group memberships
+                that do not specify a source address.
+                Group memberships associated with objects in this table
+                persist regardless of matching dynamic memberships learned
+                over IGMP or MLD.
+                Objects in this table also appear in the read-only
+                mgmdRouterCacheTable and mgmdRouterPerEntCacheTable tables,
+                alongside memberships learned over IGMP or MLD."
+    ::= { mgmdRouterMibObjects 9 }
+
+  mgmdRouterCacheCfgEntry OBJECT-TYPE
+    SYNTAX      MgmdRouterCacheCfgEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION
+           "An entry (conceptual row) in the
+            mgmdRouterCacheCfgTable."
+    INDEX { mgmdRouterEntIndex,
+            mgmdRouterCacheCfgAddrType,
+            mgmdRouterCacheCfgAddress,
+            mgmdRouterCacheCfgIfIndex}
+    ::= { mgmdRouterCacheCfgTable 1 }
+
+  MgmdRouterCacheCfgEntry ::= SEQUENCE {
+      mgmdRouterCacheCfgAddrType                  InetAddressType,
+      mgmdRouterCacheCfgAddress                   InetAddress,
+      mgmdRouterCacheCfgIfIndex                   InterfaceIndex,
+      mgmdRouterCacheCfgRowStatus                 RowStatus,
+      mgmdRouterCacheCfgAdminStatus               AdminStatus,
+      mgmdRouterCacheCfgOperStatus                NpgOperStatus,
+      mgmdRouterCacheCfgFailureReason             MgmdRouterFailureReason
+    }
+
+  mgmdRouterCacheCfgAddrType OBJECT-TYPE
+    SYNTAX      InetAddressType
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION
+            "The address type (IPv4 or IPv6) of this entry.  This must
+             match the address type supported by the entity
+             (mgmdRouterEntAddressType) or the entry will fail with
+             mgmdRouterCacheCfgFailureReason set to
+             AMB_IGRT_FAILURE_ADDR_TYPE."
+    ::= { mgmdRouterCacheCfgEntry 2 }
+
+  mgmdRouterCacheCfgAddress OBJECT-TYPE
+    SYNTAX      InetAddress
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "The IP multicast group address which this entry is
+                 associated with.  The InetAddressType is identified by
+                 mgmdRouterCacheCfgAddrType."
+    ::= { mgmdRouterCacheCfgEntry 3 }
+
+  mgmdRouterCacheCfgIfIndex OBJECT-TYPE
+    SYNTAX      InterfaceIndex
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "The interface which this entry is associated with."
+    ::= { mgmdRouterCacheCfgEntry 4 }
+
+  mgmdRouterCacheCfgRowStatus OBJECT-TYPE
+    SYNTAX      RowStatus
+    MAX-ACCESS  read-create
+    STATUS      current
+    DESCRIPTION "Used to create and delete the entry."
+    ::= { mgmdRouterCacheCfgEntry 5 }
+
+  mgmdRouterCacheCfgAdminStatus OBJECT-TYPE
+    SYNTAX      AdminStatus
+    MAX-ACCESS  read-create
+    STATUS      current
+    DESCRIPTION "The desired administrative state of the entry."
+    DEFVAL      { adminStatusUp }
+    ::= { mgmdRouterCacheCfgEntry 6 }
+
+  mgmdRouterCacheCfgOperStatus OBJECT-TYPE
+    SYNTAX      NpgOperStatus
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "The current operational state of the entry."
+    ::= { mgmdRouterCacheCfgEntry 7 }
+
+  mgmdRouterCacheCfgFailureReason  OBJECT-TYPE
+    SYNTAX      MgmdRouterFailureReason
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+         "The reason for the entry being in a failed operational
+          state.  If the entry is not failed, this field can be
+          ignored and will be set to AMB_IGRT_FAILURE_NONE."
+    ::= { mgmdRouterCacheCfgEntry 8 }
+
+--
+-- The DC-MGMD Router Static Source List Table
+--
+
+  mgmdRouterSrcListCfgTable OBJECT-TYPE
+    SYNTAX      SEQUENCE OF MgmdRouterSrcListCfgEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION
+            "This table is used to statically configure include mode
+             state on a particular interface - i.e. group memberships
+             with a particular source address.
+
+             Group memberships associated with objects in this table
+             persist regardless of matching dynamic memberships learned
+             over IGMP or MLD.
+
+             Objects in this table also appear in the read-only
+             mgmdRouterSrcListTable and mgmdRouterPerEntSrcListTable
+             tables, alongside memberships learned over IGMP or MLD."
+    ::= { mgmdRouterMibObjects 10 }
+
+  mgmdRouterSrcListCfgEntry OBJECT-TYPE
+    SYNTAX      MgmdRouterSrcListCfgEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION
+           "An entry (conceptual row) in the
+            MgmdRouterSrcListCfgTable."
+    INDEX { mgmdRouterEntIndex,
+            mgmdRouterSrcListCfgAddrType,
+            mgmdRouterSrcListCfgGpAddr,
+            mgmdRouterSrcListCfgIfIndex,
+            mgmdRouterSrcListCfgHostAddr  }
+
+    ::= { mgmdRouterSrcListCfgTable 1 }
+
+  MgmdRouterSrcListCfgEntry ::= SEQUENCE {
+      mgmdRouterSrcListCfgAddrType                InetAddressType,
+      mgmdRouterSrcListCfgGpAddr                  InetAddress,
+      mgmdRouterSrcListCfgIfIndex                 InterfaceIndex,
+      mgmdRouterSrcListCfgHostAddr                InetAddress,
+      mgmdRouterSrcListCfgRowStatus               RowStatus,
+      mgmdRouterSrcListCfgAdminStatus             AdminStatus,
+      mgmdRouterSrcListCfgOperStatus              NpgOperStatus,
+      mgmdRouterSrcListCfgFailReason              MgmdRouterFailureReason
+    }
+
+  mgmdRouterSrcListCfgAddrType OBJECT-TYPE
+    SYNTAX      InetAddressType
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION
+            "The address type (IPv4 or IPv6) of this entry.  This must
+             match the address type supported by the entity
+             (mgmdRouterEntAddressType) or the entry will fail with
+             mgmdRouterSrcListCfgFailReason set to
+             AMB_IGRT_FAILURE_ADDR_TYPE."
+    ::= { mgmdRouterSrcListCfgEntry 2 }
+
+  mgmdRouterSrcListCfgGpAddr OBJECT-TYPE
+    SYNTAX      InetAddress
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "The IP multicast group address which this entry is
+                 associated with.  The InetAddressType is identified by
+                 mgmdRouterSrcListCfgAddrType."
+    ::= { mgmdRouterSrcListCfgEntry 3 }
+
+  mgmdRouterSrcListCfgIfIndex OBJECT-TYPE
+    SYNTAX      InterfaceIndex
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "The interface which this entry is associated with."
+    ::= { mgmdRouterSrcListCfgEntry 4 }
+
+  mgmdRouterSrcListCfgHostAddr  OBJECT-TYPE
+    SYNTAX      InetAddress
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION
+            "The host address which this entry is associated with -
+             i.e. the source of multicast traffic that this membership
+             includes.
+
+             The InetAddressType is identified by
+             mgmdRouterSrcListCfgAddrType."
+    ::= { mgmdRouterSrcListCfgEntry 5 }
+
+  mgmdRouterSrcListCfgRowStatus OBJECT-TYPE
+    SYNTAX      RowStatus
+    MAX-ACCESS  read-create
+    STATUS      current
+    DESCRIPTION "Used to create and delete the entry."
+    ::= { mgmdRouterSrcListCfgEntry 6 }
+
+  mgmdRouterSrcListCfgAdminStatus OBJECT-TYPE
+    SYNTAX      AdminStatus
+    MAX-ACCESS  read-create
+    STATUS      current
+    DESCRIPTION "The desired administrative state of the entry."
+    DEFVAL      { adminStatusUp }
+    ::= { mgmdRouterSrcListCfgEntry 7 }
+
+  mgmdRouterSrcListCfgOperStatus OBJECT-TYPE
+    SYNTAX      NpgOperStatus
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "The current operational state of the entry."
+    ::= { mgmdRouterSrcListCfgEntry 8 }
+
+  mgmdRouterSrcListCfgFailReason OBJECT-TYPE
+      SYNTAX      MgmdRouterFailureReason
+      MAX-ACCESS  read-only
+      STATUS      current
+      DESCRIPTION
+              "The reason for the entry being in a failed operational
+               state.  If the entry is not failed, this field can be
+               ignored and will be set to AMB_IGRT_FAILURE_NONE."
+      ::= { mgmdRouterSrcListCfgEntry 9 }
+
+--
+-- The DC-MGMD Router Source Configuration Table
+--
+
+  mgmdRouterSrcCfgTable OBJECT-TYPE
+    SYNTAX      SEQUENCE OF MgmdRouterSrcCfgEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION
+            "This table is used for static per-source configuration.
+             Currently, it is only used for configuration of source to
+             access list mappings for SSM Mapping."
+    ::= { mgmdRouterMibObjects 11 }
+
+  mgmdRouterSrcCfgEntry OBJECT-TYPE
+    SYNTAX      MgmdRouterSrcCfgEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION
+           "An entry (conceptual row) in the
+            MgmdRouterSrcCfgTable."
+    INDEX { mgmdRouterEntIndex,
+            mgmdRouterSrcCfgAddrType,
+            mgmdRouterSrcCfgHostAddr  }
+
+    ::= { mgmdRouterSrcCfgTable 1 }
+
+  MgmdRouterSrcCfgEntry ::= SEQUENCE {
+      mgmdRouterSrcCfgAddrType                InetAddressType,
+      mgmdRouterSrcCfgHostAddr                InetAddress,
+      mgmdRouterSrcCfgRowStatus               RowStatus,
+      mgmdRouterSrcCfgAdminStatus             AdminStatus,
+      mgmdRouterSrcCfgOperStatus              NpgOperStatus,
+      mgmdRouterSrcCfgFailReason              MgmdRouterFailureReason,
+      mgmdRouterSrcSsmMappingGroups           StdAccessListListIndexOrZero
+    }
+
+  mgmdRouterSrcCfgAddrType OBJECT-TYPE
+    SYNTAX      InetAddressType
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION
+            "The address type (IPv4 or IPv6) of this entry.  This must
+             match the address type supported by the entity
+             (mgmdRouterEntAddressType) or the entry will fail with
+             mgmdRouterSrcCfgFailReason set to
+             AMB_IGRT_FAILURE_ADDR_TYPE."
+    ::= { mgmdRouterSrcCfgEntry 2 }
+
+  mgmdRouterSrcCfgHostAddr  OBJECT-TYPE
+    SYNTAX      InetAddress
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION
+            "The address of the source of multicast traffic that this
+             membership includes.
+
+             The InetAddressType is identified by
+             mgmdRouterSrcCfgAddrType."
+    ::= { mgmdRouterSrcCfgEntry 3 }
+
+  mgmdRouterSrcCfgRowStatus OBJECT-TYPE
+    SYNTAX      RowStatus
+    MAX-ACCESS  read-create
+    STATUS      current
+    DESCRIPTION "Used to create and delete the entry."
+    ::= { mgmdRouterSrcCfgEntry 4 }
+
+  mgmdRouterSrcCfgAdminStatus OBJECT-TYPE
+    SYNTAX      AdminStatus
+    MAX-ACCESS  read-create
+    STATUS      current
+    DESCRIPTION "The desired administrative state of the entry."
+    DEFVAL      { adminStatusUp }
+    ::= { mgmdRouterSrcCfgEntry 5 }
+
+  mgmdRouterSrcCfgOperStatus OBJECT-TYPE
+    SYNTAX      NpgOperStatus
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "The current operational state of the entry."
+    ::= { mgmdRouterSrcCfgEntry 6 }
+
+  mgmdRouterSrcCfgFailReason OBJECT-TYPE
+    SYNTAX      MgmdRouterFailureReason
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+            "The reason for the entry being in a failed operational
+             state.  If the entry is not failed, this field can be
+             ignored and will be set to AMB_IGRT_FAILURE_NONE."
+    ::= { mgmdRouterSrcCfgEntry 7 }
+
+  mgmdRouterSrcSsmMappingGroups OBJECT-TYPE
+    SYNTAX      StdAccessListListIndexOrZero
+    MAX-ACCESS  read-create
+    STATUS      current
+    DESCRIPTION
+            "The list of groups which map to this source address for
+             static SSM mapping.
+
+             An SSM mapping exists between this source and any group
+             address that is:
+             -  included in the access list identified by this object,
+                and
+             -  within the mgmdRouterEntSsmGroupSpace, if it is
+                non-zero, or within the IANA specified SSM address
+                range otherwise.
+
+             That is to say, (*,G) membership reports for the SSM group
+             on any interface are associated with the source address of
+             this entry and passed to the MRPM, rather than ignored
+             (because they are non-source-specific).
+
+             A value of 0 configures no SSM maps for this source."
+    DEFVAL      { 0 }
+    ::= { mgmdRouterSrcCfgEntry 8 }
+
+-- conformance information
+
+mgmdRouterMibConformance
+                    OBJECT IDENTIFIER ::= { dcmgmdRouterMib 2 }
+mgmdRouterMibCompliances
+                    OBJECT IDENTIFIER ::= { mgmdRouterMibConformance 1 }
+mgmdRouterMibGroups OBJECT IDENTIFIER ::= { mgmdRouterMibConformance 2 }
+
+
+-- compliance statements
+
+mgmdRouterMibCompliance MODULE-COMPLIANCE
+    STATUS  current
+    DESCRIPTION
+       "The compliance statement."
+    MODULE  -- this module
+    GROUP       mgmdRouterEntGroup
+    DESCRIPTION
+       "This group defines entity configuration."
+    GROUP       mgmdRouterInterfaceGroup
+    DESCRIPTION
+       "This group defines network interface configuration."
+    GROUP       mgmdRouterCacheGroup
+    DESCRIPTION
+       "This group displays group membership cache state."
+    GROUP       mgmdRouterInverseCacheGroup
+    DESCRIPTION
+       "This group displays group membership cache state, using an
+       alternative index ordering to mgmdRouterCacheGroup."
+    GROUP       mgmdRouterSrcListGroup
+    DESCRIPTION
+       "This group displays group membership cache source list state."
+    GROUP       mgmdRouterPerEntCacheGroup
+    DESCRIPTION
+       "This group displays per-entity group membership cache state."
+    GROUP       mgmdRouterPerEntSrcListGroup
+    DESCRIPTION
+       "This group displays per-entity group membership cache source
+        list state."
+    GROUP       mgmdRouterCacheCfgGroup
+    DESCRIPTION
+       "This group defines static (*, G) group memberships on a particular
+        interface"
+    GROUP       mgmdRouterSrcListCfgGroup
+    DESCRIPTION
+       "This group defines static (S, G) group memberships on a particular
+        interface"
+    GROUP       mgmdRouterSrcCfgGroup
+    DESCRIPTION
+       "This group defines general source configuration"
+    ::= { mgmdRouterMibCompliances 1 }
+
+-- units of conformance
+
+mgmdRouterEntGroup   OBJECT-GROUP
+    OBJECTS { mgmdRouterEntAddressType,
+              mgmdRouterEntRowStatus,
+              mgmdRouterEntAdminStatus,
+              mgmdRouterEntOperStatus,
+              mgmdRouterEntMrpmType,
+              mgmdRouterEntMrpmEntIndex,
+              mgmdRouterEntSsmGroupSpace,
+              mgmdRouterEntStatsValidQueries,
+              mgmdRouterEntStatsValidReports,
+              mgmdRouterEntStatsValidLeaves,
+              mgmdRouterEntStatsValidTotal,
+              mgmdRouterEntStatsFltrdVersion,
+              mgmdRouterEntStatsFltrdQryVer,
+              mgmdRouterEntStatsFilteredLimit,
+              mgmdRouterEntStatsFltrdGrpSrc,
+              mgmdRouterEntStatsFltrdLinkLcl,
+              mgmdRouterEntStatsFilteredOther,
+              mgmdRouterEntStatsFilteredTotal,
+              mgmdRouterEntStatsBadChecksum,
+              mgmdRouterEntStatsBadRtrAlert,
+              mgmdRouterEntStatsBadSSMRange,
+              mgmdRouterEntStatsBadOther,
+              mgmdRouterEntStatsBadTotal,
+              mgmdRouterEntStatsSentQueries,
+              mgmdRouterEntStatsSnoopQries,
+              mgmdRouterEntStatsReset,
+              mgmdRouterEntSnoopBrdgeDomType,
+              mgmdRouterEntSnoopBrdgeDomId,
+              mgmdRouterEntSnoopBrdgeDomSubId,
+              mgmdRouterEntSnoopQrySrcAddrIp4,
+              mgmdRouterEntSnoopQrySrcAddrIp6,
+              mgmdRouterEntSnoopQuerier,
+              mgmdRouterEntScope,
+              mgmdRouterEntI3Index,
+              mgmdRouterEntSckIndex,
+              mgmdRouterEntBdiiIndex,
+              mgmdRouterEntSnoopDisableBdii,
+              mgmdRouterEntBdiiRetryTimeout,
+              mgmdRouterEntBdiiFailTimeout,
+              mgmdRouterEntClearState
+            }
+    STATUS  current
+    DESCRIPTION
+       "This group defines entity configuration."
+   ::= { mgmdRouterMibGroups 1 }
+
+mgmdRouterInterfaceGroup   OBJECT-GROUP
+    OBJECTS { mgmdRouterInterfaceQuerier,
+              mgmdRouterInterfaceQryInterval,
+              mgmdRouterInterfaceStatus,
+              mgmdRouterInterfaceAdminStatus,
+              mgmdRouterInterfaceOperStatus,
+              mgmdRouterInterfaceVersion,
+              mgmdRouterInterfaceQryMaxRspTme,
+              mgmdRouterInterfaceQrierUpTime,
+              mgmdRouterInterfaceQrierExpTme,
+              mgmdRouterInterfaceWrongVQries,
+              mgmdRouterInterfaceJoins,
+              mgmdRouterInterfaceGroupsLimit,
+              mgmdRouterInterfaceSourcesLimit,
+              mgmdRouterInterfaceGroups,
+              mgmdRouterInterfaceSources,
+              mgmdRouterInterfaceRobustness,
+              mgmdRouterInterfaceLstMemQryIvl,
+              mgmdRouterInterfaceLstMemQryCnt,
+              mgmdRouterInterfaceStartQryIvl,
+              mgmdRouterInterfaceStartQryCnt,
+              mgmdRouterInterfaceDrpNoRtrAlrt,
+              mgmdRouterInterfaceDrpIgmpV1,
+              mgmdRouterInterfaceDpIgmpV2MldV1,
+              mgmdRouterInterfaceImmedtLeave,
+              mgmdRouterInterfaceAllowASMList,
+              mgmdRouterInterfaceAllowSSMList,
+              mgmdRouterInterfaceQryBefImmdLv,
+              mgmdRouterInterfaceFailedJoins,
+              mgmdRouterInterfaceGenQrySent,
+              mgmdRouterInterfaceSpecQrySent,
+              mgmdRouterInterfaceTotlRcvdMsgs,
+              mgmdRouterInterfaceIgmpV1,
+              mgmdRouterInterfaceIgmpV2MldV1,
+              mgmdRouterInterfaceIgmpV3MldV2,
+              mgmdRouterInterfaceInvalidMsgs,
+              mgmdRouterInterfacePeakGroups,
+              mgmdRouterInterfaceEnableStats,
+              mgmdRouterInterfaceAllowSGList,
+              mgmdRouterInterfaceQrRobustness,
+              mgmdRouterInterfaceQrQryIvl,
+              mgmdRouterInterfaceQrQryMaxRspT,
+              mgmdRouterInterfaceQrLstQryIvl,
+              mgmdRouterInterfaceStatsUpTime,
+              mgmdRouterInterfaceMrouterCfgd,
+              mgmdRouterInterfaceMrouterShow,
+              mgmdRouterInterfaceProxyUpstrIf,
+              mgmdRouterInterfacePassive,
+              mgmdRouterInterfaceV2MldV1QSent,
+              mgmdRouterInterfaceV2MldV1QRcvd,
+              mgmdRouterInterfaceV2MldV1RRcvd,
+              mgmdRouterInterfaceV2MldV1LRcvd,
+              mgmdRouterInterfaceV3MldV2QSent,
+              mgmdRouterInterfaceV3MldV2QRcvd,
+              mgmdRouterInterfaceV3MldV2RRcvd,
+              mgmdRouterInterfaceInvChecksum,
+              mgmdRouterInterfaceInvalidLen,
+              mgmdRouterInterfaceInvLocalIP,
+              mgmdRouterInterfaceInvSubnet,
+              mgmdRouterInterfaceInvNonQuerier,
+              mgmdRouterInterfaceWrongVRep,
+              mgmdRouterInterfaceInvMsgType,
+              mgmdRouterInterfaceInvV2Reports,
+              mgmdRouterInterfaceInvV3Reports,
+              mgmdRouterInterfaceInvLeaves,
+              mgmdRouterInterfaceBadRtrAlert,
+              mgmdRouterInterfaceLstMQrCntCfg,
+              mgmdRouterInterfaceStQryIvlCfg,
+              mgmdRouterInterfaceStQryCntCfg,
+              mgmdRouterInterfaceQueryExpTime,
+              mgmdRouterInterfaceExplTracking
+            }
+    STATUS  current
+    DESCRIPTION
+       "This group defines network interface configuration."
+   ::= { mgmdRouterMibGroups 2 }
+
+mgmdRouterCacheGroup   OBJECT-GROUP
+    OBJECTS { mgmdRouterCacheLastReporter,
+              mgmdRouterCacheUpTime,
+              mgmdRouterCacheExpiryTime,
+              mgmdRouterCacheExclModeExpTimer,
+              mgmdRouterCacheVersion1HostTimer,
+              mgmdRouterCacheVersion2HostTimer,
+              mgmdRouterCacheSourceFilterMode,
+              mgmdRouterCacheType
+            }
+    STATUS  current
+    DESCRIPTION
+       "This group displays group membership cache state."
+   ::= { mgmdRouterMibGroups 3 }
+
+mgmdRouterInverseCacheGroup   OBJECT-GROUP
+    OBJECTS { mgmdRouterInverseCacheLstReprtr,
+              mgmdRouterInverseCacheUpTime,
+              mgmdRouterInverseCacheExpTime,
+              mgmdRouterInverseCacheExlExpTmr,
+              mgmdRouterInverseCacheV1HostTmr,
+              mgmdRouterInverseCacheV2HostTmr,
+              mgmdRouterInverseCacheSrcFltMde,
+              mgmdRouterInverseCacheType
+            }
+    STATUS  current
+    DESCRIPTION
+       "This group displays group membership cache state, using an
+       alternative index ordering to mgmdRouterCacheGroup."
+   ::= { mgmdRouterMibGroups 4 }
+
+mgmdRouterSrcListGroup   OBJECT-GROUP
+    OBJECTS { mgmdRouterSrcListExpire,
+              mgmdRouterSrcListSrcFilterMode,
+              mgmdRouterSrcListType,
+              mgmdRouterSrcListUpTime
+            }
+    STATUS  current
+    DESCRIPTION
+       "This group displays group membership cache source list state."
+   ::= { mgmdRouterMibGroups 5 }
+
+mgmdRouterPerEntCacheGroup   OBJECT-GROUP
+    OBJECTS { mgmdRouterPerEntCacheLstReportr,
+              mgmdRouterPerEntCacheUpTime,
+              mgmdRouterPerEntCacheExpiryTime,
+              mgmdRouterPerEntCacheExclExpTmr,
+              mgmdRouterPerEntCacheV1HstTimer,
+              mgmdRouterPerEntCacheV2HstTimer,
+              mgmdRouterPerEntCacheSrcFltMode,
+              mgmdRouterPerEntCacheSrcType
+            }
+    STATUS  current
+    DESCRIPTION
+       "This group displays per-entity group membership cache state."
+   ::= { mgmdRouterMibGroups 6 }
+
+mgmdRouterPerEntSrcListGroup   OBJECT-GROUP
+    OBJECTS { mgmdRouterPerEntSrcListExpire,
+              mgmdRouterPerEntSrcListFltMode,
+              mgmdRouterPerEntSrcListType,
+              mgmdRouterPerEntSrcCacheUpTime
+            }
+    STATUS  current
+    DESCRIPTION
+       "This group displays per-entity group membership cache source
+        list state."
+   ::= { mgmdRouterMibGroups 7 }
+
+mgmdRouterCacheCfgGroup    OBJECT-GROUP
+    OBJECTS { mgmdRouterCacheCfgRowStatus,
+              mgmdRouterCacheCfgAdminStatus,
+              mgmdRouterCacheCfgOperStatus,
+              mgmdRouterCacheCfgFailureReason
+            }
+    STATUS  current
+    DESCRIPTION
+        "This group defines static (*, G) group memberships on a particular
+        interface"
+    ::= { mgmdRouterMibGroups 8 }
+
+mgmdRouterSrcListCfgGroup   OBJECT-GROUP
+    OBJECTS { mgmdRouterSrcListCfgRowStatus,
+              mgmdRouterSrcListCfgAdminStatus,
+              mgmdRouterSrcListCfgOperStatus,
+              mgmdRouterSrcListCfgFailReason
+            }
+    STATUS  current
+    DESCRIPTION
+        "This group defines static (S, G) group memberships on a particular
+        interface"
+    ::= { mgmdRouterMibGroups 9 }
+
+mgmdRouterSrcCfgGroup   OBJECT-GROUP
+    OBJECTS { mgmdRouterSrcCfgRowStatus,
+              mgmdRouterSrcCfgAdminStatus,
+              mgmdRouterSrcCfgOperStatus,
+              mgmdRouterSrcCfgFailReason,
+              mgmdRouterSrcSsmMappingGroups
+            }
+    STATUS  current
+    DESCRIPTION
+        "This group defines general source configuration"
+    ::= { mgmdRouterMibGroups 10 }
+
+END
+

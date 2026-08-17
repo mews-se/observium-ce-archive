@@ -1,0 +1,113 @@
+ECI-POLICY-BASED-ACCOUNTING-MIB
+
+DEFINITIONS ::= BEGIN
+
+    IMPORTS
+	DisplayString
+	    FROM SNMPv2-TC
+	ifIndex
+	    FROM IF-MIB
+	MODULE-IDENTITY, OBJECT-TYPE, Integer32
+	    FROM SNMPv2-SMI
+	EciCounter48
+	    FROM ECI-TC
+	eciMibs
+	    FROM ECI-SMI;
+
+   eciPolicyBasedAccountingMIB MODULE-IDENTITY
+       LAST-UPDATED "0707170000Z"            -- 17 July 2007
+       ORGANIZATION "ECI Telecom"
+	    CONTACT-INFO
+		"ECI Telecom, Ltd.
+		 Postal: 30 Hasivim Street
+		         Petach Tikva 49157, Israel 
+		 Tel: +972-3-9266000
+		 Fax: +972-3-9266370
+		 email: on.support@ecitele.com"
+	    DESCRIPTION
+		"This is ECI Telecom's specific MIB for Destination
+		 class per profile usage"
+	::= { eciMibs 1 }
+
+    eciPBAMIBObjects OBJECT IDENTIFIER ::= {eciPolicyBasedAccountingMIB 1}
+
+    eciPBATable    OBJECT-TYPE
+	SYNTAX         SEQUENCE OF EciPBAEntry
+	MAX-ACCESS     not-accessible
+	STATUS         current
+	DESCRIPTION
+	    "The eciPBATable provides statistics about the ingress traffic
+	    on an interface. Statistics are provided per destination class
+	    per service profile."
+	::= { eciPBAMIBObjects 1 }
+
+    eciPBAEntry    OBJECT-TYPE
+	SYNTAX         EciPBAEntry
+	MAX-ACCESS     not-accessible
+	STATUS         current
+	DESCRIPTION
+	    ""
+	INDEX { ifIndex,
+		eciPBABucketIndex,
+		eciPBAServiceProfileIndex }
+	::= { eciPBATable 1 }
+
+    EciPBAEntry ::= SEQUENCE {
+	eciPBABucketIndex               Integer32,
+	eciPBAServiceProfileIndex       Integer32,
+	eciPBABucketName                DisplayString,
+	eciPBAServiceProfileName        DisplayString,
+	eciPBAPackets                   EciCounter48,
+	eciPBAOctets                    EciCounter48
+    }
+
+    eciPBABucketIndex    OBJECT-TYPE
+	SYNTAX         Integer32 (1..2147483647)
+	MAX-ACCESS     not-accessible
+	STATUS         current
+	DESCRIPTION
+	    "Policy Bucket ID"
+	::= { eciPBAEntry 1 }
+
+    eciPBAServiceProfileIndex    OBJECT-TYPE
+	SYNTAX         Integer32 (1..2147483647)
+	MAX-ACCESS     not-accessible
+	STATUS         current
+	DESCRIPTION
+	    "Service profile ID"
+	::= { eciPBAEntry 2 }
+
+    -- revisit the size
+    eciPBABucketName    OBJECT-TYPE
+	SYNTAX         DisplayString (SIZE(0..128))
+	MAX-ACCESS     read-only
+	STATUS         current
+	DESCRIPTION
+	    "Policy bucket name"
+	::= { eciPBAEntry 3 }
+
+    eciPBAServiceProfileName    OBJECT-TYPE
+	SYNTAX         DisplayString (SIZE(0..128))
+	MAX-ACCESS     read-only
+	STATUS         current
+	DESCRIPTION
+	    "Service profile name"
+	::= { eciPBAEntry 4 }
+
+    eciPBAPackets    OBJECT-TYPE
+	SYNTAX         EciCounter48
+	MAX-ACCESS     read-only
+	STATUS         current
+	DESCRIPTION
+	    "Total number of packets"
+	::= { eciPBAEntry 5 }
+
+    eciPBAOctets    OBJECT-TYPE
+	SYNTAX         EciCounter48
+	MAX-ACCESS     read-only
+	STATUS         current
+	DESCRIPTION
+	    "Total number of octets "
+	::= { eciPBAEntry 6 }
+
+END

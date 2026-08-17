@@ -1,0 +1,181 @@
+PPM-ORG-MIB DEFINITIONS ::= BEGIN 
+
+	IMPORTS 
+		MODULE-IDENTITY, OBJECT-IDENTITY, enterprises
+			FROM SNMPv2-SMI
+		DisplayString
+			FROM SNMPv2-TC;
+
+	ppm		MODULE-IDENTITY
+		LAST-UPDATED "202007221300Z"
+		ORGANIZATION
+				"Pulse Power & Measurement Ltd."
+		CONTACT-INFO 
+				"  
+				Postal:     65 Shrivenham Hundred Business Park
+				Watchfield 
+				Swindon, Wiltshire. SN6 8TY, UK
+				Telephone:  +44 (0)1793 784389 
+				E-Mail:     sales@ppm.co.uk  "          
+		DESCRIPTION 
+				"Pulse Power & Measurement Ltd. (PPM) organisational MIB
+				
+				This MIB defines the top-level MIB structure for PPM SNMP capable products, 
+				and will be imported by other PPM product-specific MIBs.
+				
+				This includes MIBs for products sold under the ViaLite Communications division.
+				
+				This MIB is incompatible with the ViaLite Classic MIB.
+				
+				Pulse Power & Measurement Ltd. reserves the right to make chamges in specifications 
+				and all other information contained in this document without prior notice.
+				
+				Pulse Power & Measurement Ltd. grants vendors, end-users, and other interested parties 
+				a non-exclusive license to use this specification in connection with the management of
+				Pulse Power & Measurement products.
+				"
+		REVISION
+				"202007221300Z"
+		DESCRIPTION
+				"1.1 - Incorporate the FTP update and Trap Sink MIBs from ViaLiteHD(IGNIS) as it may be used on other products"
+		REVISION
+				"201710101300Z"
+		DESCRIPTION
+				"First Release"
+	::= { enterprises 31225 }
+
+	vialiteProducts		OBJECT-IDENTITY
+		STATUS current
+		DESCRIPTION 
+			"Organisational node containing ViaLite Communications products."
+	::= { ppm 1 }
+	
+	ppmTestProducts		OBJECT-IDENTITY
+		STATUS current
+		DESCRIPTION
+			"Organisational node containing PPM Test products."
+	::= { ppm 10 } 
+	
+	ppmSystemsProducts	OBJECT-IDENTITY
+		STATUS current
+		DESCRIPTION
+			"Organisational node containing PPM Systems products."
+	::= { ppm 20 } 	
+	
+	ppmExperimental	OBJECT-IDENTITY
+		STATUS current
+		DESCRIPTION
+			"Organisational node containing all experimental PPM MIBs.
+			Once these MIBs have been fully developed and tested, they will be
+			relocated under the appropriate organisational node.
+			MIBs which are under test may also appear under this experimental node."
+	::= { ppm 999 } 	
+
+-- ---------------------------------------------------------- -- 
+-- SNMP Module Administration Group 
+-- ---------------------------------------------------------- --
+
+	ppmSNMPAdministration OBJECT IDENTIFIER ::= { ppm 3 }
+	ppmSNMPSwUpdate OBJECT IDENTIFIER ::= { ppmSNMPAdministration 12 }
+
+	softwareUpdateFTPServerIP OBJECT-TYPE
+		SYNTAX IpAddress 
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION "Software Update FTP Server IP Address."
+	::= { ppmSNMPSwUpdate 1 1 }
+	
+	softwareUpdateFTPServerUsername OBJECT-TYPE
+		SYNTAX DisplayString
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION "Software Update FTP Server Username"
+	::= { ppmSNMPSwUpdate 1 2 }
+	softwareUpdateFTPServerPassword OBJECT-TYPE
+		SYNTAX DisplayString
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION "Software Update FTP Server Password"
+	::= { ppmSNMPSwUpdate 1 3 }
+	
+	softwareUpdateFTPFilename OBJECT-TYPE
+		SYNTAX DisplayString
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION "Software Update File name for upload from FTP Server"
+	::= { ppmSNMPSwUpdate 3 2 1 }	
+	
+	softwareUpdateFTPCommand OBJECT-TYPE
+		SYNTAX INTEGER
+		{
+			noAction(0),
+			downloadAndUpdate(21)
+		}
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION "Trigger for upload of FTP software update file. Only set to 21 when FTP server IP/Username/Password/Filename are correct."
+	::= { ppmSNMPSwUpdate 3 2 2 }
+	
+	
+	ppmSNMPTrapSink OBJECT IDENTIFIER ::= { ppmSNMPAdministration 14 }
+	
+	trapSinkTable OBJECT-TYPE
+		SYNTAX SEQUENCE OF TrapSinkEntry
+		MAX-ACCESS not-accessible
+		STATUS current
+		DESCRIPTION 	"A table of all configured Trap Reveivers"
+	::= { ppmSNMPTrapSink 1 }
+	
+	trapSinkEntry OBJECT-TYPE
+		SYNTAX  TrapSinkEntry
+		MAX-ACCESS not-accessible
+		STATUS current
+		DESCRIPTION 	"A Trap Reveiver entry"
+		INDEX  { trapSinkID  }
+	::= { trapSinkTable 1 }
+	
+	TrapSinkEntry ::=
+		SEQUENCE {
+			trapSinkID	INTEGER,
+			trapSinkIP	IpAddress
+		}
+		
+	trapSinkID OBJECT-TYPE
+		SYNTAX INTEGER (0..30)
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION "Trap Receiver ID."
+	::= { trapSinkEntry 1 }
+
+	trapSinkIP OBJECT-TYPE
+		SYNTAX IpAddress 
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION "Trap Receiver IP Address."
+	::= { trapSinkEntry 2 }
+	
+	
+	trapSinkModifyIP OBJECT-TYPE
+		SYNTAX IpAddress 
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION "Trap Receiver IP Address for adding/removing."
+	::= { ppmSNMPTrapSink 2 1 }
+	
+	trapSinkModifyCommand OBJECT-TYPE
+		SYNTAX INTEGER 
+		{
+			noAction(0),
+			addTrapSink(1),
+			removeTrapSink(2)
+		}
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION 
+			"Trap Receiver modification action.
+			Controller will search the currently configured trap receivers for the IP address given by trapSinkModifyIP
+			If trapSinkModifyCommand = 1, we add this IP to the Trap Receiver list
+			If trapSinkModifyCommand = 2, we remove this IP from the Trap Receiver list (if present)"
+	::= { ppmSNMPTrapSink 2 2 }
+
+END

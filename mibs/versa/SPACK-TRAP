@@ -1,0 +1,71 @@
+--
+-- @Description: MIB for SPACK
+-- @Date       : 2019-08-21
+--
+
+SPACK-TRAP DEFINITIONS ::= BEGIN
+IMPORTS
+    MODULE-IDENTITY, OBJECT-TYPE, NOTIFICATION-TYPE
+        FROM SNMPv2-SMI
+    systemNotification
+        FROM VERSA-MIB
+    alarmIndex, alarmType, alarmDevice, alarmObject,
+    alarmSpecificProblem, alarmEventType, alarmProbableCause,
+    alarmTime, alarmSeverity, alarmHasClear, alarmText,
+    tenantName, alarmClass
+        FROM TRAPS-COMMON;
+
+spackTrapMIB MODULE-IDENTITY
+    LAST-UPDATED "201706060000Z"
+    ORGANIZATION "Versa Networks"
+    CONTACT-INFO "
+        2953 Bunker Hill Lane, Suite 210
+        Santa Clara, CA - 95035 (USA)
+        Email: support@versa-networks.com"
+    DESCRIPTION  "Versa Networks' Entrprise MIB for SPACK"
+    ::= { systemNotification 8 }
+
+-- Root Object
+spackNotification OBJECT IDENTIFIER ::= { spackTrapMIB 1 }
+
+spackDownloadSuccess NOTIFICATION-TYPE
+    OBJECTS {
+        alarmType, alarmDevice, alarmObject, alarmSpecificProblem,
+        alarmClass, alarmEventType, alarmProbableCause, alarmTime,
+        alarmSeverity, alarmHasClear, alarmText, tenantName
+    }
+    STATUS  current
+    DESCRIPTION "Spack download success notification"
+        ::= { spackNotification 1 }
+
+spackDownloadFailure NOTIFICATION-TYPE
+    OBJECTS {
+        alarmType, alarmDevice, alarmObject, alarmSpecificProblem,
+        alarmClass, alarmEventType, alarmProbableCause, alarmTime,
+        alarmSeverity, alarmHasClear, alarmText, tenantName
+    }
+    STATUS  current
+    DESCRIPTION "Spack download failure notification"
+        ::= { spackNotification 2 }
+
+spackInstallationSuccess NOTIFICATION-TYPE
+    OBJECTS {
+        alarmType, alarmDevice, alarmObject, alarmSpecificProblem,
+        alarmClass, alarmEventType, alarmProbableCause, alarmTime,
+        alarmSeverity, alarmHasClear, alarmText, tenantName
+    }
+    STATUS  current
+    DESCRIPTION "Spack install success notification"
+        ::= { spackNotification 3 }
+
+spackInstallationFailure NOTIFICATION-TYPE
+    OBJECTS {
+        alarmType, alarmDevice, alarmObject, alarmSpecificProblem,
+        alarmClass, alarmEventType, alarmProbableCause, alarmTime,
+        alarmSeverity, alarmHasClear, alarmText, tenantName
+    }
+    STATUS  current
+    DESCRIPTION "Spack install failure notification"
+        ::= { spackNotification 4 }
+
+END

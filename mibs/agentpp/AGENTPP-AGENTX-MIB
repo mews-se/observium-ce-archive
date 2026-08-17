@@ -1,0 +1,185 @@
+AGENTPP-AGENTX-MIB DEFINITIONS ::= BEGIN
+
+IMPORTS
+        RowStatus
+                FROM SNMPv2-TC
+        OBJECT-GROUP
+                FROM SNMPv2-CONF
+        agentppProducts
+                FROM AGENTPP-GLOBAL-REG
+        MODULE-IDENTITY,
+        OBJECT-IDENTITY,
+        OBJECT-TYPE
+                FROM SNMPv2-SMI
+        SnmpAdminString
+                FROM SNMP-FRAMEWORK-MIB;
+
+agentppAgentXMIB MODULE-IDENTITY
+        LAST-UPDATED "200311292346Z"    -- Nov 29, 2003 11:46:00 PM
+        ORGANIZATION "AGENT++"
+        CONTACT-INFO
+                "Frank Fock
+                Email: fock@agentpp.com"
+        DESCRIPTION
+                "MIB module for managed objects for AgentX++."
+        REVISION "200311292346Z"        -- Nov 29, 2003 11:46:00 PM
+        DESCRIPTION
+                "Added agentppAgentXExtGroup for subagent
+                source address validation for AgentX master
+                agents."
+        REVISION "0004070000Z"  -- Apr 7, 1900 12:00:00 AM
+        DESCRIPTION
+                "The initial version."
+ -- 1.3.6.1.4.1.4976.3.1 --  ::= { agentppProducts 1 }
+
+
+agentppAgentXConfs OBJECT IDENTIFIER 
+ -- 1.3.6.1.4.1.4976.3.1.1 --  ::= { agentppAgentXMIB 1 }
+
+agentppAgentXObjs OBJECT IDENTIFIER 
+ -- 1.3.6.1.4.1.4976.3.1.2 --  ::= { agentppAgentXMIB 2 }
+
+--
+-- Object definitions
+--
+
+agentppAgentXDomains OBJECT IDENTIFIER 
+ -- 1.3.6.1.4.1.4976.3.1.2.1 --  ::= { agentppAgentXObjs 1 }
+
+agentppAgentXUnixDomain OBJECT-IDENTITY
+        STATUS obsolete
+        DESCRIPTION
+                "This object is used to indentify UNIX domain socket
+                connections."
+ -- 1.3.6.1.4.1.4976.3.1.2.1.1 --  ::= { agentppAgentXDomains 1 }
+
+agentppAgentXTCPDomain OBJECT-IDENTITY
+        STATUS obsolete
+        DESCRIPTION
+                "This object is used to indentify TCP connections."
+ -- 1.3.6.1.4.1.4976.3.1.2.1.2 --  ::= { agentppAgentXDomains 2 }
+
+agentppAgentXExt OBJECT IDENTIFIER 
+ -- 1.3.6.1.4.1.4976.3.1.2.2 --  ::= { agentppAgentXObjs 2 }
+
+agentppAgentXExtSrcAddrValidation OBJECT-TYPE
+        SYNTAX INTEGER {
+                        enabled(1),
+                        disabled(2) }
+        MAX-ACCESS read-write
+        STATUS current
+        DESCRIPTION
+                "To enable source address validation of 
+                incoming subagent connections in an AgentX++
+                master agent, set this object to enabled(1).
+
+                Source address validation is necessary for TCP
+                AgentX connections for security reasons. In contrast
+                to UNIX domain sockets, (pure) TCP provides no means 
+                to control the access of a server port. So any subagent,
+                even remote subagents, may connect to an AgentX master
+                agent, if source address validation is disabled(2) and
+                not other security policies (i.e. firewall) are installed.
+
+                On non UNIX based systems, AgentX++ enables source
+                address validation by default to prevent subagents trying
+                to connect from non local IP addresses, because
+                these systems provide TCP support only."
+ -- 1.3.6.1.4.1.4976.3.1.2.2.1 --  ::= { agentppAgentXExt 1 }
+
+
+agentppAgentXExtSrcAddrTable OBJECT-TYPE
+        SYNTAX SEQUENCE OF AgentppAgentXExtSrcAddrEntry
+        MAX-ACCESS not-accessible
+        STATUS current
+        DESCRIPTION
+                "This table defines valid source addresses for
+                subagent connections. At present AgentX++
+                only supports source address validation for TCP
+                subagent connections although this table could be
+                used for UNIX domain sockets as well."
+ -- 1.3.6.1.4.1.4976.3.1.2.2.2 --  ::= { agentppAgentXExt 2 }
+
+
+agentppAgentXExtSrcAddrEntry OBJECT-TYPE
+        SYNTAX AgentppAgentXExtSrcAddrEntry
+        MAX-ACCESS not-accessible
+        STATUS current
+        DESCRIPTION
+                "A row in the subagent address table specifies
+                a tag value that selects entries of the
+                snmpTargetAddrTable and its snmpTargetAddrExtTable
+                augmentation table. The selected entries define
+                valid source addresses for subagent connections.
+                Invalid subagent connection attempts will be silently
+                dropped if the agentppAgentXExtSrcAddrValidation 
+                object is enabled(1)."
+        INDEX {
+                agentppAgentXExtSrcAddrIndex }
+ -- 1.3.6.1.4.1.4976.3.1.2.2.2.1 --  ::= { agentppAgentXExtSrcAddrTable 1 }
+
+
+AgentppAgentXExtSrcAddrEntry ::= SEQUENCE {
+
+        agentppAgentXExtSrcAddrIndex     SnmpAdminString,
+        agentppAgentXExtSrcAddrTag       SnmpAdminString,
+        agentppAgentXExtSrcAddrRowStatus RowStatus }
+
+
+agentppAgentXExtSrcAddrIndex OBJECT-TYPE
+        SYNTAX SnmpAdminString (SIZE (0..64))
+        MAX-ACCESS not-accessible
+        STATUS current
+        DESCRIPTION
+                "The index string for rows of the source address
+                table. Any SnmpAdminString value that is unique to
+                this table is a valid index."
+ -- 1.3.6.1.4.1.4976.3.1.2.2.2.1.1 --  ::= { agentppAgentXExtSrcAddrEntry 1 }
+
+
+agentppAgentXExtSrcAddrTag OBJECT-TYPE
+        SYNTAX SnmpAdminString
+        MAX-ACCESS read-create
+        STATUS current
+        DESCRIPTION
+                "The source address tag selects address descriptions
+                from the snmpTargetAddrTable and the
+                snmpTargetAddrExtTable. The selected addresses
+                from the snmpTargetAddrTable combined with the
+                masks defined in the snmpTargetAddrExtTable specify
+                valid source addresses for AgentX++ subagent
+                connections."
+        DEFVAL { "agentX" }
+ -- 1.3.6.1.4.1.4976.3.1.2.2.2.1.2 --  ::= { agentppAgentXExtSrcAddrEntry 2 }
+
+
+agentppAgentXExtSrcAddrRowStatus OBJECT-TYPE
+        SYNTAX RowStatus
+        MAX-ACCESS read-create
+        STATUS current
+        DESCRIPTION
+                "The status of this conceptual row.
+                To create a row in this table, a manager must
+                set this object to either createAndGo(4) or
+                createAndWait(5)."
+ -- 1.3.6.1.4.1.4976.3.1.2.2.2.1.3 --  ::= { agentppAgentXExtSrcAddrEntry 3 }
+
+
+agentppAgentXEvents OBJECT IDENTIFIER 
+ -- 1.3.6.1.4.1.4976.3.1.3 --  ::= { agentppAgentXMIB 3 }
+
+agentppAgentXExtGroup OBJECT-GROUP
+        OBJECTS {
+                agentppAgentXExtSrcAddrValidation,
+                agentppAgentXExtSrcAddrTag,
+                agentppAgentXExtSrcAddrRowStatus }
+        STATUS current
+        DESCRIPTION
+                "This group contains objects necessary to implement
+                subagent source address validation for an AgentX master
+                agent.
+
+                "
+ -- 1.3.6.1.4.1.4976.3.1.1.1 --  ::= { agentppAgentXConfs 1 }
+
+END

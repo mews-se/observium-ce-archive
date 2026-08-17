@@ -1,0 +1,5150 @@
+--
+-- Sonus Networks, Inc.
+--
+-- Hornet base traps.
+--
+
+	HORNET-BASE-TRAPS-MIB
+
+		DEFINITIONS ::= BEGIN
+
+        IMPORTS
+            MODULE-IDENTITY, OBJECT-TYPE, Integer32, 
+            NOTIFICATION-TYPE
+                FROM SNMPv2-SMI
+			DisplayString, TEXTUAL-CONVENTION
+				FROM SNMPv2-TC
+			OBJECT-GROUP, NOTIFICATION-GROUP
+				FROM SNMPv2-CONF
+			sonusCspsNotificationMIBs
+				FROM SONUS-SMI
+			SonusName 
+				FROM SONUS-COMMON-TC
+			sonusServerID,
+			sonusAlarmNodeID,
+			sonusAlarmLevel,
+			sonusAlarmSequenceId,
+			sonusAlarmTime,
+			sonusAlarmDescription
+				FROM SONUS-COMMON-TRAP-MIB
+			sonusEventLogTypeStatusCurrentFile,
+			sonusEventLogTypeAdminFileCount,
+			sonusEventLogTypeAdminFileSize,
+			sonusEventLogTypeAdminSaveTo,
+			sonusEventLogTypeAdminMaxEventMemorySize,
+			sonusEventLogTypeAdminFilterLevel,
+			sonusEventLogTypeAdminMessageQueueSize
+				FROM SONUS-GEN2-EVENT-LOG-MIB
+		    sonusSystemSoftwareUpgradeStatusReason
+				FROM SONUS-SYSTEM-MIB;
+
+
+
+        sonusCpBaseTrapsMIB MODULE-IDENTITY
+			LAST-UPDATED "200807110000Z" -- Fri Jul  11 14:10:11 EST 2008
+            ORGANIZATION "Sonus Networks, Inc."
+            CONTACT-INFO
+               "   Customer Support    
+                   Sonus Networks, Inc.
+                   4 Technology Park Drive
+                   Westford, MA 01886
+                   USA
+
+                   Tel: 978-614-8100
+                   Fax: 978-614-8609"
+            DESCRIPTION
+               "The MIB Module for Base Hornet Traps."
+			REVISION "200807110000Z" -- Fri Jul  11 14:10:11 EST 2008
+            DESCRIPTION
+               "Last revision."
+            ::= { sonusCspsNotificationMIBs 2 }
+
+sonusCpBaseTraps OBJECT IDENTIFIER ::= { sonusCpBaseTrapsMIB 1 }
+
+InetAddressIP ::= TEXTUAL-CONVENTION
+    STATUS      current
+    DESCRIPTION "confd:inetAddressIP"
+    SYNTAX      OCTET STRING (SIZE (4|16))
+
+
+--
+--  From sonusNtp.mib
+--
+
+sonusCpNtpServicesMIBNotifications OBJECT IDENTIFIER ::= { sonusCpBaseTraps 1}
+sonusCpNtpServicesMIBNotificationsPrefix  OBJECT IDENTIFIER ::= { sonusCpNtpServicesMIBNotifications 0 }
+sonusCpNtpServicesMIBNotificationsObjects OBJECT IDENTIFIER ::= { sonusCpNtpServicesMIBNotifications 1 }
+
+sonusCpNtpServerInServiceNotification NOTIFICATION-TYPE
+    OBJECTS    { 
+			     sonusAlarmNodeID,
+				 sonusAlarmLevel,
+				 sonusAlarmSequenceId,
+                 sonusAlarmTime,
+                 sonusAlarmDescription,
+                 sonusCpSystemServerName,
+                 sonusCpNtpIpAddress
+               }
+    STATUS       current
+    DESCRIPTION
+                "This trap indicates that a Network Timing Protocol Server is in service."
+    ::= { sonusCpNtpServicesMIBNotificationsPrefix 1 }
+
+sonusCpNtpServerOutOfServiceNotification NOTIFICATION-TYPE
+    OBJECTS    { 
+			     sonusAlarmNodeID,
+				 sonusAlarmLevel,
+				 sonusAlarmSequenceId,
+                 sonusAlarmTime,
+                 sonusAlarmDescription,
+				 sonusCpSystemServerName,
+                 sonusCpNtpIpAddress,
+                 sonusCpNtpServerOutOfServiceReason
+               }
+    STATUS       current
+    DESCRIPTION
+            "This trap indicates that a Network Timing Protocol Server is out of service."
+    ::= { sonusCpNtpServicesMIBNotificationsPrefix 2 }
+
+sonusCpNtpUpNotification NOTIFICATION-TYPE
+    OBJECTS    { 
+			     sonusAlarmNodeID,
+				 sonusAlarmLevel,
+				 sonusAlarmSequenceId,
+                 sonusAlarmTime,
+                 sonusAlarmDescription,
+			     sonusCpSystemServerName
+               }
+    STATUS       current
+    DESCRIPTION
+                "This trap indicates that Network Timing Protocol Server is Up."
+    ::= { sonusCpNtpServicesMIBNotificationsPrefix 3 }
+
+sonusCpNtpDownNotification NOTIFICATION-TYPE
+    OBJECTS    { 
+			     sonusAlarmNodeID,
+				 sonusAlarmLevel,
+				 sonusAlarmSequenceId,
+                 sonusAlarmTime,
+                 sonusAlarmDescription,
+			     sonusCpSystemServerName,
+                 sonusCpNtpDownReason
+               }
+    STATUS       current
+    DESCRIPTION
+                "This trap indicates that Network Timing Protocol is down."
+    ::= { sonusCpNtpServicesMIBNotificationsPrefix 4 }
+
+sonusCpNtpAllServersOutOfSyncNotification NOTIFICATION-TYPE
+    OBJECTS    { 
+			     sonusAlarmNodeID,
+				 sonusAlarmLevel,
+				 sonusAlarmSequenceId,
+                 sonusAlarmTime,
+                 sonusAlarmDescription,
+			     sonusCpSystemServerName
+               }
+    STATUS       current
+    DESCRIPTION
+                "This trap indicates that all Network Timing Protocol Servers are Out of Sync."
+    ::= { sonusCpNtpServicesMIBNotificationsPrefix 5 }
+
+sonusCpNtpServerOutOfSyncNotification NOTIFICATION-TYPE
+    OBJECTS    { 
+			     sonusAlarmNodeID,
+				 sonusAlarmLevel,
+				 sonusAlarmSequenceId,
+                 sonusAlarmTime,
+                 sonusAlarmDescription,
+                 sonusCpSystemServerName,
+                 sonusCpNtpIpAddress
+               }
+    STATUS       current
+    DESCRIPTION
+                "This trap indicates that a Network Timing Protocol Server is out of Sync."
+    ::= { sonusCpNtpServicesMIBNotificationsPrefix 6 }
+
+sonusCpNtpServerInSyncNotification NOTIFICATION-TYPE
+    OBJECTS    { 
+			     sonusAlarmNodeID,
+				 sonusAlarmLevel,
+				 sonusAlarmSequenceId,
+                 sonusAlarmTime,
+                 sonusAlarmDescription,
+                 sonusCpSystemServerName,
+                 sonusCpNtpIpAddress
+               }
+    STATUS       current
+    DESCRIPTION
+                "This trap indicates that a Network Timing Protocol Server is in Sync."
+    ::= { sonusCpNtpServicesMIBNotificationsPrefix 7 }
+
+
+sonusCpNtpServerReachableNotification NOTIFICATION-TYPE
+    OBJECTS    { 
+			     sonusAlarmNodeID,
+				 sonusAlarmLevel,
+				 sonusAlarmSequenceId,
+                 sonusAlarmTime,
+                 sonusAlarmDescription,
+                 sonusCpSystemServerName,
+                 sonusCpNtpIpAddress
+               }
+
+    STATUS       current
+    DESCRIPTION
+                "This trap indicates that a Network Timing Protocol Server is Reachable."
+    ::= { sonusCpNtpServicesMIBNotificationsPrefix 8 }
+
+
+    -- ADD NEW TRAPS HERE FOR THIS GROUP
+
+sonusCpNtpServerOutOfServiceReason OBJECT-TYPE
+			SYNTAX  INTEGER {
+                              ntpServerDisabled(1),
+                              ntpServerOutOfSync(2)
+							}
+			MAX-ACCESS  read-only
+			STATUS  current
+			DESCRIPTION
+				"The reason why this Network Timing Protocol Server is out of service."
+            ::= { sonusCpNtpServicesMIBNotificationsObjects 1 }
+
+sonusCpNtpDownReason OBJECT-TYPE
+			SYNTAX  INTEGER {
+                              noNtpServerConfigured(1),
+                              allNtpServersOutOfSync(2)
+							}
+			MAX-ACCESS  read-only
+			STATUS  current
+			DESCRIPTION
+				"The reason why the Network Timing Protocol is down for this system."
+            ::= { sonusCpNtpServicesMIBNotificationsObjects 2 }
+
+sonusCpNtpIpAddress OBJECT-TYPE
+            SYNTAX      InetAddressIP
+            MAX-ACCESS  read-only
+            STATUS      current
+            DESCRIPTION "
+                The IP address of this NTP Peer. 
+                "
+            ::= { sonusCpNtpServicesMIBNotificationsObjects 3 }
+
+--
+--  From sonusRedundancy.mib
+--
+
+sonusCpRedundancyServicesMIBNotifications OBJECT IDENTIFIER ::= { sonusCpBaseTraps 2}
+sonusCpRedundancyServicesMIBNotificationsPrefix  OBJECT IDENTIFIER ::= { sonusCpRedundancyServicesMIBNotifications 0 }
+sonusCpRedundancyServicesMIBNotificationsObjects OBJECT IDENTIFIER ::= { sonusCpRedundancyServicesMIBNotifications 1 }
+
+
+sonusCpRedundGroupSwitchOverNotification NOTIFICATION-TYPE
+    OBJECTS    { 
+			     sonusAlarmNodeID,
+				 sonusAlarmLevel,
+				 sonusAlarmSequenceId,
+                 sonusAlarmTime,
+                 sonusAlarmDescription,
+                 sonusCpSystemServerName,
+				 sonusCpRedundPrevActiveServerName,
+                 sonusCpRedundancyServicesGroupName
+               }
+    STATUS       current
+    DESCRIPTION
+                "This trap indicates a server module redundancy switchover has occurred.
+                The standby server module has become active.  
+                The previous active server module, and group
+                information are included.  For 1+1 the redundancy model, there
+                is no group name."
+    ::= { sonusCpRedundancyServicesMIBNotificationsPrefix 1 }
+
+sonusCpRedundGroupNoRedundancyNotification NOTIFICATION-TYPE
+    OBJECTS    { 
+			     sonusAlarmNodeID,
+				 sonusAlarmLevel,
+				 sonusAlarmSequenceId,
+                 sonusAlarmTime,
+                 sonusAlarmDescription,
+				 sonusCpRedundancyServicesGroupName
+               }
+    STATUS       current
+    DESCRIPTION
+                "This trap indicates that the specified redundancy group has
+                no redundancy protection."
+    ::= { sonusCpRedundancyServicesMIBNotificationsPrefix 2 }
+
+sonusCpRedundGroupFullRedundancyNotification NOTIFICATION-TYPE
+    OBJECTS    { 
+			     sonusAlarmNodeID,
+				 sonusAlarmLevel,
+				 sonusAlarmSequenceId,
+                 sonusAlarmTime,
+                 sonusAlarmDescription,
+				 sonusCpRedundancyServicesGroupName
+               }
+    STATUS       current
+    DESCRIPTION
+                "This trap indicates that the specified redundancy group has
+                full redundancy protection."
+    --REPETITION TBD
+    ::= { sonusCpRedundancyServicesMIBNotificationsPrefix 3 }
+
+
+    -- ADD NEW TRAPS HERE FOR THIS GROUP
+
+sonusCpRedundPrevActiveServerName OBJECT-TYPE
+	SYNTAX       DisplayString
+	MAX-ACCESS   read-only
+	STATUS       current
+	DESCRIPTION
+				"The server identifier of the failed server module whose switchover
+                 generated this trap."
+	::= { sonusCpRedundancyServicesMIBNotificationsObjects 1 }
+
+sonusCpRedundancyServicesGroupName OBJECT-TYPE
+    SYNTAX      DisplayString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "
+          The name of this redundancy group instance.
+        "
+    ::= { sonusCpRedundancyServicesMIBNotificationsObjects 2 }
+
+--
+-- from sonusSoftwareUpgrade.mib
+--
+
+sonusCpSoftwareUpgradeServicesMIBNotifications OBJECT IDENTIFIER ::= { sonusCpBaseTraps 3}
+
+sonusCpSoftwareUpgradeServicesMIBNotificationsPrefix  OBJECT IDENTIFIER ::= { sonusCpSoftwareUpgradeServicesMIBNotifications 0 }
+sonusCpSoftwareUpgradeServicesMIBNotificationsObjects OBJECT IDENTIFIER ::= { sonusCpSoftwareUpgradeServicesMIBNotifications 1 }
+
+	sonusCpSoftwareUpgradeInitiatedNotification NOTIFICATION-TYPE
+		OBJECTS		{ 
+			     	  sonusAlarmNodeID,
+					  sonusAlarmLevel,
+				      sonusAlarmSequenceId,
+                      sonusAlarmTime,
+                      sonusAlarmDescription,
+                      sonusCpSystemServerName
+					}
+    STATUS       current
+    DESCRIPTION
+                "This trap indicates that a software upgrade 
+                 has been initiated."
+    ::= { sonusCpSoftwareUpgradeServicesMIBNotificationsPrefix 1 }
+
+	sonusCpSoftwareUpgradeTerminatedNotification NOTIFICATION-TYPE
+		OBJECTS		{
+			     	  sonusAlarmNodeID,
+					  sonusAlarmLevel,
+				      sonusAlarmSequenceId,
+                      sonusAlarmTime,
+                      sonusAlarmDescription,
+					  sonusSystemSoftwareUpgradeStatusReason
+					}
+    STATUS       current
+    DESCRIPTION
+                "This trap indicates that a software upgrade has terminated 
+                 for the specified reason."
+    ::= { sonusCpSoftwareUpgradeServicesMIBNotificationsPrefix 2 }
+
+	sonusCpSoftwareUpgradeSucceededNotification NOTIFICATION-TYPE
+		OBJECTS		{
+			     	  sonusAlarmNodeID,
+					  sonusAlarmLevel,
+				      sonusAlarmSequenceId,
+                      sonusAlarmTime,
+                      sonusAlarmDescription,
+					  sonusSystemSoftwareUpgradeStatusReason
+					}
+    STATUS       current
+    DESCRIPTION
+                "This trap indicates that a software upgrade has succeeded
+                 for the specified reason."
+    ::= { sonusCpSoftwareUpgradeServicesMIBNotificationsPrefix 3 }
+
+	sonusCpSoftwareUpgradeRevertNotification NOTIFICATION-TYPE
+		OBJECTS		{
+			     	  sonusAlarmNodeID,
+					  sonusAlarmLevel,
+				      sonusAlarmSequenceId,
+                      sonusAlarmTime,
+                      sonusAlarmDescription
+					}
+    STATUS       current
+    DESCRIPTION
+                "This trap indicates that a Live Software Upgrade
+                 revert to the previous release has occured."
+    ::= { sonusCpSoftwareUpgradeServicesMIBNotificationsPrefix 4 }
+
+	sonusCpSoftwareUpgradeCommitRequiredNotification NOTIFICATION-TYPE
+		OBJECTS		{
+			     	  sonusAlarmNodeID,
+					  sonusAlarmLevel,
+				      sonusAlarmSequenceId,
+                      sonusAlarmTime,
+                      sonusAlarmDescription,
+                      sonusSystemSoftwareUpgradeOldRelease,
+                      sonusSystemSoftwareUpgradeNewRelease
+					}
+    STATUS       deprecated
+    DESCRIPTION
+                "This trap indicates that Live Software Upgrade
+                 commit is pending."
+    ::= { sonusCpSoftwareUpgradeServicesMIBNotificationsPrefix 5 }
+
+	sonusCpSoftwareUpgradeCommittedNotification NOTIFICATION-TYPE
+		OBJECTS		{
+			     	  sonusAlarmNodeID,
+					  sonusAlarmLevel,
+				      sonusAlarmSequenceId,
+                      sonusAlarmTime,
+                      sonusAlarmDescription,
+                      sonusSystemSoftwareUpgradeOldRelease,
+                      sonusSystemSoftwareUpgradeNewRelease
+					}
+    STATUS       current
+    DESCRIPTION
+                "This trap indicates that Live Software Upgrade is committed."
+    ::= { sonusCpSoftwareUpgradeServicesMIBNotificationsPrefix 6 }
+
+sonusSystemSoftwareUpgradeOldRelease OBJECT-TYPE
+    SYNTAX      DisplayString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "
+            Old software release.
+          "
+    ::= {sonusCpSoftwareUpgradeServicesMIBNotificationsObjects  1 }
+
+sonusSystemSoftwareUpgradeNewRelease OBJECT-TYPE
+    SYNTAX      DisplayString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "
+            New software release.
+          "
+    ::= {sonusCpSoftwareUpgradeServicesMIBNotificationsObjects  2 }
+
+--
+-- From sonusEventLog.mib
+--
+
+sonusCpEventLogMIBNotifications OBJECT IDENTIFIER ::= { sonusCpBaseTraps 4}
+sonusCpEventLogMIBNotificationsPrefix OBJECT IDENTIFIER ::= { sonusCpEventLogMIBNotifications 0 }
+sonusCpEventLogMIBNotificationsObjects OBJECT IDENTIFIER ::= { sonusCpEventLogMIBNotifications 1 }
+
+sonusCpEventLogFileStateNotification NOTIFICATION-TYPE
+    OBJECTS    { 
+			     sonusAlarmNodeID,
+			     sonusAlarmLevel,
+				 sonusAlarmSequenceId,
+                 sonusAlarmTime,
+                 sonusAlarmDescription,
+				 sonusCpEventLogType,
+				 sonusCpEvLogAdminState
+               }
+    STATUS       current
+    DESCRIPTION
+                "This trap indicates the current state of event file logging."
+    ::= { sonusCpEventLogMIBNotificationsPrefix 1 }
+
+sonusCpEventLogFileCreatedNotification NOTIFICATION-TYPE
+    OBJECTS    { 
+			     sonusAlarmNodeID,
+			     sonusAlarmLevel,
+				 sonusAlarmSequenceId,
+                 sonusAlarmTime,
+                 sonusAlarmDescription,
+				 sonusCpEventLogType,
+				 sonusEventLogTypeStatusCurrentFile
+               }
+    STATUS       current
+    DESCRIPTION
+                "This trap indicates the name of the event file which has been created for logging."
+    ::= { sonusCpEventLogMIBNotificationsPrefix 2 }
+
+sonusCpEventLogFileRestartNotification NOTIFICATION-TYPE
+    OBJECTS    { 
+			     sonusAlarmNodeID,
+			     sonusAlarmLevel,
+				 sonusAlarmSequenceId,
+                 sonusAlarmTime,
+                 sonusAlarmDescription,
+				 sonusCpEventLogType
+               }
+    STATUS       current
+    DESCRIPTION
+                "This trap indicates that file event logging has been automatically restarted."
+    ::= { sonusCpEventLogMIBNotificationsPrefix 3 }
+
+sonusCpEventLogFileClosedNotification NOTIFICATION-TYPE
+    OBJECTS    { 
+			     sonusAlarmNodeID,
+			     sonusAlarmLevel,
+				 sonusAlarmSequenceId,
+                 sonusAlarmTime,
+                 sonusAlarmDescription,
+				 sonusCpEventLogType,
+				 sonusEventLogTypeStatusCurrentFile
+               }
+    STATUS       current
+    DESCRIPTION
+                "This trap indicates the name of the event file which has been closed."
+    ::= { sonusCpEventLogMIBNotificationsPrefix 4 }
+
+sonusCpEventLogFileShutdownNotification NOTIFICATION-TYPE
+    OBJECTS    { 
+			     sonusAlarmNodeID,
+			     sonusAlarmLevel,
+				 sonusAlarmSequenceId,
+                 sonusAlarmTime,
+                 sonusAlarmDescription,
+				 sonusCpEventLogType,
+				 sonusCpEvLogShutdownReason,
+				 sonusCpEvLogAdminState
+               }
+    STATUS       current
+    DESCRIPTION
+                "This trap indicates that a shutdown of file event logging has occurred."
+    --View Event Log using either the Node's CLI or the Insight GUI
+    --Re-enable Event Log using either the Insight GUI or the Node CLI command
+    --Test connectivity from the node to the DSI via ping
+    --Examine other DSI alarms to look for information related to this alarm
+    ::= { sonusCpEventLogMIBNotificationsPrefix 5 }
+
+sonusCpEventLogFileCountNotification NOTIFICATION-TYPE
+    OBJECTS    { 
+			     sonusAlarmNodeID,
+			     sonusAlarmLevel,
+				 sonusAlarmSequenceId,
+                 sonusAlarmTime,
+                 sonusAlarmDescription,
+                 sonusEvLogTypeName,
+				 sonusCpEvLogFilePercentage,
+				 sonusCpEvLogCurFileCount,
+                 sonusEventLogTypeAdminFileCount
+               }
+    STATUS       current
+    DESCRIPTION
+                "This trap indicates that the number of event log files is approaching the configured maximum."
+    ::= { sonusCpEventLogMIBNotificationsPrefix 6 }
+
+sonusCpEventLogFileCountChngNotification NOTIFICATION-TYPE
+    OBJECTS    {
+			     sonusAlarmNodeID,
+			     sonusAlarmLevel,
+				 sonusAlarmSequenceId,
+                 sonusAlarmTime,
+                 sonusAlarmDescription,
+                 sonusCpEventLogType,
+				 sonusEventLogTypeAdminFileCount
+	      }	
+    STATUS       current
+    DESCRIPTION
+                "This trap indicates the number of Event Log files that will be maintained for this event type is changed"
+    ::= { sonusCpEventLogMIBNotificationsPrefix 7 }
+
+sonusCpEventLogFileSizeChngNotification NOTIFICATION-TYPE
+    OBJECTS    {
+			     sonusAlarmNodeID,
+			     sonusAlarmLevel,
+				 sonusAlarmSequenceId,
+                 sonusAlarmTime,
+                 sonusAlarmDescription,
+                 sonusCpEventLogType,
+                 sonusEventLogTypeAdminFileSize
+	      }	
+    STATUS       current
+    DESCRIPTION
+                "This trap indicates that the maximum size of a single event log file has changed."
+    ::= { sonusCpEventLogMIBNotificationsPrefix 8 }
+
+sonusCpEventLogFileMsgQueueChngNotification NOTIFICATION-TYPE
+    OBJECTS    {
+			     sonusAlarmNodeID,
+			     sonusAlarmLevel,
+				 sonusAlarmSequenceId,
+                 sonusAlarmTime,
+                 sonusAlarmDescription,
+                 sonusCpEventLogType,
+				 sonusEventLogTypeAdminMessageQueueSize
+	      }	
+    STATUS       current
+    DESCRIPTION
+                "This trap indicates that the number event log message entries to the buffer changed"
+    --REPETITION TBD
+    ::= { sonusCpEventLogMIBNotificationsPrefix 9 }
+
+sonusCpEventLogSaveToChngNotification NOTIFICATION-TYPE
+    OBJECTS    {
+			     sonusAlarmNodeID,
+			     sonusAlarmLevel,
+				 sonusAlarmSequenceId,
+                 sonusAlarmTime,
+                 sonusAlarmDescription,
+                 sonusCpEventLogType,
+				 sonusEventLogTypeAdminSaveTo
+	      }	
+    STATUS       current
+    DESCRIPTION
+                "This Trap indicates that the location where events are saved is being changed "
+    --REPETITION TBD
+    ::= { sonusCpEventLogMIBNotificationsPrefix 10 }
+
+sonusCpEventLogFileMaxEventMemSizeChngNotification NOTIFICATION-TYPE
+    OBJECTS    {
+			     sonusAlarmNodeID,
+			     sonusAlarmLevel,
+				 sonusAlarmSequenceId,
+                 sonusAlarmTime,
+                 sonusAlarmDescription,
+                 sonusCpEventLogType,
+				 sonusEventLogTypeAdminMaxEventMemorySize
+	      }	
+    STATUS       current
+    DESCRIPTION
+                "This trap indicates that the maximum size of the memory event log buffer is changed"
+    ::= { sonusCpEventLogMIBNotificationsPrefix 11 }
+
+sonusCpEventLogFileFilterLevelChngNotification NOTIFICATION-TYPE
+    OBJECTS    {
+			     sonusAlarmNodeID,
+			     sonusAlarmLevel,
+				 sonusAlarmSequenceId,
+                 sonusAlarmTime,
+                 sonusAlarmDescription,
+                 sonusCpEventLogType,
+				 sonusEventLogTypeAdminFilterLevel
+	      }	
+    STATUS       current
+    DESCRIPTION
+                "This trap indicates that the level of event logging for this event type is changed"
+    ::= { sonusCpEventLogMIBNotificationsPrefix 12 }
+
+sonusCpEventLogDirectoryCreateErrorNotification NOTIFICATION-TYPE
+    OBJECTS    { 
+			     sonusAlarmNodeID,
+			     sonusAlarmLevel,
+				 sonusAlarmSequenceId,
+                 sonusAlarmTime,
+                 sonusAlarmDescription,
+				 sonusCpEventLogType,
+				 sonusCpEvLogDirName,
+                 sonusCpEvLogErrorCode
+               }
+    STATUS       current
+    DESCRIPTION
+                "This trap indicates that the inability of the system to create a directory for event logging.
+				 This could also indicate an generic error with the NFS server."
+    --REPETITION TBD
+    ::= { sonusCpEventLogMIBNotificationsPrefix 13 }
+
+sonusCpEventLogRolloverScheduledNotification NOTIFICATION-TYPE
+	OBJECTS		{
+			        sonusAlarmNodeID,
+			        sonusAlarmLevel,
+				    sonusAlarmSequenceId,
+                    sonusAlarmTime,
+                    sonusAlarmDescription,
+				    sonusCpEventLogType
+				}
+	STATUS		current
+	DESCRIPTION
+				"This trap indicates that event log for this log type is scheduled to rollover."
+	::= { sonusCpEventLogMIBNotificationsPrefix 14 }
+
+sonusCpEventLogRolloverStoppedNotification NOTIFICATION-TYPE
+	OBJECTS		{
+			        sonusAlarmNodeID,
+			        sonusAlarmLevel,
+				    sonusAlarmSequenceId,
+                    sonusAlarmTime,
+                    sonusAlarmDescription,
+					sonusCpEventLogType
+				}
+	STATUS		current
+	DESCRIPTION
+				"This trap indicates that event log rollover for this log type is stopped."
+	::= { sonusCpEventLogMIBNotificationsPrefix 15 }
+
+sonusCpEventLogRolloverFastNotification NOTIFICATION-TYPE
+	OBJECTS		{
+			        sonusAlarmNodeID,
+			        sonusAlarmLevel,
+				    sonusAlarmSequenceId,
+                    sonusAlarmTime,
+                    sonusAlarmDescription,
+                    sonusEvLogTypeName
+				} 
+	STATUS		current
+	DESCRIPTION
+				"This trap indicates that event log rollover is occuring frequently."
+	::= { sonusCpEventLogMIBNotificationsPrefix 16 }
+
+
+
+sonusCpEventLogFileCountClearedNotification NOTIFICATION-TYPE
+    OBJECTS    { 
+			     sonusAlarmNodeID,
+			     sonusAlarmLevel,
+				 sonusAlarmSequenceId,
+                 sonusAlarmTime,
+                 sonusAlarmDescription,
+                 sonusEvLogTypeName,
+				 sonusCpEvLogFilePercentage,
+				 sonusCpEvLogCurFileCount,
+                 sonusEventLogTypeAdminFileCount
+               }
+    STATUS       current
+    DESCRIPTION
+                "This trap indicates that the number of event log files has dropped below the either the 100% or 75% threshold"
+    ::= { sonusCpEventLogMIBNotificationsPrefix 17 }
+
+sonusCpEventLogFileSkipped  NOTIFICATION-TYPE
+    OBJECTS    { 
+			     sonusAlarmNodeID,
+			     sonusAlarmLevel,
+				 sonusAlarmSequenceId,
+                 sonusAlarmTime,
+                 sonusAlarmDescription,
+				 sonusCpEventLogType,
+				 sonusEventLogTypeStatusCurrentFile
+               }
+    STATUS       current
+    DESCRIPTION
+                "This trap indicates the name of the event file which has been skipped because of file errors."
+    ::= { sonusCpEventLogMIBNotificationsPrefix 18 }
+
+sonusCpEventLogFileDeletedNotification NOTIFICATION-TYPE
+    OBJECTS    { 
+			     sonusAlarmNodeID,
+			     sonusAlarmLevel,
+				 sonusAlarmSequenceId,
+                 sonusAlarmTime,
+                 sonusAlarmDescription,
+				 sonusCpEventLogType,
+				 sonusEventLogTypeStatusCurrentFile
+               }
+    STATUS       current
+    DESCRIPTION
+                "This trap indicates that an accountng file has been deleted because the maximum file count has been reached"
+    ::= { sonusCpEventLogMIBNotificationsPrefix 19 }
+
+sonusCpEventMgrAlarmManualClear NOTIFICATION-TYPE
+    OBJECTS    { 
+			     sonusAlarmNodeID,
+			     sonusAlarmLevel,
+				 sonusAlarmSequenceId,
+                 sonusAlarmTime,
+                 sonusAlarmDescription,
+				 sonusAlarmMgrId
+               }
+    STATUS       current
+    DESCRIPTION
+                "This trap indicates that an alarm has been manually cleared"
+    ::= { sonusCpEventLogMIBNotificationsPrefix 20 }
+
+sonusCpEventLogFileRenamedNotification NOTIFICATION-TYPE
+    OBJECTS    { 
+			     sonusAlarmNodeID,
+			     sonusAlarmLevel,
+				 sonusAlarmSequenceId,
+                 sonusAlarmTime,
+                 sonusAlarmDescription,
+				 sonusCpEventLogType,
+				 sonusEventLogTypeStatusCurrentFile,
+                 sonusEventLogRenameToFile
+               }
+    STATUS       current
+    DESCRIPTION
+                "This trap indicates that an accountng file has been renamed to remove the open file extension"
+    ::= { sonusCpEventLogMIBNotificationsPrefix 21 }
+
+sonusCpEventLogFileSecFilterLevelChngNotification NOTIFICATION-TYPE
+    OBJECTS    {
+			     sonusAlarmNodeID,
+			     sonusAlarmLevel,
+				 sonusAlarmSequenceId,
+                 sonusAlarmTime,
+                 sonusAlarmDescription,
+                 sonusCpEventLogType,
+				 sonusEventLogTypeAdminFilterLevel
+	      }	
+    STATUS       current
+    DESCRIPTION
+                "This trap indicates that the level of event logging for this event type is changed"
+
+    ::= { sonusCpEventLogMIBNotificationsPrefix 22 }
+
+    sonusCpEventLogAdminStateEnableNotification NOTIFICATION-TYPE
+    OBJECTS    { 
+			     sonusAlarmNodeID,
+			     sonusAlarmLevel,
+				 sonusAlarmSequenceId,
+                 sonusAlarmTime,
+                 sonusAlarmDescription,
+                 sonusCpEventLogType
+               }
+    STATUS       current
+    DESCRIPTION
+                "This trap indicates that the security or audit logging is enabled"
+    ::= { sonusCpEventLogMIBNotificationsPrefix 23 }
+
+
+    sonusCpEventLogAdminStateDisableNotification NOTIFICATION-TYPE
+    OBJECTS    { 
+			     sonusAlarmNodeID,
+			     sonusAlarmLevel,
+				 sonusAlarmSequenceId,
+                 sonusAlarmTime,
+                 sonusAlarmDescription,
+                 sonusCpEventLogType
+               }
+    STATUS       current
+    DESCRIPTION
+                "This trap indicates that the security or audit logging is disabled"
+    ::= { sonusCpEventLogMIBNotificationsPrefix 24 }
+
+sonusCpEventLogFileWriteErrorNotification NOTIFICATION-TYPE
+    OBJECTS    { 
+			     sonusAlarmNodeID,
+			     sonusAlarmLevel,
+				 sonusAlarmSequenceId,
+                 sonusAlarmTime,
+                 sonusAlarmDescription,
+				 sonusEventLogTypeStatusCurrentFile
+               }
+    STATUS       current
+    DESCRIPTION
+                "This trap indicates the name of the event file which could not write an event."
+    ::= { sonusCpEventLogMIBNotificationsPrefix 25 }
+
+sonusCpEventLogInfoLevelLoggingDisabledNotfication NOTIFICATION-TYPE
+    OBJECTS    { 
+			     sonusAlarmNodeID,
+			     sonusAlarmLevel,
+				 sonusAlarmSequenceId,
+                 sonusAlarmTime,
+                 sonusAlarmDescription
+               }
+    STATUS       current
+    DESCRIPTION
+                "This trap indicates that info level logging has been disabled because of system congestion."
+    ::= { sonusCpEventLogMIBNotificationsPrefix 26 }
+
+sonusCpEventLogInfoLevelLoggingReenabledNotfication NOTIFICATION-TYPE
+    OBJECTS    { 
+			     sonusAlarmNodeID,
+			     sonusAlarmLevel,
+				 sonusAlarmSequenceId,
+                 sonusAlarmTime,
+                 sonusAlarmDescription
+               }
+    STATUS       current
+    DESCRIPTION
+                "This trap indicates that info level logging has been re-enabled."
+    ::= { sonusCpEventLogMIBNotificationsPrefix 27 }
+
+sonusCpEventMgrAlarmAckStateUpdate NOTIFICATION-TYPE
+    OBJECTS    { 
+			     sonusAlarmNodeID,
+			     sonusAlarmLevel,
+				 sonusAlarmSequenceId,
+                 sonusAlarmTime,
+                 sonusAlarmDescription,
+				 sonusAlarmMgrId,
+                 sonusAlarmMgrAckState
+               }
+    STATUS       current
+    DESCRIPTION
+                "This trap indicates that the alarm Ids acknowledge state has changed."
+    ::= { sonusCpEventLogMIBNotificationsPrefix 28 }
+
+sonusCpEventMgrAlarmCommentUpdate NOTIFICATION-TYPE
+    OBJECTS    { 
+			     sonusAlarmNodeID,
+			     sonusAlarmLevel,
+				 sonusAlarmSequenceId,
+                 sonusAlarmTime,
+                 sonusAlarmDescription,
+				 sonusAlarmMgrId,
+                 sonusAlarmMgrComment
+               }
+    STATUS     current
+    DESCRIPTION
+                "This trap indicates that the alarm Ids comment field has been updated."
+    ::= { sonusCpEventLogMIBNotificationsPrefix 29 }
+
+sonusCpEventLogFileDebugLevelInfoNotification  NOTIFICATION-TYPE
+        OBJECTS     {
+                        sonusAlarmNodeID,
+                        sonusAlarmLevel,
+                        sonusAlarmSequenceId,
+                        sonusAlarmTime,
+                        sonusAlarmDescription
+                    }
+        STATUS      current
+        DESCRIPTION
+            "This trap indicates that the debug event log filter level has been set to INFO. "
+        ::= {sonusCpEventLogMIBNotificationsPrefix 30 } 
+
+sonusCpEventLogFileDebugLevelInfoClearNotification NOTIFICATION-TYPE
+        OBJECTS     {
+                        sonusAlarmNodeID,
+                        sonusAlarmLevel,
+                        sonusAlarmSequenceId,
+                        sonusAlarmTime,
+                        sonusAlarmDescription
+                    }
+        STATUS      current
+        DESCRIPTION
+            "This trap indicates that the debug event log filter level is no longer set to INFO and clears sonusCpEventLogFileDebugLevelInfoNotification. "
+        ::= {sonusCpEventLogMIBNotificationsPrefix 31}
+
+    -- ADD NEW TRAPS HERE FOR THIS GROUP
+sonusCpEvLogAdminState OBJECT-TYPE
+         	SYNTAX       INTEGER { disabled(1), enabled(2), rollfile(3) } 
+			MAX-ACCESS  read-only
+			STATUS  current
+			DESCRIPTION
+            	"The requested state of the given Event Log type.  Rollfile
+				will close an enabled log file and reopen, incrementing the
+				suffix.  If a file is disabled and rolled, the command is
+				ignored."
+            ::= { sonusCpEventLogMIBNotificationsObjects 1 }
+
+sonusCpEvLogShutdownReason OBJECT-TYPE
+			SYNTAX  INTEGER {
+					fileWriteFailed(1),
+					nfsError(2),
+					createDirectoryFailed(3),
+					maximumFileCountReached(4),
+					fileRemoveFailed(5),
+					fileOpenFailed(6),
+					fileHeaderWriteFailed(7),
+					memoryAllocationFailed(8),
+					administrativeShutdown(9),
+					localDiskUnavailable(10) }
+			MAX-ACCESS  read-only
+			STATUS  current
+			DESCRIPTION
+				"The reason that event file logging has been shutdown."
+            ::= { sonusCpEventLogMIBNotificationsObjects 2 }
+
+sonusCpEvLogDirName OBJECT-TYPE
+			SYNTAX  DisplayString
+			MAX-ACCESS  read-only
+			STATUS  current
+			DESCRIPTION
+				"The event file log directory name."
+            ::= { sonusCpEventLogMIBNotificationsObjects 3 }
+
+sonusCpEvLogFilePercentage OBJECT-TYPE
+			SYNTAX  Integer32
+			MAX-ACCESS  read-only
+			STATUS  current
+			DESCRIPTION
+				"The percentage the event log directory is full based on file count."
+            ::= { sonusCpEventLogMIBNotificationsObjects 4 }
+
+sonusCpEvLogCurFileCount OBJECT-TYPE
+			SYNTAX  Integer32
+			MAX-ACCESS  read-only
+			STATUS  current
+			DESCRIPTION
+				"The current count of event files."
+            ::= { sonusCpEventLogMIBNotificationsObjects 5 }
+
+sonusCpEvLogErrorCode OBJECT-TYPE
+			SYNTAX  Integer32
+			MAX-ACCESS  read-only
+			STATUS  current
+			DESCRIPTION
+				"The evlog error code."
+            ::= { sonusCpEventLogMIBNotificationsObjects 6 }
+
+sonusEvLogTypeName OBJECT-TYPE
+			SYNTAX  DisplayString
+			MAX-ACCESS  read-only
+			STATUS  current
+			DESCRIPTION
+				"The event file log type."
+            ::= { sonusCpEventLogMIBNotificationsObjects 7 }
+
+sonusCpEventLogType OBJECT-TYPE
+            SYNTAX      INTEGER {memusage(8),packet(7),audit(6),security(5),acct(4),trace(3),debug(2),system(1)}
+            MAX-ACCESS  read-only
+            STATUS      current
+            DESCRIPTION "
+                The type of the event log.  Each type has separate
+                configuration parameters and logs to a separate file.
+                "
+            ::= { sonusCpEventLogMIBNotificationsObjects 8 }
+
+sonusAlarmMgrId OBJECT-TYPE
+            SYNTAX      Integer32
+            MAX-ACCESS  read-only
+            STATUS      current
+            DESCRIPTION "
+                The Alarm Manager Id.
+                "
+            ::= { sonusCpEventLogMIBNotificationsObjects 9 }
+
+sonusEventLogRenameToFile  OBJECT-TYPE
+            SYNTAX      DisplayString
+            MAX-ACCESS  read-only
+            STATUS      current
+            DESCRIPTION "
+                The rename to file name
+                "
+            ::= { sonusCpEventLogMIBNotificationsObjects 10 }
+
+sonusAlarmMgrAckState OBJECT-TYPE
+			SYNTAX  DisplayString
+			MAX-ACCESS  read-only
+			STATUS  current
+			DESCRIPTION
+				"The current acknowledge state {unacknowledge/acknowledge}"
+            ::= { sonusCpEventLogMIBNotificationsObjects 11 }
+
+sonusAlarmMgrComment OBJECT-TYPE
+			SYNTAX  DisplayString
+			MAX-ACCESS  read-only
+			STATUS  current
+			DESCRIPTION
+				"The current operator comment "
+            ::= { sonusCpEventLogMIBNotificationsObjects 12 }
+
+
+--
+--  From sonusSystem.mib
+--
+
+sonusCpSystemServicesMIBNotifications OBJECT IDENTIFIER ::= { sonusCpBaseTraps 5}
+sonusCpSystemServicesMIBNotificationsPrefix  OBJECT IDENTIFIER ::= { sonusCpSystemServicesMIBNotifications 0 }
+sonusCpSystemServicesMIBNotificationsObjects OBJECT IDENTIFIER ::= { sonusCpSystemServicesMIBNotifications 1 }
+
+sonusCpSystemBootNotification NOTIFICATION-TYPE
+    OBJECTS    { 
+                 sonusAlarmNodeID,
+                 sonusAlarmLevel,
+                 sonusAlarmSequenceId,
+                 sonusAlarmTime,
+                 sonusAlarmDescription,
+                 sonusCpSystemAdminName
+               }
+    STATUS       current
+    DESCRIPTION
+                "This trap indicates that the node boot is requested."
+    ::= { sonusCpSystemServicesMIBNotificationsPrefix 1 }
+
+sonusCpSystemBootActiveNotification NOTIFICATION-TYPE
+    OBJECTS    { 
+                 sonusAlarmNodeID,
+                 sonusAlarmLevel,
+                 sonusAlarmSequenceId,
+                 sonusAlarmTime,
+                 sonusAlarmDescription,
+                 sonusCpSystemAdminName
+               }
+    STATUS       current
+    DESCRIPTION
+                "This trap indicates that the node is active after a reboot."
+    ::= { sonusCpSystemServicesMIBNotificationsPrefix 2 }
+
+sonusCpSystemSoftBootNotification NOTIFICATION-TYPE
+    OBJECTS    { 
+                 sonusAlarmNodeID,
+                 sonusAlarmLevel,
+                 sonusAlarmSequenceId,
+                 sonusAlarmTime,
+                 sonusAlarmDescription,
+                 sonusCpSystemAdminName
+               }
+    STATUS       current
+    DESCRIPTION
+                "This trap indicates that the node soft boot is requested."
+    ::= { sonusCpSystemServicesMIBNotificationsPrefix 3 }
+
+sonusCpSystemSoftBootActiveNotification NOTIFICATION-TYPE
+    OBJECTS    { 
+                 sonusAlarmNodeID,
+                 sonusAlarmLevel,
+                 sonusAlarmSequenceId,
+                 sonusAlarmTime,
+                 sonusAlarmDescription,
+                 sonusCpSystemAdminName
+               }
+    STATUS       current
+    DESCRIPTION
+                "This trap indicates that the node is active after a soft reboot."
+    ::= { sonusCpSystemServicesMIBNotificationsPrefix 4 }
+
+sonusCpSystemLocalDiskAvailableNotification NOTIFICATION-TYPE
+    OBJECTS    { 
+                 sonusAlarmNodeID,
+                 sonusAlarmLevel,
+                 sonusAlarmSequenceId,
+                 sonusAlarmTime,
+                 sonusAlarmDescription,
+                 sonusCpSystemAdminName,
+                 sonusCpSystemServerName,
+                 sonusCpSystemHardDiskNumber
+               }
+    STATUS       obsolete
+    DESCRIPTION
+                "This trap indicates that a hard disk of a server is available."
+    ::= { sonusCpSystemServicesMIBNotificationsPrefix 5 }
+
+sonusCpSystemLocalDiskBadVolumeNotification NOTIFICATION-TYPE
+    OBJECTS    { 
+                 sonusAlarmNodeID,
+                 sonusAlarmLevel,
+                 sonusAlarmSequenceId,
+                 sonusAlarmTime,
+                 sonusAlarmDescription,
+                 sonusCpSystemAdminName,
+                 sonusCpSystemServerName,
+                 sonusCpSystemHardDiskNumber
+               }
+    STATUS       current
+    DESCRIPTION
+                "This trap indicates that bad volume is detected on hard disk of a server."
+    ::= { sonusCpSystemServicesMIBNotificationsPrefix 6 }
+
+sonusCpSystemLocalDiskMisMatchNotification NOTIFICATION-TYPE
+    OBJECTS    { 
+                 sonusAlarmNodeID,
+                 sonusAlarmLevel,
+                 sonusAlarmSequenceId,
+                 sonusAlarmTime,
+                 sonusAlarmDescription,
+                 sonusCpSystemAdminName,
+                 sonusCpSystemServerName,
+                 sonusCpSystemHardDiskNumber
+               }
+    STATUS       current
+    DESCRIPTION
+                "This trap indicates that an incorrect hard disk is inserted on a server."
+    ::= { sonusCpSystemServicesMIBNotificationsPrefix 7 }
+
+sonusCpSystemLocalDiskSpaceOkNotification NOTIFICATION-TYPE
+    OBJECTS    { 
+                 sonusAlarmNodeID,
+                 sonusAlarmLevel,
+                 sonusAlarmSequenceId,
+                 sonusAlarmTime,
+                 sonusAlarmDescription,
+                 sonusCpSystemAdminName,
+                 sonusCpSystemServerName,
+                 sonusCpSystemHardDiskNumber,
+                 sonusCpSystemDiskPartition,
+                 sonusCpSystemDiskSpaceUsedPct
+               }
+    STATUS       current
+    DESCRIPTION
+                "This trap indicates that space on the hard disk in with in the limits of normal operation."
+    ::= { sonusCpSystemServicesMIBNotificationsPrefix 8 }
+
+sonusCpSystemLocalDiskSpaceReadOnlyNotification NOTIFICATION-TYPE
+    OBJECTS    { 
+                 sonusAlarmNodeID,
+                 sonusAlarmLevel,
+                 sonusAlarmSequenceId,
+                 sonusAlarmTime,
+                 sonusAlarmDescription,
+                 sonusCpSystemAdminName,
+                 sonusCpSystemServerName,
+                 sonusCpSystemHardDiskNumber
+               }
+    STATUS       current
+    DESCRIPTION
+                "This trap indicates that space on the hard disk is low and no more data can be written and operating in read only mode."
+    ::= { sonusCpSystemServicesMIBNotificationsPrefix 9 }
+
+sonusCpSystemLocalDiskSpaceWarningNotification NOTIFICATION-TYPE
+    OBJECTS    { 
+                 sonusAlarmNodeID,
+                 sonusAlarmLevel,
+                 sonusAlarmSequenceId,
+                 sonusAlarmTime,
+                 sonusAlarmDescription,
+                 sonusCpSystemAdminName,
+                 sonusCpSystemServerName,
+                 sonusCpSystemHardDiskNumber,
+                 sonusCpSystemDiskPartition,
+                 sonusCpSystemDiskSpaceUsedPct
+               }
+    STATUS       current
+    DESCRIPTION
+                "This trap indicates that space on the hard disk is low."
+    ::= { sonusCpSystemServicesMIBNotificationsPrefix 10 }
+
+sonusCpSystemLocalDiskTooManyFilesNotification NOTIFICATION-TYPE
+    OBJECTS    { 
+                 sonusAlarmNodeID,
+                 sonusAlarmLevel,
+                 sonusAlarmSequenceId,
+                 sonusAlarmTime,
+                 sonusAlarmDescription,
+                 sonusCpSystemAdminName,
+                 sonusCpSystemServerName,
+                 sonusCpSystemHardDiskNumber
+               }
+    STATUS       current
+    DESCRIPTION
+                "This trap indicates that there are too many files on the hard disk."
+    ::= { sonusCpSystemServicesMIBNotificationsPrefix 11 }
+
+sonusCpSystemLocalDiskUnavailableNotification NOTIFICATION-TYPE
+    OBJECTS    { 
+                 sonusAlarmNodeID,
+                 sonusAlarmLevel,
+                 sonusAlarmSequenceId,
+                 sonusAlarmTime,
+                 sonusAlarmDescription,
+                 sonusCpSystemAdminName,
+                 sonusCpSystemServerName,
+                 sonusCpSystemHardDiskNumber
+               }
+    STATUS       obsolete
+    DESCRIPTION
+                "This trap indicates that a hard disk is unavailable on the indicated server."
+    ::= { sonusCpSystemServicesMIBNotificationsPrefix 12 }
+
+sonusCpSystemLocalDiskWritableNotification NOTIFICATION-TYPE
+    OBJECTS    { 
+                 sonusAlarmNodeID,
+                 sonusAlarmLevel,
+                 sonusAlarmSequenceId,
+                 sonusAlarmTime,
+                 sonusAlarmDescription,
+                 sonusCpSystemAdminName,
+                 sonusCpSystemServerName,
+                 sonusCpSystemHardDiskNumber
+               }
+    STATUS       current
+    DESCRIPTION
+                "This trap indicates that space on a hard disk is above normal limit and disk is now writable."
+    ::= { sonusCpSystemServicesMIBNotificationsPrefix 13 }
+
+sonusCpSystemLocalDiskSyncStartNotification NOTIFICATION-TYPE
+    OBJECTS    { 
+                 sonusAlarmNodeID,
+                 sonusAlarmLevel,
+                 sonusAlarmSequenceId,
+                 sonusAlarmTime,
+                 sonusAlarmDescription,
+                 sonusCpSystemAdminName,
+                 sonusCpSystemServerName,
+                 sonusCpSystemHardDiskNumber
+               }
+    STATUS       obsolete
+    DESCRIPTION
+                "This trap indicates that a hard disk synchronization is started on a server."
+    ::= { sonusCpSystemServicesMIBNotificationsPrefix 14 }
+
+sonusCpSystemLocalDiskSyncCompleteNotification NOTIFICATION-TYPE
+    OBJECTS    { 
+                 sonusAlarmNodeID,
+                 sonusAlarmLevel,
+                 sonusAlarmSequenceId,
+                 sonusAlarmTime,
+                 sonusAlarmDescription,
+                 sonusCpSystemAdminName,
+                 sonusCpSystemServerName,
+                 sonusCpSystemHardDiskNumber
+               }
+    STATUS       obsolete
+    DESCRIPTION
+                "This trap indicates that a hard disk synchronization is completed on a server."
+    ::= { sonusCpSystemServicesMIBNotificationsPrefix 15 }
+
+sonusCpSystemCEDisabledNotification NOTIFICATION-TYPE
+    OBJECTS    { 
+                 sonusAlarmNodeID,
+                 sonusAlarmLevel,
+                 sonusAlarmSequenceId,
+                 sonusAlarmTime,
+                 sonusAlarmDescription,
+                 sonusCpSystemAdminName,
+                 sonusCpSystemServerName
+               }
+    STATUS       deprecated
+    DESCRIPTION
+                "This trap indicates that a Server is disabled."
+    ::= { sonusCpSystemServicesMIBNotificationsPrefix 16 }
+
+sonusCpSystemCEEnabledNotification NOTIFICATION-TYPE
+    OBJECTS    { 
+                 sonusAlarmNodeID,
+                 sonusAlarmLevel,
+                 sonusAlarmSequenceId,
+                 sonusAlarmTime,
+                 sonusAlarmDescription,
+                 sonusCpSystemAdminName,
+                 sonusCpSystemServerName
+               }
+    STATUS      deprecated 
+    DESCRIPTION
+                "This trap indicates that a Server is enabled."
+    ::= { sonusCpSystemServicesMIBNotificationsPrefix 17 }
+
+sonusCpSystemCEOperationalNotification NOTIFICATION-TYPE
+    OBJECTS    { 
+                 sonusAlarmNodeID,
+                 sonusAlarmLevel,
+                 sonusAlarmSequenceId,
+                 sonusAlarmTime,
+                 sonusAlarmDescription,
+                 sonusCpSystemAdminName,
+                 sonusCpSystemServerName
+               }
+    STATUS       current
+    DESCRIPTION
+                "This trap indicates that a Server is operational."
+    ::= { sonusCpSystemServicesMIBNotificationsPrefix 18 }
+
+sonusCpSystemCEBootNotification NOTIFICATION-TYPE
+    OBJECTS    { 
+                 sonusAlarmNodeID,
+                 sonusAlarmLevel,
+                 sonusAlarmSequenceId,
+                 sonusAlarmTime,
+                 sonusAlarmDescription,
+                 sonusCpSystemAdminName,
+                 sonusCpSystemServerName
+               }
+    STATUS       current
+    DESCRIPTION
+                "This trap indicates that the CE/server boot is requested."
+    ::= { sonusCpSystemServicesMIBNotificationsPrefix 19 }
+
+sonusCpSystemCEBootActiveNotification NOTIFICATION-TYPE
+    OBJECTS    { 
+                 sonusAlarmNodeID,
+                 sonusAlarmLevel,
+                 sonusAlarmSequenceId,
+                 sonusAlarmTime,
+                 sonusAlarmDescription,
+                 sonusCpSystemAdminName,
+                 sonusCpSystemServerName
+               }
+    STATUS       current
+    DESCRIPTION
+                "This trap indicates that the CE/server is active after a reboot."
+    ::= { sonusCpSystemServicesMIBNotificationsPrefix 20 }
+
+sonusCpSystemCESoftBootNotification NOTIFICATION-TYPE
+    OBJECTS    { 
+                 sonusAlarmNodeID,
+                 sonusAlarmLevel,
+                 sonusAlarmSequenceId,
+                 sonusAlarmTime,
+                 sonusAlarmDescription,
+                 sonusCpSystemAdminName,
+                 sonusCpSystemServerName
+               }
+    STATUS       current
+    DESCRIPTION
+                "This trap indicates that the CE/server soft boot is requested."
+    ::= { sonusCpSystemServicesMIBNotificationsPrefix 21 }
+
+sonusCpSystemCESoftBootActiveNotification NOTIFICATION-TYPE
+    OBJECTS    { 
+                 sonusAlarmNodeID,
+                 sonusAlarmLevel,
+                 sonusAlarmSequenceId,
+                 sonusAlarmTime,
+                 sonusAlarmDescription,
+                 sonusCpSystemAdminName,
+                 sonusCpSystemServerName
+               }
+    STATUS       current
+    DESCRIPTION
+                "This trap indicates that the CE/server is active after a soft reboot."
+    ::= { sonusCpSystemServicesMIBNotificationsPrefix 22 }
+
+sonusCpSystemCETempFailureNotification NOTIFICATION-TYPE
+    OBJECTS    { 
+                 sonusAlarmNodeID,
+                 sonusAlarmLevel,
+                 sonusAlarmSequenceId,
+                 sonusAlarmTime,
+                 sonusAlarmDescription,
+                 sonusCpSystemAdminName,
+                 sonusCpSystemServerName,
+                 sonusCpSystemServerTemperatureSensorId,
+                 sonusCpSystemServerTemperature
+               }
+    STATUS       current
+    DESCRIPTION
+                "This trap indicates that the CE/server temperature is higher than normal."
+    ::= { sonusCpSystemServicesMIBNotificationsPrefix 23 }
+
+sonusCpSystemCETempNormalNotification NOTIFICATION-TYPE
+    OBJECTS    { 
+                 sonusAlarmNodeID,
+                 sonusAlarmLevel,
+                 sonusAlarmSequenceId,
+                 sonusAlarmTime,
+                 sonusAlarmDescription,
+                 sonusCpSystemAdminName,
+                 sonusCpSystemServerName,
+                 sonusCpSystemServerTemperatureSensorId,
+                 sonusCpSystemServerTemperature
+               }
+    STATUS       current
+    DESCRIPTION
+                "This trap indicates that the CE/server temperature is normal."
+    ::= { sonusCpSystemServicesMIBNotificationsPrefix 24 }
+
+sonusCpSystemCETempWarningNotification NOTIFICATION-TYPE
+    OBJECTS    { 
+                 sonusAlarmNodeID,
+                 sonusAlarmLevel,
+                 sonusAlarmSequenceId,
+                 sonusAlarmTime,
+                 sonusAlarmDescription,
+                 sonusCpSystemAdminName,
+                 sonusCpSystemServerName,
+                 sonusCpSystemServerTemperatureSensorId,
+                 sonusCpSystemServerTemperature
+               }
+    STATUS       current
+    DESCRIPTION
+                "This trap indicates that the CE/server temperature is reaching critical level."
+    ::= { sonusCpSystemServicesMIBNotificationsPrefix 25 }
+
+sonusCpConfigCommitSucceedNotification NOTIFICATION-TYPE
+    OBJECTS    { 
+                 sonusAlarmNodeID,
+                 sonusAlarmLevel,
+                 sonusAlarmSequenceId,
+                 sonusAlarmTime,
+                 sonusAlarmDescription,
+                 sonusCpSystemAdminName,
+                 sonusCpSystemServerName
+               }
+    STATUS       current
+    DESCRIPTION
+                "This trap indicates that a configuration commit has suceeded."
+    ::= { sonusCpSystemServicesMIBNotificationsPrefix 26 }
+
+sonusCpConfigCommitFailNotification NOTIFICATION-TYPE
+    OBJECTS    { 
+                 sonusAlarmNodeID,
+                 sonusAlarmLevel,
+                 sonusAlarmSequenceId,
+                 sonusAlarmTime,
+                 sonusAlarmDescription,
+                 sonusCpSystemAdminName,
+                 sonusCpSystemServerName
+               }
+    STATUS       current
+    DESCRIPTION
+                "This trap indicates that a configuration commit has failed."
+    ::= { sonusCpSystemServicesMIBNotificationsPrefix 27 }
+
+sonusCpSystemAllHardDisksFailedNotification NOTIFICATION-TYPE
+    OBJECTS    { 
+                 sonusAlarmNodeID,
+                 sonusAlarmLevel,
+                 sonusAlarmSequenceId,
+                 sonusAlarmTime,
+                 sonusAlarmDescription,
+                 sonusCpSystemAdminName,
+                 sonusCpSystemServerName
+               }
+    STATUS       obsolete
+    DESCRIPTION
+                "This trap indicates that all the hard disks are unavailable on the indicated server."
+    ::= { sonusCpSystemServicesMIBNotificationsPrefix 28 }
+
+
+sonusCpSystemApacheFailedNotification NOTIFICATION-TYPE
+    OBJECTS    { 
+                 sonusAlarmNodeID,
+                 sonusAlarmLevel,
+                 sonusAlarmSequenceId,
+                 sonusAlarmTime,
+                 sonusAlarmDescription,
+                 sonusCpSystemServerName
+               }
+    STATUS       current
+    DESCRIPTION
+                "This trap indicates that the Apache service failed to start."
+    ::= { sonusCpSystemServicesMIBNotificationsPrefix 29 }
+
+
+sonusCpSystemServiceRestartedNotification NOTIFICATION-TYPE
+    OBJECTS    { 
+                 sonusAlarmNodeID,
+                 sonusAlarmLevel,
+                 sonusAlarmSequenceId,
+                 sonusAlarmTime,
+                 sonusAlarmDescription,
+                 sonusCpSystemServerName,
+                 sonusCpSystemServiceRestartReason
+               }
+    STATUS       obsolete
+    DESCRIPTION
+                "This trap indicates the reason for the service restarting."
+    ::= { sonusCpSystemServicesMIBNotificationsPrefix 30 }
+
+sonusCpSystemNPTempFailureNotification NOTIFICATION-TYPE
+    OBJECTS    {
+                 sonusAlarmNodeID,
+                 sonusAlarmLevel,
+                 sonusAlarmSequenceId,
+                 sonusAlarmTime,
+                 sonusAlarmDescription,
+                 sonusCpSystemAdminName,
+                 sonusCpSystemServerName,
+                 sonusCpSystemServerTemperatureSensorId,
+                 sonusCpSystemServerTemperature
+               }
+    STATUS       current
+    DESCRIPTION
+                "This trap indicates that the CE/server NP temperature is higher than normal."
+    ::= { sonusCpSystemServicesMIBNotificationsPrefix 31 }
+
+sonusCpSystemNPTempNormalNotification NOTIFICATION-TYPE
+    OBJECTS    {
+                 sonusAlarmNodeID,
+                 sonusAlarmLevel,
+                 sonusAlarmSequenceId,
+                 sonusAlarmTime,
+                 sonusAlarmDescription,
+                 sonusCpSystemAdminName,
+                 sonusCpSystemServerName,
+                 sonusCpSystemServerTemperatureSensorId,
+                 sonusCpSystemServerTemperature
+               }
+    STATUS       current
+    DESCRIPTION
+                "This trap indicates that the CE/server NP temperature is normal."
+    ::= { sonusCpSystemServicesMIBNotificationsPrefix 32 }
+
+sonusCpSystemNPTempWarningNotification NOTIFICATION-TYPE
+    OBJECTS    {
+                 sonusAlarmNodeID,
+                 sonusAlarmLevel,
+                 sonusAlarmSequenceId,
+                 sonusAlarmTime,
+                 sonusAlarmDescription,
+                 sonusCpSystemAdminName,
+                 sonusCpSystemServerName,
+                 sonusCpSystemServerTemperatureSensorId,
+                 sonusCpSystemServerTemperature
+               }
+    STATUS       current
+    DESCRIPTION
+                "This trap indicates that the CE/server NP temperature is reaching critical level."
+    ::= { sonusCpSystemServicesMIBNotificationsPrefix 33 }
+
+
+    -- ADD NEW TRAPS HERE FOR THIS GROUP
+
+sonusCpSystemProcessCoredumpGeneratedNotification NOTIFICATION-TYPE
+    OBJECTS    { 
+                 sonusAlarmNodeID,
+                 sonusAlarmLevel,
+                 sonusAlarmSequenceId,
+                 sonusAlarmTime,
+                 sonusAlarmDescription,
+                 sonusCpSystemAdminName,
+                 sonusCpSystemServerName,
+                 sonusCpSystemCoredumpFile
+               }
+    STATUS       current
+    DESCRIPTION
+                "This trap indicates that a coredump is generated for a process running on the indicated server."
+    ::= { sonusCpSystemServicesMIBNotificationsPrefix 36 }
+
+sonusCpSystemCoredumpSpaceWarningNotification NOTIFICATION-TYPE
+    OBJECTS    { 
+                 sonusAlarmNodeID,
+                 sonusAlarmLevel,
+                 sonusAlarmSequenceId,
+                 sonusAlarmTime,
+                 sonusAlarmDescription,
+                 sonusCpSystemAdminName,
+                 sonusCpSystemServerName,
+                 sonusCpSystemCoredumpSpacePct
+               }
+    STATUS       current
+    DESCRIPTION
+                "This trap indicates that a system is running low on coredump space."
+    ::= { sonusCpSystemServicesMIBNotificationsPrefix 37 }
+
+sonusCpNodeStandbyDisabled NOTIFICATION-TYPE
+    OBJECTS    { 
+                 sonusAlarmNodeID,
+                 sonusAlarmLevel,
+                 sonusAlarmSequenceId,
+                 sonusAlarmTime,
+                 sonusAlarmDescription,
+                 sonusCpSystemAdminName
+               }
+    STATUS       current
+    DESCRIPTION
+                "This trap indicates that the node standby server is disabled."
+    ::= { sonusCpSystemServicesMIBNotificationsPrefix 38 }
+
+sonusCpNodeStandbyEnabled NOTIFICATION-TYPE
+    OBJECTS    { 
+                 sonusAlarmNodeID,
+                 sonusAlarmLevel,
+                 sonusAlarmSequenceId,
+                 sonusAlarmTime,
+                 sonusAlarmDescription,
+                 sonusCpSystemAdminName
+               }
+    STATUS      current 
+    DESCRIPTION
+                "This trap indicates that the node standby server is enabled."
+    ::= { sonusCpSystemServicesMIBNotificationsPrefix 39 }
+
+sonusCpNodeHaPortDownNotification NOTIFICATION-TYPE
+    OBJECTS    { 
+                 sonusAlarmNodeID,
+                 sonusAlarmLevel,
+                 sonusAlarmSequenceId,
+                 sonusAlarmTime,
+                 sonusAlarmDescription,
+                 sonusCpSystemServerName,
+                 sonusCpSystemPortName
+               }
+    STATUS       current 
+    DESCRIPTION
+                "This trap indicates that a high availability port is down."
+    ::= { sonusCpSystemServicesMIBNotificationsPrefix 40 }
+
+sonusCpNodeHaPortUpNotification NOTIFICATION-TYPE
+    OBJECTS    { 
+                 sonusAlarmNodeID,
+                 sonusAlarmLevel,
+                 sonusAlarmSequenceId,
+                 sonusAlarmTime,
+                 sonusAlarmDescription,
+                 sonusCpSystemServerName,
+                 sonusCpSystemPortName
+               }
+    STATUS       current
+    DESCRIPTION
+                "This trap indicates that a high availability port is up."
+    ::= { sonusCpSystemServicesMIBNotificationsPrefix 41 }
+
+sonusCpNodeBondingDeviceDownNotification NOTIFICATION-TYPE
+    OBJECTS    { 
+                 sonusAlarmNodeID,
+                 sonusAlarmLevel,
+                 sonusAlarmSequenceId,
+                 sonusAlarmTime,
+                 sonusAlarmDescription,
+                 sonusCpSystemServerName
+               }
+    STATUS       current
+    DESCRIPTION
+                "This trap indicates that the bonding device is down."
+    ::= { sonusCpSystemServicesMIBNotificationsPrefix 42 }
+
+sonusCpNodeBondingDeviceUpNotification NOTIFICATION-TYPE
+    OBJECTS    { 
+                 sonusAlarmNodeID,
+                 sonusAlarmLevel,
+                 sonusAlarmSequenceId,
+                 sonusAlarmTime,
+                 sonusAlarmDescription,
+                 sonusCpSystemServerName
+               }
+    STATUS       current
+    DESCRIPTION
+                "This trap indicates that the bonding device is up."
+    ::= { sonusCpSystemServicesMIBNotificationsPrefix 43 }
+
+sonusCpNodeHaPortDownNewNotification NOTIFICATION-TYPE
+    OBJECTS    { 
+                 sonusAlarmNodeID,
+                 sonusAlarmLevel,
+                 sonusAlarmSequenceId,
+                 sonusAlarmTime,
+                 sonusAlarmDescription,
+                 sonusCpSystemServerName,
+                 sonusCpSystemPortName
+               }
+    STATUS       current
+    DESCRIPTION
+                "This trap indicates that a high availability port is down."
+    ::= { sonusCpSystemServicesMIBNotificationsPrefix 44 }
+
+sonusCpSystemLocalRaidArrayDegradedNotification NOTIFICATION-TYPE
+    OBJECTS    { 
+                 sonusAlarmNodeID,
+                 sonusAlarmLevel,
+                 sonusAlarmSequenceId,
+                 sonusAlarmTime,
+                 sonusAlarmDescription,
+                 sonusCpSystemAdminName,
+                 sonusCpSystemServerName,
+                 sonusCpSystemHardDiskNumber
+               }
+    STATUS       obsolete
+    DESCRIPTION
+                "This trap indicates that the RAID array has degraded due to a failure on the specified disk."
+    ::= { sonusCpSystemServicesMIBNotificationsPrefix 45 }
+
+sonusCpSystemRestoreConfigNotification NOTIFICATION-TYPE
+    OBJECTS    { 
+                 sonusAlarmNodeID,
+                 sonusAlarmLevel,
+                 sonusAlarmSequenceId,
+                 sonusAlarmTime,
+                 sonusAlarmDescription,
+                 sonusCpSystemAdminName,
+                 sonusCpSystemConfigFileName
+               }
+    STATUS       current
+    DESCRIPTION
+                "This trap indicates that the configuration restoration from specified config file is in progress."
+    ::= { sonusCpSystemServicesMIBNotificationsPrefix 46 }
+
+sonusCpSystemNotMacAddressOwnerNotification NOTIFICATION-TYPE
+    OBJECTS    { 
+                 sonusAlarmNodeID,
+                 sonusAlarmLevel,
+                 sonusAlarmSequenceId,
+                 sonusAlarmTime,
+                 sonusAlarmDescription,
+                 sonusCpSelfBaseMacAddress,
+                 sonusCpPeerBaseMacAddress,
+                 sonusCpActiveBaseMacAddress
+               }
+    STATUS       current
+    DESCRIPTION
+                "This trap indicates that the system is running with a set of MAC addresses that doesn't belog to this system. This is possible if a server is replaced."
+    ::= { sonusCpSystemServicesMIBNotificationsPrefix 47 }
+
+sonusSystemNodeResourceCongestionWarningNotification NOTIFICATION-TYPE
+    OBJECTS { 
+			  sonusAlarmNodeID,
+			  sonusAlarmLevel,
+			  sonusAlarmSequenceId,
+              sonusAlarmTime,
+              sonusAlarmDescription,
+              sonusNodeOverloadType,
+              sonusNodeOverloadLevel,
+              sonusNodeOverloadThresholdCurrent,
+              sonusNodeOverloadThresholdConfigured
+            }
+	STATUS      current
+    DESCRIPTION
+                "This trap indicates that the system is running out of memory and will soon reboot."
+    ::= { sonusCpSystemServicesMIBNotificationsPrefix 48 }
+
+sonusCpSystemProductCapabalityMismatch NOTIFICATION-TYPE
+    OBJECTS    { 
+                 sonusAlarmNodeID,
+                 sonusAlarmLevel,
+                 sonusAlarmSequenceId,
+                 sonusAlarmTime,
+                 sonusAlarmDescription,
+                 sonusCpSystemServerName,
+                 sonusCpProductCapabilityName,
+                 sonusCpProductCapabilityValue,
+                 sonusCpProductPeerCapabilityValue
+               }
+    STATUS       current
+    DESCRIPTION
+                "This trap indicates that the specified server is running with a product capability that is not compatible with the peer capabilities."
+    ::= { sonusCpSystemServicesMIBNotificationsPrefix 49 }
+
+sonusSystemNodeResourceClearCongestionWarningNotification NOTIFICATION-TYPE
+    OBJECTS { 
+			  sonusAlarmNodeID,
+			  sonusAlarmLevel,
+			  sonusAlarmSequenceId,
+              sonusAlarmTime,
+              sonusAlarmDescription,
+              sonusNodeOverloadType,
+              sonusNodeOverloadLevel,
+              sonusNodeOverloadThresholdCurrent,
+              sonusNodeOverloadThresholdConfigured
+            }
+	STATUS      current
+    DESCRIPTION
+                "This trap indicates that the system has fallen below the memory threshold"
+    ::= { sonusCpSystemServicesMIBNotificationsPrefix 50 }
+
+sonusCpSystemLocalDiskHealthErrorNotification  NOTIFICATION-TYPE
+    OBJECTS { 
+			  sonusAlarmNodeID,
+			  sonusAlarmLevel,
+			  sonusAlarmSequenceId,
+              sonusAlarmTime,
+              sonusAlarmDescription,
+              sonusCpSystemAdminName,
+              sonusCpSystemServerName,
+	          sonusCpSystemHardDiskName,
+			  sonusCpSystemHardDiskError,
+			  sonusCpSystemLifeAvailAttrib
+            }
+	STATUS      current
+    DESCRIPTION
+                "This trap indicates that the system received an error from  Self-Monitoring, Analysis and Reporting Technology (SMART) which is built into many hard drives"
+    ::= { sonusCpSystemServicesMIBNotificationsPrefix 51 }
+
+
+sonusCpSystemLocalDiskHealthErrorClearNotification  NOTIFICATION-TYPE
+    OBJECTS { 
+			  sonusAlarmNodeID,
+			  sonusAlarmLevel,
+			  sonusAlarmSequenceId,
+              sonusAlarmTime,
+              sonusAlarmDescription,
+              sonusCpSystemAdminName,
+              sonusCpSystemServerName,
+	          sonusCpSystemHardDiskName,
+			  sonusCpSystemLifeAvailAttrib
+            }
+	STATUS      current
+    DESCRIPTION
+                "This trap indicates that the system cleared an error cleared from Self-Monitoring, Analysis and Reporting Technology (SMART) which is built into many hard drives"
+    ::= { sonusCpSystemServicesMIBNotificationsPrefix 52 }
+
+
+sonusCpSystemLocalDiskLifeAttribErrorNotification  NOTIFICATION-TYPE
+    OBJECTS { 
+			  sonusAlarmNodeID,
+			  sonusAlarmLevel,
+			  sonusAlarmSequenceId,
+              sonusAlarmTime,
+              sonusAlarmDescription,
+              sonusCpSystemAdminName,
+              sonusCpSystemServerName,
+	          sonusCpSystemHardDiskName,
+			  sonusCpSystemHardDiskError,
+			  sonusCpSystemLifeAvailAttrib
+            }
+	STATUS      current
+    DESCRIPTION
+                "This trap indicates that the system received a life remaining threshold exceeded event from  Self-Monitoring, Analysis and Reporting Technology (SMART) which is built into many hard drives"
+    ::= { sonusCpSystemServicesMIBNotificationsPrefix 53 }
+
+
+sonusCpSystemLocalDiskLifeAttribErrorClearNotification  NOTIFICATION-TYPE
+    OBJECTS { 
+			  sonusAlarmNodeID,
+			  sonusAlarmLevel,
+			  sonusAlarmSequenceId,
+              sonusAlarmTime,
+              sonusAlarmDescription,
+              sonusCpSystemAdminName,
+              sonusCpSystemServerName,
+	          sonusCpSystemHardDiskName,
+			  sonusCpSystemLifeAvailAttrib
+            }
+	STATUS      current
+    DESCRIPTION
+                "This trap indicates that the system cleared life remaining threshold alarm from Self-Monitoring, Analysis and Reporting Technology (SMART) which is built into many hard drives"
+    ::= { sonusCpSystemServicesMIBNotificationsPrefix 54 }
+
+sonusSystemServerLinksDryupNotification NOTIFICATION-TYPE
+    OBJECTS {
+              sonusAlarmNodeID,
+              sonusAlarmLevel,
+              sonusAlarmSequenceId,
+              sonusAlarmTime,
+              sonusAlarmDescription,
+              sonusCpSystemServerName
+            }
+    STATUS      current
+    DESCRIPTION
+                "This trap indicates that the links for the specified server has dried up. Applicable to SGX4000 only."
+    ::= { sonusCpSystemServicesMIBNotificationsPrefix 55 }
+
+sonusCpSystemCEBootDeactiveNotification NOTIFICATION-TYPE
+    OBJECTS    { 
+                 sonusAlarmNodeID,
+                 sonusAlarmLevel,
+                 sonusAlarmSequenceId,
+                 sonusAlarmTime,
+                 sonusAlarmDescription,
+                 sonusCpSystemAdminName,
+                 sonusCpSystemServerName
+               }
+    STATUS       current
+    DESCRIPTION
+                "This trap indicates that the CE/server is deactivating."
+    ::= { sonusCpSystemServicesMIBNotificationsPrefix 56 }
+
+sonusCpSystemMemoryUsageWarningNotification NOTIFICATION-TYPE
+    OBJECTS    {
+                 sonusAlarmNodeID,
+                 sonusAlarmLevel,
+                 sonusAlarmSequenceId,
+                 sonusAlarmTime,
+                 sonusAlarmDescription,
+                 sonusCpSystemAdminName,
+                 sonusCpSystemServerName,
+                 sonusCpSystemMemoryUsage
+               }
+    STATUS       current
+    DESCRIPTION
+                "This trap indicates that the system memory usage is high. This trap is only applicable for SGX4000"
+    ::= { sonusCpSystemServicesMIBNotificationsPrefix 57 }
+
+sonusCpSystemMemoryUsageOkNotification NOTIFICATION-TYPE
+    OBJECTS    {
+                 sonusAlarmNodeID,
+                 sonusAlarmLevel,
+                 sonusAlarmSequenceId,
+                 sonusAlarmTime,
+                 sonusAlarmDescription,
+                 sonusCpSystemAdminName,
+                 sonusCpSystemServerName
+               }
+    STATUS       current
+    DESCRIPTION
+                "This trap indicates that the system memory usage is at a safe level. This trap is only applicable for SGX4000"
+    ::= { sonusCpSystemServicesMIBNotificationsPrefix 58 }
+
+sonusCpConfigHaSlaveDied NOTIFICATION-TYPE
+    OBJECTS    {
+                 sonusAlarmNodeID,
+                 sonusAlarmLevel,
+                 sonusAlarmSequenceId,
+                 sonusAlarmTime,
+                 sonusAlarmDescription
+               }
+    STATUS       current
+    DESCRIPTION
+                "This trap indicates that the management active CE is no longer able to communicate configuration changes to the standby. This trap is only applicable for SGX4000"
+    ::= { sonusCpSystemServicesMIBNotificationsPrefix 59 }
+
+sonusCpSystemServerDrbdReformatCompletedNotification NOTIFICATION-TYPE
+    OBJECTS    { 
+                 sonusAlarmNodeID,
+                 sonusAlarmLevel,
+                 sonusAlarmSequenceId,
+                 sonusAlarmTime,
+                 sonusAlarmDescription,
+                 sonusCpSystemServerName
+               }
+    STATUS       obsolete
+    DESCRIPTION
+                "This trap indicates drbd partition format has completed. A full disk sync will start"
+    ::= { sonusCpSystemServicesMIBNotificationsPrefix 60 }
+
+sonusCpSystemServerDrbdReformatStartNotification NOTIFICATION-TYPE
+    OBJECTS    { 
+                 sonusAlarmNodeID,
+                 sonusAlarmLevel,
+                 sonusAlarmSequenceId,
+                 sonusAlarmTime,
+                 sonusAlarmDescription,
+                 sonusCpSystemServerName
+               }
+    STATUS       obsolete
+    DESCRIPTION
+                "This trap indicates that the drbd partition is being resized and reformatted to match the peer partition."
+    ::= { sonusCpSystemServicesMIBNotificationsPrefix 61 }
+
+sonusCpSystemServerDrbdReformatSwitchoverNotification NOTIFICATION-TYPE
+    OBJECTS    { 
+                 sonusAlarmNodeID,
+                 sonusAlarmLevel,
+                 sonusAlarmSequenceId,
+                 sonusAlarmTime,
+                 sonusAlarmDescription,
+                 sonusCpSystemServerName
+               }
+    STATUS       obsolete
+    DESCRIPTION
+                "This trap indicates that the active server has requested the standby to become active, allowing the current active to reconfigure its drbd partition "
+    ::= { sonusCpSystemServicesMIBNotificationsPrefix 62 }
+
+sonusCpSystemServerDrbdReformatErrorNotification NOTIFICATION-TYPE
+    OBJECTS    { 
+                 sonusAlarmNodeID,
+                 sonusAlarmLevel,
+                 sonusAlarmSequenceId,
+                 sonusAlarmTime,
+                 sonusAlarmDescription,
+                 sonusCpSystemServerName
+               }
+    STATUS       obsolete
+    DESCRIPTION
+                "This trap indicates that the drbd process encountered an error during reconfiguration"
+    ::= { sonusCpSystemServicesMIBNotificationsPrefix 63 }
+
+sonusCpSystemServerDrbdReformatBackupNotification NOTIFICATION-TYPE
+    OBJECTS    { 
+                 sonusAlarmNodeID,
+                 sonusAlarmLevel,
+                 sonusAlarmSequenceId,
+                 sonusAlarmTime,
+                 sonusAlarmDescription,
+                 sonusCpSystemServerName
+               }
+    STATUS       obsolete
+    DESCRIPTION
+                "This trap indicates that the drbd process is backing up configuration and accounting files in preparation for a drbd partition reformat"
+    ::= { sonusCpSystemServicesMIBNotificationsPrefix 64 }
+
+sonusCpSystemMajorUserEvent NOTIFICATION-TYPE
+    OBJECTS    {
+                 sonusAlarmNodeID,
+                 sonusAlarmLevel,
+                 sonusAlarmSequenceId,
+                 sonusAlarmTime,
+                 sonusAlarmDescription,
+                 sonusCpSystemUserString
+               }
+    STATUS       obsolete
+    DESCRIPTION
+                "This trap is the user generated major severity trap. This trap is only applicable for SGX4000."
+    ::= { sonusCpSystemServicesMIBNotificationsPrefix 65 }
+
+sonusCpSystemMinorUserEvent NOTIFICATION-TYPE
+    OBJECTS    {
+                 sonusAlarmNodeID,
+                 sonusAlarmLevel,
+                 sonusAlarmSequenceId,
+                 sonusAlarmTime,
+                 sonusAlarmDescription,
+                 sonusCpSystemUserString
+               }
+    STATUS       obsolete
+    DESCRIPTION
+                "This trap is the user generated minor severity trap. This trap is only applicable for SGX4000."
+    ::= { sonusCpSystemServicesMIBNotificationsPrefix 66 }
+
+sonusCpSystemInfoUserEvent NOTIFICATION-TYPE
+    OBJECTS    {
+                 sonusAlarmNodeID,
+                 sonusAlarmLevel,
+                 sonusAlarmSequenceId,
+                 sonusAlarmTime,
+                 sonusAlarmDescription,
+                 sonusCpSystemUserString
+               }
+    STATUS       obsolete
+    DESCRIPTION
+                "This trap is the user generated info severity trap. This trap is only applicable for SGX4000."
+    ::= { sonusCpSystemServicesMIBNotificationsPrefix 67 }
+
+sonusCpSystemServerDrbdReformatStartNotify NOTIFICATION-TYPE
+    OBJECTS    {
+                 sonusAlarmNodeID,
+                 sonusAlarmLevel,
+                 sonusAlarmSequenceId,
+                 sonusAlarmTime,
+                 sonusAlarmDescription,
+                 sonusCpSystemServerName
+               }
+    STATUS       current
+    DESCRIPTION
+                "This trap indicates that the drbd partition is being resized and reformatted to match the peer partition. This trap is only applicable for SBX."
+    ::= { sonusCpSystemServicesMIBNotificationsPrefix 68 }
+
+sonusCpSystemServerDrbdReformatSwitchoverNotify NOTIFICATION-TYPE
+    OBJECTS    {
+                 sonusAlarmNodeID,
+                 sonusAlarmLevel,
+                 sonusAlarmSequenceId,
+                 sonusAlarmTime,
+                 sonusAlarmDescription,
+                 sonusCpSystemServerName
+               }
+    STATUS       current
+    DESCRIPTION
+                "This trap indicates that the active server has requested the standby to become active, allowing the current active to reconfigure its drbd partition. This trap is only applicable for SBX."
+    ::= { sonusCpSystemServicesMIBNotificationsPrefix 69 }
+
+sonusCpSystemServerDrbdReformatErrorNotify NOTIFICATION-TYPE
+    OBJECTS    {
+                 sonusAlarmNodeID,
+                 sonusAlarmLevel,
+                 sonusAlarmSequenceId,
+                 sonusAlarmTime,
+                 sonusAlarmDescription,
+                 sonusCpSystemServerName
+               }
+    STATUS       current
+    DESCRIPTION
+                "This trap indicates that the drbd process encountered an error during reconfiguration. This trap is only applicable for SBX."
+    ::= { sonusCpSystemServicesMIBNotificationsPrefix 70 }
+
+sonusCpSystemServerDrbdReformatBackupNotify NOTIFICATION-TYPE
+    OBJECTS    {
+                 sonusAlarmNodeID,
+                 sonusAlarmLevel,
+                 sonusAlarmSequenceId,
+                 sonusAlarmTime,
+                 sonusAlarmDescription,
+                 sonusCpSystemServerName
+               }
+    STATUS       current
+    DESCRIPTION
+                "This trap indicates that the drbd process is backing up configuration and accounting files in preparation for a drbd partition reformat. This trap is only applicable for SBX."
+    ::= { sonusCpSystemServicesMIBNotificationsPrefix 71 }
+
+sonusCpSystemServerDrbdReformatCompletedNotify NOTIFICATION-TYPE
+    OBJECTS    {
+                 sonusAlarmNodeID,
+                 sonusAlarmLevel,
+                 sonusAlarmSequenceId,
+                 sonusAlarmTime,
+                 sonusAlarmDescription,
+                 sonusCpSystemServerName
+               }
+    STATUS       current
+    DESCRIPTION
+                "This trap indicates drbd partition format has completed. A full disk sync will start. This trap is only applicable for SBX."
+    ::= { sonusCpSystemServicesMIBNotificationsPrefix 72 }
+
+sonusCpSystemMemoryModuleFaultNotify NOTIFICATION-TYPE
+    OBJECTS    {
+                 sonusAlarmNodeID,
+                 sonusAlarmLevel,
+                 sonusAlarmSequenceId,
+                 sonusAlarmTime,
+                 sonusAlarmDescription,
+                 sonusCpSystemAdminName,
+                 sonusCpSystemServerName
+               }
+    STATUS       current
+    DESCRIPTION
+                "This trap indicates that a server memory module maybe faulty. This trap is only applicable for SGX4000."
+    ::= { sonusCpSystemServicesMIBNotificationsPrefix 73 }
+
+sonusCpSystemReadonlyFileSystemNotify NOTIFICATION-TYPE
+    OBJECTS    {
+                 sonusAlarmNodeID,
+                 sonusAlarmLevel,
+                 sonusAlarmSequenceId,
+                 sonusAlarmTime,
+                 sonusAlarmDescription,
+                 sonusCpSystemAdminName,
+                 sonusCpSystemServerName
+               }
+    STATUS       current
+    DESCRIPTION
+                "This trap indicates that the file system has gone into a read only state and nothing can be written to disk."
+    ::= { sonusCpSystemServicesMIBNotificationsPrefix 74 }
+
+sonusCpSystemFaultyHardDiskNotify NOTIFICATION-TYPE
+    OBJECTS    {
+                 sonusAlarmNodeID,
+                 sonusAlarmLevel,
+                 sonusAlarmSequenceId,
+                 sonusAlarmTime,
+                 sonusAlarmDescription,
+                 sonusCpSystemAdminName,
+                 sonusCpSystemServerName
+               }
+    STATUS       current
+    DESCRIPTION
+                "This trap indicates that a hard disk maybe faulty."
+    ::= { sonusCpSystemServicesMIBNotificationsPrefix 75 }
+
+sonusCpConfigHaInSyncNotify NOTIFICATION-TYPE
+    OBJECTS    {
+                 sonusAlarmNodeID,
+                 sonusAlarmLevel,
+                 sonusAlarmSequenceId,
+                 sonusAlarmTime,
+                 sonusAlarmDescription
+               }
+    STATUS       current
+    DESCRIPTION
+                "This trap indicates that the management active CE is in sync with the standby for configuration changes. This trap is only applicable for SGX4000."
+    ::= { sonusCpSystemServicesMIBNotificationsPrefix 76 }
+
+sonusCpSystemCriticalUserEventNotify NOTIFICATION-TYPE
+    OBJECTS    {
+                 sonusAlarmNodeID,
+                 sonusAlarmLevel,
+                 sonusAlarmSequenceId,
+                 sonusAlarmTime,
+                 sonusAlarmDescription,
+                 sonusCpSystemUserString
+               }
+    STATUS       obsolete
+    DESCRIPTION
+                "This trap is the user generated critical severity trap. This trap is only applicable for SGX4000."
+    ::= { sonusCpSystemServicesMIBNotificationsPrefix 77 }
+
+sonusCpSystemLocalDiskSpaceCriticalNotification NOTIFICATION-TYPE
+    OBJECTS    { 
+                 sonusAlarmNodeID,
+                 sonusAlarmLevel,
+                 sonusAlarmSequenceId,
+                 sonusAlarmTime,
+                 sonusAlarmDescription,
+                 sonusCpSystemAdminName,
+                 sonusCpSystemServerName,
+                 sonusCpSystemHardDiskNumber,
+                 sonusCpSystemDiskPartition,
+                 sonusCpSystemDiskSpaceUsedPct
+               }
+    STATUS       current
+    DESCRIPTION
+                "This trap indicates that space on the hard disk is low."
+    ::= { sonusCpSystemServicesMIBNotificationsPrefix 78 }
+
+sonusCpSystemLocalDiskSpaceFaultNotification NOTIFICATION-TYPE
+    OBJECTS    { 
+                 sonusAlarmNodeID,
+                 sonusAlarmLevel,
+                 sonusAlarmSequenceId,
+                 sonusAlarmTime,
+                 sonusAlarmDescription,
+                 sonusCpSystemAdminName,
+                 sonusCpSystemServerName,
+                 sonusCpSystemHardDiskNumber,
+                 sonusCpSystemDiskPartition,
+                 sonusCpSystemDiskSpaceUsedPct
+               }
+    STATUS       current
+    DESCRIPTION
+                "This trap indicates that space on the hard disk is low."
+    ::= { sonusCpSystemServicesMIBNotificationsPrefix 79 }
+
+sonusCpSystemLocalDiskSpaceClearAlarmsNotification NOTIFICATION-TYPE
+    OBJECTS    { 
+                 sonusAlarmNodeID,
+                 sonusAlarmLevel,
+                 sonusAlarmSequenceId,
+                 sonusAlarmTime,
+                 sonusAlarmDescription,
+                 sonusCpSystemAdminName,
+                 sonusCpSystemServerName,
+                 sonusCpSystemHardDiskNumber,
+                 sonusCpSystemDiskPartition,
+                 sonusCpSystemDiskSpaceUsedPct
+               }
+    STATUS       current
+    DESCRIPTION
+                "This trap clears all previous disk space usage alarms before issuing fresh ones."
+    ::= { sonusCpSystemServicesMIBNotificationsPrefix 80 }
+
+sonusCpSystemCriticalUserEventNfy NOTIFICATION-TYPE
+    OBJECTS    {
+                 sonusAlarmNodeID,
+                 sonusAlarmLevel,
+                 sonusAlarmSequenceId,
+                 sonusAlarmTime,
+                 sonusAlarmDescription,
+                 sonusCpSystemUserInfoString
+               }
+    STATUS       current
+    DESCRIPTION
+                "This trap is the user generated critical severity trap. This trap is only applicable for SGX4000."
+    ::= { sonusCpSystemServicesMIBNotificationsPrefix 81 }
+
+sonusCpSystemMajorUserEventNfy NOTIFICATION-TYPE
+    OBJECTS    {
+                 sonusAlarmNodeID,
+                 sonusAlarmLevel,
+                 sonusAlarmSequenceId,
+                 sonusAlarmTime,
+                 sonusAlarmDescription,
+                 sonusCpSystemUserInfoString
+               }
+    STATUS       current
+    DESCRIPTION
+                "This trap is the user generated major severity trap. This trap is only applicable for SGX4000."
+    ::= { sonusCpSystemServicesMIBNotificationsPrefix 82 }
+
+sonusCpSystemMinorUserEventNfy NOTIFICATION-TYPE
+    OBJECTS    {
+                 sonusAlarmNodeID,
+                 sonusAlarmLevel,
+                 sonusAlarmSequenceId,
+                 sonusAlarmTime,
+                 sonusAlarmDescription,
+                 sonusCpSystemUserInfoString
+               }
+    STATUS       current
+    DESCRIPTION
+                "This trap is the user generated minor severity trap. This trap is only applicable for SGX4000."
+    ::= { sonusCpSystemServicesMIBNotificationsPrefix 83 }
+
+sonusCpSystemInfoUserEventNfy NOTIFICATION-TYPE
+    OBJECTS    {
+                 sonusAlarmNodeID,
+                 sonusAlarmLevel,
+                 sonusAlarmSequenceId,
+                 sonusAlarmTime,
+                 sonusAlarmDescription,
+                 sonusCpSystemUserInfoString
+               }
+    STATUS       current
+    DESCRIPTION
+                "This trap is the user generated info severity trap. This trap is only applicable for SGX4000."
+    ::= { sonusCpSystemServicesMIBNotificationsPrefix 84 }
+
+sonusCpSystemServiceRestartNotification NOTIFICATION-TYPE
+    OBJECTS    { 
+                 sonusAlarmNodeID,
+                 sonusAlarmLevel,
+                 sonusAlarmSequenceId,
+                 sonusAlarmTime,
+                 sonusAlarmDescription,
+                 sonusCpSystemServerName,
+                 sonusCpSystemApplicationRestartReason
+               }
+    STATUS       current
+    DESCRIPTION
+                "This trap indicates the reason for the service restarting."
+    ::= { sonusCpSystemServicesMIBNotificationsPrefix 85 }
+
+sonusCpSystemSwitchoverIncompleteNotification NOTIFICATION-TYPE  
+    OBJECTS    {   
+                 sonusAlarmNodeID,  
+                 sonusAlarmLevel,  
+                 sonusAlarmSequenceId,  
+                 sonusAlarmTime,  
+                 sonusAlarmDescription 
+               }  
+    STATUS       current  
+    DESCRIPTION  
+                "This trap indicates indicates that this CE started to switchover but the process did not complete, leaving the system in an undefined state. This trap is only applicable for SGX4000."  
+    --ALARM_ONLY 
+    ::= { sonusCpSystemServicesMIBNotificationsPrefix 86 }  
+
+sonusCpSystemRsyslogRemoteServerConnectionIssue NOTIFICATION-TYPE
+    OBJECTS    {
+                 sonusAlarmNodeID,
+                 sonusAlarmLevel,
+                 sonusAlarmSequenceId,
+                 sonusAlarmTime,
+                 sonusAlarmDescription,
+                 sonusServerIpAddress
+               }
+    STATUS       current
+    DESCRIPTION
+                "This trap indicates there is a connection issue with the remote server being used for rsyslog."
+    ::= { sonusCpSystemServicesMIBNotificationsPrefix 87 }
+
+sonusCpSystemRsyslogRemoteServerConnectionRecovered NOTIFICATION-TYPE
+    OBJECTS    {
+                 sonusAlarmNodeID,
+                 sonusAlarmLevel,
+                 sonusAlarmSequenceId,
+                 sonusAlarmTime,
+                 sonusAlarmDescription,
+                 sonusServerIpAddress
+               }
+    STATUS       current
+    DESCRIPTION
+                "This trap indicates that connection has been established for the remote server being used for rsyslog"
+    ::= { sonusCpSystemServicesMIBNotificationsPrefix 88 }
+  
+sonusCpSystemServerName OBJECT-TYPE
+    SYNTAX      DisplayString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "
+            The unique identifier assigned to this card or server.
+          "
+    ::= {sonusCpSystemServicesMIBNotificationsObjects  1 }
+
+sonusCpSystemHardDiskNumber OBJECT-TYPE
+    SYNTAX      Integer32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "
+           Hard disk number (typically 0 through 3)
+        "
+    ::= { sonusCpSystemServicesMIBNotificationsObjects 2 }
+
+sonusCpSystemPowerSupplyId OBJECT-TYPE
+    SYNTAX      DisplayString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "
+           The name of the power supply (/SYS/VPS)
+        "
+    ::= { sonusCpSystemServicesMIBNotificationsObjects 3 }
+
+sonusCpSystemFanId OBJECT-TYPE
+    SYNTAX      DisplayString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "
+           The name of the fan (usually /FT0/F0/ /FT0/F1/ etc).
+
+        "
+    ::= {sonusCpSystemServicesMIBNotificationsObjects 4 }
+
+sonusCpSystemCoredumpFile OBJECT-TYPE
+    SYNTAX      DisplayString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "
+            File name of the coredump.
+          "
+    ::= {sonusCpSystemServicesMIBNotificationsObjects  5 }
+
+sonusCpSystemCoredumpSpacePct OBJECT-TYPE
+    SYNTAX      Integer32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "
+           Percentage of allowed coredump space occupied.
+        "
+    ::= { sonusCpSystemServicesMIBNotificationsObjects 6 }
+
+sonusCpSystemServerTemperatureSensorId OBJECT-TYPE
+    SYNTAX      DisplayString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "
+           Id of the temperature sensor, MB/T_AMB0, MB/T_AMB1 etc.
+
+        "
+    ::= { sonusCpSystemServicesMIBNotificationsObjects 7 }
+
+sonusCpSystemServerTemperature OBJECT-TYPE
+    SYNTAX      Integer32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "
+           Temperature (in Degrees C)
+        "
+    ::= { sonusCpSystemServicesMIBNotificationsObjects 8 }
+
+sonusCpSystemAdminName OBJECT-TYPE
+    SYNTAX      DisplayString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "
+            Name of the system
+        "
+    ::= { sonusCpSystemServicesMIBNotificationsObjects 9 }
+
+sonusCpSystemDiskPartition OBJECT-TYPE
+    SYNTAX      DisplayString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "
+            Partition on the disk
+        "
+    ::= { sonusCpSystemServicesMIBNotificationsObjects 10 }
+
+sonusCpSystemDiskSpaceUsedPct OBJECT-TYPE
+    SYNTAX      Integer32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "
+           Percentage of the disk space used.
+        "
+    ::= { sonusCpSystemServicesMIBNotificationsObjects 11 }
+
+sonusCpSystemPortName OBJECT-TYPE
+    SYNTAX      DisplayString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "
+            The name of the port.
+          "
+    ::= {sonusCpSystemServicesMIBNotificationsObjects  12 }
+
+sonusCpSystemConfigFileName OBJECT-TYPE
+    SYNTAX      DisplayString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "
+            File name of the configuration file.
+          "
+    ::= {sonusCpSystemServicesMIBNotificationsObjects  13 }
+
+sonusCpSelfBaseMacAddress OBJECT-TYPE
+    SYNTAX      DisplayString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "
+            Local base MAC addresss.
+          "
+    ::= {sonusCpSystemServicesMIBNotificationsObjects  14 }
+
+sonusCpPeerBaseMacAddress OBJECT-TYPE
+    SYNTAX      DisplayString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "
+            Peer base MAC addresss.
+          "
+    ::= {sonusCpSystemServicesMIBNotificationsObjects  15 }
+
+
+sonusCpActiveBaseMacAddress OBJECT-TYPE
+    SYNTAX      DisplayString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "
+            Active MAC addresss of the system.
+          "
+    ::= {sonusCpSystemServicesMIBNotificationsObjects  16 }
+
+sonusNodeOverloadType OBJECT-TYPE
+	SYNTAX     DisplayString( SIZE(0..3) )
+	MAX-ACCESS read-only
+	STATUS     current
+	DESCRIPTION
+		"Overload Resource Type"
+	::= { sonusCpSystemServicesMIBNotificationsObjects 17}
+
+
+sonusNodeOverloadLevel OBJECT-TYPE
+    SYNTAX       Integer32 (0..3)
+    MAX-ACCESS   read-only
+    STATUS       current
+    DESCRIPTION
+                "The Overload Level"
+    ::= { sonusCpSystemServicesMIBNotificationsObjects 18 } 
+
+
+sonusNodeOverloadThresholdCurrent OBJECT-TYPE
+    SYNTAX       Integer32 (0..100)
+    MAX-ACCESS   read-only
+    STATUS       current
+    DESCRIPTION
+                "The current calculated value of this resource"
+    ::= { sonusCpSystemServicesMIBNotificationsObjects 19 } 
+
+
+sonusNodeOverloadThresholdConfigured  OBJECT-TYPE
+    SYNTAX       Integer32 (0..100)
+    MAX-ACCESS   read-only
+    STATUS       current
+    DESCRIPTION
+                "The configured threshold level for this resource"
+    ::= { sonusCpSystemServicesMIBNotificationsObjects 20 } 
+
+sonusCpProductCapabilityName OBJECT-TYPE
+    SYNTAX      DisplayString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "
+            Product capability type.
+          "
+    ::= {sonusCpSystemServicesMIBNotificationsObjects  21 }
+
+sonusCpProductCapabilityValue OBJECT-TYPE
+    SYNTAX      DisplayString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "
+            Product Capability value of local server.
+          "
+    ::= {sonusCpSystemServicesMIBNotificationsObjects  22 }
+
+sonusCpProductPeerCapabilityValue OBJECT-TYPE
+    SYNTAX      DisplayString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "
+            Product Capability value of peer server.
+          "
+    ::= {sonusCpSystemServicesMIBNotificationsObjects  23 }
+
+
+sonusCpSystemHardDiskName OBJECT-TYPE
+    SYNTAX      DisplayString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "
+            Name of a disk device on the system.
+          "
+    ::= {sonusCpSystemServicesMIBNotificationsObjects  24 }
+
+sonusCpSystemHardDiskError OBJECT-TYPE
+    SYNTAX      DisplayString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "
+            Error string reported by Self-Monitoring, Analysis and Reporting Technology (SMART).
+          "
+    ::= {sonusCpSystemServicesMIBNotificationsObjects  25 }
+
+sonusCpSystemLifeAvailAttrib OBJECT-TYPE
+    SYNTAX      DisplayString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "
+            Value representing the percentage of disk life remaining reported by Self-Monitoring, Analysis and Reporting Technology (SMART) or N/A if not supported.
+          "
+    ::= {sonusCpSystemServicesMIBNotificationsObjects  26 }
+
+sonusCpSystemMemoryUsage OBJECT-TYPE
+    SYNTAX      Integer32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "
+           Percentage of the system memory used.
+        "
+    ::= { sonusCpSystemServicesMIBNotificationsObjects 27 }
+
+sonusCpSystemServiceRestartReason OBJECT-TYPE
+    SYNTAX      DisplayString
+    MAX-ACCESS  read-only
+    STATUS      obsolete
+    DESCRIPTION "
+           Detailed description of the event that cause the application to restart.
+        "
+    ::= { sonusCpSystemServicesMIBNotificationsObjects 28 }
+
+sonusCpSystemUserString OBJECT-TYPE
+    SYNTAX      OCTET STRING(SIZE (0..255))
+    MAX-ACCESS  read-only
+    STATUS      obsolete
+    DESCRIPTION "
+           User provided information string.
+        "
+    ::= { sonusCpSystemServicesMIBNotificationsObjects 29 }
+
+sonusCpSystemApplicationRestartReason OBJECT-TYPE
+    SYNTAX      DisplayString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "
+           Detailed description of the event that cause the application to restart.
+        "
+    ::= { sonusCpSystemServicesMIBNotificationsObjects 30 }
+
+sonusCpSystemUserInfoString OBJECT-TYPE
+    SYNTAX      OCTET STRING(SIZE (0..255))
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "
+           User provided information string.
+        "
+    ::= { sonusCpSystemServicesMIBNotificationsObjects 31 }
+
+sonusServerIpAddress OBJECT-TYPE
+    SYNTAX      DisplayString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+        "IP Address of the remote server"
+    ::= { sonusCpSystemServicesMIBNotificationsObjects 32 }
+
+--
+-- Traps for NIF
+--
+
+sonusCpNifMIBNotifications OBJECT IDENTIFIER ::= { sonusCpBaseTraps 6 }
+
+sonusCpNifMIBNotificationsPrefix OBJECT IDENTIFIER ::= { sonusCpNifMIBNotifications 0 }
+sonusCpNifMIBNotificationsObjects OBJECT IDENTIFIER ::= { sonusCpNifMIBNotifications 1 }
+
+
+--
+-- Need to add ceName, type, and usage to each NIF trap once the NIF MIB gets generated.
+--
+
+sonusCpNifCrcErrorRateExceededNotification NOTIFICATION-TYPE
+
+	OBJECTS	{   
+			    sonusAlarmNodeID,
+				sonusAlarmLevel,
+				sonusAlarmSequenceId,
+                sonusAlarmTime,
+                sonusAlarmDescription,
+                sonusCpNifCeName,
+                sonusCpNifType,
+                sonusCpNifUsage
+			}
+	STATUS		current
+	DESCRIPTION
+		"This trap indicates that CRC error rate has exceeded set threshold for the set duration."
+	::= { sonusCpNifMIBNotificationsPrefix 1 }
+
+sonusCpNifCrcErrorRateClearedNotification NOTIFICATION-TYPE
+	OBJECTS	{   
+			    sonusAlarmNodeID,
+				sonusAlarmLevel,
+				sonusAlarmSequenceId,
+                sonusAlarmTime,
+                sonusAlarmDescription,
+                sonusCpNifCeName,
+                sonusCpNifType,
+                sonusCpNifUsage
+			}
+	STATUS		current
+	DESCRIPTION
+		"This trap indicates that CRC error rate gone below the clear threshold for the clear duration."
+	::= { sonusCpNifMIBNotificationsPrefix 2 }
+
+sonusCpNifCodeViolationErrorRateExceededNotification NOTIFICATION-TYPE
+
+	OBJECTS	{   
+			    sonusAlarmNodeID,
+				sonusAlarmLevel,
+				sonusAlarmSequenceId,
+                sonusAlarmTime,
+                sonusAlarmDescription,
+                sonusCpNifCeName,
+                sonusCpNifType,
+                sonusCpNifUsage
+			}
+	STATUS		current
+	DESCRIPTION
+		"This trap indicates that code violation error rate has exceeded set threshold for the set duration."
+	::= { sonusCpNifMIBNotificationsPrefix 3 }
+
+sonusCpNifCodeViolationErrorRateClearedNotification NOTIFICATION-TYPE
+	OBJECTS	{   
+			    sonusAlarmNodeID,
+				sonusAlarmLevel,
+				sonusAlarmSequenceId,
+                sonusAlarmTime,
+                sonusAlarmDescription,
+                sonusCpNifCeName,
+                sonusCpNifType,
+                sonusCpNifUsage
+			}
+	STATUS		current
+	DESCRIPTION
+		"This trap indicates that code violation error rate gone below the clear threshold for the clear duration."
+	::= { sonusCpNifMIBNotificationsPrefix 4 }
+
+sonusCpMaxPacketLengthErrorRateExceededNotification NOTIFICATION-TYPE
+
+	OBJECTS	{   
+			    sonusAlarmNodeID,
+				sonusAlarmLevel,
+				sonusAlarmSequenceId,
+                sonusAlarmTime,
+                sonusAlarmDescription,
+                sonusCpNifCeName,
+                sonusCpNifType,
+                sonusCpNifUsage
+			}
+	STATUS		current
+	DESCRIPTION
+		"This trap indicates that the maximum packet length error rate has exceeded set threshold for the set duration."
+	::= { sonusCpNifMIBNotificationsPrefix 5 }
+
+sonusCpMaxPacketLengthErrorRateClearedNotification NOTIFICATION-TYPE
+	OBJECTS	{   
+			    sonusAlarmNodeID,
+				sonusAlarmLevel,
+				sonusAlarmSequenceId,
+                sonusAlarmTime,
+                sonusAlarmDescription,
+                sonusCpNifCeName,
+                sonusCpNifType,
+                sonusCpNifUsage
+			}
+	STATUS		current
+	DESCRIPTION
+		"This trap indicates that the maximum packet length error rate gone below the clear threshold for the clear duration."
+	::= { sonusCpNifMIBNotificationsPrefix 6 }
+
+sonusCpNifRcrDcfErrorRateExceededNotification NOTIFICATION-TYPE
+
+	OBJECTS	{   
+			    sonusAlarmNodeID,
+				sonusAlarmLevel,
+				sonusAlarmSequenceId,
+                sonusAlarmTime,
+                sonusAlarmDescription,
+                sonusCpNifCeName,
+                sonusCpNifType,
+                sonusCpNifUsage
+			}
+	STATUS		current
+	DESCRIPTION
+		"This trap indicates that the RCR DFC error rate has exceeded set threshold for the set duration."
+	::= { sonusCpNifMIBNotificationsPrefix 7 }
+
+sonusCpfRcrDcfErrorRateClearedNotification NOTIFICATION-TYPE
+	OBJECTS	{   
+			    sonusAlarmNodeID,
+				sonusAlarmLevel,
+				sonusAlarmSequenceId,
+                sonusAlarmTime,
+                sonusAlarmDescription,
+                sonusCpNifCeName,
+                sonusCpNifType,
+                sonusCpNifUsage
+			}
+	STATUS		current
+	DESCRIPTION
+		"This trap indicates that the RCR DFC error rate gone below the clear threshold for the clear duration."
+	::= { sonusCpNifMIBNotificationsPrefix 8 }
+
+sonusCpNifRcrErrorRateExceededNotification NOTIFICATION-TYPE
+
+	OBJECTS	{   
+			    sonusAlarmNodeID,
+				sonusAlarmLevel,
+				sonusAlarmSequenceId,
+                sonusAlarmTime,
+                sonusAlarmDescription,
+                sonusCpNifCeName,
+                sonusCpNifType,
+                sonusCpNifUsage
+			}
+	STATUS		current
+	DESCRIPTION
+		"This trap indicates that the RCR error rate has exceeded set threshold for the set duration."
+	::= { sonusCpNifMIBNotificationsPrefix 9 }
+
+sonusCpNifRcrErrorRateClearedNotification NOTIFICATION-TYPE
+	OBJECTS	{   
+			    sonusAlarmNodeID,
+				sonusAlarmLevel,
+				sonusAlarmSequenceId,
+                sonusAlarmTime,
+                sonusAlarmDescription,
+                sonusCpNifCeName,
+                sonusCpNifType,
+                sonusCpNifUsage
+			}
+	STATUS		current
+	DESCRIPTION
+		"This trap indicates that the RCR error rate gone below the clear threshold for the clear duration."
+	::= { sonusCpNifMIBNotificationsPrefix 10 }
+
+sonusCpNifResourceErrorRateExceededNotification NOTIFICATION-TYPE
+
+	OBJECTS	{   
+			    sonusAlarmNodeID,
+				sonusAlarmLevel,
+				sonusAlarmSequenceId,
+                sonusAlarmTime,
+                sonusAlarmDescription,
+                sonusCpNifCeName,
+                sonusCpNifType,
+                sonusCpNifUsage
+			}
+	STATUS		current
+	DESCRIPTION
+		"This trap indicates that the Resource Error rate has exceeded set threshold for the set duration."
+	::= { sonusCpNifMIBNotificationsPrefix 11 }
+
+sonusCpNifResourceErrorRateClearedNotification NOTIFICATION-TYPE
+	OBJECTS	{   
+			    sonusAlarmNodeID,
+				sonusAlarmLevel,
+				sonusAlarmSequenceId,
+                sonusAlarmTime,
+                sonusAlarmDescription,
+                sonusCpNifCeName,
+                sonusCpNifType,
+                sonusCpNifUsage
+			}
+	STATUS		current
+	DESCRIPTION
+		"This trap indicates that the Resource Error rate gone below the clear threshold for the clear duration."
+	::= { sonusCpNifMIBNotificationsPrefix 12 }
+
+sonusCpNifRingOverflowErrorRateExceededNotification NOTIFICATION-TYPE
+
+	OBJECTS	{   
+			    sonusAlarmNodeID,
+				sonusAlarmLevel,
+				sonusAlarmSequenceId,
+                sonusAlarmTime,
+                sonusAlarmDescription,
+                sonusCpNifCeName,
+                sonusCpNifType,
+                sonusCpNifUsage
+			}
+	STATUS		current
+	DESCRIPTION
+		"This trap indicates that the Overflow Error Rate rate has exceeded set threshold for the set duration."
+	::= { sonusCpNifMIBNotificationsPrefix 13 }
+
+sonusCpNifRingOverflowErrorRateClearedNotification NOTIFICATION-TYPE
+	OBJECTS	{   
+			    sonusAlarmNodeID,
+				sonusAlarmLevel,
+				sonusAlarmSequenceId,
+                sonusAlarmTime,
+                sonusAlarmDescription,
+                sonusCpNifCeName,
+                sonusCpNifType,
+                sonusCpNifUsage
+			}
+	STATUS		current
+	DESCRIPTION
+		"This trap indicates that the Overflow Error Rate rate gone below the clear threshold for the clear duration."
+	::= { sonusCpNifMIBNotificationsPrefix 14 }
+
+sonusCpNifDroppedPacketsRateExceededNotification NOTIFICATION-TYPE
+
+	OBJECTS	{   
+			    sonusAlarmNodeID,
+				sonusAlarmLevel,
+				sonusAlarmSequenceId,
+                sonusAlarmTime,
+                sonusAlarmDescription,
+                sonusCpNifCeName,
+                sonusCpNifType,
+                sonusCpNifUsage
+			}
+	STATUS		current
+	DESCRIPTION
+		"This trap indicates that the Dropped Packets rate has exceeded set threshold for the set duration."
+	::= { sonusCpNifMIBNotificationsPrefix 15 }
+
+sonusCpNifRateDroppedPacketsClearedNotification NOTIFICATION-TYPE
+	OBJECTS	{   
+			    sonusAlarmNodeID,
+				sonusAlarmLevel,
+				sonusAlarmSequenceId,
+                sonusAlarmTime,
+                sonusAlarmDescription,
+                sonusCpNifCeName,
+                sonusCpNifType,
+                sonusCpNifUsage
+			}
+	STATUS		current
+	DESCRIPTION
+		"This trap indicates that the Dropped Packets rate gone below the clear threshold for the clear duration."
+	::= { sonusCpNifMIBNotificationsPrefix 16 }
+
+sonusCpNifRbrPrefetchEmptyErrorRateExceededNotification NOTIFICATION-TYPE
+
+	OBJECTS	{   
+			    sonusAlarmNodeID,
+				sonusAlarmLevel,
+				sonusAlarmSequenceId,
+                sonusAlarmTime,
+                sonusAlarmDescription,
+                sonusCpNifCeName,
+                sonusCpNifType,
+                sonusCpNifUsage
+			}
+	STATUS		current
+	DESCRIPTION
+		"This trap indicates that the RBR Prefetch Empty rate has exceeded set threshold for the set duration."
+	::= { sonusCpNifMIBNotificationsPrefix 17 }
+
+sonusCpNifRbrPrefetchEmptyErrorRateClearedNotification NOTIFICATION-TYPE
+	OBJECTS	{   
+			    sonusAlarmNodeID,
+				sonusAlarmLevel,
+				sonusAlarmSequenceId,
+                sonusAlarmTime,
+                sonusAlarmDescription,
+                sonusCpNifCeName,
+                sonusCpNifType,
+                sonusCpNifUsage
+			}
+	STATUS		current
+	DESCRIPTION
+		"This trap indicates that the RBR Prefetch Empty rate gone below the clear threshold for the clear duration."
+	::= { sonusCpNifMIBNotificationsPrefix 18 }
+
+sonusCpNifRbrEmptyErrorRateExceededNotification NOTIFICATION-TYPE
+
+	OBJECTS	{   
+			    sonusAlarmNodeID,
+				sonusAlarmLevel,
+				sonusAlarmSequenceId,
+                sonusAlarmTime,
+                sonusAlarmDescription,
+                sonusCpNifCeName,
+                sonusCpNifType,
+                sonusCpNifUsage
+			}
+	STATUS		current
+	DESCRIPTION
+		"This trap indicates that the RBR Empty rate has exceeded set threshold for the set duration."
+	::= { sonusCpNifMIBNotificationsPrefix 19 }
+
+sonusCpNifRbrEmptyErrorRateClearedNotification NOTIFICATION-TYPE
+	OBJECTS	{   
+			    sonusAlarmNodeID,
+				sonusAlarmLevel,
+				sonusAlarmSequenceId,
+                sonusAlarmTime,
+                sonusAlarmDescription,
+                sonusCpNifCeName,
+                sonusCpNifType,
+                sonusCpNifUsage
+			}
+	STATUS		current
+	DESCRIPTION
+		"This trap indicates that the RBR Empty rate gone below the clear threshold for the clear duration."
+	::= { sonusCpNifMIBNotificationsPrefix 20 }
+
+sonusCpNifWredDroppedPacketsRateExceededNotification NOTIFICATION-TYPE
+
+	OBJECTS	{   
+			    sonusAlarmNodeID,
+				sonusAlarmLevel,
+				sonusAlarmSequenceId,
+                sonusAlarmTime,
+                sonusAlarmDescription,
+                sonusCpNifCeName,
+                sonusCpNifType,
+                sonusCpNifUsage
+			}
+	STATUS		current
+	DESCRIPTION
+		"This trap indicates that the WRED Dropped Packets rate has exceeded set threshold for the set duration."
+	::= { sonusCpNifMIBNotificationsPrefix 21 }
+
+sonusCpNifWredDroppedPacketsRateClearedNotification NOTIFICATION-TYPE
+	OBJECTS	{   
+			    sonusAlarmNodeID,
+				sonusAlarmLevel,
+				sonusAlarmSequenceId,
+                sonusAlarmTime,
+                sonusAlarmDescription,
+                sonusCpNifCeName,
+                sonusCpNifType,
+                sonusCpNifUsage
+			}
+	STATUS		current
+	DESCRIPTION
+		"This trap indicates that the WRED Dropped Packets rate gone below the clear threshold for the clear duration."
+	::= { sonusCpNifMIBNotificationsPrefix 22 }
+
+sonusCpNifMailBoxNotification NOTIFICATION-TYPE
+	OBJECTS	{   
+			    sonusAlarmNodeID,
+				sonusAlarmLevel,
+				sonusAlarmSequenceId,
+                sonusAlarmTime,
+                sonusAlarmDescription,
+                sonusCpNifCeName,
+                sonusCpNifType,
+                sonusCpNifUsage
+			}
+	STATUS		current
+	DESCRIPTION
+		"This trap indicates a fatal mailbox error."
+	::= { sonusCpNifMIBNotificationsPrefix 23 }
+
+sonusCpNifNackPacketReadErrorNotification NOTIFICATION-TYPE
+	OBJECTS	{   
+			    sonusAlarmNodeID,
+				sonusAlarmLevel,
+				sonusAlarmSequenceId,
+                sonusAlarmTime,
+                sonusAlarmDescription,
+                sonusCpNifCeName,
+                sonusCpNifType,
+                sonusCpNifUsage
+			}
+	STATUS		current
+	DESCRIPTION
+		"This trap indicates a fatal NACK Packet Read Error."
+	::= { sonusCpNifMIBNotificationsPrefix 24 }
+
+sonusCpNifNackPrefetchErrorNotification NOTIFICATION-TYPE
+	OBJECTS	{   
+			    sonusAlarmNodeID,
+				sonusAlarmLevel,
+				sonusAlarmSequenceId,
+                sonusAlarmTime,
+                sonusAlarmDescription,
+                sonusCpNifCeName,
+                sonusCpNifType,
+                sonusCpNifUsage
+			}
+	STATUS		current
+	DESCRIPTION
+		"This trap indicates a fatal NACK Prefetch Error."
+	::= { sonusCpNifMIBNotificationsPrefix 25 }
+
+sonusCpNifPacketSizeErrorNotification NOTIFICATION-TYPE
+	OBJECTS	{   
+			    sonusAlarmNodeID,
+				sonusAlarmLevel,
+				sonusAlarmSequenceId,
+                sonusAlarmTime,
+                sonusAlarmDescription,
+                sonusCpNifCeName,
+                sonusCpNifType,
+                sonusCpNifUsage
+			}
+	STATUS		current
+	DESCRIPTION
+		"This trap indicates a fatal Packet Size Error."
+	::= { sonusCpNifMIBNotificationsPrefix 26 }
+
+sonusCpNifPacketPointerErrorNotification NOTIFICATION-TYPE
+	OBJECTS	{   
+			    sonusAlarmNodeID,
+				sonusAlarmLevel,
+				sonusAlarmSequenceId,
+                sonusAlarmTime,
+                sonusAlarmDescription,
+                sonusCpNifCeName,
+                sonusCpNifType,
+                sonusCpNifUsage
+			}
+	STATUS		current
+	DESCRIPTION
+		"This trap indicates a fatal Packet Pointer Error."
+	::= { sonusCpNifMIBNotificationsPrefix 27 }
+
+sonusCpNifParityErrorNotification NOTIFICATION-TYPE
+	OBJECTS	{   
+			    sonusAlarmNodeID,
+				sonusAlarmLevel,
+				sonusAlarmSequenceId,
+                sonusAlarmTime,
+                sonusAlarmDescription,
+                sonusCpNifCeName,
+                sonusCpNifType,
+                sonusCpNifUsage
+			}
+	STATUS		current
+	DESCRIPTION
+		"This trap indicates a fatal Parity Error."
+	::= { sonusCpNifMIBNotificationsPrefix 28 }
+
+sonusCpNifPartitionErrorNotification NOTIFICATION-TYPE
+	OBJECTS	{   
+			    sonusAlarmNodeID,
+				sonusAlarmLevel,
+				sonusAlarmSequenceId,
+                sonusAlarmTime,
+                sonusAlarmDescription,
+                sonusCpNifCeName,
+                sonusCpNifType,
+                sonusCpNifUsage
+			}
+	STATUS		current
+	DESCRIPTION
+		"This trap indicates a fatal Partition Error."
+	::= { sonusCpNifMIBNotificationsPrefix 29 }
+
+sonusCpNifByteEnableBusErrorNotification NOTIFICATION-TYPE
+	OBJECTS	{   
+			    sonusAlarmNodeID,
+				sonusAlarmLevel,
+				sonusAlarmSequenceId,
+                sonusAlarmTime,
+                sonusAlarmDescription,
+                sonusCpNifCeName,
+                sonusCpNifType,
+                sonusCpNifUsage
+			}
+	STATUS		current
+	DESCRIPTION
+		"This trap indicates a fatal Byte Enable Bus Error."
+	::= { sonusCpNifMIBNotificationsPrefix 30 }
+
+sonusCpNifPageViolationErrorNotification NOTIFICATION-TYPE
+	OBJECTS	{   
+			    sonusAlarmNodeID,
+				sonusAlarmLevel,
+				sonusAlarmSequenceId,
+                sonusAlarmTime,
+                sonusAlarmDescription,
+                sonusCpNifCeName,
+                sonusCpNifType,
+                sonusCpNifUsage
+			}
+	STATUS		current
+	DESCRIPTION
+		"This trap indicates a fatal Page Violation Error."
+	::= { sonusCpNifMIBNotificationsPrefix 31 }
+
+sonusCpNifDataControlFifoErrorNotification NOTIFICATION-TYPE
+	OBJECTS	{   
+			    sonusAlarmNodeID,
+				sonusAlarmLevel,
+				sonusAlarmSequenceId,
+                sonusAlarmTime,
+                sonusAlarmDescription,
+                sonusCpNifCeName,
+                sonusCpNifType,
+                sonusCpNifUsage
+			}
+	STATUS		current
+	DESCRIPTION
+		"This trap indicates a fatal Data or Control FIFO Error."
+	::= { sonusCpNifMIBNotificationsPrefix 32 }
+
+sonusCpNifRcrShadowParityErrorNotification NOTIFICATION-TYPE
+	OBJECTS	{   
+			    sonusAlarmNodeID,
+				sonusAlarmLevel,
+				sonusAlarmSequenceId,
+                sonusAlarmTime,
+                sonusAlarmDescription,
+                sonusCpNifCeName,
+                sonusCpNifType,
+                sonusCpNifUsage
+			}
+	STATUS		current
+	DESCRIPTION
+		"This trap indicates a fatal RCR Shadow Parity Error."
+	::= { sonusCpNifMIBNotificationsPrefix 33 }
+
+sonusCpNifPrefetchParityErrorNotification NOTIFICATION-TYPE
+	OBJECTS	{   
+			    sonusAlarmNodeID,
+				sonusAlarmLevel,
+				sonusAlarmSequenceId,
+                sonusAlarmTime,
+                sonusAlarmDescription,
+                sonusCpNifCeName,
+                sonusCpNifType,
+                sonusCpNifUsage
+			}
+	STATUS		current
+	DESCRIPTION
+		"This trap indicates a fatal Prefetch Parity Error."
+	::= { sonusCpNifMIBNotificationsPrefix 34 }
+
+sonusCpNifRbrFullErrorNotification NOTIFICATION-TYPE
+	OBJECTS	{   
+			    sonusAlarmNodeID,
+				sonusAlarmLevel,
+				sonusAlarmSequenceId,
+                sonusAlarmTime,
+                sonusAlarmDescription,
+                sonusCpNifCeName,
+                sonusCpNifType,
+                sonusCpNifUsage
+			}
+	STATUS		current
+	DESCRIPTION
+		"This trap indicates a fatal RBR Full Error."
+	::= { sonusCpNifMIBNotificationsPrefix 35 }
+
+sonusCpNifRbrLogicalPageErrorNotification NOTIFICATION-TYPE
+	OBJECTS	{   
+			    sonusAlarmNodeID,
+				sonusAlarmLevel,
+				sonusAlarmSequenceId,
+                sonusAlarmTime,
+                sonusAlarmDescription,
+                sonusCpNifCeName,
+                sonusCpNifType,
+                sonusCpNifUsage
+			}
+	STATUS		current
+	DESCRIPTION
+		"This trap indicates a fatal RBR Logical Page Error."
+	::= { sonusCpNifMIBNotificationsPrefix 36 }
+
+sonusCpNifRbrTimeoutNotification NOTIFICATION-TYPE
+	OBJECTS	{   
+			    sonusAlarmNodeID,
+				sonusAlarmLevel,
+				sonusAlarmSequenceId,
+                sonusAlarmTime,
+                sonusAlarmDescription,
+                sonusCpNifCeName,
+                sonusCpNifType,
+                sonusCpNifUsage
+			}
+	STATUS		current
+	DESCRIPTION
+		"This trap indicates a fatal RBR Timeout."
+	::= { sonusCpNifMIBNotificationsPrefix 37 }
+
+sonusCpNifRcrAckErrorNotification NOTIFICATION-TYPE
+	OBJECTS	{   
+			    sonusAlarmNodeID,
+				sonusAlarmLevel,
+				sonusAlarmSequenceId,
+                sonusAlarmTime,
+                sonusAlarmDescription,
+                sonusCpNifCeName,
+                sonusCpNifType,
+                sonusCpNifUsage
+			}
+	STATUS		current
+	DESCRIPTION
+		"This trap indicates a fatal RCR Ack Error."
+	::= { sonusCpNifMIBNotificationsPrefix 38 }
+
+sonusCpNifRcrInconsistencyErrorNotification NOTIFICATION-TYPE
+	OBJECTS	{   
+			    sonusAlarmNodeID,
+				sonusAlarmLevel,
+				sonusAlarmSequenceId,
+                sonusAlarmTime,
+                sonusAlarmDescription,
+                sonusCpNifCeName,
+                sonusCpNifType,
+                sonusCpNifUsage
+			}
+	STATUS		current
+	DESCRIPTION
+		"This trap indicates a fatal RCR Inconsistancy Error."
+	::= { sonusCpNifMIBNotificationsPrefix 39 }
+
+sonusCpNifRcrRingFullErrorNotification NOTIFICATION-TYPE
+	OBJECTS	{   
+			    sonusAlarmNodeID,
+				sonusAlarmLevel,
+				sonusAlarmSequenceId,
+                sonusAlarmTime,
+                sonusAlarmDescription,
+                sonusCpNifCeName,
+                sonusCpNifType,
+                sonusCpNifUsage
+			}
+	STATUS		current
+	DESCRIPTION
+		"This trap indicates a fatal RCR Ring Full Error."
+	::= { sonusCpNifMIBNotificationsPrefix 40 }
+
+sonusCpNifResponseCountErrorNotification NOTIFICATION-TYPE
+	OBJECTS	{   
+			    sonusAlarmNodeID,
+				sonusAlarmLevel,
+				sonusAlarmSequenceId,
+                sonusAlarmTime,
+                sonusAlarmDescription,
+                sonusCpNifCeName,
+                sonusCpNifType,
+                sonusCpNifUsage
+			}
+	STATUS		current
+	DESCRIPTION
+		"This trap indicates a fatal Response Count Error."
+	::= { sonusCpNifMIBNotificationsPrefix 41 }
+
+
+sonusCpNifCeName OBJECT-TYPE
+    SYNTAX      DisplayString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "
+          The host name is this server.
+        "
+    ::= { sonusCpNifMIBNotificationsObjects 1 }
+
+sonusCpNifType OBJECT-TYPE
+    SYNTAX      INTEGER {externalSignaling(3),internalSignaling(2),management(1)}
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "
+          The type of nif to which the port belongs, which is one of:
+          management
+          internalSignaling
+          externalSignaling
+        "
+    ::= { sonusCpNifMIBNotificationsObjects 2 }
+
+sonusCpNifUsage OBJECT-TYPE
+    SYNTAX      INTEGER {secondary(2),primary(1)}
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "
+          The way the port will be used, which is one of:
+          primary
+          secondary
+        "
+    ::= { sonusCpNifMIBNotificationsObjects 3 }
+
+
+--
+-- Traps for RadiusAccounting
+--
+
+sonusCpRadiusAccountingMIBNotifications OBJECT IDENTIFIER ::= { sonusCpBaseTraps 7 }
+
+sonusCpRadiusAccountingMIBNotificationsPrefix OBJECT IDENTIFIER ::= { sonusCpRadiusAccountingMIBNotifications 0 }
+sonusCpRadiusAccountingMIBNotificationsObjects OBJECT IDENTIFIER ::= { sonusCpRadiusAccountingMIBNotifications 1 }
+
+
+sonusCpRadiusServerFailedNotification NOTIFICATION-TYPE
+	OBJECTS	{   
+	    	    sonusAlarmNodeID,
+				sonusAlarmLevel,
+				sonusAlarmSequenceId,
+                sonusAlarmTime,
+                sonusAlarmDescription,
+                sonusCpRadiusServerName
+			}
+	STATUS		current
+	DESCRIPTION
+		"This trap indicates a radius accounting server has been marked failed."
+	::= { sonusCpRadiusAccountingMIBNotificationsPrefix 1 }
+
+
+sonusCpRadiusServerName OBJECT-TYPE
+    SYNTAX      DisplayString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "
+          The host name of the radius server
+        "
+    ::= { sonusCpRadiusAccountingMIBNotificationsObjects 1 }
+
+sonusCpRadiusServerPacketsFlushedNotification  NOTIFICATION-TYPE
+	OBJECTS	{   
+	    	    sonusAlarmNodeID,
+				sonusAlarmLevel,
+				sonusAlarmSequenceId,
+                sonusAlarmTime,
+                sonusAlarmDescription,
+                sonusCpRadiusFlushedPackets,
+                sonusCpRadiusFlushedPacketsFile
+			}
+	STATUS		current
+	DESCRIPTION
+		"This trap indicates that radius packets have been flushed because a radius server is not available."
+	::= { sonusCpRadiusAccountingMIBNotificationsPrefix 2 }
+
+
+sonusCpRadiusFlushedPackets OBJECT-TYPE
+    SYNTAX      Integer32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "
+          The number of Radius packets flushed to disk
+        "
+    ::= { sonusCpRadiusAccountingMIBNotificationsObjects 2 }
+
+
+sonusCpRadiusFlushedPacketsFile OBJECT-TYPE
+    SYNTAX      DisplayString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "
+          The filename of the file containing the flushed Radius packets
+        "
+    ::= { sonusCpRadiusAccountingMIBNotificationsObjects 3 }
+
+--
+--  From sonusLicense.mib
+--
+
+sonusCpLicenseMIBNotifications OBJECT IDENTIFIER ::= { sonusCpBaseTraps 8}
+sonusCpLicenseMIBNotificationsPrefix  OBJECT IDENTIFIER ::= { sonusCpLicenseMIBNotifications 0 }
+sonusCpLicenseMIBNotificationsObjects OBJECT IDENTIFIER ::= { sonusCpLicenseMIBNotifications 1 }
+
+sonusCpLicenseIntegrityViolationNotification NOTIFICATION-TYPE
+        OBJECTS     {
+                     sonusAlarmNodeID,
+                     sonusAlarmLevel,
+                     sonusAlarmSequenceId,
+                     sonusAlarmTime,
+                     sonusAlarmDescription,
+                     sonusCpLicenseId,
+                     sonusCpLicenseViolationDescString
+                    }
+        STATUS      current
+        DESCRIPTION
+            "This trap indicates any attempted violation of license integrity"
+        ::= { sonusCpLicenseMIBNotificationsPrefix 1 }
+
+sonusCpLicenseBundleExpireWarningNotification NOTIFICATION-TYPE
+        OBJECTS     {
+                     sonusAlarmNodeID,
+                     sonusAlarmLevel,
+                     sonusAlarmSequenceId,
+                     sonusAlarmTime,
+                     sonusAlarmDescription,
+                     sonusCpLicenseId,
+                     sonusCpLicenseFeatureName
+                    }
+        STATUS      current
+        DESCRIPTION
+            "This trap indicates that license budle will expire in 14 days"
+        ::= { sonusCpLicenseMIBNotificationsPrefix 2 }
+
+sonusCpLicenseBundleExpiredNotification NOTIFICATION-TYPE
+        OBJECTS     {
+                     sonusAlarmNodeID,
+                     sonusAlarmLevel,
+                     sonusAlarmSequenceId,
+                     sonusAlarmTime,
+                     sonusAlarmDescription,
+                     sonusCpLicenseId,
+                     sonusCpLicenseFeatureName
+                    }
+        STATUS      current
+        DESCRIPTION
+            "This trap indicates that license budle is expired"
+        ::= { sonusCpLicenseMIBNotificationsPrefix 3 }
+
+sonusCpLicenseBundleRenewedNotification NOTIFICATION-TYPE
+        OBJECTS     {
+                     sonusAlarmNodeID,
+                     sonusAlarmLevel,
+                     sonusAlarmSequenceId,
+                     sonusAlarmTime,
+                     sonusAlarmDescription,
+                     sonusCpLicenseId,
+                     sonusCpLicenseFeatureName
+                    }
+        STATUS      current
+        DESCRIPTION
+            "This trap indicates that license budle will is renewed"
+        ::= { sonusCpLicenseMIBNotificationsPrefix 4 }
+
+
+
+sonusCpLicenseHostSerialUnavailable NOTIFICATION-TYPE
+        OBJECTS     {
+                     sonusAlarmNodeID,
+                     sonusAlarmLevel,
+                     sonusAlarmSequenceId,
+                     sonusAlarmTime,
+                     sonusAlarmDescription,
+                     sonusCpSystemServerName
+                    }
+        STATUS      current
+        DESCRIPTION
+            "This trap indicates that the host serial number could not be read from the hardware"
+        ::= { sonusCpLicenseMIBNotificationsPrefix 5 }
+
+
+sonusCpLicenseSerialMismatch NOTIFICATION-TYPE
+        OBJECTS     {
+                     sonusAlarmNodeID,
+                     sonusAlarmLevel,
+                     sonusAlarmSequenceId,
+                     sonusAlarmTime,
+                     sonusAlarmDescription,
+                     sonusCpSystemServerName,
+                     sonusCpLicenseId
+                    }
+        STATUS      current
+        DESCRIPTION
+            "This trap indicates that the host serial number does not match that the serial number in the license"
+        ::= { sonusCpLicenseMIBNotificationsPrefix 6 }
+
+
+sonusCpLicensePeerSerialMismatch NOTIFICATION-TYPE
+        OBJECTS     {
+                     sonusAlarmNodeID,
+                     sonusAlarmLevel,
+                     sonusAlarmSequenceId,
+                     sonusAlarmTime,
+                     sonusAlarmDescription,
+                     sonusCpSystemServerName,
+                     sonusCpLicenseId
+                    }
+        STATUS      current
+        DESCRIPTION
+            "This trap indicates that the peer host serial number does not match that the serial number in the license"
+        ::= { sonusCpLicenseMIBNotificationsPrefix 7 }
+
+sonusCpConfiguredExceedSystemLimit NOTIFICATION-TYPE
+        OBJECTS     {
+                     sonusAlarmNodeID,
+                     sonusAlarmLevel,
+                     sonusAlarmSequenceId,
+                     sonusAlarmTime,
+                     sonusAlarmDescription,
+                     sonusSessConfigLicenses,
+                     sonusSessSystemLimit
+                    }
+        STATUS      current
+        DESCRIPTION
+            "This trap indicates that configured licensed sessions are more than system limit"
+        ::= { sonusCpLicenseMIBNotificationsPrefix  8}
+
+sonusCpLicenseAcquireFailed  NOTIFICATION-TYPE
+        OBJECTS     {
+                     sonusAlarmNodeID,
+                     sonusAlarmLevel,
+                     sonusAlarmSequenceId,
+                     sonusAlarmTime,
+                     sonusAlarmDescription,
+                     sonusCpSystemServerName,
+                     sonusCpLicenseFeatureName,
+                     sonusCpLicenseServerName,
+                     sonusCpCountRequested,    
+                     sonusCpCountAcquired,
+                     sonusCpLicenseErrorReason
+                     }
+        STATUS      current
+        DESCRIPTION
+            "This trap indicates that the requested number of licenses could be acquired"
+        ::= { sonusCpLicenseMIBNotificationsPrefix  9}
+
+sonusCpLicenseAcquireSucceeded  NOTIFICATION-TYPE
+        OBJECTS     {
+                     sonusAlarmNodeID,
+                     sonusAlarmLevel,
+                     sonusAlarmSequenceId,
+                     sonusAlarmTime,
+                     sonusAlarmDescription,
+                     sonusCpSystemServerName,
+                     sonusCpLicenseFeatureName,
+                     sonusCpCountAcquired
+                     }
+        STATUS      current
+        DESCRIPTION
+            "This trap indicates that the requested number of licenses were successfully acquired"
+    
+        ::= { sonusCpLicenseMIBNotificationsPrefix  10}
+
+sonusCpLicenseReleased  NOTIFICATION-TYPE
+        OBJECTS     {
+                     sonusAlarmNodeID,
+                     sonusAlarmLevel,
+                     sonusAlarmSequenceId,
+                     sonusAlarmTime,
+                     sonusAlarmDescription,
+                     sonusCpSystemServerName,
+                     sonusCpLicenseFeatureName,
+                     sonusCpCountReleased,
+                     sonusCpCountRemaining
+                     }
+        STATUS      current
+        DESCRIPTION
+            "This trap indicates that the requested number of licenses were released"
+    
+        ::= { sonusCpLicenseMIBNotificationsPrefix  11}
+
+sonusCpLicenseRefreshFailure  NOTIFICATION-TYPE
+        OBJECTS     {
+                     sonusAlarmNodeID,
+                     sonusAlarmLevel,
+                     sonusAlarmSequenceId,
+                     sonusAlarmTime,
+                     sonusAlarmDescription,
+                     sonusCpSystemServerName,
+                     sonusCpLicenseFeatureName,
+                     sonusCpCountReleased,
+                     sonusCpLicenseErrorReason
+                     }
+        STATUS     deprecated 
+        DESCRIPTION
+            "This trap indicates that the requested number of licenses were released because they could not be refreshed"
+    
+        ::= { sonusCpLicenseMIBNotificationsPrefix  12}
+
+sonusCpLicenseServerError  NOTIFICATION-TYPE
+        OBJECTS     {
+                     sonusAlarmNodeID,
+                     sonusAlarmLevel,
+                     sonusAlarmSequenceId,
+                     sonusAlarmTime,
+                     sonusAlarmDescription,
+                     sonusCpSystemServerName,
+                     sonusCpLicenseServerName,
+                     sonusCpLicenseServerAddress,
+                     sonusCpLicenseErrorReason
+                     }
+        STATUS     deprecated 
+        DESCRIPTION
+            "This trap indicates that a request to the given license server failed"
+    
+        ::= { sonusCpLicenseMIBNotificationsPrefix  13}
+
+sonusCpLicenseServerErrorCleared  NOTIFICATION-TYPE
+        OBJECTS     {
+                     sonusAlarmNodeID,
+                     sonusAlarmLevel,
+                     sonusAlarmSequenceId,
+                     sonusAlarmTime,
+                     sonusAlarmDescription,
+                     sonusCpSystemServerName,
+                     sonusCpLicenseServerName,
+                     sonusCpLicenseServerAddress
+                     }
+        STATUS     deprecated 
+        DESCRIPTION
+            "This trap indicates that a request to the given license server was successful"
+    
+        ::= { sonusCpLicenseMIBNotificationsPrefix  14}
+
+sonusCpLicenseExpireSoonWarningNotification NOTIFICATION-TYPE
+        OBJECTS     {
+                     sonusAlarmNodeID,
+                     sonusAlarmLevel,
+                     sonusAlarmSequenceId,
+                     sonusAlarmTime,
+                     sonusAlarmDescription,
+                     sonusCpLicenseFeatureName
+                    }
+        STATUS      current
+        DESCRIPTION
+            "This trap indicates that this feature will expire in 90, 60 or 30 days."
+        ::= { sonusCpLicenseMIBNotificationsPrefix 15 }
+
+sonusCpLicenseExpireWarningNotification NOTIFICATION-TYPE
+        OBJECTS     {
+                     sonusAlarmNodeID,
+                     sonusAlarmLevel,
+                     sonusAlarmSequenceId,
+                     sonusAlarmTime,
+                     sonusAlarmDescription,
+                     sonusCpLicenseFeatureName
+                    }
+        STATUS      current
+        DESCRIPTION
+            "This trap indicates that license budle will expire in 7 days, 1 day, 8 hours or 0 hours"
+        ::= { sonusCpLicenseMIBNotificationsPrefix 16 }
+
+sonusInvalidFingerPrintNotification NOTIFICATION-TYPE 
+        OBJECTS     { 
+                         sonusAlarmNodeID, 
+                         sonusAlarmLevel, 
+                         sonusAlarmSequenceId, 
+                         sonusAlarmTime, 
+                         sonusAlarmDescription, 
+                         sonusCpLicenseId, 
+                         sonusCpLicenseViolationDescString 
+                        } 
+        STATUS      current 
+        DESCRIPTION 
+                "This trap indicates attempted to install license with invalid finger print" 
+       ::= { sonusCpLicenseMIBNotificationsPrefix 17 } 
+
+sonusCpLicenseFingerprintMismatch NOTIFICATION-TYPE
+        OBJECTS     {
+                     sonusAlarmNodeID,
+                     sonusAlarmLevel,
+                     sonusAlarmSequenceId,
+                     sonusAlarmTime,
+                     sonusAlarmDescription,
+                     sonusCpSystemServerName,
+                     sonusCpLicenseBundleName
+                    }
+        STATUS      current
+        DESCRIPTION
+            "This trap indicates that the none of the fingerprints contained in the bundle match the fingerprint of the current host"
+        ::= { sonusCpLicenseMIBNotificationsPrefix 18 }
+
+
+sonusCpLicenseBundleInvalidUsageCount NOTIFICATION-TYPE
+        OBJECTS     {
+                     sonusAlarmNodeID,
+                     sonusAlarmLevel,
+                     sonusAlarmSequenceId,
+                     sonusAlarmTime,
+                     sonusAlarmDescription,
+                     sonusCpLicenseId,
+                     sonusCpLicenseFeatureName
+                    }
+        STATUS      current
+        DESCRIPTION
+            "This trap indicates that the usage limit for a counted license has an invalid count of 0"
+        ::= { sonusCpLicenseMIBNotificationsPrefix 19 }
+
+sonusCpLicenseGraceExpired NOTIFICATION-TYPE
+    OBJECTS     {
+        sonusAlarmNodeID,
+        sonusAlarmLevel,
+        sonusAlarmSequenceId,
+        sonusAlarmTime,
+        sonusAlarmDescription
+    }
+    STATUS        current
+    DESCRIPTION
+        ""
+    ::= { sonusCpLicenseMIBNotificationsPrefix 20 }
+
+sonusCpLicenseGraceMode NOTIFICATION-TYPE
+    OBJECTS     {
+        sonusAlarmNodeID,
+        sonusAlarmLevel,
+        sonusAlarmSequenceId,
+        sonusAlarmTime,
+        sonusAlarmDescription
+    }
+    STATUS        current
+    DESCRIPTION
+        "The provisioned servers are not reachable so licenses have trasitioned to grace mode."
+    ::= { sonusCpLicenseMIBNotificationsPrefix 21 }
+
+sonusCpLicenseGraceModeCleared NOTIFICATION-TYPE
+    OBJECTS     {
+        sonusAlarmNodeID,
+        sonusAlarmLevel,
+        sonusAlarmSequenceId,
+        sonusAlarmTime,
+        sonusAlarmDescription,
+        sonusCpLicenseServerName,
+       sonusCpLicenseServerAddress 
+    }
+    STATUS        current
+    DESCRIPTION
+        "Provisioned License Server is rechanble,so grace mode is cleared"
+    ::= { sonusCpLicenseMIBNotificationsPrefix 22 }
+
+sonusCpLicenseServerUnreachable NOTIFICATION-TYPE
+    OBJECTS     {
+        sonusAlarmNodeID,
+        sonusAlarmLevel,
+        sonusAlarmSequenceId,
+        sonusAlarmTime,
+        sonusAlarmDescription,
+        sonusCpLicenseServerName,
+       sonusCpLicenseServerAddress 
+    }
+    STATUS        current
+    DESCRIPTION
+        "The provisioned license server cannot be reached."
+    ::= { sonusCpLicenseMIBNotificationsPrefix 23 }
+
+sonusCpLicenseServerReachable NOTIFICATION-TYPE
+    OBJECTS     {
+        sonusAlarmNodeID,
+        sonusAlarmLevel,
+        sonusAlarmSequenceId,
+        sonusAlarmTime,
+        sonusAlarmDescription,
+        sonusCpLicenseServerName,
+       sonusCpLicenseServerAddress 
+    }
+    STATUS        current
+    DESCRIPTION
+        "Provisioned License Server is reachanble."
+    ::= { sonusCpLicenseMIBNotificationsPrefix 24 }
+
+
+sonusCpLicenseGraceExpiring NOTIFICATION-TYPE
+    OBJECTS     {
+        sonusAlarmNodeID,
+        sonusAlarmLevel,
+        sonusAlarmSequenceId,
+        sonusAlarmTime,
+        sonusAlarmDescription
+    }
+    STATUS        current
+    DESCRIPTION
+        "This trap indicates that license budle will expire in 30/25/20/15/10 days.Then each day until 1 day.
+        Then hourly until expiry."
+    ::= { sonusCpLicenseMIBNotificationsPrefix 25 }
+
+
+sonusCpLicenseServerNameResolutionError  NOTIFICATION-TYPE
+    OBJECTS     {
+        sonusAlarmNodeID,
+            sonusAlarmLevel,
+            sonusAlarmSequenceId,
+            sonusAlarmTime,
+            sonusAlarmDescription,
+            sonusCpSystemServerName,
+            sonusCpLicenseServerName,
+            sonusCpLicenseServerAddress
+    }
+    STATUS      current
+    DESCRIPTION
+            "This trap indicates that a the address specified in the serverName\
+            field could not be resolved to an ip address"
+    ::= { sonusCpLicenseMIBNotificationsPrefix  26}
+
+sonusCpLicenseFailsafeGraceMode NOTIFICATION-TYPE
+    OBJECTS     {
+        sonusAlarmNodeID,
+        sonusAlarmLevel,
+        sonusAlarmSequenceId,
+        sonusAlarmTime,
+        sonusAlarmDescription
+    }
+    STATUS        obsolete
+    DESCRIPTION
+        "If the provisioned servers are sending error response, license trasitioned to fail safe grace mode."
+    ::= { sonusCpLicenseMIBNotificationsPrefix 27 }
+
+sonusCpLicenseFailsafeGraceModeCleared NOTIFICATION-TYPE
+    OBJECTS     {
+        sonusAlarmNodeID,
+        sonusAlarmLevel,
+        sonusAlarmSequenceId,
+        sonusAlarmTime,
+        sonusAlarmDescription,
+        sonusCpLicenseServerName,
+       sonusCpLicenseServerAddress
+    }
+    STATUS        obsolete
+    DESCRIPTION
+        "Provisioned License Server is stopped sending error response,so fail safe grace mode is cleared"
+    ::= { sonusCpLicenseMIBNotificationsPrefix 28 }
+
+sonusCpLicenseFailsafeGraceExpiring NOTIFICATION-TYPE
+    OBJECTS     {
+        sonusAlarmNodeID,
+        sonusAlarmLevel,
+        sonusAlarmSequenceId,
+        sonusAlarmTime,
+        sonusAlarmDescription
+    }
+    STATUS        obsolete
+    DESCRIPTION
+        "This trap indicates that license budle will expire in 30/25/20/15/10 days.Then each day until 1 day.
+        Then hourly until expiry."
+    ::= { sonusCpLicenseMIBNotificationsPrefix 29 }
+
+sonusCpLicenseFailsafeGraceExpired NOTIFICATION-TYPE
+    OBJECTS     {
+        sonusAlarmNodeID,
+        sonusAlarmLevel,
+        sonusAlarmSequenceId,
+        sonusAlarmTime,
+        sonusAlarmDescription
+    }
+    STATUS        obsolete
+    DESCRIPTION
+        ""
+    ::= { sonusCpLicenseMIBNotificationsPrefix 30 }
+
+sonusCpNiceRecLicenseExpireSoonWarningNotification NOTIFICATION-TYPE
+        OBJECTS     {
+                     sonusAlarmNodeID,
+                     sonusAlarmLevel,
+                     sonusAlarmSequenceId,
+                     sonusAlarmTime,
+                     sonusAlarmDescription
+                    }
+        STATUS      current
+        DESCRIPTION
+            "This trap indicates that this NiceRec feature will expire in 90, 60 or 30 days."
+        ::= { sonusCpLicenseMIBNotificationsPrefix 31 }
+
+sonusCpNiceRecLicenseExpireWarningNotification NOTIFICATION-TYPE
+        OBJECTS     {
+                     sonusAlarmNodeID,
+                     sonusAlarmLevel,
+                     sonusAlarmSequenceId,
+                     sonusAlarmTime,
+                     sonusAlarmDescription
+                    }
+        STATUS      current
+        DESCRIPTION
+            "This trap indicates that NiceRec license will expire in 7 days, 1 day, 8 hours or 0 hours"
+        ::= { sonusCpLicenseMIBNotificationsPrefix 32 }
+
+
+    -- ADD NEW TRAPS HERE FOR THIS GROUP
+
+sonusCpLicenseViolationDescString OBJECT-TYPE
+        SYNTAX      DisplayString
+        MAX-ACCESS  read-only
+        STATUS      current
+        DESCRIPTION
+            "This string describes details of any attempted violation of license integrity"
+        ::= { sonusCpLicenseMIBNotificationsObjects 1 }
+
+sonusCpLicenseId OBJECT-TYPE
+	SYNTAX  DisplayString
+        MAX-ACCESS  read-only
+        STATUS      current
+        DESCRIPTION
+            "The license Id"
+        ::= { sonusCpLicenseMIBNotificationsObjects 2 }
+
+sonusCpLicenseFeatureName OBJECT-TYPE
+        SYNTAX      DisplayString
+        MAX-ACCESS  read-only
+        STATUS      current
+        DESCRIPTION
+            "The license feature string"
+        ::= { sonusCpLicenseMIBNotificationsObjects 3 }
+
+
+sonusSessConfigLicenses OBJECT-TYPE
+    SYNTAX      Integer32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "
+          The number of configured licenses
+        "
+    ::= { sonusCpLicenseMIBNotificationsObjects 4 }
+
+sonusSessSystemLimit OBJECT-TYPE
+    SYNTAX      Integer32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "
+          The system limit of maximum sessions
+        "
+    ::= { sonusCpLicenseMIBNotificationsObjects 5 }
+
+
+sonusCpCountRequested  OBJECT-TYPE
+    SYNTAX      Integer32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "
+          The number of licenses requested
+        "
+    ::= { sonusCpLicenseMIBNotificationsObjects 6 }
+
+sonusCpCountAcquired  OBJECT-TYPE
+    SYNTAX      Integer32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "
+          The number of licenses acquired
+        "
+    ::= { sonusCpLicenseMIBNotificationsObjects 7 }
+
+sonusCpLicenseErrorReason  OBJECT-TYPE
+    SYNTAX      DisplayString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "
+          The system limit of maximum sessions
+        "
+    ::= { sonusCpLicenseMIBNotificationsObjects 8 }
+
+sonusCpCountReleased  OBJECT-TYPE
+    SYNTAX      Integer32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "
+          The number of licenses released
+        "
+    ::= { sonusCpLicenseMIBNotificationsObjects 9 }
+
+sonusCpCountRemaining  OBJECT-TYPE
+    SYNTAX      Integer32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "
+          The number of licenses still held
+        "
+    ::= { sonusCpLicenseMIBNotificationsObjects 10 }
+
+sonusCpLicenseServerName  OBJECT-TYPE
+    SYNTAX      DisplayString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "
+          The license server name
+        "
+    ::= { sonusCpLicenseMIBNotificationsObjects 11 }
+
+sonusCpLicenseServerAddress  OBJECT-TYPE
+    SYNTAX      DisplayString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "
+          The license server address
+        "
+    ::= { sonusCpLicenseMIBNotificationsObjects 12 }
+
+sonusCpLicenseBundleName  OBJECT-TYPE
+    SYNTAX      DisplayString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "
+          The bundle name
+        "
+    ::= { sonusCpLicenseMIBNotificationsObjects 13 }
+
+
+--
+--  From sonusCdrServer.mib
+--
+
+sonusCpCdrServerMIBNotifications OBJECT IDENTIFIER ::= { sonusCpBaseTraps 9}
+sonusCpCdrServerMIBNotificationsPrefix  OBJECT IDENTIFIER ::= { sonusCpCdrServerMIBNotifications 0 }
+sonusCpCdrServerMIBNotificationsObjects OBJECT IDENTIFIER ::= { sonusCpCdrServerMIBNotifications 1 }
+
+sonusCpCdrServerTransferFailNotification NOTIFICATION-TYPE
+        OBJECTS     {
+                     sonusAlarmNodeID,
+                     sonusAlarmLevel,
+                     sonusAlarmSequenceId,
+                     sonusAlarmTime,
+                     sonusAlarmDescription,
+                     sonusCpCdrServerType,
+                     sonusCpCdrServerIpAddress
+                    }
+        STATUS      current
+        DESCRIPTION
+            "CDR transfer failure. This notification is flow controlled and
+             will not occur more often than once every ten seconds."
+        ::= { sonusCpCdrServerMIBNotificationsPrefix 1 }
+
+sonusCpCdrServerSwtichoverNotification NOTIFICATION-TYPE
+        OBJECTS     {
+                     sonusAlarmNodeID,
+                     sonusAlarmLevel,
+                     sonusAlarmSequenceId,
+                     sonusAlarmTime,
+                     sonusAlarmDescription,
+                     sonusCpCdrServerType,
+                     sonusCpCdrServerIpAddress
+                    }
+        STATUS      current
+        DESCRIPTION
+            "CDR server is switching to alternate server. This notification is flow controlled
+             and will not occur more often than once every ten seconds."
+        ::= { sonusCpCdrServerMIBNotificationsPrefix 2 }
+
+sonusCpCdrServerNewXferPendingNotification NOTIFICATION-TYPE
+        OBJECTS     {
+                     sonusAlarmNodeID,
+                     sonusAlarmLevel,
+                     sonusAlarmSequenceId,
+                     sonusAlarmTime,
+                     sonusAlarmDescription,
+                     sonusCpCdrServerType,
+                     sonusCpCdrServerIpAddress
+                    }
+        STATUS      current
+        DESCRIPTION
+            "CDR transfer added to pending queue"
+        ::= { sonusCpCdrServerMIBNotificationsPrefix 3 }
+
+sonusCpCdrServerPendingQueueEmptiedNotification NOTIFICATION-TYPE
+        OBJECTS     {
+                     sonusAlarmNodeID,
+                     sonusAlarmLevel,
+                     sonusAlarmSequenceId,
+                     sonusAlarmTime,
+                     sonusAlarmDescription,
+                     sonusCpCdrServerType,
+                     sonusCpCdrServerIpAddress
+                    }
+        STATUS      current
+        DESCRIPTION
+            "CDR server all pending transfers have completed"
+        ::= { sonusCpCdrServerMIBNotificationsPrefix 4 }
+
+    -- ADD NEW TRAPS HERE FOR THIS GROUP
+
+sonusCpCdrServerType OBJECT-TYPE
+            SYNTAX      DisplayString
+            MAX-ACCESS  read-only
+            STATUS      current
+            DESCRIPTION
+                "The CDR server that is currently active (primary or secondary)."
+            ::= { sonusCpCdrServerMIBNotificationsObjects 1 }
+
+sonusCpCdrServerIpAddress OBJECT-TYPE
+            SYNTAX      DisplayString
+            MAX-ACCESS  read-only
+            STATUS      current
+            DESCRIPTION
+                "The IP address of this NTP Peer. "
+            ::= { sonusCpCdrServerMIBNotificationsObjects 2 }
+
+--
+--  Virtual Machine traps
+--
+
+sonusCpVmMIBNotifications OBJECT IDENTIFIER ::= { sonusCpBaseTraps 10}
+sonusCpVmMIBNotificationsPrefix  OBJECT IDENTIFIER ::= { sonusCpVmMIBNotifications 0 }
+sonusCpVmMIBNotificationsObjects OBJECT IDENTIFIER ::= { sonusCpVmMIBNotifications 1 }
+
+sonusCpVmInvalidLicenseNotification NOTIFICATION-TYPE
+        OBJECTS     {
+                     sonusAlarmNodeID,
+                     sonusAlarmLevel,
+                     sonusAlarmSequenceId,
+                     sonusAlarmTime,
+                     sonusAlarmDescription,
+                     sonusCpVmAppName,
+                     sonusCpVmInstalledConfiguration,
+                     sonusCpVmConfigLicense
+                    }
+        STATUS      deprecated
+        DESCRIPTION
+            "The license for the virtual machine application is invalid."
+        ::= { sonusCpVmMIBNotificationsPrefix 1 }
+
+sonusCpVmMatchLicenseNotification NOTIFICATION-TYPE
+        OBJECTS     {
+                     sonusAlarmNodeID,
+                     sonusAlarmLevel,
+                     sonusAlarmSequenceId,
+                     sonusAlarmTime,
+                     sonusAlarmDescription,
+                     sonusCpVmAppName,
+                     sonusCpVmConfigLicense
+                    }
+        STATUS     deprecated 
+        DESCRIPTION
+            "The license for the virtual machine application is valid."
+        ::= { sonusCpVmMIBNotificationsPrefix 2 }
+
+sonusCpVmAppUpNotification NOTIFICATION-TYPE
+        OBJECTS     {
+                     sonusAlarmNodeID,
+                     sonusAlarmLevel,
+                     sonusAlarmSequenceId,
+                     sonusAlarmTime,
+                     sonusAlarmDescription,
+                     sonusCpVmAppName,
+                     sonusCpVmServerName
+                    }
+        STATUS      deprecated 
+        DESCRIPTION
+            "The virtual machine application is running."
+        ::= { sonusCpVmMIBNotificationsPrefix 3 }
+
+sonusCpVmAppDownNotification NOTIFICATION-TYPE
+        OBJECTS     {
+                     sonusAlarmNodeID,
+                     sonusAlarmLevel,
+                     sonusAlarmSequenceId,
+                     sonusAlarmTime,
+                     sonusAlarmDescription,
+                     sonusCpVmAppName,
+                     sonusCpVmServerName,
+                     sonusCpVmReason
+                    }
+        STATUS      deprecated 
+        DESCRIPTION
+            "The virtual machine application is not running."
+        ::= { sonusCpVmMIBNotificationsPrefix 4 }
+
+	sonusCpVmUpgradeInitiatedNotification NOTIFICATION-TYPE
+		OBJECTS		{ 
+			     	  sonusAlarmNodeID,
+					  sonusAlarmLevel,
+				      sonusAlarmSequenceId,
+                      sonusAlarmTime,
+                      sonusAlarmDescription,
+                      sonusCpVmAppName,
+                      sonusCpVmServerName
+					}
+    STATUS       deprecated
+    DESCRIPTION
+                "This trap indicates that a VM software upgrade 
+                 has been initiated."
+    ::= { sonusCpVmMIBNotificationsPrefix 5 }
+
+	sonusCpVmUpgradeTerminatedNotification NOTIFICATION-TYPE
+		OBJECTS		{
+			     	  sonusAlarmNodeID,
+					  sonusAlarmLevel,
+				      sonusAlarmSequenceId,
+                      sonusAlarmTime,
+                      sonusAlarmDescription,
+                      sonusCpVmAppName,
+                      sonusCpVmServerName,
+					  sonusCpVmReason
+					}
+    STATUS       deprecated
+    DESCRIPTION
+                "This trap indicates that a VM software upgrade has terminated 
+                 for the specified reason."
+    ::= { sonusCpVmMIBNotificationsPrefix 6 }
+
+	sonusCpVmUpgradeSucceededNotification NOTIFICATION-TYPE
+		OBJECTS		{
+			     	  sonusAlarmNodeID,
+					  sonusAlarmLevel,
+				      sonusAlarmSequenceId,
+                      sonusAlarmTime,
+                      sonusAlarmDescription,
+                      sonusCpVmAppName,
+                      sonusCpVmServerName,
+					  sonusCpVmReason
+					}
+    STATUS       deprecated
+    DESCRIPTION
+                "This trap indicates that a VM software upgrade has succeeded
+                 for the specified reason."
+    ::= { sonusCpVmMIBNotificationsPrefix 7 }
+
+	sonusCpVmUpgradeRevertNotification NOTIFICATION-TYPE
+		OBJECTS		{
+			     	  sonusAlarmNodeID,
+					  sonusAlarmLevel,
+				      sonusAlarmSequenceId,
+                      sonusAlarmTime,
+                      sonusAlarmDescription,
+                      sonusCpVmAppName
+					}
+    STATUS       deprecated
+    DESCRIPTION
+                "This trap indicates that a VM Software Upgrade
+                 is reverting to the previous release."
+    ::= { sonusCpVmMIBNotificationsPrefix 8 }
+
+    sonusCpVmSyncCompletedNotification NOTIFICATION-TYPE
+        OBJECTS     {
+                     sonusAlarmNodeID,
+                     sonusAlarmLevel,
+                     sonusAlarmSequenceId,
+                     sonusAlarmTime,
+                     sonusAlarmDescription,
+                     sonusCpVmAppName,
+                     sonusCpVmId
+                    }
+        STATUS      deprecated
+        DESCRIPTION
+            "The virtual machine application data sync is completed."
+        ::= { sonusCpVmMIBNotificationsPrefix 9 }
+
+    sonusCpVmSyncInprogressNotification NOTIFICATION-TYPE
+        OBJECTS     {
+                     sonusAlarmNodeID,
+                     sonusAlarmLevel,
+                     sonusAlarmSequenceId,
+                     sonusAlarmTime,
+                     sonusAlarmDescription,
+                     sonusCpVmAppName,
+                     sonusCpVmId
+                    }
+        STATUS      deprecated
+        DESCRIPTION
+            "The virtual machine application data sync is in progress."
+        ::= { sonusCpVmMIBNotificationsPrefix 10 }
+
+	sonusCpVmRedundancyModeNotification NOTIFICATION-TYPE
+		OBJECTS		{
+			     	  sonusAlarmNodeID,
+					  sonusAlarmLevel,
+				      sonusAlarmSequenceId,
+                      sonusAlarmTime,
+                      sonusAlarmDescription,
+                      sonusCpVmAppName,
+                      sonusCpVmId,
+                      sonusCpVmRedundancyMode
+					}
+    STATUS       current
+    DESCRIPTION
+                "This trap indicates a VM Redundancy Mode"
+    ::= { sonusCpVmMIBNotificationsPrefix 11 }
+
+    -- ADD NEW TRAPS HERE FOR THIS GROUP
+
+sonusCpVmAppName OBJECT-TYPE
+            SYNTAX      DisplayString
+            MAX-ACCESS  read-only
+            STATUS      deprecated
+            DESCRIPTION
+                "The name of the virtual machine application."
+            ::= { sonusCpVmMIBNotificationsObjects 1 }
+
+sonusCpVmInstalledConfiguration OBJECT-TYPE
+            SYNTAX      INTEGER {none(1), epxMaster(2), epxSlave(3)}
+            MAX-ACCESS  read-only
+            STATUS      deprecated
+            DESCRIPTION
+                "The installed configuration of the virtual machine application."
+            ::= { sonusCpVmMIBNotificationsObjects 2 }
+
+sonusCpVmConfigLicense OBJECT-TYPE
+            SYNTAX      INTEGER {none(1), epxMaster(2), epxSlave(3)}
+            MAX-ACCESS  read-only
+            STATUS      deprecated
+            DESCRIPTION
+                "The configured license for the virtual machine application."
+            ::= { sonusCpVmMIBNotificationsObjects 3 }
+
+sonusCpVmReason OBJECT-TYPE
+            SYNTAX      DisplayString
+            MAX-ACCESS  read-only
+            STATUS      deprecated
+            DESCRIPTION
+                "The reason the virtual machine application in not running."
+            ::= { sonusCpVmMIBNotificationsObjects 4 }
+
+sonusCpVmServerName OBJECT-TYPE
+            SYNTAX      DisplayString
+            MAX-ACCESS  read-only
+            STATUS      deprecated
+            DESCRIPTION "
+                    The unique identifier assigned to this card or server.
+                  "
+            ::= {sonusCpVmMIBNotificationsObjects  5 }
+
+sonusCpVmId OBJECT-TYPE
+            SYNTAX      INTEGER (1..3)
+            MAX-ACCESS  read-only
+            STATUS      deprecated
+            DESCRIPTION
+                "Instance ID of virtual machine application."
+            ::= { sonusCpVmMIBNotificationsObjects 6 }
+
+sonusCpVmRedundancyMode OBJECT-TYPE
+            SYNTAX      INTEGER {standbyInactive(0), standbyActive(1)}
+            MAX-ACCESS  read-only
+            STATUS      deprecated
+            DESCRIPTION
+                "Redundancy mode of standby virtual machine application."
+            ::= { sonusCpVmMIBNotificationsObjects 7 }
+
+
+--
+--  For FIPS 140-2
+--
+
+sonusFipsMIBNotifications OBJECT IDENTIFIER ::= { sonusCpBaseTraps 11 }
+sonusFipsMIBNotificationsPrefix  OBJECT IDENTIFIER ::= { sonusFipsMIBNotifications 0 }
+sonusFipsMIBNotificationsObjects OBJECT IDENTIFIER ::= { sonusFipsMIBNotifications 1 }
+
+sonusSshHostKeyZeroizedNotification NOTIFICATION-TYPE
+        OBJECTS     {
+                     sonusAlarmNodeID,
+                     sonusAlarmLevel,
+                     sonusAlarmSequenceId,
+                     sonusAlarmTime,
+                     sonusAlarmDescription
+                    }
+        STATUS      current
+        DESCRIPTION
+            "This trap indicates SSH host keys are zeroized."
+        ::= { sonusFipsMIBNotificationsPrefix 1 }
+
+sonusSshHostKeyRegeneratedNotification NOTIFICATION-TYPE
+        OBJECTS     {
+                     sonusAlarmNodeID,
+                     sonusAlarmLevel,
+                     sonusAlarmSequenceId,
+                     sonusAlarmTime,
+                     sonusAlarmDescription
+                    }
+        STATUS      current
+        DESCRIPTION
+            "This trap indicates SSH host keys are regenerated."
+        ::= { sonusFipsMIBNotificationsPrefix 2 }
+
+sonusCdbEncryptionKeyZeroizedNotification NOTIFICATION-TYPE
+        OBJECTS     {
+                     sonusAlarmNodeID,
+                     sonusAlarmLevel,
+                     sonusAlarmSequenceId,
+                     sonusAlarmTime,
+                     sonusAlarmDescription
+                    }
+        STATUS      current
+        DESCRIPTION
+            "This trap indicates CDB encryption keys are zeroized."
+        ::= { sonusFipsMIBNotificationsPrefix 3 }
+
+sonusCdbEncryptionKeyRegeneratedNotification NOTIFICATION-TYPE
+        OBJECTS     {
+                     sonusAlarmNodeID,
+                     sonusAlarmLevel,
+                     sonusAlarmSequenceId,
+                     sonusAlarmTime,
+                     sonusAlarmDescription
+                    }
+        STATUS      current
+        DESCRIPTION
+            "This trap indicates CDB encryption keys are regenerated."
+        ::= { sonusFipsMIBNotificationsPrefix 4 }
+
+sonusOpenSSLCRNGTestFailedNotification NOTIFICATION-TYPE
+        OBJECTS     {
+                     sonusAlarmNodeID,
+                     sonusAlarmLevel,
+                     sonusAlarmSequenceId,
+                     sonusAlarmTime,
+                     sonusAlarmDescription,
+                     sonusFipsNotificationDetails
+                    }
+        STATUS      current
+        DESCRIPTION
+            "This trap indicates OpenSSL Continuous Random Number Generator Test has failed."
+        ::= { sonusFipsMIBNotificationsPrefix 5 }
+
+sonusOpenSSLPairwiseConsistencyTestFailedNotification NOTIFICATION-TYPE
+        OBJECTS     {
+                     sonusAlarmNodeID,
+                     sonusAlarmLevel,
+                     sonusAlarmSequenceId,
+                     sonusAlarmTime,
+                     sonusAlarmDescription,
+                     sonusFipsNotificationDetails
+                    }
+        STATUS      current
+        DESCRIPTION
+            "This trap indicates OpenSSL Pairwise Consistency Test has failed."
+        ::= { sonusFipsMIBNotificationsPrefix 6 }
+
+sonusSoftwareLoadTestFailedNotification NOTIFICATION-TYPE
+        OBJECTS     {
+                     sonusAlarmNodeID,
+                     sonusAlarmLevel,
+                     sonusAlarmSequenceId,
+                     sonusAlarmTime,
+                     sonusAlarmDescription,
+                     sonusFipsNotificationDetails
+                    }
+        STATUS      current
+        DESCRIPTION
+            "This trap indicates Package Integrity Test has failed."
+        ::= { sonusFipsMIBNotificationsPrefix 7 }
+
+
+
+sonusFipsNotificationDetails OBJECT-TYPE
+            SYNTAX      DisplayString
+            MAX-ACCESS  read-only
+            STATUS      current
+            DESCRIPTION
+                "Detailed information about the FIPS related alarm. "
+            ::= { sonusFipsMIBNotificationsObjects 1 }
+
+--
+--  For JITC SystemSecurity 
+--
+
+sonusSystemSecurityMIBNotifications OBJECT IDENTIFIER ::= { sonusCpBaseTraps 12 }
+sonusSystemSecurityMIBNotificationsPrefix  OBJECT IDENTIFIER ::= { sonusSystemSecurityMIBNotifications 0 }
+sonusSystemSecurityMIBNotificationsObjects OBJECT IDENTIFIER ::= { sonusSystemSecurityMIBNotifications 1 }
+
+sonusSystemSecurityReportNotification NOTIFICATION-TYPE
+	OBJECTS     {
+                     sonusAlarmNodeID,
+                     sonusAlarmLevel,
+                     sonusAlarmSequenceId,
+                     sonusAlarmTime,
+                     sonusAlarmDescription,
+                     sonusSystemSecurityNotificationDetails
+                    }
+        STATUS      current
+        DESCRIPTION
+            "This trap indicates major System Security events. "
+        ::= { sonusSystemSecurityMIBNotificationsPrefix 1 }
+
+sonusSystemSecurityEthernetClearNotification NOTIFICATION-TYPE
+	OBJECTS     {
+                    sonusAlarmNodeID,
+                    sonusAlarmLevel,
+                    sonusAlarmSequenceId,
+                    sonusAlarmTime,
+                    sonusAlarmDescription,
+                    sonusEthErrorType,
+                    sonusEthInterfaceType
+                }
+    STATUS      current
+    DESCRIPTION
+        "This trap indicates that Ehternet Errors are below the threshold level"
+    ::= { sonusSystemSecurityMIBNotificationsPrefix 2 }
+
+sonusSystemSecurityEthernetErrorNotification NOTIFICATION-TYPE
+	OBJECTS     {
+                    sonusAlarmNodeID,
+                    sonusAlarmLevel,
+                    sonusAlarmSequenceId,
+                    sonusAlarmTime,
+                    sonusAlarmDescription,
+                    sonusEthErrorType,
+                    sonusEthInterfaceType
+                }
+    STATUS      current
+    DESCRIPTION
+        "This trap indicates high error rate on ethernet ports. "
+    ::= { sonusSystemSecurityMIBNotificationsPrefix 3 }
+
+sonusSystemSecurityMediaErrClearNotification NOTIFICATION-TYPE
+    OBJECTS     {
+                    sonusAlarmNodeID,
+                    sonusAlarmLevel,
+                    sonusAlarmSequenceId,
+                    sonusAlarmTime,
+                    sonusAlarmDescription,
+                    sonusMediaErrType
+                }
+    STATUS      current
+    DESCRIPTION
+        "This trap indicates that Media Errors are below the threshold level"
+    ::= { sonusSystemSecurityMIBNotificationsPrefix 4 }
+    
+sonusSystemSecurityMediaErrorNotification  NOTIFICATION-TYPE
+    OBJECTS     {
+                    sonusAlarmNodeID,
+                    sonusAlarmLevel,
+                    sonusAlarmSequenceId,
+                    sonusAlarmTime,
+                    sonusAlarmDescription,
+                    sonusMediaErrType
+                }
+    STATUS      current
+    DESCRIPTION
+        "This trap indicates high error rate of NP Media Errors. "
+    ::= { sonusSystemSecurityMIBNotificationsPrefix 5 }
+
+sonusSystemSecurityAccountDisabledNotification  NOTIFICATION-TYPE
+    OBJECTS     {
+                    sonusAlarmNodeID,
+                    sonusAlarmLevel,
+                    sonusAlarmSequenceId,
+                    sonusAlarmTime,
+                    sonusAlarmDescription,
+                    sonusUserName
+                }
+    STATUS      current
+    DESCRIPTION
+        "This trap indicates that the account has been automatically disabled as it has not been used during the accountAgingPeriod. "
+    ::= { sonusSystemSecurityMIBNotificationsPrefix 6 }
+
+sonusSystemSecurityAccountRemovedNotification  NOTIFICATION-TYPE
+    OBJECTS     {
+                    sonusAlarmNodeID,
+                    sonusAlarmLevel,
+                    sonusAlarmSequenceId,
+                    sonusAlarmTime,
+                    sonusAlarmDescription,
+                    sonusUserName
+                }
+    STATUS      current
+    DESCRIPTION
+        "This trap indicates that the account has been automatically removed as it has not been used during the accountRemovalPeriod. "
+    ::= { sonusSystemSecurityMIBNotificationsPrefix 7 }
+
+sonusSystemSecurityAccountCreatedNotification  NOTIFICATION-TYPE
+    OBJECTS     {
+                    sonusAlarmNodeID,
+                    sonusAlarmLevel,
+                    sonusAlarmSequenceId,
+                    sonusAlarmTime,
+                    sonusAlarmDescription,
+                    sonusUserName
+                }
+    STATUS      current
+    DESCRIPTION
+        "This trap indicates that an account has been created. "
+    ::= { sonusSystemSecurityMIBNotificationsPrefix 8 }
+
+sonusSystemSecurityAccountManuallyDeletedNotification  NOTIFICATION-TYPE
+    OBJECTS     {
+                    sonusAlarmNodeID,
+                    sonusAlarmLevel,
+                    sonusAlarmSequenceId,
+                    sonusAlarmTime,
+                    sonusAlarmDescription,
+                    sonusUserName
+                }
+    STATUS      current
+    DESCRIPTION
+        "This trap indicates that an account has been manually deleted. "
+    ::= { sonusSystemSecurityMIBNotificationsPrefix 9 }
+
+sonusSystemSecurityAccountNewGroupNotification  NOTIFICATION-TYPE
+    OBJECTS     {
+                    sonusAlarmNodeID,
+                    sonusAlarmLevel,
+                    sonusAlarmSequenceId,
+                    sonusAlarmTime,
+                    sonusAlarmDescription,
+                    sonusUserName,
+                    sonusGroupName
+                }
+    STATUS      current
+    DESCRIPTION
+        "This trap indicates that an account has been assigned to a group. "
+    ::= { sonusSystemSecurityMIBNotificationsPrefix 10 }
+
+sonusSystemSecurityAccountReEnabled  NOTIFICATION-TYPE
+    OBJECTS     {
+                    sonusAlarmNodeID,
+                    sonusAlarmLevel,
+                    sonusAlarmSequenceId,
+                    sonusAlarmTime,
+                    sonusAlarmDescription,
+                    sonusUserName
+                }
+    STATUS      current
+    DESCRIPTION
+        "This trap indicates that an account has been enabled after being disabled. "
+    ::= { sonusSystemSecurityMIBNotificationsPrefix 11 }
+
+sonusSystemSecurityOsAccountReEnabled  NOTIFICATION-TYPE
+    OBJECTS     {
+                    sonusAlarmNodeID,
+                    sonusAlarmLevel,
+                    sonusAlarmSequenceId,
+                    sonusAlarmTime,
+                    sonusAlarmDescription,
+                    sonusUserName
+                }
+    STATUS      current
+    DESCRIPTION
+        "This trap indicates that an OS account has been enabled after being disabled. "
+    ::= { sonusSystemSecurityMIBNotificationsPrefix 12 }
+
+
+sonusSystemSecurityAccountSshKeyChange  NOTIFICATION-TYPE
+    OBJECTS     {
+                    sonusAlarmNodeID,
+                    sonusAlarmLevel,
+                    sonusAlarmSequenceId,
+                    sonusAlarmTime,
+                    sonusAlarmDescription,
+                    sonusUserName
+                }
+    STATUS      current
+    DESCRIPTION
+        "This trap indicates that there has been a change to the SSH keys for a user. "
+    ::= { sonusSystemSecurityMIBNotificationsPrefix 13 }
+
+sonusSystemSecurityAccountConfigChange  NOTIFICATION-TYPE
+    OBJECTS     {
+                    sonusAlarmNodeID,
+                    sonusAlarmLevel,
+                    sonusAlarmSequenceId,
+                    sonusAlarmTime,
+                    sonusAlarmDescription,
+                    sonusUserName,
+                    sonusConfigChange
+                }
+    STATUS      current
+    DESCRIPTION
+        "This trap indicates that an account has had its configuration changed. "
+    ::= { sonusSystemSecurityMIBNotificationsPrefix 14 }
+
+sonusSystemSecurityAccountLocked  NOTIFICATION-TYPE
+    OBJECTS     {
+                    sonusAlarmNodeID,
+                    sonusAlarmLevel,
+                    sonusAlarmSequenceId,
+                    sonusAlarmTime,
+                    sonusAlarmDescription,
+                    sonusUserName,
+                    sonusUnlockType
+                }
+    STATUS      current
+    DESCRIPTION
+        "This trap indicates that an account has been locked after a potential brute force attack. "
+    ::= { sonusSystemSecurityMIBNotificationsPrefix 15 }
+
+sonusSystemSecurityOsAccountLocked  NOTIFICATION-TYPE
+    OBJECTS     {
+                    sonusAlarmNodeID,
+                    sonusAlarmLevel,
+                    sonusAlarmSequenceId,
+                    sonusAlarmTime,
+                    sonusAlarmDescription,
+                    sonusUserName,
+                    sonusUnlockType
+                }
+    STATUS      current
+    DESCRIPTION
+        "This trap indicates that an OS account has been locked after a potential brute force attack. "
+    ::= { sonusSystemSecurityMIBNotificationsPrefix 16 }
+
+sonusSystemSecurityLargeConsoleSessionLog  NOTIFICATION-TYPE
+    OBJECTS     {
+                    sonusAlarmNodeID,
+                    sonusAlarmLevel,
+                    sonusAlarmSequenceId,
+                    sonusAlarmTime,
+                    sonusAlarmDescription,
+                    sonusFileName,
+                    sonusUserName,
+                    sonusProcessId
+                }
+    STATUS      current
+    DESCRIPTION
+        "This trap indicates that a Console Session Log file has reached at least 1GB in size."
+    ::= { sonusSystemSecurityMIBNotificationsPrefix 17 }
+
+sonusSystemSecurityNewPrivateHashingKey  NOTIFICATION-TYPE
+    OBJECTS     {
+                    sonusAlarmNodeID,
+                    sonusAlarmLevel,
+                    sonusAlarmSequenceId,
+                    sonusAlarmTime,
+                    sonusAlarmDescription,
+                    sonusKeyName
+                }
+    STATUS      current
+    DESCRIPTION
+        "This trap indicates that a new key will now be used to hash the event log files when they are rolled. "
+    ::= { sonusSystemSecurityMIBNotificationsPrefix 18 }
+
+sonusSystemSecurityAccountAutoReEnabled  NOTIFICATION-TYPE
+    OBJECTS     {
+                    sonusAlarmNodeID,
+                    sonusAlarmLevel,
+                    sonusAlarmSequenceId,
+                    sonusAlarmTime,
+                    sonusAlarmDescription,
+                    sonusUserName
+                }
+    STATUS      current
+    DESCRIPTION
+        "This trap indicates that an account has been auto re-enabled after being disabled due to bad passwords. "
+    ::= { sonusSystemSecurityMIBNotificationsPrefix 19 }
+
+sonusSystemSecurityOsAccountAutoReEnabled  NOTIFICATION-TYPE
+    OBJECTS     {
+                    sonusAlarmNodeID,
+                    sonusAlarmLevel,
+                    sonusAlarmSequenceId,
+                    sonusAlarmTime,
+                    sonusAlarmDescription,
+                    sonusUserName,
+                    sonusSystemServerName
+                }
+    STATUS      current
+    DESCRIPTION
+        "This trap indicates that an OS account has been auto re-enabled after being disabled due to bad passwords. "
+    ::= { sonusSystemSecurityMIBNotificationsPrefix 20 }
+
+sonusSystemSecurityNotificationDetails OBJECT-TYPE
+            SYNTAX      DisplayString
+            MAX-ACCESS  read-only
+            STATUS      current
+            DESCRIPTION
+                "Detailed information about the SystemSecurity related trap. "
+            ::= { sonusSystemSecurityMIBNotificationsObjects 1 }
+
+sonusEthErrorType OBJECT-TYPE
+        SYNTAX      DisplayString
+        MAX-ACCESS  read-only
+        STATUS      current
+        DESCRIPTION
+            "Ethernet Error Type "
+        ::= { sonusSystemSecurityMIBNotificationsObjects 2 }
+
+sonusEthInterfaceType OBJECT-TYPE
+        SYNTAX      DisplayString
+        MAX-ACCESS  read-only
+        STATUS      current
+        DESCRIPTION
+            "Name of Ethernet Interface "
+        ::= { sonusSystemSecurityMIBNotificationsObjects 3 }
+
+sonusMediaErrType OBJECT-TYPE
+            SYNTAX      DisplayString
+            MAX-ACCESS  read-only
+            STATUS      current
+            DESCRIPTION
+                "Detailed information about the NP media error. "
+            ::= { sonusSystemSecurityMIBNotificationsObjects 4 }
+
+sonusUserName OBJECT-TYPE
+            SYNTAX      DisplayString
+            MAX-ACCESS  read-only
+            STATUS      current
+            DESCRIPTION
+                "The user name of the affected account. "
+            ::= { sonusSystemSecurityMIBNotificationsObjects 5 }
+
+sonusGroupName OBJECT-TYPE
+            SYNTAX      DisplayString
+            MAX-ACCESS  read-only
+            STATUS      current
+            DESCRIPTION
+                "The name of a group an account has been assigned to. "
+            ::= { sonusSystemSecurityMIBNotificationsObjects 6 }
+
+sonusConfigChange OBJECT-TYPE
+            SYNTAX      DisplayString
+            MAX-ACCESS  read-only
+            STATUS      current
+            DESCRIPTION
+                "A string that contains the configuration type being changed and the new value it is given"
+            ::= { sonusSystemSecurityMIBNotificationsObjects 7 }
+
+sonusUnlockType OBJECT-TYPE
+            SYNTAX      DisplayString
+            MAX-ACCESS  read-only
+            STATUS      current
+            DESCRIPTION
+                "A string that that indicates how the account is unlcocked (either automatic or manual)"
+            ::= { sonusSystemSecurityMIBNotificationsObjects 8 }
+
+sonusFileName OBJECT-TYPE
+            SYNTAX      DisplayString
+            MAX-ACCESS  read-only
+            STATUS      current
+            DESCRIPTION
+                "A string that contains the file name of the log file"
+            ::= { sonusSystemSecurityMIBNotificationsObjects 9 }
+
+sonusProcessId OBJECT-TYPE
+            SYNTAX      DisplayString
+            MAX-ACCESS  read-only
+            STATUS      current
+            DESCRIPTION
+                "A string that contains the PID of the user that is generating the large console session log"
+            ::= { sonusSystemSecurityMIBNotificationsObjects 10 }
+
+sonusFileList OBJECT-TYPE
+            SYNTAX      DisplayString
+            MAX-ACCESS  read-only
+            STATUS      current
+            DESCRIPTION
+                ""
+            ::= { sonusSystemSecurityMIBNotificationsObjects 11 }
+
+sonusKeyName OBJECT-TYPE
+            SYNTAX      DisplayString
+            MAX-ACCESS  read-only
+            STATUS      current
+            DESCRIPTION
+                "The name of a key"
+            ::= { sonusSystemSecurityMIBNotificationsObjects 12 }
+
+sonusSystemServerName OBJECT-TYPE
+            SYNTAX      DisplayString
+            MAX-ACCESS  read-only
+            STATUS      current
+            DESCRIPTION 
+                 "The unique identifier assigned to this server"
+            ::= {sonusSystemSecurityMIBNotificationsObjects  13 }
+
+sonusSWeNewTrafficCommitNotifications  OBJECT IDENTIFIER ::= { sonusCpBaseTraps 14 }
+sonusSWeNewActiveProfiles              OBJECT IDENTIFIER ::= { sonusSWeNewTrafficCommitNotifications 0 }
+sonusSWeNewActiveProfileNotfierPrefix  OBJECT IDENTIFIER ::= { sonusSWeNewTrafficCommitNotifications 1 }
+sonusSWeBaseCapacityEstimationPrefix   OBJECT IDENTIFIER ::= { sonusSWeNewTrafficCommitNotifications 2 } 
+sonusSWeBaseVcpuAllocationPrefix       OBJECT IDENTIFIER ::= { sonusSWeNewTrafficCommitNotifications 3 }   
+
+sonusSWeNewTrafficProfileCommitNotfication   NOTIFICATION-TYPE
+    OBJECTS     {    
+                    sonusAlarmNodeID,
+                    sonusAlarmLevel,
+                    sonusAlarmSequenceId,
+                    sonusAlarmTime,
+                    sonusAlarmDescription,
+                    sonusSWeNewTrafficProfileDetails
+                }    
+    STATUS      deprecated 
+    DESCRIPTION
+        "This trap indicates about new SWe Traffic Profile Commit. "
+    --ALARM_ONLY
+    ::= { sonusSWeNewActiveProfiles 1 }
+
+sonusSWeCreatNewProfileCapcityEstDiffers NOTIFICATION-TYPE
+    OBJECTS     {    
+                    sonusAlarmNodeID,
+                    sonusAlarmLevel,
+                    sonusAlarmSequenceId,
+                    sonusAlarmTime,
+                    sonusAlarmDescription,
+                    sonusSWeCapacityEstimationDetails
+                }    
+    STATUS      deprecated 
+    DESCRIPTION
+        "This trap indicates about Capacity Estimate Difference are more than 10% in sweCapacityEstimate, with the new base file. "
+    --ALARM_ONLY
+    ::= { sonusSWeNewActiveProfiles 2 }
+
+sonusSWeVcpuAllocationDiffers NOTIFICATION-TYPE
+    OBJECTS     {    
+                    sonusAlarmNodeID,
+                    sonusAlarmLevel,
+                    sonusAlarmSequenceId,
+                    sonusAlarmTime,
+                    sonusAlarmDescription,
+                    sonusSWeVcpuAllocationDetails
+                }    
+    STATUS      deprecated 
+    DESCRIPTION
+        "This trap indicates about Capacity Estimate Difference are more than 10% in sweVcpuAllocation, with the new base file. "
+    --ALARM_ONLY
+    ::= { sonusSWeNewActiveProfiles 3 }
+
+sonusSWeNewTrafficProfileDetails OBJECT-TYPE
+            SYNTAX      DisplayString
+            MAX-ACCESS  read-only
+            STATUS      deprecated 
+            DESCRIPTION
+                "Detailed information about the New SWe Profile Commit trap. "
+            ::= { sonusSWeNewActiveProfileNotfierPrefix  1 }
+
+sonusSWeCapacityEstimationDetails OBJECT-TYPE
+            SYNTAX      DisplayString
+            MAX-ACCESS  read-only
+            STATUS      deprecated
+            DESCRIPTION
+                "Capacity esimation details for the new base file. "
+            ::= { sonusSWeBaseCapacityEstimationPrefix  2 }
+sonusSWeVcpuAllocationDetails OBJECT-TYPE
+            SYNTAX      DisplayString
+            MAX-ACCESS  read-only
+            STATUS      deprecated
+            DESCRIPTION
+                "VCPU allocation details for the new base file. "
+            ::= { sonusSWeBaseVcpuAllocationPrefix  3 }
+
+
+sonusCpSystemDataAgentMIBNotifications OBJECT IDENTIFIER ::= { sonusCpBaseTraps 13 }
+sonusCpSystemDataAgentMIBNotificationsPrefix  OBJECT IDENTIFIER ::= { sonusCpSystemDataAgentMIBNotifications 0 }
+sonusCpSystemDataAgentMIBNotificationsObjects OBJECT IDENTIFIER ::= { sonusCpSystemDataAgentMIBNotifications 1 }
+
+
+sonusCpDataAgentConnectedNotification NOTIFICATION-TYPE
+    OBJECTS    { 
+                 sonusAlarmNodeID,
+                 sonusAlarmLevel,
+                 sonusAlarmSequenceId,
+                 sonusAlarmTime,
+                 sonusAlarmDescription,
+                 sonusCpSystemServerName,
+                 sonusCpDataAgentInstance,
+                 sonusCpDataNode
+               }
+    STATUS       current
+    DESCRIPTION
+                "This trap indicates that the data agent made a new connection to the data node."
+    ::= { sonusCpSystemDataAgentMIBNotificationsPrefix 1 }
+
+sonusCpDataAgentDisconnectedNotification NOTIFICATION-TYPE
+    OBJECTS    { 
+                 sonusAlarmNodeID,
+                 sonusAlarmLevel,
+                 sonusAlarmSequenceId,
+                 sonusAlarmTime,
+                 sonusAlarmDescription,
+                 sonusCpSystemServerName,
+                 sonusCpDataAgentInstance,
+                 sonusCpDataNode
+               }
+    STATUS       current
+    DESCRIPTION
+                "This trap indicates that the data agent was unable to connect to the data node."
+    ::= { sonusCpSystemDataAgentMIBNotificationsPrefix 2 }
+
+sonusCpDataAgentAddStreamNotification NOTIFICATION-TYPE
+    OBJECTS    { 
+                 sonusAlarmNodeID,
+                 sonusAlarmLevel,
+                 sonusAlarmSequenceId,
+                 sonusAlarmTime,
+                 sonusAlarmDescription,
+                 sonusCpSystemServerName,
+                 sonusCpDataAgentStream
+               }
+    STATUS       current
+    DESCRIPTION
+                "This trap indicates that the data agent added a new stream"
+    ::= { sonusCpSystemDataAgentMIBNotificationsPrefix 3 }
+
+sonusCpDataAgentRemoveStreamNotification NOTIFICATION-TYPE
+    OBJECTS    { 
+                 sonusAlarmNodeID,
+                 sonusAlarmLevel,
+                 sonusAlarmSequenceId,
+                 sonusAlarmTime,
+                 sonusAlarmDescription,
+                 sonusCpSystemServerName,
+                 sonusCpDataAgentStream
+               }
+    STATUS       current
+    DESCRIPTION
+                "This trap indicates that the data agent removed a stream"
+    ::= { sonusCpSystemDataAgentMIBNotificationsPrefix 4 }
+
+sonusCpDataAgentStartNotification NOTIFICATION-TYPE
+    OBJECTS    { 
+                 sonusAlarmNodeID,
+                 sonusAlarmLevel,
+                 sonusAlarmSequenceId,
+                 sonusAlarmTime,
+                 sonusAlarmDescription,
+                 sonusCpSystemServerName
+               }
+    STATUS       current
+    DESCRIPTION
+                "This trap indicates that the data agent has started running"
+    ::= { sonusCpSystemDataAgentMIBNotificationsPrefix 5 }  
+
+sonusCpDataAgentStopNotification NOTIFICATION-TYPE
+    OBJECTS    { 
+                 sonusAlarmNodeID,
+                 sonusAlarmLevel,
+                 sonusAlarmSequenceId,
+                 sonusAlarmTime,
+                 sonusAlarmDescription,
+                 sonusCpSystemServerName
+               }
+    STATUS       current
+    DESCRIPTION
+                "This trap indicates that the data agent was stopped gracefully."
+    ::= { sonusCpSystemDataAgentMIBNotificationsPrefix 6 }
+
+sonusCpDataNode OBJECT-TYPE
+        SYNTAX      DisplayString
+        MAX-ACCESS  read-only
+        STATUS      current
+        DESCRIPTION
+            "FQDN or IP address of the data node. "
+        ::= { sonusCpSystemDataAgentMIBNotificationsObjects 1 }
+
+
+sonusCpDataAgentInstance OBJECT-TYPE
+        SYNTAX      DisplayString
+        MAX-ACCESS  read-only
+        STATUS      current
+        DESCRIPTION
+            "Name of the data agent instance type. "
+        ::= { sonusCpSystemDataAgentMIBNotificationsObjects 2 }
+
+sonusCpDataAgentStream OBJECT-TYPE
+        SYNTAX      DisplayString
+        MAX-ACCESS  read-only
+        STATUS      current
+        DESCRIPTION
+            "Data agent stream"
+        ::= { sonusCpSystemDataAgentMIBNotificationsObjects 3 }
+
+-----------------------------------------------------------------------------------------------
+-- Trap/Notification Definitions
+-----------------------------------------------------------------------------------------------
+sonusSWeActiveProfileMIBNotifications           OBJECT IDENTIFIER ::= { sonusCpBaseTraps 15 }
+sonusSWeActiveProfileMIBNotificationsPrefix     OBJECT IDENTIFIER ::= { sonusSWeActiveProfileMIBNotifications 0 }
+sonusSWeActiveProfileMIBNotificationsObjects    OBJECT IDENTIFIER ::= { sonusSWeActiveProfileMIBNotifications 1 }
+
+sonusSWeNewActiveProfileCommitNotification   NOTIFICATION-TYPE
+    OBJECTS     {
+                   sonusAlarmNodeID,
+                   sonusAlarmLevel,
+                   sonusAlarmSequenceId,
+                   sonusAlarmTime,
+                   sonusAlarmDescription,
+                   sonusCpSystemAdminName,
+                   sonusCpSystemServerName
+                }
+       STATUS   current 
+       DESCRIPTION
+           "This trap indicates that a new traffic profile is activated after reboot."
+       ::= { sonusSWeActiveProfileMIBNotificationsPrefix 1 }
+
+-----------------------------------------------------------------------------------------------
+-- Trap/Notification Definitions
+-----------------------------------------------------------------------------------------------
+sonusFacPacketDroppedMIBNotifications           OBJECT IDENTIFIER ::= { sonusCpBaseTraps 17 }
+sonusFacPacketDroppedMIBNotificationsPrefix     OBJECT IDENTIFIER ::= { sonusFacPacketDroppedMIBNotifications 0 }
+sonusFacPacketDroppedMIBNotificationsObjects    OBJECT IDENTIFIER ::= { sonusFacPacketDroppedMIBNotifications 1 }
+
+sonusCpSystemFaultAvalancheControlPacketDroppedNotify NOTIFICATION-TYPE
+    OBJECTS     {
+                   sonusAlarmNodeID,
+                   sonusAlarmLevel,
+                   sonusAlarmSequenceId,
+                   sonusAlarmTime,
+                   sonusAlarmDescription,
+                   sonusFacKeyElementName,
+                   sonusFacKeyValueName,
+                   sonusCalledParty
+                }
+       STATUS   current 
+       DESCRIPTION
+           "This trap indicates that a first packet is dropped due to matching entries in blocking entries of Fault Avalanche Detection and Control Feature."
+       ::= { sonusFacPacketDroppedMIBNotificationsPrefix 1 }
+    
+       -- ADD NEW TRAPS HERE FOR THIS GROUP
+
+sonusFacKeyElementName OBJECT-TYPE
+        SYNTAX      DisplayString
+        MAX-ACCESS  read-only
+        STATUS      current
+        DESCRIPTION
+            "Key Element Name blocked"
+        ::= { sonusFacPacketDroppedMIBNotificationsObjects 1 }
+
+sonusFacKeyValueName OBJECT-TYPE
+        SYNTAX      DisplayString
+        MAX-ACCESS  read-only
+        STATUS      current
+        DESCRIPTION
+            "Key Element value blocked"
+        ::= { sonusFacPacketDroppedMIBNotificationsObjects 2 }
+
+sonusCalledParty OBJECT-TYPE
+        SYNTAX      DisplayString
+        MAX-ACCESS  read-only
+        STATUS      current
+        DESCRIPTION
+            "Provides called party information in case of blocking is due to callingNcalledParty key element."
+        ::= { sonusFacPacketDroppedMIBNotificationsObjects 3 }
+
+END

@@ -1,0 +1,139 @@
+--
+-- @Description: MIB for POLICY Traps
+-- @Date       : 06-11-2015
+--
+
+POLICY-TRAP DEFINITIONS ::= BEGIN
+IMPORTS
+    MODULE-IDENTITY, OBJECT-TYPE, NOTIFICATION-TYPE,
+    IpAddress
+        FROM SNMPv2-SMI
+    alarmIndex, alarmType, alarmDevice, alarmObjectOID,
+    alarmSpecificProblem, alarmEventType, alarmProbableCause,
+    alarmTime, alarmSeverity, alarmHasClear, alarmText,
+    tenantName, thresholdStatus, alarmClass
+        FROM TRAPS-COMMON
+    serviceNotification
+        FROM VERSA-MIB;
+
+policytrapMIB MODULE-IDENTITY
+    LAST-UPDATED "201908190000Z"
+    ORGANIZATION "Versa Networks"
+    CONTACT-INFO "
+        2953 Bunker Hill Lane, Suite 210
+        Santa Clara, CA - 95035 (USA)
+        Email: support@versa-networks.com"
+    DESCRIPTION  "Versa Networks' Enterprise MIB for POLICY traps"
+    ::= { serviceNotification 6 }
+
+
+-- Root Object
+policyEntities OBJECT IDENTIFIER ::= { policytrapMIB 1 }
+policyNotification OBJECT IDENTIFIER ::= { policytrapMIB 2 }
+
+policyVSNId OBJECT-TYPE
+    SYNTAX      INTEGER
+    MAX-ACCESS  accessible-for-notify
+    STATUS      current
+    DESCRIPTION "VSN id"
+        ::= { policyEntities 1 }
+
+policyThreadId OBJECT-TYPE
+    SYNTAX      INTEGER
+    MAX-ACCESS  accessible-for-notify
+    STATUS      current
+    DESCRIPTION "Thread id"
+        ::= { policyEntities 2 }
+
+policyDosRule OBJECT-TYPE
+    SYNTAX      OCTET STRING
+    MAX-ACCESS  accessible-for-notify
+    STATUS      current
+    DESCRIPTION "DOS Rule Name"
+        ::= { policyEntities 3 }
+
+policyZpProf OBJECT-TYPE
+    SYNTAX      OCTET STRING
+    MAX-ACCESS  accessible-for-notify
+    STATUS      current
+    DESCRIPTION "Zone-protection Zone Name"
+        ::= { policyEntities 4 }
+
+policyZpPsSip OBJECT-TYPE
+    SYNTAX      OCTET STRING
+    MAX-ACCESS  accessible-for-notify
+    STATUS      current
+    DESCRIPTION "Zone-protection Port Scan Src IP"
+        ::= { policyEntities 5 }
+
+policyZpPsDip OBJECT-TYPE
+    SYNTAX      OCTET STRING
+    MAX-ACCESS  accessible-for-notify
+    STATUS      current
+    DESCRIPTION "Zone-protection Port Scan Dst IP"
+        ::= { policyEntities 6 }
+
+policyAppid OBJECT-TYPE
+    SYNTAX      OCTET STRING
+    MAX-ACCESS  accessible-for-notify
+    STATUS      current
+    DESCRIPTION "configured appid"
+        ::= { policyEntities 7 }
+
+policyRule OBJECT-TYPE
+    SYNTAX      OCTET STRING
+    MAX-ACCESS  accessible-for-notify
+    STATUS      current
+    DESCRIPTION "policy rule name"
+        ::= { policyEntities 8 }
+
+zoneProtectionFlood NOTIFICATION-TYPE
+    OBJECTS {
+        alarmType,            alarmDevice,        alarmSpecificProblem,
+        alarmClass,           alarmProbableCause, alarmTime,
+        alarmSeverity,        alarmHasClear,      alarmText,
+        tenantName,           thresholdStatus,
+        policyVSNId,          policyThreadId,     policyZpProf
+    }
+    STATUS  current
+    DESCRIPTION "Zone Protection flood threshold crossed"
+        ::= { policyNotification 1 }
+
+portScanFlood NOTIFICATION-TYPE
+    OBJECTS {
+        alarmType,            alarmDevice,        alarmSpecificProblem,
+        alarmClass,           alarmProbableCause, alarmTime,
+        alarmSeverity,        alarmHasClear,      alarmText,
+        tenantName,           thresholdStatus,
+        policyVSNId,          policyThreadId,     policyZpProf,
+        policyZpPsSip,        policyZpPsDip
+    }
+    STATUS  current
+    DESCRIPTION "Zone Protection port-scan threshold crossed"
+        ::= { policyNotification 2 }
+
+ddosThreshold NOTIFICATION-TYPE
+    OBJECTS {
+        alarmType,            alarmDevice,        alarmSpecificProblem,
+        alarmClass,           alarmProbableCause, alarmTime,
+        alarmSeverity,        alarmHasClear,      alarmText,
+        tenantName,           thresholdStatus,
+        policyVSNId,          policyThreadId,     policyDosRule
+    }
+    STATUS  current
+    DESCRIPTION "DDOS threshold crossed"
+        ::= { policyNotification 3 }
+
+deprecatedAppidConfigured NOTIFICATION-TYPE
+    OBJECTS {
+        alarmType,            alarmDevice,        alarmSpecificProblem,
+        alarmClass,           alarmProbableCause, alarmTime,
+        alarmSeverity,        alarmHasClear,      alarmText,
+        tenantName,
+        policyVSNId,          policyAppid,        policyRule
+    }
+    STATUS  current
+    DESCRIPTION "Deprecated appid configured"
+        ::= { policyNotification 4 }
+
+END

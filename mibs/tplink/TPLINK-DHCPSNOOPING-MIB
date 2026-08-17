@@ -1,0 +1,140 @@
+   TPLINK-DHCPSNOOPING-MIB DEFINITIONS ::= BEGIN
+
+         IMPORTS
+            MODULE-IDENTITY, OBJECT-TYPE
+          	  	        FROM SNMPv2-SMI
+          	ifIndex
+						FROM RFC1213-MIB
+            tplinkMgmt
+						FROM TPLINK-MIB; 
+	    
+			tplinkDhcpSnoopingMIB MODULE-IDENTITY
+				LAST-UPDATED    "201212171014Z"
+				ORGANIZATION    "TPLINK"
+				CONTACT-INFO    "www.tplink.com"
+				DESCRIPTION	    "Private MIB for DHCP Snooping configuration."
+				REVISION        "201212171014Z"
+				DESCRIPTION
+				"Initial version of this MIB module."
+			::= { tplinkMgmt 27 }
+		
+			tplinkDhcpSnoopingMIBObjects		OBJECT IDENTIFIER	::= { tplinkDhcpSnoopingMIB 1 }
+			tplinkDhcpSnoopingNotifications		OBJECT IDENTIFIER	::= { tplinkDhcpSnoopingMIB 2 }
+                
+  			dhcpSnoopingGlobalConfig		OBJECT IDENTIFIER	::= { tplinkDhcpSnoopingMIBObjects 1 }
+            dhcpSnoopingPortConfig     		OBJECT IDENTIFIER	::= { tplinkDhcpSnoopingMIBObjects 3 }
+				
+				dhcpSnoopingEnable OBJECT-TYPE
+	          		SYNTAX  INTEGER{
+	      				disable(0), 						
+	      				enable(1)						
+	      			}
+	            MAX-ACCESS  read-write
+	            STATUS  current
+	            DESCRIPTION
+	                    "0. disable 
+	                     1. enable
+	                     Enable or disable the DHCP Snooping function globally."
+	            ::= { dhcpSnoopingGlobalConfig 1 }
+      				
+				dhcpSnoopingVlanConfigTable OBJECT-TYPE
+					SYNTAX  	SEQUENCE OF DhcpSnoopingVlanConfigTable
+					MAX-ACCESS  not-accessible
+					STATUS  	current
+					DESCRIPTION
+							"Here you can view and modify the DHCP Snooping VLAN config table."
+				::= { dhcpSnoopingGlobalConfig 2 }
+
+				dhcpSnoopingVlanConfigEntry OBJECT-TYPE
+					SYNTAX  	DhcpSnoopingVlanConfigTable
+					MAX-ACCESS  not-accessible
+					STATUS  	current
+					DESCRIPTION
+							"An entry contains of the DHCP Snooping function enable status information of a VLAN."
+					INDEX   { dhcpSnoopingVlanId }
+				::= { dhcpSnoopingVlanConfigTable 1 }
+
+				DhcpSnoopingVlanConfigTable ::=
+					SEQUENCE {
+						dhcpSnoopingVlanId
+								INTEGER(1..4094),
+						dhcpSnoopingVlanStatus
+								INTEGER
+					}
+
+				dhcpSnoopingVlanId OBJECT-TYPE
+					SYNTAX 	 	INTEGER(1..4094)
+					MAX-ACCESS  read-only
+					STATUS  	current
+					DESCRIPTION
+							"Enter the ID number of VLAN,1-4094."
+				::= { dhcpSnoopingVlanConfigEntry 1 }
+				
+        		dhcpSnoopingVlanStatus OBJECT-TYPE
+	          		SYNTAX  INTEGER{
+	      				disable(0), 						
+	      				enable(1)						
+	      			}
+	            	MAX-ACCESS  read-write
+	            	STATUS  current
+	            	DESCRIPTION
+	                    "0. disable 
+	                     1. enable
+	                     Enable or disable DHCP Snooping function in specified VLAN. "
+	            ::= { dhcpSnoopingVlanConfigEntry 2 }	            
+       -- the DHCP Snooping port config
+         
+       			dhcpSnoopingPortConfigTable OBJECT-TYPE
+          			SYNTAX  SEQUENCE OF DhcpSnoopingPortConfigEntry
+          			MAX-ACCESS  not-accessible
+          			STATUS  current
+          			DESCRIPTION
+                  		"A list of DHCP Snooping port config entries.
+                   		Here you can configure the port parameters for the DHCP Snooping."
+          		::= { dhcpSnoopingPortConfig 1 }
+
+      			dhcpSnoopingPortConfigEntry OBJECT-TYPE
+          			SYNTAX  DhcpSnoopingPortConfigEntry
+          			MAX-ACCESS  not-accessible
+          			STATUS  current
+          			DESCRIPTION
+                  		"An entry contains of the information of DHCP Snooping port config."
+          			INDEX   {ifIndex}
+          		::= { dhcpSnoopingPortConfigTable 1 }
+  
+      			DhcpSnoopingPortConfigEntry ::=
+          			SEQUENCE {
+          					dhcpSnoopingPort
+          						    OCTET STRING (SIZE (0..255)),
+							dhcpSnoopingPortConfigMaxEntry
+									INTEGER, 
+							dhcpSnoopingPortConfigPortLag
+									OCTET STRING  
+          			}
+          			
+                dhcpSnoopingPort OBJECT-TYPE
+					SYNTAX  	OCTET STRING (SIZE (0..255))
+					MAX-ACCESS  read-only
+					STATUS  	current
+					DESCRIPTION
+						"Display port number"
+				::= { dhcpSnoopingPortConfigEntry 1 }
+               
+      			dhcpSnoopingPortConfigMaxEntry OBJECT-TYPE
+          			SYNTAX  INTEGER
+          			MAX-ACCESS  read-write
+          			STATUS  current
+          			DESCRIPTION
+                  		"Set the maxinum entry of the interface."
+          		::= { dhcpSnoopingPortConfigEntry 2 }
+       
+      			dhcpSnoopingPortConfigPortLag OBJECT-TYPE
+            		SYNTAX  OCTET STRING (SIZE (1..255))  
+            		MAX-ACCESS  read-only
+            		STATUS  current
+            		DESCRIPTION
+                    	"The LAG to which the port belongs to."
+            	::= { dhcpSnoopingPortConfigEntry 3 }
+          
+END
+

@@ -1,0 +1,384 @@
+QOS-MIB DEFINITIONS ::= BEGIN
+IMPORTS
+    MODULE-IDENTITY, OBJECT-TYPE,
+    Integer32, Unsigned32, Counter32, Counter64,
+    Gauge32, IpAddress
+        FROM SNMPv2-SMI
+    TEXTUAL-CONVENTION, RowStatus, DateAndTime,
+    TruthValue
+        FROM SNMPv2-TC
+    orgServices
+        FROM VERSA-MIB
+;
+
+qos MODULE-IDENTITY
+    LAST-UPDATED "201702020000Z"
+    ORGANIZATION "Versa Networks"
+    CONTACT-INFO "
+        2953 Bunker Hill Lane, Suite 210
+        Santa Clara, CA - 95035 (USA)
+        Email: support@versa-networks.com"
+    DESCRIPTION "Enterprise MIB for Versa Networks'
+Quality of Service solution"
+    REVISION "201702020000Z"
+    DESCRIPTION "Initial revision"
+    ::= { orgServices 5 }
+
+ConfdString ::= TEXTUAL-CONVENTION
+    DISPLAY-HINT "1t"
+    STATUS      current
+    DESCRIPTION "xs: and confd: types mapped to strings"
+    SYNTAX      OCTET STRING
+
+String ::= TEXTUAL-CONVENTION
+    DISPLAY-HINT "1t"
+    STATUS      current
+    DESCRIPTION "xs:string"
+    SYNTAX      OCTET STRING
+
+qosPolicyTable OBJECT-TYPE
+    SYNTAX      SEQUENCE OF QosPolicyEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "QoS policy statistics"
+    ::= { qos 1 }
+
+qosPolicyEntry OBJECT-TYPE
+    SYNTAX      QosPolicyEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION ""
+    INDEX { qosPolicyOrgId, qosPolicyId, qosPolicyRuleOrder, qosPolicyRuleId }
+        ::= { qosPolicyTable 1 }
+
+QosPolicyEntry ::=
+    SEQUENCE {
+        qosPolicyOrgId Unsigned32,
+        qosPolicyId Unsigned32,
+        qosPolicyRuleOrder Unsigned32,
+        qosPolicyRuleId Unsigned32,
+        qosPolicyOrgName String,
+        qosPolicyName String,
+        qosPolicyRuleName String,
+        qosPolicyHitCount ConfdString,
+        qosPolicyDropPktCount ConfdString,
+        qosPolicyDropByteCount ConfdString,
+        qosPolicyForwardPktCount ConfdString,
+        qosPolicyForwardByteCount ConfdString,
+        qosPolicySessionDenyCount ConfdString,
+        qosPolicyDropPktsPPS ConfdString,
+        qosPolicyDropBytesPPS ConfdString,
+        qosPolicyDropPktsKBPS ConfdString,
+        qosPolicyDropBytesKBPS ConfdString
+    }
+
+qosPolicyOrgId OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "Organization Id"
+    ::= { qosPolicyEntry 1 }
+
+qosPolicyId OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "Policy Id"
+    ::= { qosPolicyEntry 2 }
+
+qosPolicyRuleOrder OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "rule order"
+    ::= { qosPolicyEntry 3 }
+
+qosPolicyRuleId OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "rule id"
+    ::= { qosPolicyEntry 4 }
+
+qosPolicyOrgName OBJECT-TYPE
+    SYNTAX      String
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Name of the Organization"
+    ::= { qosPolicyEntry 5 }
+
+qosPolicyName OBJECT-TYPE
+    SYNTAX      String
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Name of the policy"
+    ::= { qosPolicyEntry 6 }
+
+qosPolicyRuleName OBJECT-TYPE
+    SYNTAX      String
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "rule name"
+    ::= { qosPolicyEntry 7 }
+
+qosPolicyHitCount OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total hits on QOS policy"
+    ::= { qosPolicyEntry 8 }
+
+qosPolicyDropPktCount OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total packets dropped by QOS policy"
+    ::= { qosPolicyEntry 9 }
+
+qosPolicyDropByteCount OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total bytes dropped by QOS policy"
+    ::= { qosPolicyEntry 10 }
+
+qosPolicyForwardPktCount OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total packets forwarded by QOS policy"
+    ::= { qosPolicyEntry 11 }
+
+qosPolicyForwardByteCount OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total bytes forwarded by QOS policy"
+    ::= { qosPolicyEntry 12 }
+
+qosPolicySessionDenyCount OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total sessions denied by QOS policy"
+    ::= { qosPolicyEntry 13 }
+
+qosPolicyDropPktsPPS OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total packets dropped by Pps rate-limt"
+    ::= { qosPolicyEntry 14 }
+
+qosPolicyDropBytesPPS OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total bytes dropped by Pps rate-limt"
+    ::= { qosPolicyEntry 15 }
+
+qosPolicyDropPktsKBPS OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total packets dropped by Kbps rate-limt"
+    ::= { qosPolicyEntry 16 }
+
+qosPolicyDropBytesKBPS OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total bytes dropped by Kbps rate-limt"
+    ::= { qosPolicyEntry 17 }
+
+appQosPolicyTable OBJECT-TYPE
+    SYNTAX      SEQUENCE OF AppQosPolicyEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "App QoS policy statistics"
+    ::= { qos 2 }
+
+appQosPolicyEntry OBJECT-TYPE
+    SYNTAX      AppQosPolicyEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION ""
+    INDEX { appQosPolicyOrgId, appQosPolicyId, appQosPolicyRuleOrder, appQosPolicyRuleId }
+        ::= { appQosPolicyTable 1 }
+
+AppQosPolicyEntry ::=
+    SEQUENCE {
+        appQosPolicyOrgId Unsigned32,
+        appQosPolicyId Unsigned32,
+        appQosPolicyRuleOrder Unsigned32,
+        appQosPolicyRuleId Unsigned32,
+        appQosPolicyOrgName String,
+        appQosPolicyName String,
+        appQosPolicyRuleName String,
+        appQosPolicyHitCount ConfdString,
+        appQosPolicyDropPktCount ConfdString,
+        appQosPolicyDropByteCount ConfdString,
+        appQosPolicyForwardPktCount ConfdString,
+        appQosPolicyForwardByteCount ConfdString
+    }
+
+appQosPolicyOrgId OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "Organization Id"
+    ::= { appQosPolicyEntry 1 }
+
+appQosPolicyId OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "Policy Id"
+    ::= { appQosPolicyEntry 2 }
+
+appQosPolicyRuleOrder OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "rule order"
+    ::= { appQosPolicyEntry 3 }
+
+appQosPolicyRuleId OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "rule id"
+    ::= { appQosPolicyEntry 4 }
+
+appQosPolicyOrgName OBJECT-TYPE
+    SYNTAX      String
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Name of the Organization"
+    ::= { appQosPolicyEntry 5 }
+
+appQosPolicyName OBJECT-TYPE
+    SYNTAX      String
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Name of the policy"
+    ::= { appQosPolicyEntry 6 }
+
+appQosPolicyRuleName OBJECT-TYPE
+    SYNTAX      String
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "rule name"
+    ::= { appQosPolicyEntry 7 }
+
+appQosPolicyHitCount OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total hits on QOS policy"
+    ::= { appQosPolicyEntry 8 }
+
+appQosPolicyDropPktCount OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total packets dropped by application QOS policy"
+    ::= { appQosPolicyEntry 9 }
+
+appQosPolicyDropByteCount OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total bytes dropped by application QOS policy"
+    ::= { appQosPolicyEntry 10 }
+
+appQosPolicyForwardPktCount OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total packets forwarded by application QOS policy"
+    ::= { appQosPolicyEntry 11 }
+
+appQosPolicyForwardByteCount OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total bytes forwarded by application QOS policy"
+    ::= { appQosPolicyEntry 12 }
+
+qosInterfaceShaperTable OBJECT-TYPE
+    SYNTAX      SEQUENCE OF QosInterfaceShaperEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "Interface shaper stats"
+    ::= { qos 3 }
+
+qosInterfaceShaperEntry OBJECT-TYPE
+    SYNTAX      QosInterfaceShaperEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION ""
+    INDEX { qosInterfaceCIndex, qosInterfacePipeId, qosInterfaceFwdClassId }
+        ::= { qosInterfaceShaperTable 1 }
+
+QosInterfaceShaperEntry ::=
+    SEQUENCE {
+        qosInterfaceCIndex Unsigned32,
+        qosInterfacePipeId Unsigned32,
+        qosInterfaceFwdClassId Unsigned32,
+        qosInterfaceCName String,
+        qosInterfacePipeDescription String,
+        qosInterfaceBytesSent ConfdString,
+        qosInterfaceBytesDropped ConfdString
+    }
+
+qosInterfaceCIndex OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION ""
+    ::= { qosInterfaceShaperEntry 1 }
+
+qosInterfacePipeId OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "Pipe id"
+    ::= { qosInterfaceShaperEntry 2 }
+
+qosInterfaceFwdClassId OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "forwarding class id"
+    ::= { qosInterfaceShaperEntry 3 }
+
+qosInterfaceCName OBJECT-TYPE
+    SYNTAX      String
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Interface name"
+    ::= { qosInterfaceShaperEntry 4 }
+
+qosInterfacePipeDescription OBJECT-TYPE
+    SYNTAX      String
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Pipe Description"
+    ::= { qosInterfaceShaperEntry 5 }
+
+qosInterfaceBytesSent OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Bytes transmitted"
+    ::= { qosInterfaceShaperEntry 6 }
+
+qosInterfaceBytesDropped OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Bytes dropped"
+    ::= { qosInterfaceShaperEntry 7 }
+
+END

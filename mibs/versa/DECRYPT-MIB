@@ -1,0 +1,973 @@
+DECRYPT-MIB DEFINITIONS ::= BEGIN
+IMPORTS
+    MODULE-IDENTITY, OBJECT-TYPE,
+    Integer32, Unsigned32, Counter32, Counter64,
+    Gauge32, IpAddress
+        FROM SNMPv2-SMI
+    TEXTUAL-CONVENTION, RowStatus, DateAndTime,
+    TruthValue
+        FROM SNMPv2-TC
+    ngfw
+        FROM VERSA-MIB
+;
+
+decrypt MODULE-IDENTITY
+    LAST-UPDATED "201704020000Z"
+    ORGANIZATION "Versa Networks"
+    CONTACT-INFO "
+        2953 Bunker Hill Lane, Suite 210
+        Santa Clara, CA - 95035 (USA)
+        Email: support@versa-networks.com"
+    DESCRIPTION "Enterprise MIB for Versa Networks'
+SSL Decrypt"
+    REVISION "201704020000Z"
+    DESCRIPTION "Initial revision"
+    ::= { ngfw 10 }
+
+ConfdString ::= TEXTUAL-CONVENTION
+    DISPLAY-HINT "1t"
+    STATUS      current
+    DESCRIPTION "xs: and confd: types mapped to strings"
+    SYNTAX      OCTET STRING
+
+String ::= TEXTUAL-CONVENTION
+    DISPLAY-HINT "1t"
+    STATUS      current
+    DESCRIPTION "xs:string"
+    SYNTAX      OCTET STRING
+
+decryptProfileTable OBJECT-TYPE
+    SYNTAX      SEQUENCE OF DecryptProfileEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "Display information about a profile"
+    ::= { decrypt 1 }
+
+decryptProfileEntry OBJECT-TYPE
+    SYNTAX      DecryptProfileEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION ""
+    INDEX { decryptProfileOrgId, decryptProfileId }
+        ::= { decryptProfileTable 1 }
+
+DecryptProfileEntry ::=
+    SEQUENCE {
+        decryptProfileOrgId Unsigned32,
+        decryptProfileId Unsigned32,
+        decryptProfileOrgName String,
+        decryptProfileName String,
+        sslCliEncrypt ConfdString,
+        sslCliDecrypt ConfdString,
+        sslCliPtdata ConfdString,
+        sslSrvEncrypt ConfdString,
+        sslSrvDecrypt ConfdString,
+        sslSrvPtdata ConfdString,
+        sslCreate ConfdString,
+        sslstream ConfdString,
+        sslDrop ConfdString,
+        sslUrlMatch ConfdString,
+        sslDecrypt ConfdString,
+        sslUrlNoDecrypt ConfdString,
+        sslBypass ConfdString,
+        sslSpliceFail ConfdString,
+        sslNoProfile ConfdString,
+        sslError ConfdString,
+        sslCliUnexpectedMsg ConfdString,
+        sslCliBadRecord ConfdString,
+        sslCliDecryptFail ConfdString,
+        sslCliRecordOverflow ConfdString,
+        sslCliDecompressFail ConfdString,
+        sslCliHandshakeFail ConfdString,
+        sslCliNoCert ConfdString,
+        sslCliBadCert ConfdString,
+        sslCliUnsupportedCert ConfdString,
+        sslCliRevokedCert ConfdString,
+        sslCliExpiredCert ConfdString,
+        sslCliUnknownCert ConfdString,
+        sslCliIllegalParameter ConfdString,
+        sslCliUnknownCA ConfdString,
+        sslCliAccessDenied ConfdString,
+        sslCliDecodeError ConfdString,
+        sslCliDecryptError ConfdString,
+        sslCliAlertProtoVersion ConfdString,
+        sslCliInsufficientSecurity ConfdString,
+        sslCliInternalError ConfdString,
+        sslCliNoRenogotiation ConfdString,
+        sslCliUnsupportedExtension ConfdString,
+        sslCliUnrecognizedName ConfdString,
+        sslCliUnknown ConfdString,
+        sslCliBadCertStatus ConfdString,
+        sslCliInappropriateFallback ConfdString,
+        sslCliNoAppProtocol ConfdString,
+        sslCliUnknownPsk ConfdString,
+        sslSrvUnexpectedMsg ConfdString,
+        sslSrvBadRecord ConfdString,
+        sslSrvDecryptFail ConfdString,
+        sslSrvRecordOverflow ConfdString,
+        sslSrvDecompressFail ConfdString,
+        sslSrvHandshakeFail ConfdString,
+        sslSrvNoCert ConfdString,
+        sslSrvBadCert ConfdString,
+        sslSrvUnsupportedCert ConfdString,
+        sslSrvRevokedCert ConfdString,
+        sslSrvExpiredCert ConfdString,
+        sslSrvUnknownCert ConfdString,
+        sslSrvIllegalParameter ConfdString,
+        sslSrvUnknownCA ConfdString,
+        sslSrvAccessDenied ConfdString,
+        sslSrvDecodeError ConfdString,
+        sslSrvDecryptError ConfdString,
+        sslSrvAlertProtoVersion ConfdString,
+        sslSrvInsufficientSecurity ConfdString,
+        sslSrvInternalError ConfdString,
+        sslSrvNoRenogotiation ConfdString,
+        sslSrvUnsupportedExtension ConfdString,
+        sslSrvUnrecognizedName ConfdString,
+        sslSrvUnknown ConfdString,
+        sslSrvBadCertStatus ConfdString,
+        sslSrvInappropriateFallback ConfdString,
+        sslSrvNoAppProtocol ConfdString,
+        sslSrvUnknownPsk ConfdString,
+        sslCliCloseNotify ConfdString,
+        sslSrvCloseNotify ConfdString,
+        sslOcspCertStatusRequested ConfdString,
+        sslOcspCertRequestFailed ConfdString,
+        sslCertStatusFoundFromCache ConfdString,
+        sslCertStatusCached ConfdString,
+        sslOcspSnatFailed ConfdString,
+        sslOcspServerConnectFailed ConfdString,
+        sslOcspDnsLookupFailed ConfdString,
+        sslOcspBlockedOnDns ConfdString,
+        sslOcspResumedDnsDone ConfdString,
+        sslOcspResponseReceived ConfdString,
+        sslOcspResponseParsingFailed ConfdString,
+        sslOcspCertStatusGood ConfdString,
+        sslOcspCertStatusRevoked ConfdString,
+        sslOcspCertStatusUnknown ConfdString,
+        sslOcspResponseExpired ConfdString,
+        sslOcspResponseVerifyFailed ConfdString
+    }
+
+decryptProfileOrgId OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "Organization id"
+    ::= { decryptProfileEntry 1 }
+
+decryptProfileId OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "Decrypt profile id"
+    ::= { decryptProfileEntry 2 }
+
+decryptProfileOrgName OBJECT-TYPE
+    SYNTAX      String
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Organization name"
+    ::= { decryptProfileEntry 3 }
+
+decryptProfileName OBJECT-TYPE
+    SYNTAX      String
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Decrypt profile name"
+    ::= { decryptProfileEntry 4 }
+
+sslCliEncrypt OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Ssl Client Encrypt"
+    ::= { decryptProfileEntry 5 }
+
+sslCliDecrypt OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Ssl Client Decrypt"
+    ::= { decryptProfileEntry 6 }
+
+sslCliPtdata OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Ssl Client ptdata"
+    ::= { decryptProfileEntry 7 }
+
+sslSrvEncrypt OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Ssl Server ptdata"
+    ::= { decryptProfileEntry 8 }
+
+sslSrvDecrypt OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Ssl Server Decrypt"
+    ::= { decryptProfileEntry 9 }
+
+sslSrvPtdata OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Ssl Server ptdata"
+    ::= { decryptProfileEntry 10 }
+
+sslCreate OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Ssl proxy create"
+    ::= { decryptProfileEntry 11 }
+
+sslstream OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Ssl Proxy Stream"
+    ::= { decryptProfileEntry 12 }
+
+sslDrop OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Ssl Proxy Drop"
+    ::= { decryptProfileEntry 13 }
+
+sslUrlMatch OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Ssl Url Match"
+    ::= { decryptProfileEntry 14 }
+
+sslDecrypt OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Ssl Decrypt"
+    ::= { decryptProfileEntry 15 }
+
+sslUrlNoDecrypt OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Ssl Url No Decrypt"
+    ::= { decryptProfileEntry 16 }
+
+sslBypass OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Ssl Bypass"
+    ::= { decryptProfileEntry 17 }
+
+sslSpliceFail OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Ssl Splice Fail"
+    ::= { decryptProfileEntry 18 }
+
+sslNoProfile OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Ssl No Profile"
+    ::= { decryptProfileEntry 19 }
+
+sslError OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Ssl Error"
+    ::= { decryptProfileEntry 20 }
+
+sslCliUnexpectedMsg OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Ssl Client Unexpected Msg"
+    ::= { decryptProfileEntry 21 }
+
+sslCliBadRecord OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Ssl Client Bad Record"
+    ::= { decryptProfileEntry 22 }
+
+sslCliDecryptFail OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Ssl Client Decrypt Fail"
+    ::= { decryptProfileEntry 23 }
+
+sslCliRecordOverflow OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Ssl Client Record Overflow"
+    ::= { decryptProfileEntry 24 }
+
+sslCliDecompressFail OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Ssl Client Decompress Fail"
+    ::= { decryptProfileEntry 25 }
+
+sslCliHandshakeFail OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Ssl Client Handshake Fail"
+    ::= { decryptProfileEntry 26 }
+
+sslCliNoCert OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Ssl Client No Cert"
+    ::= { decryptProfileEntry 27 }
+
+sslCliBadCert OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Ssl Client Bad Cert"
+    ::= { decryptProfileEntry 28 }
+
+sslCliUnsupportedCert OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Ssl Client Unsupported Cert"
+    ::= { decryptProfileEntry 29 }
+
+sslCliRevokedCert OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Ssl Client Revoked Cert"
+    ::= { decryptProfileEntry 30 }
+
+sslCliExpiredCert OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Ssl Client Expired Cert"
+    ::= { decryptProfileEntry 31 }
+
+sslCliUnknownCert OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Ssl Client Unknown Cert"
+    ::= { decryptProfileEntry 32 }
+
+sslCliIllegalParameter OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Ssl Client Illegal Parameter"
+    ::= { decryptProfileEntry 33 }
+
+sslCliUnknownCA OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Ssl Client Unknown CA"
+    ::= { decryptProfileEntry 34 }
+
+sslCliAccessDenied OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Ssl Client Access Denied"
+    ::= { decryptProfileEntry 35 }
+
+sslCliDecodeError OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Ssl Client Decode Error"
+    ::= { decryptProfileEntry 36 }
+
+sslCliDecryptError OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Ssl Client Decrypt Error"
+    ::= { decryptProfileEntry 37 }
+
+sslCliAlertProtoVersion OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Ssl Client Alert Protocol Version"
+    ::= { decryptProfileEntry 38 }
+
+sslCliInsufficientSecurity OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Ssl Client Insufficient Security"
+    ::= { decryptProfileEntry 39 }
+
+sslCliInternalError OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Ssl Client Internal Error"
+    ::= { decryptProfileEntry 40 }
+
+sslCliNoRenogotiation OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Ssl Client No Renogotiation"
+    ::= { decryptProfileEntry 41 }
+
+sslCliUnsupportedExtension OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Ssl Client Unsupported Extension"
+    ::= { decryptProfileEntry 42 }
+
+sslCliUnrecognizedName OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Ssl Client Unrecognized Name"
+    ::= { decryptProfileEntry 43 }
+
+sslCliUnknown OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Ssl Client Unknown"
+    ::= { decryptProfileEntry 44 }
+
+sslCliBadCertStatus OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Ssl Client Bad Cert Status"
+    ::= { decryptProfileEntry 45 }
+
+sslCliInappropriateFallback OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Ssl Client Inappropriate Fallback"
+    ::= { decryptProfileEntry 46 }
+
+sslCliNoAppProtocol OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Ssl Client No App Protocol"
+    ::= { decryptProfileEntry 47 }
+
+sslCliUnknownPsk OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Ssl Client Unknown Psk"
+    ::= { decryptProfileEntry 48 }
+
+sslSrvUnexpectedMsg OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Ssl Server Unexpected Msg"
+    ::= { decryptProfileEntry 49 }
+
+sslSrvBadRecord OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Ssl Server Bad Record"
+    ::= { decryptProfileEntry 50 }
+
+sslSrvDecryptFail OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Ssl Server Decrypt Fail"
+    ::= { decryptProfileEntry 51 }
+
+sslSrvRecordOverflow OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Ssl Server Record Overflow"
+    ::= { decryptProfileEntry 52 }
+
+sslSrvDecompressFail OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Ssl Server Decompress Fail"
+    ::= { decryptProfileEntry 53 }
+
+sslSrvHandshakeFail OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Ssl Server Handshake Fail"
+    ::= { decryptProfileEntry 54 }
+
+sslSrvNoCert OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Ssl Server No Cert"
+    ::= { decryptProfileEntry 55 }
+
+sslSrvBadCert OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Ssl Server Bad Cert"
+    ::= { decryptProfileEntry 56 }
+
+sslSrvUnsupportedCert OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Ssl Server Unsupported Cert"
+    ::= { decryptProfileEntry 57 }
+
+sslSrvRevokedCert OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Ssl Server Revoked Cert"
+    ::= { decryptProfileEntry 58 }
+
+sslSrvExpiredCert OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Ssl Server Expired Cert"
+    ::= { decryptProfileEntry 59 }
+
+sslSrvUnknownCert OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Ssl Server Unknown Cert"
+    ::= { decryptProfileEntry 60 }
+
+sslSrvIllegalParameter OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Ssl Server Illegal Parameter"
+    ::= { decryptProfileEntry 61 }
+
+sslSrvUnknownCA OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Ssl Server Unknown CA"
+    ::= { decryptProfileEntry 62 }
+
+sslSrvAccessDenied OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Ssl Server Access Denied"
+    ::= { decryptProfileEntry 63 }
+
+sslSrvDecodeError OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Ssl Server Decode Error"
+    ::= { decryptProfileEntry 64 }
+
+sslSrvDecryptError OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Ssl Server Decrypt Error"
+    ::= { decryptProfileEntry 65 }
+
+sslSrvAlertProtoVersion OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Ssl Server Alert Protocol Version"
+    ::= { decryptProfileEntry 66 }
+
+sslSrvInsufficientSecurity OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Ssl Server Insufficient Security"
+    ::= { decryptProfileEntry 67 }
+
+sslSrvInternalError OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Ssl Server Internal Error"
+    ::= { decryptProfileEntry 68 }
+
+sslSrvNoRenogotiation OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Ssl Server No Renogotiation"
+    ::= { decryptProfileEntry 69 }
+
+sslSrvUnsupportedExtension OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Ssl Server Unsupported Extension"
+    ::= { decryptProfileEntry 70 }
+
+sslSrvUnrecognizedName OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Ssl Server Unrecognized Name"
+    ::= { decryptProfileEntry 71 }
+
+sslSrvUnknown OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Ssl Server Unknown"
+    ::= { decryptProfileEntry 72 }
+
+sslSrvBadCertStatus OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Ssl Server Bad Cert Status"
+    ::= { decryptProfileEntry 73 }
+
+sslSrvInappropriateFallback OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Ssl Server Inappropriate Fallback"
+    ::= { decryptProfileEntry 74 }
+
+sslSrvNoAppProtocol OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Ssl Server No App Protocol"
+    ::= { decryptProfileEntry 75 }
+
+sslSrvUnknownPsk OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Ssl Server Unknown Psk"
+    ::= { decryptProfileEntry 76 }
+
+sslCliCloseNotify OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Ssl Client Close Notify"
+    ::= { decryptProfileEntry 77 }
+
+sslSrvCloseNotify OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Ssl Server Close Notify"
+    ::= { decryptProfileEntry 78 }
+
+sslOcspCertStatusRequested OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Number of OCSP Cert Status Requested"
+    ::= { decryptProfileEntry 101 }
+
+sslOcspCertRequestFailed OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Number of OCSP Requests Failed"
+    ::= { decryptProfileEntry 102 }
+
+sslCertStatusFoundFromCache OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Number of Cert Status Found From Cache"
+    ::= { decryptProfileEntry 103 }
+
+sslCertStatusCached OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Number of Cert Status Cached"
+    ::= { decryptProfileEntry 104 }
+
+sslOcspSnatFailed OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Number of OCSP SNAT failed"
+    ::= { decryptProfileEntry 105 }
+
+sslOcspServerConnectFailed OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Number of OCSP Server Connect failed"
+    ::= { decryptProfileEntry 106 }
+
+sslOcspDnsLookupFailed OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Number of OCSP DNS lookup failed"
+    ::= { decryptProfileEntry 107 }
+
+sslOcspBlockedOnDns OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Number of OCSP Blocked On DNS"
+    ::= { decryptProfileEntry 108 }
+
+sslOcspResumedDnsDone OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Number of OCSP Resumed DNS done"
+    ::= { decryptProfileEntry 109 }
+
+sslOcspResponseReceived OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Number of OCSP Response Received"
+    ::= { decryptProfileEntry 110 }
+
+sslOcspResponseParsingFailed OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Number of OCSP Response Parsing Failed"
+    ::= { decryptProfileEntry 111 }
+
+sslOcspCertStatusGood OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Number of OCSP Cert Status Good"
+    ::= { decryptProfileEntry 112 }
+
+sslOcspCertStatusRevoked OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Number of OCSP Cert Status Revoked"
+    ::= { decryptProfileEntry 113 }
+
+sslOcspCertStatusUnknown OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Number of OCSP Cert Status Unknown"
+    ::= { decryptProfileEntry 114 }
+
+sslOcspResponseExpired OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Number of OCSP Response Expired"
+    ::= { decryptProfileEntry 115 }
+
+sslOcspResponseVerifyFailed OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Number of OCSP Response Verify Failed"
+    ::= { decryptProfileEntry 116 }
+
+decryptGlobalTable OBJECT-TYPE
+    SYNTAX      SEQUENCE OF DecryptGlobalEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "Global Decryption Information"
+    ::= { decrypt 2 }
+
+decryptGlobalEntry OBJECT-TYPE
+    SYNTAX      DecryptGlobalEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION ""
+    INDEX { decryptGlobalOrgId }
+        ::= { decryptGlobalTable 1 }
+
+DecryptGlobalEntry ::=
+    SEQUENCE {
+        decryptGlobalOrgId Unsigned32,
+        sessConnectError ConfdString,
+        serviceConnectError ConfdString,
+        sslAdcSession ConfdString,
+        sslAppError ConfdString,
+        sslCloseError ConfdString,
+        sslCreateError ConfdString,
+        sslGlobalDecrypt ConfdString,
+        sslEncrypt ConfdString,
+        sslEvent ConfdString,
+        sslFree ConfdString,
+        sslProxyIgnore ConfdString,
+        sslProxySess ConfdString,
+        sslUrlLookup ConfdString,
+        sslNoConfig ConfdString,
+        sslPacket ConfdString,
+        sslConnect ConfdString,
+        sslTcpTrackingFailed ConfdString
+    }
+
+decryptGlobalOrgId OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "Organization id"
+    ::= { decryptGlobalEntry 1 }
+
+sessConnectError OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Sess Connect Error"
+    ::= { decryptGlobalEntry 5 }
+
+serviceConnectError OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Service Connect Error"
+    ::= { decryptGlobalEntry 6 }
+
+sslAdcSession OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Ssl Adc Session"
+    ::= { decryptGlobalEntry 7 }
+
+sslAppError OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Ssl App Error"
+    ::= { decryptGlobalEntry 8 }
+
+sslCloseError OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Ssl Close Error"
+    ::= { decryptGlobalEntry 9 }
+
+sslCreateError OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Ssl Create Error"
+    ::= { decryptGlobalEntry 10 }
+
+sslGlobalDecrypt OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Ssl Decrypt"
+    ::= { decryptGlobalEntry 11 }
+
+sslEncrypt OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Ssl Encrypt"
+    ::= { decryptGlobalEntry 12 }
+
+sslEvent OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Ssl Event"
+    ::= { decryptGlobalEntry 13 }
+
+sslFree OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Ssl Free"
+    ::= { decryptGlobalEntry 14 }
+
+sslProxyIgnore OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Ssl Proxy Ignore"
+    ::= { decryptGlobalEntry 15 }
+
+sslProxySess OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Ssl Proxy Sess"
+    ::= { decryptGlobalEntry 16 }
+
+sslUrlLookup OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Ssl Url Lookup"
+    ::= { decryptGlobalEntry 17 }
+
+sslNoConfig OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Ssl No Config"
+    ::= { decryptGlobalEntry 18 }
+
+sslPacket OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Ssl Packet"
+    ::= { decryptGlobalEntry 19 }
+
+sslConnect OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Ssl Connect"
+    ::= { decryptGlobalEntry 20 }
+
+sslTcpTrackingFailed OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Ssl Tcp Tracking Failed"
+    ::= { decryptGlobalEntry 21 }
+
+END

@@ -1,0 +1,88 @@
+--------------------------------------------------------------------
+-- NMS-VTY-MIB
+-- AUTHER : LIUQIANG
+-- MAR 2018
+--------------------------------------------------------------------
+
+            NMS-VTY-MIB DEFINITIONS ::= BEGIN
+
+            IMPORTS
+                    TimeTicks
+            FROM RFC1155-SMI
+                    OBJECT-TYPE
+			FROM RFC-1212
+                    DisplayString
+			FROM RFC1213-MIB
+		    nmslocal
+			FROM NMS-SMI
+		    IpAddress,TimeTicks     FROM  RFC1155-SMI;
+          
+               vty             OBJECT IDENTIFIER ::= { nmslocal 238 }
+
+
+--lineVtyTable
+               lineVtyTable OBJECT-TYPE
+                   SYNTAX  SEQUENCE OF LineVtyTableEntry
+                   ACCESS  not-accessible
+                   STATUS  mandatory
+                   DESCRIPTION
+                            "A table of line vty configuration."
+                   ::= { vty 1 }
+
+               lineVtyTableEntry OBJECT-TYPE
+                   SYNTAX  LineVtyTableEntry
+                   ACCESS  not-accessible
+                   STATUS  mandatory
+                   DESCRIPTION
+                            "A collection of LINE VTY configuration."
+                   INDEX { lineVty }
+               ::= { lineVtyTable 1 }
+
+               LineVtyTableEntry ::=
+                   SEQUENCE {
+                       lineVty
+                           INTEGER,
+                       lineVtyUsername
+                           OCTET STRING,
+                       lineVtyIpAddr
+                       	   IpAddress,
+                       lineVtyTime
+                       	   TimeTicks	
+                          }
+	
+               lineVty OBJECT-TYPE
+                   SYNTAX  INTEGER
+                   ACCESS  read-only
+                   STATUS  mandatory
+                   DESCRIPTION
+                           "Line vty number, index of the table. "
+                   ::= { lineVtyTableEntry 1 }
+               
+               lineVtyUsername OBJECT-TYPE
+                   SYNTAX  OCTET STRING
+                   ACCESS  read-only
+                   STATUS  mandatory
+                   DESCRIPTION
+                           "Line vty username. "
+                   ::= { lineVtyTableEntry 2 }
+               
+               lineVtyIpAddr OBJECT-TYPE
+                   SYNTAX  IpAddress
+                   ACCESS  read-only
+                   STATUS  mandatory
+                   DESCRIPTION
+                           "Line vty IP address. "
+                   ::= { lineVtyTableEntry 3 }
+               
+               lineVtyTime OBJECT-TYPE
+                   SYNTAX  TimeTicks
+                   ACCESS  read-only
+                   STATUS  mandatory
+                   DESCRIPTION
+                           "Line vty time. "
+                   ::= { lineVtyTableEntry 4 }
+               
+
+
+         
+END

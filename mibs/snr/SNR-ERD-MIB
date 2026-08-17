@@ -1,0 +1,3534 @@
+SNR-ERD-MIB DEFINITIONS ::= BEGIN
+
+IMPORTS
+	MODULE-IDENTITY, OBJECT-TYPE, NOTIFICATION-TYPE, enterprises, 
+	Integer32, Unsigned32, IpAddress, TimeTicks
+		FROM SNMPv2-SMI
+	DisplayString, TEXTUAL-CONVENTION
+        FROM SNMPv2-TC
+	MODULE-COMPLIANCE, NOTIFICATION-GROUP, OBJECT-GROUP
+		FROM SNMPv2-CONF
+	; 
+
+snrErd	MODULE-IDENTITY
+		LAST-UPDATED	"202402261200Z"		-- Feb 26, 2024
+		ORGANIZATION	"NAGTECH"
+		CONTACT-INFO	"erd@nag.ru"
+		DESCRIPTION		"The common MIB module for SNR-ERD-4, SNR-ERD-5, SNMP-CARD-801, SNMP-CARD-105"
+
+		REVISION		"202402261200Z"		-- Feb 26, 2024
+		DESCRIPTION		"fixed syntax"
+
+		REVISION		"202402191200Z"		-- Feb 19, 2024
+		DESCRIPTION		"Added additional UPS traps"
+
+		REVISION		"202308311200Z"		-- August 31, 2023
+		DESCRIPTION		"Added critical humidity support for humidity sensors. 
+						erdHumCrit now is deprecated. 
+						Added DHT table. 
+						Firmware 3.7.0 or newer"
+
+		REVISION		"202306081200Z"		-- June 8, 2023
+		DESCRIPTION		"Fix syntax"
+
+		REVISION		"202304101200Z"		-- April 10, 2023
+		DESCRIPTION		"Add SNR-HT-Sensor support to RSSensor. Firmware 3.5.0 or newer"
+
+		REVISION		"202211221200Z"		-- November 23, 2022
+		DESCRIPTION		"Add SNR-HT-Sensor support. Firmware 3.2.0 or newer"
+
+		REVISION		"202209191200Z"		-- September 19, 2022
+		DESCRIPTION		"Add ADCIN2 and ups oids from ERD-5. Firmware 3.1.0 or newer" 
+
+		REVISION		"202206171200Z"		-- June 17, 2022
+		DESCRIPTION		"Add erdDiInverted. Firmware 2.20.0 or newer" 
+		
+		REVISION		"202202020200Z"		-- February 2, 2022
+		DESCRIPTION		"Pooling SNR-ERD-4 module with SNMP-CARD-801, SNMP-CARD-105 and ERD-5 OIDs support as deprecated"
+		::= { snr 2 }
+
+snr					OBJECT IDENTIFIER	::= { enterprises 40418 }
+
+SensorID ::= TEXTUAL-CONVENTION
+   DISPLAY-HINT "d"
+   STATUS       current
+   DESCRIPTION
+		   "This data type is a non-negative value."
+   SYNTAX       Unsigned32 (1..4294967295)
+
+-- common erd oids ----------------
+
+erd					OBJECT IDENTIFIER	::= { snrErd 6 }
+
+erdTraps			OBJECT IDENTIFIER	::= { erd 0 }
+erdMeasurements		OBJECT IDENTIFIER	::= { erd 1 }
+erdDio				OBJECT IDENTIFIER	::= { erd 2 }
+erdSerial			OBJECT IDENTIFIER	::= { erd 4 }
+erdModules			OBJECT IDENTIFIER	::= { erd 5 }
+erdOptions			OBJECT IDENTIFIER	::= { erd 10 }
+erdDiffParams		OBJECT IDENTIFIER	::= { erd 11 }
+erdConformance		OBJECT IDENTIFIER	::= { erd 100 }
+
+erdOneWire			OBJECT IDENTIFIER	::= { erdMeasurements 1 }
+erdSp				OBJECT IDENTIFIER	::= { erdMeasurements 30 }
+erdSensorsTemplate	OBJECT IDENTIFIER	::= { erdMeasurements 50 }
+
+erdRs485			OBJECT IDENTIFIER	::= { erdSerial 1 }
+erdRs232			OBJECT IDENTIFIER	::= { erdSerial 2 }
+
+erdGsm				OBJECT IDENTIFIER	::= { erdModules 1 }
+
+erdUps				OBJECT IDENTIFIER	::= { erdDiffParams 1 }
+erdPid				OBJECT IDENTIFIER	::= { erdDiffParams 10 }
+erdOmix				OBJECT IDENTIFIER	::= { erdDiffParams 11 }
+
+erdCrit				OBJECT IDENTIFIER	::= { erdOptions 10 }
+
+erdGroups			OBJECT IDENTIFIER	::= { erdConformance 1 }
+erdCompliances		OBJECT IDENTIFIER	::= { erdConformance 2 }
+
+
+-- measurements ----------------
+
+erdAdcSensor		OBJECT-TYPE
+	SYNTAX		Integer32
+	MAX-ACCESS	read-only
+	STATUS		current
+	DESCRIPTION	"ADCIN1 sensor value"
+	::= { erdMeasurements 2 }
+
+erdAdc2Sensor		OBJECT-TYPE
+	SYNTAX		Integer32
+	MAX-ACCESS	read-only
+	STATUS		current
+	DESCRIPTION	"ADCIN2 sensor value"
+	::= { erdMeasurements 3 }
+
+erdTemperatureDHT		OBJECT-TYPE
+	SYNTAX		Integer32
+	UNITS		"degrees Centigrade"
+	MAX-ACCESS	read-only
+	STATUS		deprecated
+	DESCRIPTION	"DHT temperature value.
+	**NOTE: this object is deprecated and replaced by
+ 	erdDHTTemperature"
+	::= { erdMeasurements 8 }
+
+erdHumidityDHT		OBJECT-TYPE
+	SYNTAX		Integer32
+	UNITS		"persents"
+	MAX-ACCESS	read-only
+	STATUS		deprecated
+	DESCRIPTION	"DHT humidity value.
+	**NOTE: this object is deprecated and replaced by
+ 	erdDHTHumidity"
+	::= { erdMeasurements 9 }
+
+-- dtsTable ----------------
+
+erdDtsTable OBJECT-TYPE
+	SYNTAX      SEQUENCE OF ErdDtsEntry
+	MAX-ACCESS  not-accessible
+	STATUS      current
+	DESCRIPTION	"A list of temperature sensors values"
+	::= { erdOneWire 1 }
+	
+erdDtsEntry OBJECT-TYPE
+	SYNTAX      ErdDtsEntry
+	MAX-ACCESS  not-accessible
+	STATUS      current
+	DESCRIPTION	"An entry (conceptual row) in the dtsTable"
+	INDEX   { erdDtsId } 
+	::= { erdDtsTable 1 }
+
+ErdDtsEntry ::= SEQUENCE {
+        erdDtsId           		SensorID,
+		erdDtsName				DisplayString,
+        erdDtsTemp            	Integer32,
+		erdDtsTempCritNotif		Integer32,
+		erdDtsTempCritMin		Integer32,
+		erdDtsTempCritMax		Integer32
+    }
+	
+erdDtsId 		OBJECT-TYPE
+	SYNTAX      SensorID
+	MAX-ACCESS  not-accessible
+	STATUS      current
+	DESCRIPTION	"Temperature sensor id"
+	::= { erdDtsEntry 1 }
+
+erdDtsName 	OBJECT-TYPE
+	SYNTAX      DisplayString
+	MAX-ACCESS  read-write
+	STATUS      current
+	DESCRIPTION	"Name (max 20)"
+	::= { erdDtsEntry 2 }
+
+erdDtsTemp 	OBJECT-TYPE
+	SYNTAX		Integer32
+	UNITS		"degrees Centigrade"
+	MAX-ACCESS	read-only
+	STATUS      current
+	DESCRIPTION	"Temperature value"
+	::= { erdDtsEntry 3 }
+	
+erdDtsTempCritNotif	OBJECT-TYPE
+	SYNTAX		INTEGER { no(0), yes(1) }
+	MAX-ACCESS	read-write
+	STATUS		current
+	DESCRIPTION	"Enable notifications on the critical temperature"
+	::= { erdDtsEntry 10 }
+	
+erdDtsTempCritMin		OBJECT-TYPE
+	SYNTAX		Integer32
+	UNITS		"degrees Centigrade"
+	MAX-ACCESS	read-write
+	STATUS		current
+	DESCRIPTION	"Minimal critical temperature. 
+		Up to -55 degrees Celsius"
+	::= { erdDtsEntry 15 }
+
+erdDtsTempCritMax	OBJECT-TYPE
+	SYNTAX		Integer32
+	UNITS		"degrees Centigrade"
+	MAX-ACCESS	read-write
+	STATUS		current
+	DESCRIPTION	"Maximum critical temperature. 
+		Up to +125 degrees Celsius"
+	::= { erdDtsEntry 16 }
+
+
+-- shuntTable ----------------
+
+erdShuntTable OBJECT-TYPE
+	SYNTAX      SEQUENCE OF ErdShuntEntry
+	MAX-ACCESS  not-accessible
+	STATUS      current
+	DESCRIPTION
+			"A list of SNR-SHUNT values"
+	::= { erdOneWire 2 }
+
+erdShuntEntry OBJECT-TYPE
+	SYNTAX      ErdShuntEntry
+	MAX-ACCESS  not-accessible
+	STATUS      current
+	DESCRIPTION
+			"An entry (conceptual row) in the shuntTable"
+	INDEX   { erdShuntId }
+	::= { erdShuntTable 1 }
+
+ErdShuntEntry ::= SEQUENCE {
+	erdShuntId      	SensorID,
+	erdShuntName		DisplayString,
+	erdShuntTemp       	Integer32,
+	erdShuntVolt       	Integer32,
+	erdShuntCurrent		Integer32,
+	erdShuntChrgLvl		Integer32,
+	erdShuntChrgCap		Integer32,
+	erdShuntDischCap	Integer32,
+	erdShuntEndOfChrg	DisplayString,
+	erdShuntDiscn		DisplayString,
+	erdShuntBatLive		TimeTicks,
+	erdShuntDischTime	TimeTicks
+    }
+
+erdShuntId 	OBJECT-TYPE
+	SYNTAX      SensorID
+	MAX-ACCESS  not-accessible
+	STATUS      current
+	DESCRIPTION
+			"SNR-SHUNT id"
+	::= { erdShuntEntry 1 }
+
+erdShuntName OBJECT-TYPE
+	SYNTAX      DisplayString
+	MAX-ACCESS  read-write
+	STATUS      current
+	DESCRIPTION
+			"Name (max 20)"
+	::= { erdShuntEntry 2 }
+
+erdShuntTemp OBJECT-TYPE
+	SYNTAX      Integer32
+	UNITS		"degrees Centigrade"
+	MAX-ACCESS  read-only
+	STATUS      current
+	DESCRIPTION
+			"Temperature value"
+	::= { erdShuntEntry 3 }
+
+erdShuntVolt OBJECT-TYPE
+	SYNTAX      Integer32
+	UNITS		"Volt DC"
+	MAX-ACCESS  read-write
+	STATUS      current
+	DESCRIPTION
+			"Voltage"
+	::= { erdShuntEntry 4 }
+
+erdShuntCurrent OBJECT-TYPE
+	SYNTAX      Integer32
+	UNITS      "Amp DC"
+	MAX-ACCESS  read-write
+	STATUS      current
+	DESCRIPTION
+			"Current"
+	::= { erdShuntEntry 5 }
+
+erdShuntChrgLvl OBJECT-TYPE
+	SYNTAX      Integer32
+	UNITS      "percent"
+	MAX-ACCESS  read-write
+	STATUS      current
+	DESCRIPTION
+			"Battery charge level (0..100%)"
+	::= { erdShuntEntry 6 }
+
+erdShuntChrgCap 	OBJECT-TYPE
+	SYNTAX      Integer32
+	UNITS      "Amp / hour"
+	MAX-ACCESS  read-only
+	STATUS      current
+	DESCRIPTION
+			"Charge capacity"
+	::= { erdShuntEntry 7 }
+
+erdShuntDischCap OBJECT-TYPE
+	SYNTAX      Integer32
+	UNITS      "Amp / hour"
+	MAX-ACCESS  read-only
+	STATUS      current
+	DESCRIPTION
+			"Discharge capacity"
+	::= { erdShuntEntry 8 }
+
+erdShuntEndOfChrg OBJECT-TYPE
+	SYNTAX      DisplayString
+	MAX-ACCESS  read-only
+	STATUS      current
+	DESCRIPTION
+			"End of charge time"
+	::= { erdShuntEntry 9 }
+
+erdShuntDiscn OBJECT-TYPE
+	SYNTAX      DisplayString
+	MAX-ACCESS  read-only
+	STATUS      current
+	DESCRIPTION
+			"Disconnect time"
+	::= { erdShuntEntry 10 }
+
+erdShuntBatLive OBJECT-TYPE
+	SYNTAX      TimeTicks
+	MAX-ACCESS  read-only
+	STATUS      current
+	DESCRIPTION
+			"Battery using period"
+	::= { erdShuntEntry 11 }
+
+erdShuntDischTime OBJECT-TYPE
+	SYNTAX      TimeTicks
+	MAX-ACCESS  read-only
+	STATUS      current
+	DESCRIPTION
+			"Time to full discharge"
+	::= { erdShuntEntry 12 }
+
+-- htSensorTable ----------------
+
+erdHtSensorTable OBJECT-TYPE
+	SYNTAX      SEQUENCE OF ErdHtSensorEntry
+	MAX-ACCESS  not-accessible
+	STATUS      current
+	DESCRIPTION	"A list of SNR-HT-Sensor values"
+	::= { erdOneWire 3 }
+	
+erdHtSensorEntry OBJECT-TYPE
+	SYNTAX      ErdHtSensorEntry
+	MAX-ACCESS  not-accessible
+	STATUS      current
+	DESCRIPTION	"An entry (conceptual row) in the erdHtSensorTable"
+	INDEX   { erdHtSensorId } 
+	::= { erdHtSensorTable 1 }
+
+ErdHtSensorEntry ::= SEQUENCE {
+        erdHtSensorId           	SensorID,
+		erdHtSensorName				DisplayString,
+        erdHtSensorTemp            	Integer32,
+        erdHtSensorHumidity			Integer32,
+		erdHtSensorTempCritNotif	Integer32,
+		erdHtSensorTempCritMin		Integer32,
+		erdHtSensorTempCritMax		Integer32,
+		erdHtSensorHumiCritNotif	Integer32,
+		erdHtSensorHumiCritMin		Integer32,
+		erdHtSensorHumiCritMax		Integer32
+    }
+	
+erdHtSensorId 		OBJECT-TYPE
+	SYNTAX      SensorID
+	MAX-ACCESS  not-accessible
+	STATUS      current
+	DESCRIPTION	"SNR-HT-Sensor sensor id"
+	::= { erdHtSensorEntry 1 }
+
+erdHtSensorName 	OBJECT-TYPE
+	SYNTAX      DisplayString
+	MAX-ACCESS  read-write
+	STATUS      current
+	DESCRIPTION	"Name (max 20)"
+	::= { erdHtSensorEntry 2 }
+
+erdHtSensorTemp		OBJECT-TYPE
+	SYNTAX		Integer32
+	UNITS		"degrees Centigrade"
+	MAX-ACCESS	read-only
+	STATUS      current
+	DESCRIPTION	"Temperature value"
+	::= { erdHtSensorEntry 3 }
+
+erdHtSensorHumidity		OBJECT-TYPE
+	SYNTAX		Integer32
+	UNITS		"persents"
+	MAX-ACCESS	read-only
+	STATUS      current
+	DESCRIPTION	"Humidity value"
+	::= { erdHtSensorEntry 4 }
+	
+erdHtSensorTempCritNotif	OBJECT-TYPE
+	SYNTAX		INTEGER { no(0), yes(1) }
+	MAX-ACCESS	read-write
+	STATUS		current
+	DESCRIPTION	"Enable notifications on the critical temperature"
+	::= { erdHtSensorEntry 10 }
+	
+erdHtSensorTempCritMin		OBJECT-TYPE
+	SYNTAX		Integer32
+	UNITS		"degrees Centigrade"
+	MAX-ACCESS	read-write
+	STATUS		current
+	DESCRIPTION	"Minimal critical temperature. 
+		Up to -55 degrees Celsius"
+	::= { erdHtSensorEntry 15 }
+
+erdHtSensorTempCritMax	OBJECT-TYPE
+	SYNTAX		Integer32
+	UNITS		"degrees Centigrade"
+	MAX-ACCESS	read-write
+	STATUS		current
+	DESCRIPTION	"Maximum critical temperature. 
+		Up to +125 degrees Celsius"
+	::= { erdHtSensorEntry 16 }
+
+erdHtSensorHumiCritNotif	OBJECT-TYPE
+	SYNTAX		INTEGER { no(0), yes(1) }
+	MAX-ACCESS	read-write
+	STATUS		current
+	DESCRIPTION	"Enable notifications on the critical humidity"
+	::= { erdHtSensorEntry 20 }
+	
+erdHtSensorHumiCritMin		OBJECT-TYPE
+	SYNTAX		Integer32
+	UNITS		"percents"
+	MAX-ACCESS	read-write
+	STATUS		current
+	DESCRIPTION	"Minimal critical humidity. 
+	Up to 0 percents"
+	::= { erdHtSensorEntry 25 }
+
+erdHtSensorHumiCritMax	OBJECT-TYPE
+	SYNTAX		Integer32
+	UNITS		"percents"
+	MAX-ACCESS	read-write
+	STATUS		current
+	DESCRIPTION	"Maximum critical humidity. 
+	Up to 100 percents"
+	::= { erdHtSensorEntry 26 }
+
+-- dhtTable ----------------
+
+erdDHTTable OBJECT-TYPE
+	SYNTAX      SEQUENCE OF ErdDHTEntry
+	MAX-ACCESS  not-accessible
+	STATUS      current
+	DESCRIPTION	"A list of DHT values"
+	::= { erdOneWire 4 }
+	
+erdDHTEntry OBJECT-TYPE
+	SYNTAX      ErdDHTEntry
+	MAX-ACCESS  not-accessible
+	STATUS      current
+	DESCRIPTION	"An entry (conceptual row) in the dtsTable"
+	INDEX   { erdIDDHT } 
+	::= { erdDHTTable 1 }
+
+ErdDHTEntry ::= SEQUENCE {
+		erdIDDHT						SensorID,
+		erdDHTName						DisplayString,
+        erdDHTTemperature       		Integer32,
+		erdDHTHumidity					Integer32,
+		erdDHTTemperatureNotifications 	Integer32,
+		erdDHTTemperatureCritMin		Integer32,
+		erdDHTTemperatureCritMax		Integer32,
+		erdDHTHumidityNotifications		Integer32,
+		erdDHTHumidityCritMin			Integer32,
+		erdDHTHumidityCritMax			Integer32
+    }
+
+erdIDDHT		OBJECT-TYPE
+	SYNTAX		SensorID
+	MAX-ACCESS	not-accessible
+	STATUS		current
+	DESCRIPTION	"DHT id"
+	::= { erdDHTEntry 1 }
+
+erdDHTName 	OBJECT-TYPE
+	SYNTAX      DisplayString
+	MAX-ACCESS  read-write
+	STATUS      current
+	DESCRIPTION	"Name (max 20)"
+	::= { erdDHTEntry 2 }
+
+erdDHTTemperature		OBJECT-TYPE
+	SYNTAX		Integer32
+	UNITS		"degrees Centigrade"
+	MAX-ACCESS	read-only
+	STATUS		current
+	DESCRIPTION	"DHT temperature value"
+	::= { erdDHTEntry 3 }
+
+erdDHTHumidity		OBJECT-TYPE
+	SYNTAX		Integer32
+	UNITS		"persents"
+	MAX-ACCESS	read-only
+	STATUS		current
+	DESCRIPTION	"DHT humidity value"
+	::= { erdDHTEntry 4}
+
+erdDHTTemperatureNotifications	OBJECT-TYPE
+	SYNTAX		INTEGER { no(0), yes(1) }
+	UNITS		"degrees Centigrade"
+	MAX-ACCESS	read-write
+	STATUS		current
+	DESCRIPTION	"Enable notifications on the critical temperature"
+	::= { erdDHTEntry 10 }
+
+erdDHTTemperatureCritMin		OBJECT-TYPE
+	SYNTAX		Integer32
+	UNITS		"persents"
+	MAX-ACCESS	read-write
+	STATUS		current
+	DESCRIPTION	"Minimal critical temperature. 
+		Up to -55 degrees Celsius"
+	::= { erdDHTEntry 15}
+
+erdDHTTemperatureCritMax		OBJECT-TYPE
+	SYNTAX		Integer32
+	UNITS		"persents"
+	MAX-ACCESS	read-write
+	STATUS		current
+	DESCRIPTION	"Maximum critical temperature. 
+		Up to +125 degrees Celsius"
+	::= { erdDHTEntry 16}
+
+erdDHTHumidityNotifications	OBJECT-TYPE
+	SYNTAX		INTEGER { no(0), yes(1) }
+	UNITS		"degrees Centigrade"
+	MAX-ACCESS	read-write
+	STATUS		current
+	DESCRIPTION	"Enable notifications on the critical humidity"
+	::= { erdDHTEntry 20}
+
+erdDHTHumidityCritMin		OBJECT-TYPE
+	SYNTAX		Integer32
+	UNITS		"persents"
+	MAX-ACCESS	read-write
+	STATUS		current
+	DESCRIPTION	"Minimal critical humidity. 
+		Up to 0 percents"
+	::= { erdDHTEntry 25}
+
+erdDHTHumidityCritMax		OBJECT-TYPE
+	SYNTAX		Integer32
+	UNITS		"persents"
+	MAX-ACCESS	read-write
+	STATUS		current
+	DESCRIPTION	"Maximum critical humidity. 
+		Up to 100 percents"
+	::= { erdDHTEntry 26}
+
+-- sp -------------------------
+
+-- rsshtpTable ----------------
+
+erdRsshtpTable		OBJECT-TYPE
+	SYNTAX		SEQUENCE OF ErdRsshtpEntry
+	MAX-ACCESS	not-accessible
+	STATUS		current
+	DESCRIPTION	"A list of SNR-RSsensor-H/T/P values"
+	::= { erdSp 1 }
+
+erdRsshtpEntry OBJECT-TYPE
+	SYNTAX		ErdRsshtpEntry
+	MAX-ACCESS	not-accessible
+	STATUS		current
+	DESCRIPTION	"An entry (conceptual row) 
+	in the rsshtpTable"
+	INDEX		{ erdRsshtpIdent }
+	::= { erdRsshtpTable 1 }
+
+ErdRsshtpEntry ::= SEQUENCE {
+    erdRsshtpIdent				DisplayString,
+	erdRsshtpName				DisplayString,
+    erdRsshtpTemp				Integer32,
+	erdRsshtpHum				Integer32,
+	erdRsshtpPssr				Integer32,
+	erdRsshtpTempCritNotif		Integer32,
+	erdRsshtpTempCritMin		Integer32,
+	erdRsshtpTempCritMax		Integer32,
+	erdRsshtpHumiCritNotif		Integer32,
+	erdRsshtpHumiCritMin		Integer32,
+	erdRsshtpHumiCritMax		Integer32
+}
+
+erdRsshtpIdent		OBJECT-TYPE
+	SYNTAX		DisplayString (SIZE (0..24))
+	MAX-ACCESS	not-accessible
+	STATUS		current
+	DESCRIPTION	"SNR-RSsensor-H/T/P id"
+	::= { erdRsshtpEntry 1 }
+
+erdRsshtpName		OBJECT-TYPE
+	SYNTAX      	DisplayString
+	MAX-ACCESS  	read-write
+	STATUS      	current
+	DESCRIPTION 	"Name (max 20)"
+	::= { erdRsshtpEntry 2 }
+
+erdRsshtpTemp		OBJECT-TYPE
+	SYNTAX		Integer32
+	UNITS		"degrees Centigrade"
+	MAX-ACCESS	read-only
+	STATUS		current
+	DESCRIPTION	"Temperature value 1"
+	::= { erdRsshtpEntry 3 }
+
+erdRsshtpHum		OBJECT-TYPE
+	SYNTAX		Integer32
+	UNITS		"persents"
+	MAX-ACCESS	read-only
+	STATUS		current
+	DESCRIPTION	"Humidity value"
+	::= { erdRsshtpEntry 4 }
+
+erdRsshtpPssr		OBJECT-TYPE
+	SYNTAX		Integer32
+	UNITS		"mmHg"
+	MAX-ACCESS	read-only
+	STATUS		current
+	DESCRIPTION	"Pressure value"
+	::= { erdRsshtpEntry 6 }
+
+erdRsshtpTempCritNotif	OBJECT-TYPE
+	SYNTAX		INTEGER { no(0), yes(1) }
+	MAX-ACCESS	read-write
+	STATUS		current
+	DESCRIPTION	"Enable notifications on the critical temperature"
+	::= { erdRsshtpEntry 10 }
+	
+erdRsshtpTempCritMin		OBJECT-TYPE
+	SYNTAX		Integer32
+	UNITS		"degrees Centigrade"
+	MAX-ACCESS	read-write
+	STATUS		current
+	DESCRIPTION	"Minimal critical temperature. 
+	Up to -55  degrees Celsius"
+	::= { erdRsshtpEntry 15 }
+
+erdRsshtpTempCritMax	OBJECT-TYPE
+	SYNTAX		Integer32
+	UNITS		"degrees Centigrade"
+	MAX-ACCESS	read-write
+	STATUS		current
+	DESCRIPTION	"Maximum critical temperature. 
+	Up to +125 degrees Celsius"
+	::= { erdRsshtpEntry 16 }
+
+erdRsshtpHumiCritNotif	OBJECT-TYPE
+	SYNTAX		INTEGER { no(0), yes(1) }
+	MAX-ACCESS	read-write
+	STATUS		current
+	DESCRIPTION	"Enable notifications on the critical humidity"
+	::= { erdRsshtpEntry 20 }
+	
+erdRsshtpHumiCritMin		OBJECT-TYPE
+	SYNTAX		Integer32
+	UNITS		"percents"
+	MAX-ACCESS	read-write
+	STATUS		current
+	DESCRIPTION	"Minimal critical humidity. 
+	Up to 0 percents"
+	::= { erdRsshtpEntry 25 }
+
+erdRsshtpHumiCritMax	OBJECT-TYPE
+	SYNTAX		Integer32
+	UNITS		"percents"
+	MAX-ACCESS	read-write
+	STATUS		current
+	DESCRIPTION	"Maximum critical humidity. 
+	Up to 100 percents"
+	::= { erdRsshtpEntry 26 }
+
+-- rscounterTable ----------------
+
+erdRscounterTable		OBJECT-TYPE
+	SYNTAX		SEQUENCE OF ErdRscounterEntry
+	MAX-ACCESS	not-accessible
+	STATUS		current
+	DESCRIPTION	"A list of SNR-RS-Counter"
+	::= { erdSp 5 }
+
+erdRscounterEntry OBJECT-TYPE
+	SYNTAX		ErdRscounterEntry
+	MAX-ACCESS	not-accessible
+	STATUS		current
+	DESCRIPTION	"An entry (conceptual row) 
+	in the rscounterTable"
+	INDEX		{ erdRscounterIdent }
+	::= { erdRscounterTable 1 }
+
+ErdRscounterEntry ::= SEQUENCE {
+	erdRscounterIdent	DisplayString,
+	erdRscounterName	DisplayString
+}
+
+erdRscounterIdent	OBJECT-TYPE
+	SYNTAX		DisplayString (SIZE (0..24))
+	MAX-ACCESS	not-accessible
+	STATUS		current
+	DESCRIPTION	"SNR-RS-Counter id"
+	::= { erdRscounterEntry 1 }
+
+erdRscounterName		OBJECT-TYPE
+	SYNTAX      	DisplayString
+	MAX-ACCESS  	read-write
+	STATUS      	current
+	DESCRIPTION 	"Name (max 20)"
+	::= { erdRscounterEntry 2 }
+	
+
+-- smartOutletTable ----------------
+
+erdSmartOutletTable		OBJECT-TYPE
+	SYNTAX		SEQUENCE OF ErdSmartOutletEntry
+	MAX-ACCESS	not-accessible
+	STATUS		current
+	DESCRIPTION	"A list of SNR-Smart-Outlet"
+	::= { erdSp 8 }
+
+erdSmartOutletEntry OBJECT-TYPE
+	SYNTAX		ErdSmartOutletEntry
+	MAX-ACCESS	not-accessible
+	STATUS		current
+	DESCRIPTION	"An entry (conceptual row) 
+	in the smartOutletTable"
+	INDEX		{ erdSmartOutletIdent }
+	::= { erdSmartOutletTable 1 }
+
+ErdSmartOutletEntry ::= SEQUENCE {
+	erdSmartOutletIdent	DisplayString,
+	erdSmartOutletName	DisplayString
+}
+
+erdSmartOutletIdent	OBJECT-TYPE
+	SYNTAX		DisplayString (SIZE (0..24))
+	MAX-ACCESS	not-accessible
+	STATUS		current
+	DESCRIPTION	"SNR-Smart-Outlet id"
+	::= { erdSmartOutletEntry 1 }
+
+erdSmartOutletName		OBJECT-TYPE
+	SYNTAX      	DisplayString
+	MAX-ACCESS  	read-write
+	STATUS      	current
+	DESCRIPTION 	"Name (max 20)"
+	::= { erdSmartOutletEntry 2 }
+
+
+-- rsshtp1WTable ----------------
+
+erdRsshtp1WTable		OBJECT-TYPE
+	SYNTAX		SEQUENCE OF ErdRsshtp1WEntry
+	MAX-ACCESS	not-accessible
+	STATUS		current
+	DESCRIPTION	"A list of temperature sensors 
+	are connected to SNR-RSsensor-H/T/P"
+	::= { erdSp 100 }
+
+erdRsshtp1WEntry 		OBJECT-TYPE
+	SYNTAX		ErdRsshtp1WEntry
+	MAX-ACCESS	not-accessible
+	STATUS		current
+	DESCRIPTION	"An entry (conceptual row) 
+	in the rsshtp1WTable"
+	INDEX		{ erdRsshtp1WIdent }
+	::= { erdRsshtp1WTable 1 }
+
+ErdRsshtp1WEntry ::= SEQUENCE {
+    erdRsshtp1WIdent			SensorID,
+	erdRsshtp1WName			DisplayString,
+    erdRsshtp1WTemp			Integer32,
+	erdRsshtp1WMaster			DisplayString,
+	erdRsshtp1WTempCritNotif	Integer32,
+	erdRsshtp1WTempCritMin		Integer32,
+	erdRsshtp1WTempCritMax		Integer32
+}
+
+erdRsshtp1WIdent		OBJECT-TYPE
+	SYNTAX		SensorID
+	MAX-ACCESS	not-accessible
+	STATUS		current
+	DESCRIPTION	"Temperature sensor id"
+	::= { erdRsshtp1WEntry 1 }
+
+erdRsshtp1WName OBJECT-TYPE
+	SYNTAX      DisplayString
+	MAX-ACCESS  read-write
+	STATUS      current
+	DESCRIPTION "Name (max 20)"
+	::= { erdRsshtp1WEntry 2 }
+
+erdRsshtp1WTemp		OBJECT-TYPE
+	SYNTAX		Integer32
+	UNITS		"degrees Centigrade"
+	MAX-ACCESS	read-only
+	STATUS		current
+	DESCRIPTION	"Temperature value"
+	::= { erdRsshtp1WEntry 3 }
+
+erdRsshtp1WMaster		OBJECT-TYPE
+	SYNTAX		DisplayString (SIZE (0..24))
+	MAX-ACCESS	read-only
+	STATUS		current
+	DESCRIPTION	"Name of the SNR-RSsensor-H/T/P 
+	which this temperature sensor 
+	is connected to"
+	::= { erdRsshtp1WEntry 4 }
+
+erdRsshtp1WTempCritNotif	OBJECT-TYPE
+	SYNTAX		INTEGER { no(0), yes(1) }
+	MAX-ACCESS	read-write
+	STATUS		current
+	DESCRIPTION	"Enable notifications on the critical temperature"
+	::= { erdRsshtp1WEntry 10 }
+	
+erdRsshtp1WTempCritMin		OBJECT-TYPE
+	SYNTAX		Integer32
+	UNITS		"degrees Centigrade"
+	MAX-ACCESS	read-write
+	STATUS		current
+	DESCRIPTION	"Minimal critical temperature. 
+	Up to -55 degrees Celsius"
+	::= { erdRsshtp1WEntry 15 }
+
+erdRsshtp1WTempCritMax	OBJECT-TYPE
+	SYNTAX		Integer32
+	UNITS		"degrees Centigrade"
+	MAX-ACCESS	read-write
+	STATUS		current
+	DESCRIPTION	"Maximum critical temperature. 
+	Up to +125 degrees Celsius"
+	::= { erdRsshtp1WEntry 16 }
+
+
+
+-- rsshtp1WTable ----------------
+
+erdRsshtp1WHTTable		OBJECT-TYPE
+	SYNTAX		SEQUENCE OF ErdRsshtp1WHTEntry
+	MAX-ACCESS	not-accessible
+	STATUS		current
+	DESCRIPTION	"A list of HT-Sensors 
+	are connected to SNR-RSsensor-H/T/P"
+	::= { erdSp 101 }
+
+erdRsshtp1WHTEntry 		OBJECT-TYPE
+	SYNTAX		ErdRsshtp1WHTEntry
+	MAX-ACCESS	not-accessible
+	STATUS		current
+	DESCRIPTION	"An entry (conceptual row) 
+	in the rsshtp1WHTTable"
+	INDEX		{ erdRsshtp1WHTIdent }
+	::= { erdRsshtp1WHTTable 1 }
+
+ErdRsshtp1WHTEntry ::= SEQUENCE {
+    erdRsshtp1WHTIdent			SensorID,
+	erdRsshtp1WHTName			DisplayString,
+    erdRsshtp1WHTTemp			Integer32,
+    erdRsshtp1WHTHum			Integer32,
+	erdRsshtp1WHTMaster			DisplayString,
+	erdRsshtp1WHTTempCritNotif	Integer32,
+	erdRsshtp1WHTTempCritMin		Integer32,
+	erdRsshtp1WHTTempCritMax		Integer32
+}
+
+erdRsshtp1WHTIdent		OBJECT-TYPE
+	SYNTAX		SensorID
+	MAX-ACCESS	not-accessible
+	STATUS		current
+	DESCRIPTION	"Temperature sensor id"
+	::= { erdRsshtp1WHTEntry 1 }
+
+erdRsshtp1WHTName OBJECT-TYPE
+	SYNTAX      DisplayString
+	MAX-ACCESS  read-write
+	STATUS      current
+	DESCRIPTION "Name (max 20)"
+	::= { erdRsshtp1WHTEntry 2 }
+
+erdRsshtp1WHTTemp		OBJECT-TYPE
+	SYNTAX		Integer32
+	UNITS		"degrees Centigrade"
+	MAX-ACCESS	read-only
+	STATUS		current
+	DESCRIPTION	"Temperature value"
+	::= { erdRsshtp1WHTEntry 3 }
+
+erdRsshtp1WHTHum		OBJECT-TYPE
+	SYNTAX		Integer32
+	UNITS		"percents"
+	MAX-ACCESS	read-only
+	STATUS		current
+	DESCRIPTION	"Humidity value"
+	::= { erdRsshtp1WHTEntry 4 }
+
+erdRsshtp1WHTMaster		OBJECT-TYPE
+	SYNTAX		DisplayString (SIZE (0..24))
+	MAX-ACCESS	read-only
+	STATUS		current
+	DESCRIPTION	"Name of the SNR-RSsensor-H/T/P 
+	which this temperature sensor 
+	is connected to"
+	::= { erdRsshtp1WHTEntry 9 }
+
+erdRsshtp1WHTTempCritNotif	OBJECT-TYPE
+	SYNTAX		INTEGER { no(0), yes(1) }
+	MAX-ACCESS	read-write
+	STATUS		current
+	DESCRIPTION	"Enable notifications on the critical temperature"
+	::= { erdRsshtp1WHTEntry 10 }
+	
+erdRsshtp1WHTTempCritMin		OBJECT-TYPE
+	SYNTAX		Integer32
+	UNITS		"degrees Centigrade"
+	MAX-ACCESS	read-write
+	STATUS		current
+	DESCRIPTION	"Minimal critical temperature. 
+	Up to -55 degrees Celsius"
+	::= { erdRsshtp1WHTEntry 15 }
+
+erdRsshtp1WHTTempCritMax	OBJECT-TYPE
+	SYNTAX		Integer32
+	UNITS		"degrees Centigrade"
+	MAX-ACCESS	read-write
+	STATUS		current
+	DESCRIPTION	"Maximum critical temperature. 
+	Up to +125 degrees Celsius"
+	::= { erdRsshtp1WHTEntry 16 }
+
+-- rsem115Table ----------------
+
+erdRsem115Table		OBJECT-TYPE
+	SYNTAX		SEQUENCE OF ErdRsem115Entry
+	MAX-ACCESS	not-accessible
+	STATUS		current
+	DESCRIPTION	"A list of em115 values"
+	::= { erdSp 200 }
+
+erdRsem115Entry OBJECT-TYPE
+	SYNTAX		ErdRsem115Entry
+	MAX-ACCESS	not-accessible
+	STATUS		current
+	DESCRIPTION	"An entry (conceptual row) 
+	in the rsshtpTable"
+	INDEX		{ erdRsem115Ident }
+	::= { erdRsem115Table 1 }
+
+ErdRsem115Entry ::= SEQUENCE 
+{
+    erdRsem115Ident			SensorID,
+	erdRsem115ApparentPower	Integer32
+}
+
+erdRsem115Ident		OBJECT-TYPE
+	SYNTAX		SensorID
+	MAX-ACCESS	not-accessible
+	STATUS		current
+	DESCRIPTION	"em115 modbus id"
+	::= { erdRsem115Entry 1 }
+
+erdRsem115ApparentPower		OBJECT-TYPE
+	SYNTAX      	Integer32
+	UNITS			"Volt-Amps"
+	MAX-ACCESS  	read-only
+	STATUS      	current
+	DESCRIPTION 	"ApparentPower VA"
+	::= { erdRsem115Entry 2 }
+
+
+-- sensorsTemplateTable
+
+erdSensorsTemplateTable		OBJECT-TYPE
+	SYNTAX		SEQUENCE OF ErdSensorsTemplateEntry
+	MAX-ACCESS	not-accessible
+	STATUS		current
+	DESCRIPTION	"A list of sensors values"
+	::= { erdSensorsTemplate 1 }
+
+erdSensorsTemplateEntry 		OBJECT-TYPE
+	SYNTAX		ErdSensorsTemplateEntry
+	MAX-ACCESS	not-accessible
+	STATUS		current
+	DESCRIPTION	"An entry (conceptual row) 
+	in the rsshtp1WTable"
+	INDEX		{ erdSensorsTemplateId }
+	::= { erdSensorsTemplateTable 1 }
+
+ErdSensorsTemplateEntry ::= SEQUENCE {
+    erdSensorsTemplateValue	Integer32,
+	erdSensorsTemplateName		DisplayString,
+	erdSensorsTemplateId      	SensorID
+}
+
+erdSensorsTemplateValue		OBJECT-TYPE
+	SYNTAX		Integer32
+	MAX-ACCESS	read-only
+	STATUS		current
+	DESCRIPTION	"Current value"
+	::= { erdSensorsTemplateEntry 1 }
+
+erdSensorsTemplateName			OBJECT-TYPE
+	SYNTAX      DisplayString
+	MAX-ACCESS  read-write
+	STATUS      current
+	DESCRIPTION "Name"
+	::= { erdSensorsTemplateEntry 2 }
+	
+erdSensorsTemplateId			OBJECT-TYPE
+	SYNTAX      SensorID
+	MAX-ACCESS  not-accessible
+	STATUS      current
+	DESCRIPTION "ID"
+	::= { erdSensorsTemplateEntry 3 }
+
+erdSensorsTemplateTotalConnect		OBJECT-TYPE
+	SYNTAX		Integer32
+	MAX-ACCESS	read-only
+	STATUS		current
+	DESCRIPTION	"Total value of connected sensors"
+	::= { erdSensorsTemplate 2 }
+
+
+-- dio --------------------
+
+-- diTable ----------------
+
+erdDiTable		OBJECT-TYPE
+	SYNTAX		SEQUENCE OF ErdDiEntry
+	MAX-ACCESS	not-accessible
+	STATUS		current
+	DESCRIPTION	"A list of digital inputs values"
+	::= { erdDio 1 }
+
+erdDiEntry		OBJECT-TYPE
+	SYNTAX		ErdDiEntry
+	MAX-ACCESS	not-accessible
+	STATUS		current
+	DESCRIPTION	"An entry (conceptual row) 
+	in the diTable"
+	INDEX   { erdDiName } 
+	::= { erdDiTable 1 }
+
+ErdDiEntry ::= SEQUENCE {
+	erdDiName		DisplayString,
+	erdDiAlarmName	DisplayString,
+	erdDiState		INTEGER,
+	erdDiCnt		Unsigned32,
+	erdDiInverted	INTEGER
+}
+
+erdDiName		OBJECT-TYPE
+	SYNTAX		DisplayString (SIZE(0..32))
+	MAX-ACCESS	not-accessible
+	STATUS		current
+	DESCRIPTION	"Digital input name"
+	::= { erdDiEntry 1 }
+
+erdDiAlarmName	OBJECT-TYPE
+	SYNTAX		DisplayString
+	MAX-ACCESS	read-write
+	STATUS		current
+	DESCRIPTION	"Alarm name"
+	::= { erdDiEntry 2 }
+
+erdDiState		OBJECT-TYPE
+	SYNTAX		INTEGER {
+		low(0),
+		high(1)
+	}
+	MAX-ACCESS	read-only
+	STATUS		current
+	DESCRIPTION	"Digital input state"
+	::= { erdDiEntry 3 }
+
+erdDiCnt		OBJECT-TYPE
+	SYNTAX		Unsigned32
+	MAX-ACCESS	read-write
+	STATUS		current
+	DESCRIPTION	"Digital input impulse counter. 
+	Writable for reset only. Set 0 to reset"
+	::= { erdDiEntry 4 }
+
+erdDiInverted	OBJECT-TYPE
+	SYNTAX		INTEGER {
+		no(0),
+		yes(1)
+	}
+	MAX-ACCESS	read-write
+	STATUS		current
+	DESCRIPTION	"Input state inversion"
+	::= { erdDiEntry 5 }
+
+
+-- doTable ----------------
+
+erdDoTable		OBJECT-TYPE
+	SYNTAX		SEQUENCE OF ErdDoEntry
+	MAX-ACCESS	not-accessible
+	STATUS		current
+	DESCRIPTION	"A list of digital outputs values"
+	::= { erdDio 2 }
+
+erdDoEntry		OBJECT-TYPE
+	SYNTAX		ErdDoEntry
+	MAX-ACCESS	not-accessible
+	STATUS		current
+	DESCRIPTION	"An entry (conceptual row) 
+	in the doTable"
+	INDEX   { erdDoName } 
+	::= { erdDoTable 1 }
+
+ErdDoEntry ::= SEQUENCE {
+	erdDoName			DisplayString,
+	erdDoDeviceName		DisplayString,
+	erdDoState			INTEGER,
+	erdDoResetTime		Integer32
+}
+
+erdDoName		OBJECT-TYPE
+	SYNTAX		DisplayString (SIZE(0..32))
+	MAX-ACCESS	not-accessible
+	STATUS		current
+	DESCRIPTION	"Digital output name"
+	::= { erdDoEntry 1 }
+
+erdDoDeviceName	OBJECT-TYPE
+	SYNTAX			DisplayString
+	MAX-ACCESS		read-write
+	STATUS			current
+	DESCRIPTION		"Digital output custom name"
+	::= { erdDoEntry 2 }
+
+erdDoState		OBJECT-TYPE
+	SYNTAX		INTEGER
+			{
+				off(0),
+				on(1),
+				reload(2)
+			}
+	MAX-ACCESS	read-write
+	STATUS		current
+	DESCRIPTION	"Digital output state"
+	::= { erdDoEntry 3 }
+
+erdDoResetTime	OBJECT-TYPE
+	SYNTAX		Integer32
+	UNITS		"seconds"
+	MAX-ACCESS	read-write
+	STATUS		current
+	DESCRIPTION	"Reload period (sec)"
+	::= { erdDoEntry 4 }
+
+erdUSenseState	OBJECT-TYPE
+	SYNTAX		INTEGER
+		{
+			off(0),
+			on(1)
+		}
+	MAX-ACCESS	read-only
+	STATUS		current
+	DESCRIPTION	"Voltage sensor state"
+	::= { erdDio 3 }
+
+
+-- serial ----------------
+
+-- rs485 -----------------
+
+erdConnectStatusRs485	OBJECT-TYPE
+	SYNTAX		INTEGER
+		{
+			no(0),
+			yes(1)
+		}
+	MAX-ACCESS			read-only
+	STATUS				current
+	DESCRIPTION			"RS485 TCP connection status"
+	::= { erdRs485 1 }
+
+erd4ipAddrRs485	OBJECT-TYPE
+	SYNTAX		IpAddress
+	MAX-ACCESS	read-only
+	STATUS		current
+	DESCRIPTION	"RS485 TCP connection IP address"
+	::= { erdRs485 2 }
+
+
+-- rs232 ----------------
+
+erdConnectStatusRs232	OBJECT-TYPE
+	SYNTAX		INTEGER
+		{
+			no(0),
+			yes(1)
+		}
+	MAX-ACCESS			read-only
+	STATUS				current
+	DESCRIPTION			"RS232 TCP connection status"
+	::= { erdRs232 1 }
+	
+erd4ipAddrRs232	OBJECT-TYPE
+	SYNTAX		IpAddress
+	MAX-ACCESS	read-only
+	STATUS		current
+	DESCRIPTION	"RS232 TCP connection IP address"
+	::= { erdRs232 2 }
+
+
+-- modules ----------------
+
+-- gsm --------------------
+
+erdGsmModuleStatus	OBJECT-TYPE
+	SYNTAX		INTEGER
+		{
+			no(0),
+			yes(1),
+			noSim(2),
+			error(3),
+			connected(4)
+		}
+	MAX-ACCESS		read-only
+	STATUS			current
+	DESCRIPTION		"GSM module status"
+	::= { erdGsm 1 }
+
+erdGsmStrength	OBJECT-TYPE
+	SYNTAX		Integer32
+	UNITS		"dBm"
+	MAX-ACCESS	read-only
+	STATUS		current
+	DESCRIPTION	"Signal level (dBm)"
+	::= { erdGsm 2 }
+
+erdGsmConnectCount		OBJECT-TYPE
+	SYNTAX		Integer32
+	MAX-ACCESS	read-only
+	STATUS		current
+	DESCRIPTION	"Number of connection attempts"
+	::= { erdGsm 10 }
+
+
+-- options ----------------
+
+erdDataType	OBJECT-TYPE
+	SYNTAX		INTEGER
+		{
+			integer(0),
+			float(1),
+			ufloat(2)
+		}
+	MAX-ACCESS	read-write
+	STATUS		current
+	DESCRIPTION	"Data type for analog values.
+	Integer - integer format;
+	Float - single-precision floating-point format;
+	Ufloat - integer x 100. If your system doesn't support float type"
+	::= { erdOptions 1 }
+
+erdReboot		OBJECT-TYPE
+	SYNTAX		Integer32
+	MAX-ACCESS	read-write
+	STATUS		current
+	DESCRIPTION	"Send 1 to reboot"
+	::= { erdOptions 300 }
+
+
+-- crit ----------------
+
+erdHumCrit		OBJECT-TYPE
+	SYNTAX		Integer32 (0..100)
+	UNITS		"persents"
+	MAX-ACCESS	read-write
+	STATUS		deprecated
+	DESCRIPTION	"Critical humidity. 
+	From 0 to 100%"
+	::= { erdCrit 20 }
+
+erdAdcCritMin	OBJECT-TYPE
+	SYNTAX		Integer32
+	MAX-ACCESS	read-write
+	STATUS		current
+	DESCRIPTION	"ADCIN1 critical min"
+	::= { erdCrit 30 }
+
+erdAdcCritMax	OBJECT-TYPE
+	SYNTAX		Integer32
+	MAX-ACCESS	read-write
+	STATUS		current
+	DESCRIPTION	"ADCIN1 critical max"
+	::= { erdCrit 31 }
+
+erdAdcHysteresis	OBJECT-TYPE
+	SYNTAX			Integer32
+	MAX-ACCESS		read-write
+	STATUS			current
+	DESCRIPTION		"ADCIN1 hysteresis"
+	::= { erdCrit 35 }
+
+erdAdc2CritMin	OBJECT-TYPE
+	SYNTAX		Integer32
+	MAX-ACCESS	read-write
+	STATUS		current
+	DESCRIPTION	"ADCIN2 critical min"
+	::= { erdCrit 40 }
+
+erdAdc2CritMax	OBJECT-TYPE
+	SYNTAX		Integer32
+	MAX-ACCESS	read-write
+	STATUS		current
+	DESCRIPTION	"ADCIN2 critical max"
+	::= { erdCrit 41 }
+
+erdAdc2Hysteresis	OBJECT-TYPE
+	SYNTAX			Integer32
+	MAX-ACCESS		read-write
+	STATUS			current
+	DESCRIPTION		"ADCIN2 hysteresis"
+	::= { erdCrit 45 }
+
+-- diffparams ----------------
+
+-- upsStatus -----------------
+
+erdUpsStatus		OBJECT-TYPE
+	SYNTAX		INTEGER
+		{
+			ok(0),
+			fail(1),
+			unknown(2) 
+		}
+	MAX-ACCESS	read-only
+	STATUS		current
+	DESCRIPTION	"UPS status"
+	::= { erdUps 1 }
+
+erdUpsMode		OBJECT-TYPE
+	SYNTAX		INTEGER
+		{
+			online(0),
+			onbattery(1) 
+		}
+    MAX-ACCESS	read-only
+    STATUS		current
+    DESCRIPTION	"UPS mode: on line or on battery"
+::= { erdUps 2 }
+
+erdUpsBeeperStatus		OBJECT-TYPE
+	SYNTAX		INTEGER { off(0), on(1) }
+	MAX-ACCESS	read-only
+	STATUS		current
+	DESCRIPTION	"Beeper status. 
+	Megatec only"
+	::= { erdUps 8 }
+
+erdUpsShutdownStatus		OBJECT-TYPE
+	SYNTAX		INTEGER { nonactive(0), active(1) }
+	MAX-ACCESS	read-only
+	STATUS		current
+	DESCRIPTION	"Shutdown is active.
+	Megatec only"
+	::= { erdUps 10 }
+
+erdUpsLastBatteryChange	OBJECT-TYPE
+	SYNTAX		DisplayString
+	MAX-ACCESS	read-write
+	STATUS		current
+	DESCRIPTION	"Last battery change date (mm/dd/yyyy).  
+	Smart only"
+	::= { erdUps 20 }
+
+erdUpsTestTime		OBJECT-TYPE
+	SYNTAX		Integer32
+	MAX-ACCESS	read-only
+	STATUS		current
+	DESCRIPTION	"Test period"
+::= { erdUps 50 }
+
+erdUpsShutdownTime		OBJECT-TYPE
+	SYNTAX		Integer32
+	MAX-ACCESS	read-write
+	STATUS		current
+	DESCRIPTION	"Shutdown period,
+	minutes for Megatec, seconds for Smart.
+	Writeble for Megatec only"
+	::= { erdUps 51 }
+
+erdUpsTurnOnTime		OBJECT-TYPE
+	SYNTAX		Integer32
+	UNITS		"minutes"
+	MAX-ACCESS	read-write
+	STATUS		current
+	DESCRIPTION	"Turn on period, minutes.
+	Megatec only"
+	::= { erdUps 52 }
+
+erdUpsStartShutdownTurnOn		OBJECT-TYPE
+	SYNTAX		Integer32
+	MAX-ACCESS	read-write
+	STATUS		current
+	DESCRIPTION	"Shutdown after shutdownTimeUPS 
+	and turn on after turnOnTimeUPS for Megatec. 
+	Shutdown after shutdownTimeUPS for Smart. 
+	Send 1 to start, 0 to stop"
+	::= { erdUps 53 }
+
+erdUpsStartTurnOn		OBJECT-TYPE
+	SYNTAX		Integer32
+	MAX-ACCESS	read-write
+	STATUS		current
+	DESCRIPTION	"Turn on immediately, send 1 to turn on.
+	Smart only"
+	::= { erdUps 54 }
+
+erdUpsTestType		OBJECT-TYPE
+	SYNTAX		INTEGER
+		{
+			noTest(0), 
+			shortTest(1), 
+			specifiedPeriodTest(2), 
+			fullDischargeTest(3)
+		}
+    MAX-ACCESS	read-only
+    STATUS		current
+    DESCRIPTION	"Current test type"
+::= { erdUps 70 }
+
+erdUpsStartLongTest		OBJECT-TYPE
+	SYNTAX		Integer32
+	UNITS		"minutes"
+	MAX-ACCESS	read-write
+	STATUS		current
+	DESCRIPTION	"Start specified time period test. 
+	Send period in minutes to start.
+	Megatec only"
+	::= { erdUps 71 }
+
+erdUpsSpecifiedTimeTest	OBJECT-TYPE
+	SYNTAX		Integer32
+    MAX-ACCESS	read-only
+    STATUS		current
+    DESCRIPTION	"Test for specified time period"
+::= { erdUps 75 }
+
+erdUpsLastTestDuration		OBJECT-TYPE
+	SYNTAX		Integer32
+    MAX-ACCESS	read-only
+    STATUS		current
+    DESCRIPTION	"Last test duration, seconds"
+::= { erdUps 80 }
+
+erdUpsLastBatteryDischarge		OBJECT-TYPE
+	SYNTAX		Integer32
+    MAX-ACCESS	read-only
+    STATUS		current
+    DESCRIPTION	"Last battery discharge duration, seconds"
+::= { erdUps 81 }
+
+erdUpsSingleBatteryVoltage		OBJECT-TYPE
+	SYNTAX		Integer32
+    MAX-ACCESS	read-only
+    STATUS		current
+    DESCRIPTION	"Single battery voltage, volts"
+::= { erdUps 90 }
+
+erdUpsBatteryLevel		OBJECT-TYPE
+	SYNTAX		Integer32
+    MAX-ACCESS	read-only
+    STATUS		current
+    DESCRIPTION	"Battery level, percents"
+::= { erdUps 95 }
+
+erdUpsRatingVoltage		OBJECT-TYPE
+	SYNTAX		Integer32
+    MAX-ACCESS	read-only
+    STATUS		current
+    DESCRIPTION	"Rating voltage"
+::= { erdUps 100 }
+
+erdUpsRatingCurrent		OBJECT-TYPE
+	SYNTAX		Integer32
+    MAX-ACCESS	read-only
+    STATUS		current
+    DESCRIPTION	"Rating current"
+::= { erdUps 101 }
+
+erdUpsRatingPower		OBJECT-TYPE
+	SYNTAX		Integer32
+    MAX-ACCESS	read-only
+    STATUS		current
+    DESCRIPTION	"Rating power"
+::= { erdUps 102 }
+
+erdUpsRatingBatteryVoltage		OBJECT-TYPE
+	SYNTAX		Integer32
+    MAX-ACCESS	read-only
+    STATUS		current
+    DESCRIPTION	"Rating battery voltage"
+::= { erdUps 103 }
+
+erdUpsRatingFrequency		OBJECT-TYPE
+	SYNTAX		Integer32
+    MAX-ACCESS	read-only
+    STATUS		current
+    DESCRIPTION	"Rating frequency"
+::= { erdUps 104 }
+
+-- pid ----------------
+
+erdPidInput		OBJECT-TYPE
+	SYNTAX		Integer32
+	MAX-ACCESS	read-write
+	STATUS		current
+	DESCRIPTION	"PID SNMP input value"
+	::= { erdPid 1 }
+	
+erdPidOutputPercent	OBJECT-TYPE
+	SYNTAX		Integer32
+	UNITS		"persents"
+	MAX-ACCESS	read-only
+	STATUS		current
+	DESCRIPTION	"PID output value. 
+	0 to 100%"
+	::= { erdPid 2 }
+
+erdPidOutputReal		OBJECT-TYPE
+	SYNTAX		Integer32
+	MAX-ACCESS	read-only
+	STATUS		current
+	DESCRIPTION	"PID output value 
+	(voltage if PID runs in analog mode 
+	or time if PID runs in PWM mode)"
+	::= { erdPid 3 }
+
+erdPidYp			OBJECT-TYPE
+	SYNTAX		Integer32
+	MAX-ACCESS	read-only
+	STATUS		current
+	DESCRIPTION	"Proportional gain"
+	::= { erdPid 4 }
+
+erdPidYi			OBJECT-TYPE
+	SYNTAX		Integer32
+	MAX-ACCESS	read-only
+	STATUS		current
+	DESCRIPTION	"Integral gain"
+	::= { erdPid 5 }
+
+erdPidYd			OBJECT-TYPE
+	SYNTAX		Integer32
+	MAX-ACCESS	read-only
+	STATUS		current
+	DESCRIPTION	"Derivative gain"
+	::= { erdPid 6 }
+
+erdPidError		OBJECT-TYPE
+	SYNTAX		Integer32
+	MAX-ACCESS	read-only
+	STATUS		current
+	DESCRIPTION	"Error. Difference between setpoint 
+	and input value"
+	::= { erdPid 7 }
+
+-- Omix ----------------
+
+erdOmixId		OBJECT-TYPE
+	SYNTAX		Integer32
+	MAX-ACCESS	read-write
+	STATUS		current
+	DESCRIPTION	"analyzer ID"
+	::= { erdOmix 1 }
+
+erdOmixPhAvolt	OBJECT-TYPE
+	SYNTAX		Integer32
+	MAX-ACCESS	read-only
+	STATUS		current
+	DESCRIPTION	"Phase voltage. Phase A [Ua]"
+	::= { erdOmix 2 }
+
+erdOmixPhACritMin OBJECT-TYPE
+	SYNTAX		Integer32
+	MAX-ACCESS	read-write
+	STATUS		current
+	DESCRIPTION	"Phase A voltage. Crit min value"
+	::= { erdOmix 3 }
+
+erdOmixPhACritMax	OBJECT-TYPE
+	SYNTAX		Integer32
+	MAX-ACCESS	read-write
+	STATUS		current
+	DESCRIPTION	"Phase A voltage. Crit max value"
+	::= { erdOmix 4 }
+
+erdOmixPhAGist	OBJECT-TYPE
+	SYNTAX		Integer32
+	MAX-ACCESS	read-write
+	STATUS		current
+	DESCRIPTION	"Phase A voltage. Hysteresis"
+	::= { erdOmix 5 }
+
+erdOmixPhBvolt	OBJECT-TYPE
+	SYNTAX		Integer32
+	MAX-ACCESS	read-only
+	STATUS		current
+	DESCRIPTION	"Phase voltage. Phase B [Ub]"
+	::= { erdOmix 6 }
+
+erdOmixPhBCritMin OBJECT-TYPE
+	SYNTAX		Integer32
+	MAX-ACCESS	read-write
+	STATUS		current
+	DESCRIPTION	"Phase Bvoltage . Crit min value"
+	::= { erdOmix 7 }
+
+erdOmixPhBCritMax	OBJECT-TYPE
+	SYNTAX		Integer32
+	MAX-ACCESS	read-write
+	STATUS		current
+	DESCRIPTION	"Phase B voltage. Crit max value"
+	::= { erdOmix 8 }
+
+erdOmixPhBGist	OBJECT-TYPE
+	SYNTAX		Integer32
+	MAX-ACCESS	read-write
+	STATUS		current
+	DESCRIPTION	"Phase B voltage. Hysteresis"
+	::= { erdOmix 9 }
+
+erdOmixPhCvolt	OBJECT-TYPE
+	SYNTAX		Integer32
+	MAX-ACCESS	read-only
+	STATUS		current
+	DESCRIPTION	"Phase voltage. Phase C [Uc]"
+	::= { erdOmix 10 }
+
+erdOmixPhCCritMin OBJECT-TYPE
+	SYNTAX		Integer32
+	MAX-ACCESS	read-write
+	STATUS		current
+	DESCRIPTION	"Phase C voltage. Crit min value"
+	::= { erdOmix 11 }
+
+erdOmixPhCCritMax	OBJECT-TYPE
+	SYNTAX		Integer32
+	MAX-ACCESS	read-write
+	STATUS		current
+	DESCRIPTION	"Phase C voltage. Crit max value"
+	::= { erdOmix 12 }
+
+erdOmixPhCGist	OBJECT-TYPE
+	SYNTAX		Integer32
+	MAX-ACCESS	read-write
+	STATUS		current
+	DESCRIPTION	"Phase C voltage. Hysteresis"
+	::= { erdOmix 13 }
+
+erdOmixLnAvol	OBJECT-TYPE
+	SYNTAX		Integer32
+	MAX-ACCESS	read-only
+	STATUS		current
+	DESCRIPTION	"Line voltage. L1 - L2 [Uab]"
+	::= { erdOmix 14 }
+
+erdOmixLnACritMin OBJECT-TYPE
+	SYNTAX		Integer32
+	MAX-ACCESS	read-write
+	STATUS		current
+	DESCRIPTION	"Line voltage (L1 - L2). Crit min value"
+	::= { erdOmix 15 }
+
+erdOmixLnACritMax	OBJECT-TYPE
+	SYNTAX		Integer32
+	MAX-ACCESS	read-write
+	STATUS		current
+	DESCRIPTION	"Line voltage (L1 - L2). Crit max value"
+	::= { erdOmix 16 }
+
+erdOmixLnAGist	OBJECT-TYPE
+	SYNTAX		Integer32
+	MAX-ACCESS	read-write
+	STATUS		current
+	DESCRIPTION	"Line voltage (L1 - L2). Hysteresis"
+	::= { erdOmix 17 }
+
+erdOmixLnBvol	OBJECT-TYPE
+	SYNTAX		Integer32
+	MAX-ACCESS	read-only
+	STATUS		current
+	DESCRIPTION	"Line voltage. L2 - L3 [Ubc]"
+	::= { erdOmix 18 }
+
+erdOmixLnBCritMin OBJECT-TYPE
+	SYNTAX		Integer32
+	MAX-ACCESS	read-write
+	STATUS		current
+	DESCRIPTION	"Line voltage (L2 - L3). Crit min value"
+	::= { erdOmix 19 }
+
+erdOmixLnBCritMax	OBJECT-TYPE
+	SYNTAX		Integer32
+	MAX-ACCESS	read-write
+	STATUS		current
+	DESCRIPTION	"Line voltage (L2 - L3). Crit max value"
+	::= { erdOmix 20 }
+
+erdOmixLnBGist	OBJECT-TYPE
+	SYNTAX		Integer32
+	MAX-ACCESS	read-write
+	STATUS		current
+	DESCRIPTION	"Line voltage (L2 - L3). Hysteresis"
+	::= { erdOmix 21 }
+
+erdOmixLnCvol	OBJECT-TYPE
+	SYNTAX		Integer32
+	MAX-ACCESS	read-only
+	STATUS		current
+	DESCRIPTION	"Line voltage. L3 - L1 [Uca]"
+	::= { erdOmix 22 }
+
+erdOmixLnCCritMin OBJECT-TYPE
+	SYNTAX		Integer32
+	MAX-ACCESS	read-write
+	STATUS		current
+	DESCRIPTION	"Line voltage (L3 - L1). Crit min value"
+	::= { erdOmix 23 }
+
+erdOmixLnCCritMax	OBJECT-TYPE
+	SYNTAX		Integer32
+	MAX-ACCESS	read-write
+	STATUS		current
+	DESCRIPTION	"Line voltage (L3 - L1). Crit max value"
+	::= { erdOmix 24 }
+
+erdOmixLnCGist	OBJECT-TYPE
+	SYNTAX		Integer32
+	MAX-ACCESS	read-write
+	STATUS		current
+	DESCRIPTION	"Line voltage (L3 - L1). Hysteresis"
+	::= { erdOmix 25 }
+
+erdOmixPhAamp	OBJECT-TYPE
+	SYNTAX		Integer32
+	MAX-ACCESS	read-only
+	STATUS		current
+	DESCRIPTION	"Amperage. Phase A [Ia]"
+	::= { erdOmix 26 }
+
+erdOmixPhAmpACritMin OBJECT-TYPE
+	SYNTAX		Integer32
+	MAX-ACCESS	read-write
+	STATUS		current
+	DESCRIPTION	"Phase A amperage. Crit min value"
+	::= { erdOmix 27 }
+
+erdOmixPhAmpACritMax	OBJECT-TYPE
+	SYNTAX		Integer32
+	MAX-ACCESS	read-write
+	STATUS		current
+	DESCRIPTION	"Phase A amperage. Crit max value"
+	::= { erdOmix 28 }
+
+erdOmixPhAmpAGist	OBJECT-TYPE
+	SYNTAX		Integer32
+	MAX-ACCESS	read-write
+	STATUS		current
+	DESCRIPTION	"Phase A amperage. Hysteresis"
+	::= { erdOmix 29 }
+
+erdOmixPhBamp	OBJECT-TYPE
+	SYNTAX		Integer32
+	MAX-ACCESS	read-only
+	STATUS		current
+	DESCRIPTION	"Amperage. Phase B [Ib]"
+	::= { erdOmix 30 }
+
+erdOmixPhAmpBCritMin OBJECT-TYPE
+	SYNTAX		Integer32
+	MAX-ACCESS	read-write
+	STATUS		current
+	DESCRIPTION	"Phase B amperage. Crit min value"
+	::= { erdOmix 31 }
+
+erdOmixPhAmpBCritMax	OBJECT-TYPE
+	SYNTAX		Integer32
+	MAX-ACCESS	read-write
+	STATUS		current
+	DESCRIPTION	"Phase B amperage. Crit max value"
+	::= { erdOmix 32 }
+
+erdOmixPhAmpBGist	OBJECT-TYPE
+	SYNTAX		Integer32
+	MAX-ACCESS	read-write
+	STATUS		current
+	DESCRIPTION	"Phase B amperage. Hysteresis"
+	::= { erdOmix 33 }
+
+erdOmixPhCamp	OBJECT-TYPE
+	SYNTAX		Integer32
+	MAX-ACCESS	read-only
+	STATUS		current
+	DESCRIPTION	"Amperage. Phase C [Ic]"
+	::= { erdOmix 34 }
+
+erdOmixPhAmpCCritMin OBJECT-TYPE
+	SYNTAX		Integer32
+	MAX-ACCESS	read-write
+	STATUS		current
+	DESCRIPTION	"Phase C amperage. Crit min value"
+	::= { erdOmix 35 }
+
+erdOmixPhAmpCCritMax	OBJECT-TYPE
+	SYNTAX		Integer32
+	MAX-ACCESS	read-write
+	STATUS		current
+	DESCRIPTION	"Phase C amperage. Crit max value"
+	::= { erdOmix 36 }
+
+erdOmixPhAmpCGist	OBJECT-TYPE
+	SYNTAX		Integer32
+	MAX-ACCESS	read-write
+	STATUS		current
+	DESCRIPTION	"Phase C amperage. Hysteresis"
+	::= { erdOmix 37 }
+
+erdOmixCurrFreq	OBJECT-TYPE
+	SYNTAX		Integer32
+	MAX-ACCESS	read-only
+	STATUS		current
+	DESCRIPTION	"Current frequency"
+	::= { erdOmix 38 }
+
+erdOmixCurrFreqCritMin OBJECT-TYPE
+	SYNTAX		Integer32
+	MAX-ACCESS	read-write
+	STATUS		current
+	DESCRIPTION	"Current frequency. Crit min value"
+	::= { erdOmix 39 }
+
+erdOmixCurrFreqCritMax	OBJECT-TYPE
+	SYNTAX		Integer32
+	MAX-ACCESS	read-write
+	STATUS		current
+	DESCRIPTION	"Current frequency. Crit max value"
+	::= { erdOmix 40 }
+
+erdOmixCurrFreqGist	OBJECT-TYPE
+	SYNTAX		Integer32
+	MAX-ACCESS	read-write
+	STATUS		current
+	DESCRIPTION	"Current frequency. Hysteresis"
+	::= { erdOmix 41 }
+
+-- Traps ----------------
+
+erdDi1Alarm		NOTIFICATION-TYPE
+	STATUS		current
+	DESCRIPTION	"Input 1 Alarm fires"		
+	::= { erdTraps 1 }
+
+erdDi1Release		NOTIFICATION-TYPE
+	STATUS		current
+	DESCRIPTION	"Input 1 Alarm released"		
+	::= { erdTraps 2 }
+
+erdDi2Alarm		NOTIFICATION-TYPE
+	STATUS		current
+	DESCRIPTION	"Input 2 Alarm fires"		
+	::= { erdTraps 3 }
+
+erdDi2Release		NOTIFICATION-TYPE
+	STATUS		current
+	DESCRIPTION	"Input 2 Alarm released"		
+	::= { erdTraps 4 }
+
+erdDi3Alarm		NOTIFICATION-TYPE
+	STATUS		current
+	DESCRIPTION	"Input 3 Alarm fires"		
+	::= { erdTraps 5 }
+
+erdDi3Release		NOTIFICATION-TYPE
+	STATUS		current
+	DESCRIPTION	"Input 3 Alarm released"		
+	::= { erdTraps 6 }
+
+erdDi4Alarm		NOTIFICATION-TYPE
+	STATUS		current
+	DESCRIPTION	"Input 4 Alarm fires"		
+	::= { erdTraps 7 }
+
+erdDi4Release		NOTIFICATION-TYPE
+	STATUS		current
+	DESCRIPTION	"Input 4 Alarm released"		
+	::= { erdTraps 8 }
+
+erdDi5Alarm		NOTIFICATION-TYPE
+	STATUS		current
+	DESCRIPTION	"Input 5 Alarm fires"		
+	::= { erdTraps 9 }
+
+erdDi5Release		NOTIFICATION-TYPE
+	STATUS		current
+	DESCRIPTION	"Input 5 Alarm released"		
+	::= { erdTraps 10 }
+
+erdUSenseAlarm		NOTIFICATION-TYPE
+	STATUS		current
+	DESCRIPTION	"Signifies that Phase sensor 
+	Alarm fires"		
+	::= { erdTraps 50 }
+
+erdUSenseRelease	NOTIFICATION-TYPE
+	STATUS		current
+	DESCRIPTION	"Signifies that Phase sensor 
+	Alarm released"		
+	::= { erdTraps 51 }
+
+erdReloutOn		NOTIFICATION-TYPE
+	STATUS		current
+	DESCRIPTION	"Signifies that Rele was swithed on 
+	by Thermostat or Gigrostat mode"		
+	::= { erdTraps 70 }
+
+erdReloutOff		NOTIFICATION-TYPE
+	STATUS		current
+	DESCRIPTION	"Signifies that Rele was swithed off 
+	by Thermostat or Gigrostat mode"		
+	::= { erdTraps 71 }
+
+erdDo1On			NOTIFICATION-TYPE
+	STATUS		current
+	DESCRIPTION	"Signifies that Output 1 was swithed on 
+	by Thermostat or Gigrostat mode"		
+	::= { erdTraps 72 }
+
+erdDo1Off			NOTIFICATION-TYPE
+	STATUS		current
+	DESCRIPTION	"Signifies that Output 1 was swithed off 
+	by Thermostat or Gigrostat mode"		
+	::= { erdTraps 73 }
+
+erdDo2On			NOTIFICATION-TYPE
+	STATUS		current
+	DESCRIPTION	"Signifies that Output 2 was swithed on 
+	by Thermostat or Gigrostat mode"		
+	::= { erdTraps 74 }
+
+erdDo2Off			NOTIFICATION-TYPE
+	STATUS		current
+	DESCRIPTION	"Signifies that Output 2 was swithed off 
+	by Thermostat or Gigrostat mode"		
+	::= { erdTraps 75 }
+
+erdDo3On			NOTIFICATION-TYPE
+	STATUS		current
+	DESCRIPTION	"Signifies that Output 3 was swithed on 
+	by Thermostat or Gigrostat mode"		
+	::= { erdTraps 76 }
+
+erdDo3Off			NOTIFICATION-TYPE
+	STATUS		current
+	DESCRIPTION	"Signifies that Output 3 was swithed off 
+	by Thermostat or Gigrostat mode"		
+	::= { erdTraps 77 }
+
+erdDo4On			NOTIFICATION-TYPE
+	STATUS		current
+	DESCRIPTION	"Signifies that Output 4 was swithed on 
+	by Thermostat or Gigrostat mode"		
+	::= { erdTraps 78 }
+
+erdDo4Off			NOTIFICATION-TYPE
+	STATUS		current
+	DESCRIPTION	"Signifies that Output 4 was swithed off 
+	by Thermostat or Gigrostat mode"		
+	::= { erdTraps 79 }
+
+erdDo5On			NOTIFICATION-TYPE
+	STATUS		current
+	DESCRIPTION	"Signifies that Output 5 was swithed on 
+	by Thermostat or Gigrostat mode"		
+	::= { erdTraps 80 }
+
+erdDo5Off			NOTIFICATION-TYPE
+	STATUS		current
+	DESCRIPTION	"Signifies that Output 5 was swithed off 
+	by Thermostat or Gigrostat mode"		
+	::= { erdTraps 81 }
+
+erdTemperatureCriticalMin		NOTIFICATION-TYPE
+	STATUS			current
+	DESCRIPTION		"Temperature critical minimum"		
+	::= { erdTraps 120 }
+
+erdTemperatureNormal	NOTIFICATION-TYPE
+	STATUS			current
+	DESCRIPTION		"Temperature normal"		
+	::= { erdTraps 121 }
+
+erdTemperatureCriticalMax	NOTIFICATION-TYPE
+	STATUS			current
+	DESCRIPTION		"Temperature critical maximum"		
+	::= { erdTraps 122 }
+
+erdHumidityCriticalMin		NOTIFICATION-TYPE
+	STATUS			current
+	DESCRIPTION		"Humidity critical minimum"		
+	::= { erdTraps 123 }
+
+erdHumidityNormal	NOTIFICATION-TYPE
+	STATUS			current
+	DESCRIPTION		"Humidity normal"		
+	::= { erdTraps 124 }
+
+erdHumidityCriticalMax	NOTIFICATION-TYPE
+	STATUS			current
+	DESCRIPTION		"Humidity critical maximum"		
+	::= { erdTraps 125 }
+
+erdAdcCriticalMin		NOTIFICATION-TYPE
+	STATUS			current
+	DESCRIPTION		"ADC IN critical minimum"		
+	::= { erdTraps 130 }
+
+erdAdcNormal	NOTIFICATION-TYPE
+	STATUS		current
+	DESCRIPTION	"ADC IN normal"		
+	::= { erdTraps 131 }
+
+erdAdcCriticalMax		NOTIFICATION-TYPE
+	STATUS			current
+	DESCRIPTION		"ADC IN critical maximum"		
+	::= { erdTraps 132 }
+
+erdAdcOvercurrent		NOTIFICATION-TYPE
+	STATUS			current
+	DESCRIPTION		"ADC IN was overloaded by current"		
+	::= { erdTraps 133 }
+
+erdHumSensorAlarm		NOTIFICATION-TYPE
+	STATUS			current
+	DESCRIPTION		"Humidity alarm"		
+	::= { erdTraps 140 }
+
+erdHumSensorRelease	NOTIFICATION-TYPE
+	STATUS			current
+	DESCRIPTION		"Humidity release"		
+	::= { erdTraps 141 }
+
+erdTask1Done		NOTIFICATION-TYPE
+	STATUS		current
+	DESCRIPTION	"Task 1 done"		
+	::= { erdTraps 150 }
+
+erdTask2Done		NOTIFICATION-TYPE
+	STATUS		current
+	DESCRIPTION	"Task 2 done"		
+	::= { erdTraps 151 }
+
+erdTask3Done		NOTIFICATION-TYPE
+	STATUS		current
+	DESCRIPTION	"Task 3 done"		
+	::= { erdTraps 152 }
+
+erdTask4Done		NOTIFICATION-TYPE
+	STATUS		current
+	DESCRIPTION	"Task 4 done"		
+	::= { erdTraps 153 }
+
+erdTask5Done		NOTIFICATION-TYPE
+	STATUS		current
+	DESCRIPTION	"Task 5 done"		
+	::= { erdTraps 154 }
+
+erdTask6Done		NOTIFICATION-TYPE
+	STATUS		current
+	DESCRIPTION	"Task 6 done"		
+	::= { erdTraps 155 }
+
+erdTask7Done		NOTIFICATION-TYPE
+	STATUS		current
+	DESCRIPTION	"Task 7 done"		
+	::= { erdTraps 156 }
+
+erdTask8Done		NOTIFICATION-TYPE
+	STATUS		current
+	DESCRIPTION	"Task 8 done"		
+	::= { erdTraps 157 }
+
+erdTask9Done		NOTIFICATION-TYPE
+	STATUS		current
+	DESCRIPTION	"Task 9 done"		
+	::= { erdTraps 158 }
+
+erdTask10Done		NOTIFICATION-TYPE
+	STATUS		current
+	DESCRIPTION	"Task 10 done"		
+	::= { erdTraps 159 }
+
+erdPingLost		NOTIFICATION-TYPE
+	STATUS		current
+	DESCRIPTION	"Ping lost"		
+	::= { erdTraps 160 }
+
+erdBatteryChargeLow	NOTIFICATION-TYPE
+	STATUS			deprecated
+	DESCRIPTION		"Battery charge is low
+	**NOTE: this object is deprecated"		
+	::= { erdTraps 197 }
+
+erdUpsStartBatteryTest		NOTIFICATION-TYPE
+	STATUS			current
+	DESCRIPTION		"UPS start battery test"		
+	::= { erdTraps 198 }
+
+erdUpsStopBatteryTest		NOTIFICATION-TYPE
+	STATUS			current
+	DESCRIPTION		"UPS stop battery test"		
+	::= { erdTraps 199 }
+
+erdUpsUtilityFail		NOTIFICATION-TYPE
+	STATUS			current
+	DESCRIPTION		"UPS utility fail"		
+	::= { erdTraps 200 }
+
+erdUpsUtilityOk		NOTIFICATION-TYPE
+	STATUS			current
+	DESCRIPTION		"UPS utility OK"		
+	::= { erdTraps 201 }
+
+erdUpsOn		NOTIFICATION-TYPE
+	STATUS			current
+	DESCRIPTION		"UPS On"		
+	::= { erdTraps 202 }
+
+erdUpsOff		NOTIFICATION-TYPE
+	STATUS			current
+	DESCRIPTION		"UPS Off"		
+	::= { erdTraps 203 }
+
+erdUpsLoadCritical		NOTIFICATION-TYPE
+	STATUS			current
+	DESCRIPTION		"UPS critical load"		
+	::= { erdTraps 204 }	
+
+erdUpsLoadNormal		NOTIFICATION-TYPE
+	STATUS			current
+	DESCRIPTION		"UPS normal load"		
+	::= { erdTraps 205 }	
+
+erdUpsBatteryVoltageFull		NOTIFICATION-TYPE
+	STATUS			current
+	DESCRIPTION		"UPS battery voltage is full"		
+	::= { erdTraps 206 }
+
+erdUpsBatteryVoltageNormal		NOTIFICATION-TYPE
+	STATUS			current
+	DESCRIPTION		"UPS battery voltage is normal"		
+	::= { erdTraps 207 }
+
+erdUpsBatteryVoltageCritical		NOTIFICATION-TYPE
+	STATUS			current
+	DESCRIPTION		"UPS battery voltage is critical"		
+	::= { erdTraps 208 }
+
+erdUpsBatteryDischarged		NOTIFICATION-TYPE
+	STATUS			current
+	DESCRIPTION		"UPS battery is discharged"		
+	::= { erdTraps 209 }
+
+erdInternetDisconnected		NOTIFICATION-TYPE
+	STATUS			current
+	DESCRIPTION		"Internet is disconnected"		
+	::= { erdTraps 210 }
+
+erdInternetRestored		NOTIFICATION-TYPE
+	STATUS			current
+	DESCRIPTION		"Internet is restored"		
+	::= { erdTraps 211 }
+
+erdSmtpDisconnected		NOTIFICATION-TYPE
+	STATUS			current
+	DESCRIPTION		"SMTP is disconnected"		
+	::= { erdTraps 220 }
+
+erdSmtpRestored		NOTIFICATION-TYPE
+	STATUS			current
+	DESCRIPTION		"SMTP is restored"		
+	::= { erdTraps 221 }
+
+erdEthernetDisconnected		NOTIFICATION-TYPE
+	STATUS			current
+	DESCRIPTION		"Ethernet is disconnected"		
+	::= { erdTraps 230 }
+
+erdEthernetRestored		NOTIFICATION-TYPE
+	STATUS			current
+	DESCRIPTION		"Ethernet is restored"		
+	::= { erdTraps 231 }
+
+erdAuthentificationFailed		NOTIFICATION-TYPE
+	STATUS			current
+	DESCRIPTION		"Authentification is failed"		
+	::= { erdTraps 240 }
+
+erdAuthentificationSucceed		NOTIFICATION-TYPE
+	STATUS			current
+	DESCRIPTION		"Authentification is succeed"		
+	::= { erdTraps 241 }
+
+erdStart		NOTIFICATION-TYPE
+	STATUS			current
+	DESCRIPTION		"ERD start"		
+	::= { erdTraps 250 }
+
+erdLogicDone		NOTIFICATION-TYPE
+	STATUS			current
+	DESCRIPTION		"Logic done"		
+	::= { erdTraps 300 }
+
+-- erd-5 oids -----------------------------
+
+snrErd5				OBJECT IDENTIFIER	::= { snrErd 8 }
+
+erd5traps			OBJECT IDENTIFIER	::= { snrErd5 0 }
+erd5measurements	OBJECT IDENTIFIER	::= { snrErd5 1 }
+erd5dio				OBJECT IDENTIFIER	::= { snrErd5 2 }
+erd5serial			OBJECT IDENTIFIER	::= { snrErd5 4 }
+erd5options			OBJECT IDENTIFIER	::= { snrErd5 10 }
+erd5diffparams		OBJECT IDENTIFIER	::= { snrErd5 11 }
+erd5conformance		OBJECT IDENTIFIER	::= { snrErd5 100 }
+
+erd5oneWire			OBJECT IDENTIFIER	::= { erd5measurements 1 }
+
+erd5rs485			OBJECT IDENTIFIER	::= { erd5serial 1 }
+erd5rs232			OBJECT IDENTIFIER	::= { erd5serial 2 }
+
+erd5ups				OBJECT IDENTIFIER	::= { erd5diffparams 1 }
+
+erd5crit			OBJECT IDENTIFIER	::= { erd5options 10 }
+erd5ip				OBJECT IDENTIFIER	::= { erd5options 20 }
+
+erd5groups			OBJECT IDENTIFIER	::= { erd5conformance 1 }
+erd5compliances		OBJECT IDENTIFIER	::= { erd5conformance 2 }
+
+
+-- measurements -----------------------------
+
+erd5adc1Sensor		OBJECT-TYPE
+	SYNTAX		Integer32
+	MAX-ACCESS	read-only
+	STATUS		deprecated
+	DESCRIPTION	"ADC1 sensor value.
+	**NOTE: this object is deprecated and replaced by
+ 	erdAdcSensor"
+	::= { erd5measurements 2 }
+
+erd5adc2Sensor		OBJECT-TYPE
+	SYNTAX		Integer32
+	MAX-ACCESS	read-only
+	STATUS		deprecated
+	DESCRIPTION	"ADC2 sensor value.
+	**NOTE: this object is deprecated and replaced by
+ 	erdAdc2Sensor"
+	::= { erd5measurements 3 }
+
+-- dtsTable -----------------------------
+
+erd5dtsTable OBJECT-TYPE
+	SYNTAX      SEQUENCE OF Erd5dtsEntry
+	MAX-ACCESS  not-accessible
+	STATUS      deprecated
+	DESCRIPTION	"A list of temperature sensors values.
+	**NOTE: this object is deprecated and replaced by
+ 	erdDtsTable"
+	::= { erd5oneWire 1 }
+	
+erd5dtsEntry OBJECT-TYPE
+	SYNTAX      Erd5dtsEntry
+	MAX-ACCESS  not-accessible
+	STATUS      deprecated
+	DESCRIPTION	"An entry (conceptual row) in the dtsTable.
+	**NOTE: this object is deprecated and replaced by
+ 	erdDtsEntry"
+	INDEX   { erd5dtsId } 
+	::= { erd5dtsTable 1 }
+
+Erd5dtsEntry ::= SEQUENCE {
+        erd5dtsId           		SensorID,
+		erd5dtsName					DisplayString,
+        erd5dtsTemp            		Integer32,
+		erd5dtsTempCritNotif		Integer32,
+		erd5dtsTempCritMin			Integer32,
+		erd5dtsTempCritMax			Integer32
+    }
+	
+erd5dtsId 		OBJECT-TYPE
+	SYNTAX      SensorID
+	MAX-ACCESS  not-accessible
+	STATUS      deprecated
+	DESCRIPTION	"Temperature sensor id.
+	**NOTE: this object is deprecated and replaced by
+ 	erdDtsId"
+	::= { erd5dtsEntry 1 }
+
+erd5dtsName 	OBJECT-TYPE
+	SYNTAX      DisplayString
+	MAX-ACCESS  read-write
+	STATUS      deprecated
+	DESCRIPTION	"Name (max 20).
+	**NOTE: this object is deprecated and replaced by
+ 	erdDtsName"
+	::= { erd5dtsEntry 2 }
+
+erd5dtsTemp 	OBJECT-TYPE
+	SYNTAX		Integer32
+	UNITS		"degrees Centigrade"
+	MAX-ACCESS	read-only
+	STATUS      deprecated
+	DESCRIPTION	"Temperature value.
+	**NOTE: this object is deprecated and replaced by
+ 	erdDtsTemp"
+	::= { erd5dtsEntry 3 }
+	
+erd5dtsTempCritNotif	OBJECT-TYPE
+	SYNTAX		INTEGER { no(0), yes(1) }
+	MAX-ACCESS	read-write
+	STATUS		deprecated
+	DESCRIPTION	"Enable notifications on the critical temperature.
+	**NOTE: this object is deprecated and replaced by
+ 	erdDtsTempCritNotif"
+	::= { erd5dtsEntry 10 }
+	
+erd5dtsTempCritMin		OBJECT-TYPE
+	SYNTAX		Integer32
+	UNITS		"degrees Centigrade"
+	MAX-ACCESS	read-write
+	STATUS		deprecated
+	DESCRIPTION	"Minimal critical temperature. 
+	Up to -55 degrees Celsius.
+	**NOTE: this object is deprecated and replaced by
+ 	erdDtsTempCritMin"
+	::= { erd5dtsEntry 15 }
+
+erd5dtsTempCritMax	OBJECT-TYPE
+	SYNTAX		Integer32
+	UNITS		"degrees Centigrade"
+	MAX-ACCESS	read-write
+	STATUS		deprecated
+	DESCRIPTION	"Maximum critical temperature. 
+	Up to +125 degrees Celsius.
+	**NOTE: this object is deprecated and replaced by
+ 	erdDtsTempCritMax"
+	::= { erd5dtsEntry 16 }
+
+-- dio -----------------------------
+
+-- diTable
+
+erd5diTable		OBJECT-TYPE
+	SYNTAX		SEQUENCE OF Erd5diEntry
+	MAX-ACCESS	not-accessible
+	STATUS		deprecated
+	DESCRIPTION	"A list of digital inputs values.
+	**NOTE: this object is deprecated and replaced by
+ 	erdDiTable"
+	::= { erd5dio 1 }
+
+erd5diEntry		OBJECT-TYPE
+	SYNTAX		Erd5diEntry
+	MAX-ACCESS	not-accessible
+	STATUS		deprecated
+	DESCRIPTION	"An entry (conceptual row) 
+	in the diTable.
+	**NOTE: this object is deprecated and replaced by
+ 	erdDiEntry"
+	INDEX   { erd5diName } 
+	::= { erd5diTable 1 }
+
+Erd5diEntry ::= SEQUENCE {
+	erd5diName		DisplayString,
+	erd5diAlarmName	DisplayString,
+	erd5diState		INTEGER,
+	erd5diCnt		Unsigned32,
+	erd5diInverted	INTEGER
+}
+
+erd5diName		OBJECT-TYPE
+	SYNTAX		DisplayString (SIZE(0..32))
+	MAX-ACCESS	not-accessible
+	STATUS		deprecated
+	DESCRIPTION	"Digital input name.
+	**NOTE: this object is deprecated and replaced by
+ 	erdDiName"
+	::= { erd5diEntry 1 }
+
+erd5diAlarmName	OBJECT-TYPE
+	SYNTAX		DisplayString
+	MAX-ACCESS	read-write
+	STATUS		deprecated
+	DESCRIPTION	"Alarm name.
+	**NOTE: this object is deprecated and replaced by
+ 	erdDiAlarmName"
+	::= { erd5diEntry 2 }
+
+erd5diState		OBJECT-TYPE
+	SYNTAX		INTEGER {
+		low(0),
+		high(1)
+	}
+	MAX-ACCESS	read-only
+	STATUS		deprecated
+	DESCRIPTION	"Digital input state.
+	**NOTE: this object is deprecated and replaced by
+ 	erdDiState"
+	::= { erd5diEntry 3 }
+
+erd5diCnt		OBJECT-TYPE
+	SYNTAX		Unsigned32
+	MAX-ACCESS	read-write
+	STATUS		deprecated
+	DESCRIPTION	"Digital input impulse counter. 
+	Writable for reset only. Set 0 to reset.
+	**NOTE: this object is deprecated and replaced by
+ 	erdDiCnt"
+	::= { erd5diEntry 4 }
+
+erd5diInverted	OBJECT-TYPE
+	SYNTAX		INTEGER {
+		no(0),
+		yes(1)
+	}
+	MAX-ACCESS	read-write
+	STATUS		deprecated
+	DESCRIPTION	"Input state inversion.
+	**NOTE: this object is deprecated and replaced by
+ 	erdDiInverted"
+	::= { erd5diEntry 5 }
+
+-- doTable -----------------------------
+
+erd5doTable		OBJECT-TYPE
+	SYNTAX		SEQUENCE OF Erd5doEntry
+	MAX-ACCESS	not-accessible
+	STATUS		deprecated
+	DESCRIPTION	"A list of digital outputs values.
+	**NOTE: this object is deprecated and replaced by
+ 	erdDoTable"
+	::= { erd5dio 2 }
+
+erd5doEntry		OBJECT-TYPE
+	SYNTAX		Erd5doEntry
+	MAX-ACCESS	not-accessible
+	STATUS		deprecated
+	DESCRIPTION	"An entry (conceptual row) 
+	in the doTable.
+	**NOTE: this object is deprecated and replaced by
+ 	erdDoEntry"
+	INDEX   { erd5doName } 
+	::= { erd5doTable 1 }
+
+Erd5doEntry ::= SEQUENCE {
+	erd5doName			DisplayString,
+	erd5doDeviceName	DisplayString,
+	erd5doState			INTEGER,
+	erd5doResetTime		Integer32
+}
+
+erd5doName		OBJECT-TYPE
+	SYNTAX		DisplayString (SIZE(0..32))
+	MAX-ACCESS	not-accessible
+	STATUS		deprecated
+	DESCRIPTION	"Digital output name.
+	**NOTE: this object is deprecated and replaced by
+ 	erdDoName"
+	::= { erd5doEntry 1 }
+
+erd5doDeviceName	OBJECT-TYPE
+	SYNTAX			DisplayString
+	MAX-ACCESS		read-write
+	STATUS			deprecated
+	DESCRIPTION		"Digital output custom name.
+	**NOTE: this object is deprecated and replaced by
+ 	erdDoDeviceName"
+	::= { erd5doEntry 2 }
+
+erd5doState		OBJECT-TYPE
+	SYNTAX		INTEGER
+			{
+				off(0),
+				on(1),
+				reload(2)
+			}
+	MAX-ACCESS	read-write
+	STATUS		deprecated
+	DESCRIPTION	"Digital output state.
+	**NOTE: this object is deprecated and replaced by
+ 	erdDoState"
+	::= { erd5doEntry 3 }
+
+erd5doResetTime	OBJECT-TYPE
+	SYNTAX		Integer32
+	UNITS		"seconds"
+	MAX-ACCESS	read-write
+	STATUS		deprecated
+	DESCRIPTION	"Reload period (sec).
+	**NOTE: this object is deprecated and replaced by
+ 	erdDoResetTime"
+	::= { erd5doEntry 4 }
+
+erd5uSenseState	OBJECT-TYPE
+	SYNTAX		INTEGER
+		{
+			off(0),
+			on(1)
+		}
+	MAX-ACCESS	read-only
+	STATUS		deprecated
+	DESCRIPTION	"Voltage sensor state.
+	**NOTE: this object is deprecated and replaced by
+ 	erdUSenseState"
+	::= { erd5dio 3 }
+
+
+-- serial -----------------------------
+
+-- rs485 ------------------------------
+
+erd5connectStatusRs485	OBJECT-TYPE
+	SYNTAX		INTEGER
+		{
+			no(0),
+			yes(1)
+		}
+	MAX-ACCESS			read-only
+	STATUS				deprecated
+	DESCRIPTION			"RS485 TCP connection status.
+	**NOTE: this object is deprecated and replaced by
+ 	erdConnectStatusRs485"
+	::= { erd5rs485 1 }
+
+erd5ipAddrRs485	OBJECT-TYPE
+	SYNTAX		IpAddress
+	MAX-ACCESS	read-only
+	STATUS		deprecated
+	DESCRIPTION	"RS485 TCP connection IP address.
+	**NOTE: this object is deprecated and replaced by
+ 	erdIpAddrRs485"
+	::= { erd5rs485 2 }
+
+
+-- rs232 -----------------------------
+
+erd5connectStatusRs232	OBJECT-TYPE
+	SYNTAX		INTEGER
+		{
+			no(0),
+			yes(1)
+		}
+	MAX-ACCESS			read-only
+	STATUS				deprecated
+	DESCRIPTION			"RS232 TCP connection status.
+	**NOTE: this object is deprecated and replaced by
+ 	erdConnectStatusRs232"
+	::= { erd5rs232 1 }
+	
+erd5ipAddrRs232	OBJECT-TYPE
+	SYNTAX		IpAddress
+	MAX-ACCESS	read-only
+	STATUS		deprecated
+	DESCRIPTION	"RS232 TCP connection IP address.
+	**NOTE: this object is deprecated and replaced by
+ 	erdIpAddrRs232"
+	::= { erd5rs232 2 }
+
+-- options -----------------------------
+
+erd5dataType	OBJECT-TYPE
+	SYNTAX		INTEGER
+		{
+			integer(0),
+			float(1),
+			ufloat(2)
+		}
+	MAX-ACCESS	read-write
+	STATUS		deprecated
+	DESCRIPTION	"Values data type.
+	**NOTE: this object is deprecated and replaced by
+ 	erdDataType"
+	::= { erd5options 1 }
+
+erd5reboot		OBJECT-TYPE
+	SYNTAX		Integer32
+	MAX-ACCESS	read-write
+	STATUS		deprecated
+	DESCRIPTION	"Send 1 to reboot.
+	**NOTE: this object is deprecated and replaced by
+ 	erdReboot"
+	::= { erd5options 300 }
+
+
+-- crit -----------------------------
+
+erd5adc1CritMin	OBJECT-TYPE
+	SYNTAX		Integer32
+	MAX-ACCESS	read-write
+	STATUS		deprecated
+	DESCRIPTION	"ADC IN critical min.
+	**NOTE: this object is deprecated and replaced by
+ 	erdAdc1CritMin"
+	::= { erd5crit 30 }
+
+erd5adc1CritMax	OBJECT-TYPE
+	SYNTAX		Integer32
+	MAX-ACCESS	read-write
+	STATUS		deprecated
+	DESCRIPTION	"ADC IN critical max.
+	**NOTE: this object is deprecated and replaced by
+ 	erdAdc1CritMax"
+	::= { erd5crit 31 }
+
+erd5adc1Hysteresis	OBJECT-TYPE
+	SYNTAX			Integer32
+	MAX-ACCESS		read-write
+	STATUS			deprecated
+	DESCRIPTION		"ADC IN hysteresis.
+	**NOTE: this object is deprecated and replaced by
+ 	erdAdc1Hysteresis"
+	::= { erd5crit 35 }
+
+erd5adc2CritMin	OBJECT-TYPE
+	SYNTAX		Integer32
+	MAX-ACCESS	read-write
+	STATUS		deprecated
+	DESCRIPTION	"ADC IN critical min.
+	**NOTE: this object is deprecated and replaced by
+ 	erdAdc2CritMin"
+	::= { erd5crit 40 }
+
+erd5adc2CritMax	OBJECT-TYPE
+	SYNTAX		Integer32
+	MAX-ACCESS	read-write
+	STATUS		deprecated
+	DESCRIPTION	"ADC IN critical max.
+	**NOTE: this object is deprecated and replaced by
+ 	erdAdc2CritMax"
+	::= { erd5crit 41 }
+
+erd5adc2Hysteresis	OBJECT-TYPE
+	SYNTAX			Integer32
+	MAX-ACCESS		read-write
+	STATUS			deprecated
+	DESCRIPTION		"ADC IN hysteresis.
+	**NOTE: this object is deprecated and replaced by
+ 	erdAdc2Hysteresis"
+	::= { erd5crit 45 }
+
+
+-- ip -----------------------------
+
+erd5ipOwn	OBJECT-TYPE
+	SYNTAX		IpAddress
+    MAX-ACCESS	read-write
+    STATUS		deprecated
+    DESCRIPTION	"IP address.
+	**NOTE: this object is deprecated and replaced by
+ 	erdIpOwn"
+::= { erd5ip 1 }
+
+erd5ipGateway	OBJECT-TYPE
+	SYNTAX		IpAddress
+    MAX-ACCESS	read-write
+    STATUS		deprecated
+    DESCRIPTION	"Gateway IP address.
+	**NOTE: this object is deprecated and replaced by
+ 	erdIpGateway"
+::= { erd5ip 2 }
+
+erd5ipMask	OBJECT-TYPE
+	SYNTAX		IpAddress
+    MAX-ACCESS	read-write
+    STATUS		deprecated
+    DESCRIPTION	"IP Mask.
+	**NOTE: this object is deprecated and replaced by
+ 	erdIpMask"
+::= { erd5ip 3 }
+
+
+-- diffparams -----------------------------
+
+-- upsStatus ------------------------------
+
+erd5upsStatus		OBJECT-TYPE
+	SYNTAX		INTEGER
+		{
+			ok(0),
+			fail(1),
+			unknown(2) 
+		}
+	MAX-ACCESS	read-only
+	STATUS		deprecated
+	DESCRIPTION	"UPS status.
+	**NOTE: this object is deprecated and replaced by
+ 	erdUpsStatus"
+::= { erd5ups 1 }
+
+erd5upsMode		OBJECT-TYPE
+	SYNTAX		INTEGER
+		{
+			online(0),
+			onbattery(1) 
+		}
+    MAX-ACCESS	read-only
+    STATUS		deprecated
+    DESCRIPTION	"UPS mode: on line or on battery.
+	**NOTE: this object is deprecated and replaced by
+ 	erdUpsMode"
+::= { erd5ups 2 }
+
+erd5upsBeeperStatus		OBJECT-TYPE
+	SYNTAX		INTEGER 
+		{ 
+			off(0),
+			on(1)
+		}
+	MAX-ACCESS	read-only
+	STATUS		deprecated
+	DESCRIPTION	"Beeper status. 
+	Megatec only.
+	**NOTE: this object is deprecated and replaced by
+ 	erdUpsBeeperStatus"
+::= { erd5ups 8 }
+
+erd5upsShutdownStatus		OBJECT-TYPE
+	SYNTAX		INTEGER 
+		{ 
+			nonactive(0),
+			active(1) 
+		}
+	MAX-ACCESS	read-only
+	STATUS		deprecated
+	DESCRIPTION	"Shutdown is active.
+	Megatec only.
+	**NOTE: this object is deprecated and replaced by
+ 	erdUpsShutdownStatus"
+::= { erd5ups 10 }
+
+erd5upsLastBatteryChange	OBJECT-TYPE
+	SYNTAX		DisplayString
+	MAX-ACCESS	read-write
+	STATUS		deprecated
+	DESCRIPTION	"Last battery change date (mm/dd/yyyy).  
+	Smart only.
+	**NOTE: this object is deprecated and replaced by
+ 	erdUpsLastBatteryChange"
+::= { erd5ups 20 }
+
+erd5upsTestTime		OBJECT-TYPE
+	SYNTAX		Integer32
+	MAX-ACCESS	read-only
+	STATUS		deprecated
+	DESCRIPTION	"Test period.
+	**NOTE: this object is deprecated and replaced by
+ 	erdUpsTestTime"
+::= { erd5ups 50 }
+
+erd5upsShutdownTime		OBJECT-TYPE
+	SYNTAX		Integer32
+	MAX-ACCESS	read-write
+	STATUS		deprecated
+	DESCRIPTION	"Shutdown period,
+	minutes for Megatec, seconds for Smart.
+	Writeble for Megatec only.
+	**NOTE: this object is deprecated and replaced by
+ 	erdUpsShutdownTime"
+::= { erd5ups 51 }
+
+erd5upsTurnOnTime		OBJECT-TYPE
+	SYNTAX		Integer32
+	UNITS		"minutes"
+	MAX-ACCESS	read-write
+	STATUS		deprecated
+	DESCRIPTION	"Turn on period, minutes.
+	Megatec only.
+	**NOTE: this object is deprecated and replaced by
+ 	erdUpsTurnOnTime"
+::= { erd5ups 52 }
+
+erd5upsStartShutdownTurnOn		OBJECT-TYPE
+	SYNTAX		Integer32
+	MAX-ACCESS	read-write
+	STATUS		deprecated
+	DESCRIPTION	"Shutdown after shutdownTimeUPS 
+	and turn on after turnOnTimeUPS for Megatec. 
+	Shutdown after shutdownTimeUPS for Smart. 
+	Send 1 to start, 0 to stop.
+	**NOTE: this object is deprecated and replaced by
+ 	erdUpsStartShutdownTurnOn"
+::= { erd5ups 53 }
+
+erd5upsStartTurnOn		OBJECT-TYPE
+	SYNTAX		Integer32
+	MAX-ACCESS	read-write
+	STATUS		deprecated
+	DESCRIPTION	"Turn on immediately, send 1 to turn on.
+	Smart only.
+	**NOTE: this object is deprecated and replaced by
+ 	erdUpsStartTurnOn"
+::= { erd5ups 54 }
+
+erd5upsTestType		OBJECT-TYPE
+	SYNTAX		INTEGER
+		{
+			noTest(0), 
+			shortTest(1), 
+			specifiedPeriodTest(2), 
+			fullDischargeTest(3)
+		}
+    MAX-ACCESS	read-only
+    STATUS		deprecated
+    DESCRIPTION	"Current test type.
+	**NOTE: this object is deprecated and replaced by
+ 	erdUpsTestType"
+::= { erd5ups 70 }
+
+erd5upsStartLongTest		OBJECT-TYPE
+	SYNTAX		Integer32
+	UNITS		"minutes"
+	MAX-ACCESS	read-write
+	STATUS		deprecated
+	DESCRIPTION	"Start specified time period test. 
+	Send period in minutes to start.
+	Megatec only.
+	**NOTE: this object is deprecated and replaced by
+ 	erdUpsStartLongTest"
+::= { erd5ups 71 }
+
+erd5upsSpecifiedTimeTest	OBJECT-TYPE
+	SYNTAX		Integer32
+    MAX-ACCESS	read-only
+    STATUS		deprecated
+    DESCRIPTION	"Test for specified time period.
+	**NOTE: this object is deprecated and replaced by
+ 	erdUpsSpecifiedTimeTest"
+::= { erd5ups 75 }
+
+erd5upsLastTestDuration		OBJECT-TYPE
+	SYNTAX		Integer32
+    MAX-ACCESS	read-only
+    STATUS		deprecated
+    DESCRIPTION	"Last test duration, seconds.
+	**NOTE: this object is deprecated and replaced by
+ 	erdUpsLastTestDuration"
+::= { erd5ups 80 }
+
+erd5upsLastBatteryDischarge		OBJECT-TYPE
+	SYNTAX		Integer32
+    MAX-ACCESS	read-only
+    STATUS		deprecated
+    DESCRIPTION	"Last battery discharge duration, seconds.
+	**NOTE: this object is deprecated and replaced by
+ 	erdUpsLastBatteryDischarge"
+::= { erd5ups 81 }
+
+erd5upsSingleBatteryVoltage		OBJECT-TYPE
+	SYNTAX		Integer32
+    MAX-ACCESS	read-only
+    STATUS		deprecated
+    DESCRIPTION	"Single battery voltage, volts.
+	**NOTE: this object is deprecated and replaced by
+ 	erdUpsSingleBatteryVoltage"
+::= { erd5ups 90 }
+
+erd5upsBatteryLevel		OBJECT-TYPE
+	SYNTAX		Integer32
+    MAX-ACCESS	read-only
+    STATUS		deprecated
+    DESCRIPTION	"Battery level, percents.
+	**NOTE: this object is deprecated and replaced by
+ 	erdUpsBatteryLevel"
+::= { erd5ups 95 }
+
+erd5upsRatingVoltage		OBJECT-TYPE
+	SYNTAX		Integer32
+    MAX-ACCESS	read-only
+    STATUS		deprecated
+    DESCRIPTION	"Rating voltage.
+	**NOTE: this object is deprecated and replaced by
+ 	erdUpsRatingVoltage"
+::= { erd5ups 100 }
+
+erd5upsRatingCurrent		OBJECT-TYPE
+	SYNTAX		Integer32
+    MAX-ACCESS	read-only
+    STATUS		deprecated
+    DESCRIPTION	"Rating current.
+	**NOTE: this object is deprecated and replaced by
+ 	erdUpsRatingCurrent"
+::= { erd5ups 101 }
+
+erd5upsRatingPower		OBJECT-TYPE
+	SYNTAX		Integer32
+    MAX-ACCESS	read-only
+    STATUS		deprecated
+    DESCRIPTION	"Rating power.
+	**NOTE: this object is deprecated and replaced by
+ 	erdUpsRatingPower"
+::= { erd5ups 102 }
+
+erd5upsRatingBatteryVoltage		OBJECT-TYPE
+	SYNTAX		Integer32
+    MAX-ACCESS	read-only
+    STATUS		deprecated
+    DESCRIPTION	"Rating battery voltage.
+	**NOTE: this object is deprecated and replaced by
+ 	erdUpsRatingBatteryVoltage"
+::= { erd5ups 103 }
+
+erd5upsRatingFrequency		OBJECT-TYPE
+	SYNTAX		Integer32
+    MAX-ACCESS	read-only
+    STATUS		deprecated
+    DESCRIPTION	"Rating frequency.
+	**NOTE: this object is deprecated and replaced by
+ 	erdUpsRatingFrequency"
+::= { erd5ups 104 }
+
+
+-- Traps -----------------------------
+
+erd5di1Alarm		NOTIFICATION-TYPE
+	STATUS		deprecated
+	DESCRIPTION	"Input 1 Alarm fires.
+	**NOTE: this object is deprecated and replaced by
+ 	erdDtsTable"		
+	::= { erd5traps 1 }
+
+erd5di1Release		NOTIFICATION-TYPE
+	STATUS		deprecated
+	DESCRIPTION	"Input 1 Alarm released.
+	**NOTE: this object is deprecated and replaced by
+ 	erdDtsTable"		
+	::= { erd5traps 2 }
+
+erd5di2Alarm		NOTIFICATION-TYPE
+	STATUS		deprecated
+	DESCRIPTION	"Input 2 Alarm fires.
+	**NOTE: this object is deprecated and replaced by
+ 	erdDtsTable"		
+	::= { erd5traps 3 }
+
+erd5di2Release		NOTIFICATION-TYPE
+	STATUS		deprecated
+	DESCRIPTION	"Input 2 Alarm released.
+	**NOTE: this object is deprecated and replaced by
+ 	erdDtsTable"		
+	::= { erd5traps 4 }
+
+erd5di3Alarm		NOTIFICATION-TYPE
+	STATUS		deprecated
+	DESCRIPTION	"Input 3 Alarm fires.
+	**NOTE: this object is deprecated and replaced by
+ 	erdDi3Alarm"		
+	::= { erd5traps 5 }
+
+erd5di3Release		NOTIFICATION-TYPE
+	STATUS		deprecated
+	DESCRIPTION	"Input 3 Alarm released.
+	**NOTE: this object is deprecated and replaced by
+ 	erdDi3Release"		
+	::= { erd5traps 6 }
+
+erd5di4Alarm		NOTIFICATION-TYPE
+	STATUS		deprecated
+	DESCRIPTION	"Input 4 Alarm fires.
+	**NOTE: this object is deprecated and replaced by
+ 	erdDi4Alarm"		
+	::= { erd5traps 7 }
+
+erd5di4Release		NOTIFICATION-TYPE
+	STATUS		deprecated
+	DESCRIPTION	"Input 4 Alarm released.
+	**NOTE: this object is deprecated and replaced by
+ 	erdDi4Release"		
+	::= { erd5traps 8 }
+
+erd5di5Alarm		NOTIFICATION-TYPE
+	STATUS		deprecated
+	DESCRIPTION	"Input 5 Alarm fires.
+	**NOTE: this object is deprecated and replaced by
+ 	erdDi5Alarm"		
+	::= { erd5traps 9 }
+
+erd5di5Release		NOTIFICATION-TYPE
+	STATUS		deprecated
+	DESCRIPTION	"Input 5 Alarm released.
+	**NOTE: this object is deprecated and replaced by
+ 	erdDi5Release"		
+	::= { erd5traps 10 }
+
+erd5uSenseAlarm		NOTIFICATION-TYPE
+	STATUS		deprecated
+	DESCRIPTION	"Signifies that Phase sensor 
+	Alarm fires.
+	**NOTE: this object is deprecated and replaced by
+ 	erdUSenseAlarm"		
+	::= { erd5traps 11 }
+
+erd5uSenseRelease	NOTIFICATION-TYPE
+	STATUS		deprecated
+	DESCRIPTION	"Signifies that Phase sensor 
+	Alarm released.
+	**NOTE: this object is deprecated and replaced by
+ 	erdUSenseRelease"		
+	::= { erd5traps 12 }
+
+erd5reloutOn		NOTIFICATION-TYPE
+	STATUS		deprecated
+	DESCRIPTION	"Signifies that Rele was swithed on 
+	by Thermostat or Gigrostat mode.
+	**NOTE: this object is deprecated and replaced by
+ 	erdReloutOn"		
+	::= { erd5traps 13 }
+
+erd5reloutOff		NOTIFICATION-TYPE
+	STATUS		deprecated
+	DESCRIPTION	"Signifies that Rele was swithed off 
+	by Thermostat or Gigrostat mode.
+	**NOTE: this object is deprecated and replaced by
+ 	erdReloutOff"		
+	::= { erd5traps 14 }
+
+erd5do1On			NOTIFICATION-TYPE
+	STATUS		deprecated
+	DESCRIPTION	"Signifies that Output 1 was swithed on 
+	by Thermostat or Gigrostat mode.
+	**NOTE: this object is deprecated and replaced by
+ 	erdDo1On"		
+	::= { erd5traps 15 }
+
+erd5do1Off			NOTIFICATION-TYPE
+	STATUS		deprecated
+	DESCRIPTION	"Signifies that Output 1 was swithed off 
+	by Thermostat or Gigrostat mode.
+	**NOTE: this object is deprecated and replaced by
+ 	erdDo1Off"		
+	::= { erd5traps 16 }
+
+erd5do2On			NOTIFICATION-TYPE
+	STATUS		deprecated
+	DESCRIPTION	"Signifies that Output 2 was swithed on 
+	by Thermostat or Gigrostat mode.
+	**NOTE: this object is deprecated and replaced by
+ 	erdDo2On"		
+	::= { erd5traps 17 }
+
+erd5do2Off			NOTIFICATION-TYPE
+	STATUS		deprecated
+	DESCRIPTION	"Signifies that Output 2 was swithed off 
+	by Thermostat or Gigrostat mode.
+	**NOTE: this object is deprecated and replaced by
+ 	erdDo2Off"		
+	::= { erd5traps 18 }
+
+erd5do3On			NOTIFICATION-TYPE
+	STATUS		deprecated
+	DESCRIPTION	"Signifies that Output 3 was swithed on 
+	by Thermostat or Gigrostat mode.
+	**NOTE: this object is deprecated and replaced by
+ 	erdDo3On"		
+	::= { erd5traps 19 }
+
+erd5do3Off			NOTIFICATION-TYPE
+	STATUS		deprecated
+	DESCRIPTION	"Signifies that Output 3 was swithed off 
+	by Thermostat or Gigrostat mode.
+	**NOTE: this object is deprecated and replaced by
+ 	erdDo3Off"		
+	::= { erd5traps 20 }
+
+erd5do4On			NOTIFICATION-TYPE
+	STATUS		deprecated
+	DESCRIPTION	"Signifies that Output 4 was swithed on 
+	by Thermostat or Gigrostat mode.
+	**NOTE: this object is deprecated and replaced by
+ 	erdDo4On"		
+	::= { erd5traps 21 }
+
+erd5do4Off			NOTIFICATION-TYPE
+	STATUS		deprecated
+	DESCRIPTION	"Signifies that Output 4 was swithed off 
+	by Thermostat or Gigrostat mode.
+	**NOTE: this object is deprecated and replaced by
+ 	erdDo4Off"		
+	::= { erd5traps 22 }
+
+erd5do5On			NOTIFICATION-TYPE
+	STATUS		deprecated
+	DESCRIPTION	"Signifies that Output 5 was swithed on 
+	by Thermostat or Gigrostat mode.
+	**NOTE: this object is deprecated and replaced by
+ 	erdDo5On"		
+	::= { erd5traps 23 }
+
+erd5do5Off			NOTIFICATION-TYPE
+	STATUS		deprecated
+	DESCRIPTION	"Signifies that Output 5 was swithed off 
+	by Thermostat or Gigrostat mode.
+	**NOTE: this object is deprecated and replaced by
+ 	erdDo5Off"		
+	::= { erd5traps 24 }
+
+erd5tempSensorAlarm		NOTIFICATION-TYPE
+	STATUS			deprecated
+	DESCRIPTION		"Temperature alarm.
+	**NOTE: this object is deprecated and replaced by
+ 	erdTempSensorAlarm"		
+	::= { erd5traps 29 }
+
+erd5tempSensorRelease	NOTIFICATION-TYPE
+	STATUS			deprecated
+	DESCRIPTION		"Temperature release.
+	**NOTE: this object is deprecated and replaced by
+ 	erdTempSensorRelease"		
+	::= { erd5traps 30 }
+
+erd5adcSensorAlarm		NOTIFICATION-TYPE
+	STATUS			deprecated
+	DESCRIPTION		"Voltage sensor alarm.
+	**NOTE: this object is deprecated and replaced by
+ 	erdAdcSensorAlarm"		
+	::= { erd5traps 31 }
+
+erd5adcSensorRelease	NOTIFICATION-TYPE
+	STATUS		deprecated
+	DESCRIPTION	"Voltage sensor release.
+	**NOTE: this object is deprecated and replaced by
+ 	erdAdcSensorRelease"		
+	::= { erd5traps 32 }
+
+erd5pingLost		NOTIFICATION-TYPE
+	STATUS		deprecated
+	DESCRIPTION	"Ping lost.
+	**NOTE: this object is deprecated and replaced by
+ 	erdPingLost"		
+	::= { erd5traps 45 }
+
+erd5upsStartBatteryTest		NOTIFICATION-TYPE
+	STATUS			deprecated
+	DESCRIPTION		"UPS start battery test.
+	**NOTE: this object is deprecated and replaced by
+ 	erdUpsStartBatteryTest"			
+	::= { erd5traps 198 }
+
+erd5upsStopBatteryTest		NOTIFICATION-TYPE
+	STATUS			deprecated
+	DESCRIPTION		"UPS stop battery test.
+	**NOTE: this object is deprecated and replaced by
+ 	erdUpsStopBatteryTest"			
+	::= { erd5traps 199 }
+
+erd5upsUtilityFail		NOTIFICATION-TYPE
+	STATUS			deprecated
+	DESCRIPTION		"UPS utility fail.
+	**NOTE: this object is deprecated and replaced by
+ 	erdUpsUtilityFail"			
+	::= { erd5traps 200 }
+
+erd5upsUtilityOk		NOTIFICATION-TYPE
+	STATUS			deprecated
+	DESCRIPTION		"UPS utility OK.
+	**NOTE: this object is deprecated and replaced by
+ 	erdUpsUtilityOk"			
+	::= { erd5traps 201 }
+
+erd5upsOn		NOTIFICATION-TYPE
+	STATUS			deprecated
+	DESCRIPTION		"UPS On.
+	**NOTE: this object is deprecated and replaced by
+ 	erdUpsOn"			
+	::= { erd5traps 202 }
+
+erd5upsOff		NOTIFICATION-TYPE
+	STATUS			deprecated
+	DESCRIPTION		"UPS Off.
+	**NOTE: this object is deprecated and replaced by
+ 	erdUpsOff"			
+	::= { erd5traps 203 }
+
+erd5upsLoadCritical		NOTIFICATION-TYPE
+	STATUS			deprecated
+	DESCRIPTION		"UPS critical load.
+	**NOTE: this object is deprecated and replaced by
+ 	erdUpsLoadCritical"			
+	::= { erd5traps 204 }	
+
+erd5upsLoadNormal		NOTIFICATION-TYPE
+	STATUS			deprecated
+	DESCRIPTION		"UPS normal load.
+	**NOTE: this object is deprecated and replaced by
+ 	erdUpsLoadNormal"			
+	::= { erd5traps 205 }	
+
+erd5upsBatteryVoltageFull		NOTIFICATION-TYPE
+	STATUS			deprecated
+	DESCRIPTION		"UPS battery voltage is full.
+	**NOTE: this object is deprecated and replaced by
+ 	erdUpsBatteryVoltageFull"			
+	::= { erd5traps 206 }
+
+erd5upsBatteryVoltageNormal		NOTIFICATION-TYPE
+	STATUS			deprecated
+	DESCRIPTION		"UPS battery voltage is normal.
+	**NOTE: this object is deprecated and replaced by
+ 	erdUpsBatteryVoltageNormal"			
+	::= { erd5traps 207 }
+
+erd5upsBatteryVoltageCritical		NOTIFICATION-TYPE
+	STATUS			deprecated
+	DESCRIPTION		"UPS battery voltage is critical.
+	**NOTE: this object is deprecated and replaced by
+ 	erdUpsBatteryVoltageCritical"			
+	::= { erd5traps 208 }
+
+erd5upsBatteryDischarged		NOTIFICATION-TYPE
+	STATUS			current
+	DESCRIPTION		"UPS battery is discharged.
+	**NOTE: this object is deprecated and replaced by
+ 	erdUpsBatteryDischarged"			
+	::= { erd5traps 209 }
+
+-- conformance ----------------
+					 
+erdNotificationsGroup		NOTIFICATION-GROUP  
+	NOTIFICATIONS 
+	{
+		erdDi1Alarm,
+		erdDi1Release,
+		erdDi2Alarm,
+		erdDi2Release,
+		erdDi3Alarm,
+		erdDi3Release,
+		erdDi4Alarm,
+		erdDi4Release,
+		erdDi5Alarm,
+		erdDi5Release,
+		erdUSenseAlarm,
+		erdUSenseRelease,
+		erdReloutOn,
+		erdReloutOff,
+		erdDo1On,
+		erdDo1Off,
+		erdDo2On,
+		erdDo2Off,
+		erdDo3On,
+		erdDo3Off,
+		erdDo4On,
+		erdDo4Off,
+		erdDo5On,
+		erdDo5Off,
+		erdTemperatureCriticalMin,
+		erdTemperatureNormal,
+		erdTemperatureCriticalMax,
+		erdHumidityCriticalMin,
+		erdHumidityNormal,
+		erdHumidityCriticalMax,
+		erdAdcCriticalMin,
+		erdAdcNormal,
+		erdAdcCriticalMax,
+		erdAdcOvercurrent,
+		erdHumSensorAlarm,
+		erdHumSensorRelease,
+		erdTask1Done,
+		erdTask2Done,
+		erdTask3Done,
+		erdTask4Done,
+		erdTask5Done,
+		erdTask6Done,
+		erdTask7Done,
+		erdTask8Done,
+		erdTask9Done,
+		erdTask10Done,
+		erdPingLost,
+		erdUpsStartBatteryTest,
+		erdUpsStopBatteryTest,
+		erdUpsUtilityFail,
+		erdUpsUtilityOk,
+		erdUpsOn,
+		erdUpsOff,
+		erdUpsLoadCritical,
+		erdUpsLoadNormal,
+		erdUpsBatteryVoltageFull,
+		erdUpsBatteryVoltageNormal,
+		erdUpsBatteryVoltageCritical,
+		erdUpsBatteryDischarged,
+		erdInternetDisconnected,
+		erdInternetRestored,
+		erdSmtpDisconnected,
+		erdSmtpRestored,
+		erdEthernetDisconnected,
+		erdEthernetRestored,
+		erdAuthentificationFailed,
+		erdAuthentificationSucceed,
+		erdStart,
+		erdLogicDone
+	}
+	STATUS			current
+	DESCRIPTION		"Notifications"
+	::= { erdGroups 1 }
+
+erdMeasurementsGroup OBJECT-GROUP
+    OBJECTS {	erdAdcSensor, erdAdc2Sensor, erdDHTName , erdDHTTemperature, erdDHTHumidity, erdDHTTemperatureNotifications, erdDHTTemperatureCritMin, erdDHTTemperatureCritMax, erdDHTHumidityNotifications, erdDHTHumidityCritMin, erdDHTHumidityCritMax, 
+				erdDtsName, erdDtsTemp, erdDtsTempCritNotif, erdDtsTempCritMin, erdDtsTempCritMax,
+				erdHtSensorName, erdHtSensorTemp, erdHtSensorHumidity, erdHtSensorTempCritNotif, erdHtSensorTempCritMin, erdHtSensorTempCritMax, erdHtSensorHumiCritNotif, erdHtSensorHumiCritMin, erdHtSensorHumiCritMax, 
+				erdShuntName, erdShuntTemp, erdShuntVolt, erdShuntCurrent, erdShuntChrgLvl, erdShuntChrgCap, erdShuntDischCap, erdShuntEndOfChrg, erdShuntDiscn, erdShuntBatLive, erdShuntDischTime,
+				erdRsshtpName, erdRsshtpTemp, erdRsshtpHum, erdRsshtpPssr, erdRsshtpTempCritNotif, erdRsshtpTempCritMin, erdRsshtpTempCritMax,erdRsshtpHumiCritNotif,erdRsshtpHumiCritMin,erdRsshtpHumiCritMax,
+				erdRscounterName, erdSmartOutletName,
+				erdRsshtp1WName, erdRsshtp1WTemp, erdRsshtp1WMaster, erdRsshtp1WTempCritNotif, erdRsshtp1WTempCritMin, erdRsshtp1WTempCritMax,
+				erdRsshtp1WHTName, erdRsshtp1WHTTemp, erdRsshtp1WHTHum, erdRsshtp1WHTMaster, erdRsshtp1WHTTempCritNotif, erdRsshtp1WHTTempCritMin, erdRsshtp1WHTTempCritMax, 
+				erdRsem115ApparentPower, 
+				erdSensorsTemplateValue, erdSensorsTemplateName, erdSensorsTemplateTotalConnect
+			}
+    STATUS  current
+    DESCRIPTION
+            "A collection of objects providing SNR-ERD measurements"
+    ::= { erdGroups 2 }
+	
+erdDioGroup OBJECT-GROUP
+    OBJECTS {	erdDiAlarmName, erdDiState, erdDiCnt, erdDiInverted,
+				erdDoDeviceName, erdDoState, erdDoResetTime,
+				erdUSenseState
+			}
+    STATUS  current
+    DESCRIPTION
+            "A collection of objects providing SNR-ERD DIO"
+    ::= { erdGroups 3 }
+	
+erdSerialGroup OBJECT-GROUP
+    OBJECTS {	erdConnectStatusRs485, erd4ipAddrRs485,
+				erdConnectStatusRs232, erd4ipAddrRs232
+			}
+    STATUS  current
+    DESCRIPTION
+            "A collection of objects providing SNR-ERD serial ports"
+    ::= { erdGroups 4 }
+	
+erdModulesGroup OBJECT-GROUP
+    OBJECTS {	erdGsmModuleStatus, erdGsmStrength, erdGsmConnectCount
+			}
+    STATUS  current
+    DESCRIPTION
+            "A collection of objects providing SNR-ERD modules"
+    ::= { erdGroups 5 }
+	
+erdOptionsGroup OBJECT-GROUP
+    OBJECTS {	erdDataType, 
+				erdReboot,
+				erdAdcCritMin, erdAdcCritMax, erdAdcHysteresis,
+				erdAdc2CritMin, erdAdc2CritMax, erdAdc2Hysteresis
+			}
+    STATUS  current
+    DESCRIPTION
+            "A collection of objects providing SNR-ERD options"
+    ::= { erdGroups 6 }
+	
+erdDiffParamsGroup OBJECT-GROUP
+    OBJECTS {	erdUpsStatus, erdUpsMode, erdUpsBeeperStatus, erdUpsShutdownStatus, erdUpsLastBatteryChange, erdUpsTestTime,
+				erdUpsShutdownTime, erdUpsTurnOnTime, erdUpsStartShutdownTurnOn, erdUpsStartTurnOn, erdUpsTestType, erdUpsStartLongTest,
+				erdUpsSpecifiedTimeTest, erdUpsLastTestDuration, erdUpsLastBatteryDischarge, erdUpsSingleBatteryVoltage, erdUpsBatteryLevel, erdUpsRatingVoltage, erdUpsRatingCurrent, erdUpsRatingPower, erdUpsRatingBatteryVoltage, erdUpsRatingFrequency,
+				erdPidInput, erdPidOutputPercent, erdPidOutputReal, erdPidYp, erdPidYi, erdPidYd, erdPidError,
+				erdOmixId, erdOmixPhAvolt, erdOmixPhACritMin, erdOmixPhACritMax, erdOmixPhAGist, erdOmixPhBvolt, erdOmixPhBCritMin, erdOmixPhBCritMax, erdOmixPhBGist, erdOmixPhCvolt, erdOmixPhCCritMin, erdOmixPhCCritMax, erdOmixPhCGist, erdOmixLnAvol, erdOmixLnACritMin, erdOmixLnACritMax, erdOmixLnAGist, erdOmixLnBvol, erdOmixLnBCritMin, erdOmixLnBCritMax, erdOmixLnBGist, erdOmixLnCvol, erdOmixLnCCritMin, erdOmixLnCCritMax, erdOmixLnCGist, erdOmixPhAamp, erdOmixPhAmpACritMin, erdOmixPhAmpACritMax, erdOmixPhAmpAGist, erdOmixPhBamp, erdOmixPhAmpBCritMin, erdOmixPhAmpBCritMax, erdOmixPhAmpBGist, erdOmixPhCamp, erdOmixPhAmpCCritMin, erdOmixPhAmpCCritMax, erdOmixPhAmpCGist, erdOmixCurrFreq, erdOmixCurrFreqCritMin, erdOmixCurrFreqCritMax, erdOmixCurrFreqGist 
+			}
+    STATUS  current
+    DESCRIPTION
+            "A collection of objects providing SNR-ERD different parameters"
+    ::= { erdGroups 7 }
+
+erdDeprecatedGroup OBJECT-GROUP
+    OBJECTS {	 
+				erdHumCrit,
+				erdTemperatureDHT, erdHumidityDHT
+				
+			}
+    STATUS  		deprecated
+    DESCRIPTION		"deprecated"
+    ::= { erdGroups 8 }
+
+erdNotifDeprecatedGroup		NOTIFICATION-GROUP  
+	NOTIFICATIONS 
+	{
+		erdBatteryChargeLow
+	}
+	STATUS			deprecated
+	DESCRIPTION		"Notifications"
+	::= { erdGroups 9 }
+
+erd5notificationsGroup		NOTIFICATION-GROUP  
+	NOTIFICATIONS 
+	{
+		erd5di1Alarm,
+		erd5di1Release,
+		erd5di2Alarm,
+		erd5di2Release,
+		erd5di3Alarm,
+		erd5di3Release,
+		erd5di4Alarm,
+		erd5di4Release,
+		erd5di5Alarm,
+		erd5di5Release,
+		erd5uSenseAlarm,
+		erd5uSenseRelease,
+		erd5reloutOn,
+		erd5reloutOff,
+		erd5do1On,
+		erd5do1Off,
+		erd5do2On,
+		erd5do2Off,
+		erd5do3On,
+		erd5do3Off,
+		erd5do4On,
+		erd5do4Off,
+		erd5do5On,
+		erd5do5Off,
+		erd5tempSensorAlarm,
+		erd5tempSensorRelease,
+		erd5adcSensorAlarm,
+		erd5adcSensorRelease,
+		erd5pingLost,
+		erd5upsStartBatteryTest,
+		erd5upsStopBatteryTest,
+		erd5upsUtilityFail,
+		erd5upsUtilityOk,
+		erd5upsOn,
+		erd5upsOff,
+		erd5upsLoadCritical,
+		erd5upsLoadNormal,
+		erd5upsBatteryVoltageFull,
+		erd5upsBatteryVoltageNormal,
+		erd5upsBatteryVoltageCritical,
+		erd5upsBatteryDischarged
+	}
+	STATUS			deprecated
+	DESCRIPTION		"Notifications"
+	::= { erd5groups 101 }
+
+erd5measurementsGroup OBJECT-GROUP
+    OBJECTS {	erd5adc1Sensor, erd5adc2Sensor,
+				erd5dtsName, erd5dtsTemp, erd5dtsTempCritNotif, erd5dtsTempCritMin, erd5dtsTempCritMax
+			}
+    STATUS  deprecated
+    DESCRIPTION
+            "A collection of objects providing SNR-ERD-5 measurements"
+    ::= { erd5groups 102 }
+	
+erd5dioGroup OBJECT-GROUP
+    OBJECTS {	erd5diAlarmName, erd5diState, erd5diCnt, erd5diInverted,
+				erd5doDeviceName, erd5doState, erd5doResetTime,
+				erd5uSenseState
+			}
+    STATUS  deprecated
+    DESCRIPTION
+            "A collection of objects providing SNR-ERD-5 DIO"
+    ::= { erd5groups 103 }
+	
+erd5serialGroup OBJECT-GROUP
+    OBJECTS {	erd5connectStatusRs485, erd5ipAddrRs485,
+				erd5connectStatusRs232, erd5ipAddrRs232
+			}
+    STATUS  deprecated
+    DESCRIPTION
+            "A collection of objects providing SNR-ERD-5 serial ports"
+    ::= { erd5groups 104 }
+	
+erd5optionsGroup OBJECT-GROUP
+    OBJECTS {	erd5dataType, 
+				erd5reboot,
+				erd5adc1CritMin, erd5adc1CritMax, erd5adc1Hysteresis, erd5adc2CritMin, erd5adc2CritMax, erd5adc2Hysteresis,
+				erd5ipOwn, erd5ipGateway, erd5ipMask
+			}
+    STATUS  deprecated
+    DESCRIPTION
+            "A collection of objects providing SNR-ERD-5 options"
+    ::= { erd5groups 106 }
+	
+erd5diffParamsGroup OBJECT-GROUP
+    OBJECTS {	erd5upsStatus, erd5upsMode, erd5upsBeeperStatus, erd5upsShutdownStatus, erd5upsLastBatteryChange, erd5upsTestTime,
+				erd5upsTestType, erd5upsSpecifiedTimeTest,
+				erd5upsShutdownTime, erd5upsTurnOnTime, erd5upsStartShutdownTurnOn, erd5upsStartTurnOn, erd5upsStartLongTest,
+				erd5upsLastTestDuration, erd5upsLastBatteryDischarge, erd5upsSingleBatteryVoltage, erd5upsBatteryLevel,
+				erd5upsRatingVoltage, erd5upsRatingCurrent, erd5upsRatingPower, erd5upsRatingBatteryVoltage, erd5upsRatingFrequency
+			}
+    STATUS  deprecated
+    DESCRIPTION
+            "A collection of objects providing SNR-ERD-5 different parameters"
+    ::= { erd5groups 107 }
+
+
+erdCompliance MODULE-COMPLIANCE
+	STATUS     current
+	DESCRIPTION
+				"The compliance statement for SNR-ERD that support all current functions."
+	MODULE -- this module
+	MANDATORY-GROUPS { 	erdNotificationsGroup, 
+						erdMeasurementsGroup,
+						erdDioGroup,
+						erdSerialGroup,
+						erdModulesGroup,
+						erdOptionsGroup,
+						erdDiffParamsGroup}
+	::= { erdCompliances 1 }
+
+erdComplianceDeprecated MODULE-COMPLIANCE
+	STATUS     deprecated
+	DESCRIPTION
+				"The compliance statement for SNR-ERD that support all deprecated functions."
+	MODULE -- this module
+	MANDATORY-GROUPS {	erd5notificationsGroup, 
+						erd5measurementsGroup,
+						erd5dioGroup,
+						erd5serialGroup,
+						erd5optionsGroup,
+						erd5diffParamsGroup,
+						erdDeprecatedGroup,
+						erdNotifDeprecatedGroup}
+	::= { erdCompliances 2 }
+
+END

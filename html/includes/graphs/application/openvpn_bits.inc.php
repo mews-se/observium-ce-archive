@@ -1,0 +1,29 @@
+<?php
+
+/**
+ * Observium
+ *
+ *   This file is part of Observium.
+ *
+ * @package        observium
+ * @subpackage     graphs
+ * @copyright  (C) Adam Armstrong
+ *
+ */
+
+include_once($config['html_dir'] . "/includes/graphs/common.inc.php");
+
+$openvpn_rrd = get_rrd_path($device, "app-openvpn-" . $app['app_instance'] . ".rrd");
+
+if (rrd_is_file($openvpn_rrd)) {
+    $rrd_filename = $openvpn_rrd;
+}
+
+$multiplier = 8;
+
+$ds_in  = "bytesin";
+$ds_out = "bytesout";
+
+include($config['html_dir'] . "/includes/graphs/generic_data.inc.php");
+
+// EOF

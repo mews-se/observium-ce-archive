@@ -1,0 +1,117 @@
+<?php
+/**
+ * Observium
+ *
+ *   This file is part of Observium.
+ *
+ * @package    observium
+ * @subpackage web
+ * @copyright  (C) Adam Armstrong
+ *
+ */
+
+$where = [];
+
+foreach ($vars as $var => $value) {
+    if ($value != "") {
+        switch ($var) {
+            case 'name':
+                $where[] = generate_query_values($value, $var);
+                break;
+        }
+    }
+}
+
+echo generate_box_open();
+
+echo '<table class="table table-condensed table-striped">';
+echo '  <thead>';
+echo '    <tr>';
+echo '      <th style="width: 300px;">Package</th>';
+echo '      <th>Version</th>';
+echo '    </tr>';
+echo '  </thead>';
+echo '  <tbody>';
+
+
+foreach (dbFetchRows("SELECT * FROM `packages` " . generate_where_clause($where, generate_query_permitted_ng('device'))) as $v) {
+    $packages[$v['name']][$v['version']][$v['build']][] = $v;
+
+    //$all[]=$v;
+}
+
+//r($all);
+
+ksort($packages);
+
+
+foreach ($packages as $name => $package) {
+    echo '    <tr>' . PHP_EOL;
+    echo '      <td><a href="' . generate_url($vars, ['name' => $name]) . '" class="entity">' . $name . '</a></td>' . PHP_EOL;
+    echo '      <td>';
+
+    $vers    = [];
+    $content = "";
+    $table   = '';
+
+
+    foreach ($package as $version => $builds) {
+
+        foreach ($builds as $build => $devices) {
+            if ($build) {
+                $dbuild = '-' . $build;
+            } else {
+                $dbuild = '';
+            }
+            $content .= $version . $dbuild;
+
+            foreach ($devices as $entry) {
+                $this_device = ['device_id' => $entry['device_id'], 'hostname' => $GLOBALS['cache']['devices']['hostname_map'][$entry['device_id']]];
+
+                $dbuild = !empty($entry['build']) ? '-' . $entry['build'] : '';
+
+                if (!empty($this_device['hostname'])) {
+                    if (!empty($vars['name'])) {
+
+                        $table .= '<tr>';
+                        $table .= '<td>' . $entry['version'] . $dbuild . '</td><td>' . get_type_class_label($entry['arch'], 'arch') . '</td>
+                  <td>' . get_type_class_label($entry['manager'], 'pkg') . '</td>
+                  <td class="entity">' . generate_device_link($this_device) . '</td><td></td><td>' . format_si($entry['size']) . '</td>';
+                        $table .= '</tr>';
+                    } else {
+                        $hosts[] = '<span class="entity">' . $this_device['hostname'] . '</span>';
+                    }
+                }
+            }
+        }
+
+
+        if (empty($vars['name'])) {
+            $hosts  = implode('<br />', $hosts);
+            $vers[] = generate_tooltip_link('', $version . $dbuild, $hosts);
+        }
+        unset($hosts);
+    }
+
+    if (!empty($vars['name'])) {
+        echo '<table class="' . OBS_CLASS_TABLE_STRIPED . '">';
+        echo '<tbody>';
+        echo $table;
+        echo '</tbody>';
+        echo '</table>';
+    } else {
+        echo implode(' - ', $vers);
+    }
+
+    unset($vers);
+
+    echo '      </td>' . PHP_EOL;
+    echo '    </tr>' . PHP_EOL;
+}
+
+echo '  </tbody>';
+echo '</table>';
+
+echo generate_box_close();
+
+// EOF

@@ -1,0 +1,117 @@
+ELTEX-MES-AAA-STATISTICS-MIB DEFINITIONS ::= BEGIN
+
+
+IMPORTS
+    eltMesAAAStatMIB                    FROM ELTEX-MES-MNG-MIB
+    MODULE-IDENTITY, OBJECT-TYPE,
+    Counter32,Unsigned32,IpAddress      FROM SNMPv2-SMI
+    InetAddress, InetAddressType        FROM INET-ADDRESS-MIB -- RFC2851
+    TruthValue,DisplayString,
+    TEXTUAL-CONVENTION                  FROM SNMPv2-TC;
+
+eltRadiusServerStatusTable OBJECT-TYPE
+    SYNTAX     SEQUENCE OF ELTRadiusServerStatusEntry
+    MAX-ACCESS     not-accessible
+    STATUS current
+    DESCRIPTION
+        "The (conceptual) table listing the RADIUS
+        servers with which the cliient shares a secret."
+    ::= { eltMesAAAStatMIB 21 }
+
+eltRadiusServerStatusEntry OBJECT-TYPE
+    SYNTAX     ELTRadiusServerStatusEntry
+    MAX-ACCESS     not-accessible
+    STATUS current
+    DESCRIPTION
+        "An entry (conceptual row) representing a RADIUS
+        server with which the client shares
+        a secret."
+    INDEX      { eltRadiusServerAddressType,
+                 eltRadiusServerAddress,
+                 eltRadiusServerAuthPortNumber,
+                 eltRadiusServerAcctPortNumber}
+    ::= { eltRadiusServerStatusTable 1 }
+
+ELTRadiusServerStatusEntry ::= SEQUENCE {
+    eltRadiusServerAddressType                   InetAddressType,
+    eltRadiusServerAddress                       InetAddress,
+    eltRadiusServerAuthPortNumber                INTEGER,
+    eltRadiusServerAcctPortNumber                INTEGER,
+    eltRadiusServerAuthClientTimeouts            Unsigned32,
+    eltRadiusServerDeadStatus                    TruthValue,
+    eltRadiusServerRemainDeadTime                Unsigned32
+}
+
+eltRadiusServerAddressType OBJECT-TYPE
+    SYNTAX  InetAddressType
+    MAX-ACCESS read-write
+    STATUS current
+    DESCRIPTION
+        "The Inet address type of RADIUS server reffered to
+         in this table entry .IPv6Z type is not supported."
+    ::= { eltRadiusServerStatusEntry 1}
+
+eltRadiusServerAddress OBJECT-TYPE
+    SYNTAX         InetAddress
+    MAX-ACCESS     read-write
+    STATUS current
+    DESCRIPTION
+        "The IP address of the RADIUS server
+        referred to in this table entry."
+    ::= { eltRadiusServerStatusEntry 2 }
+
+eltRadiusServerAuthPortNumber  OBJECT-TYPE
+    SYNTAX INTEGER (0..65535)
+    MAX-ACCESS read-write
+    STATUS current
+    DESCRIPTION
+        "The UDP port the client is using to send authentication
+        requests to this server."
+    ::= { eltRadiusServerStatusEntry 3 }
+
+eltRadiusServerAcctPortNumber  OBJECT-TYPE
+    SYNTAX INTEGER (0..65535)
+    MAX-ACCESS read-write
+    STATUS current
+    DESCRIPTION
+        "The UDP port the client is using to send accounting
+        requests to this server."
+    ::= { eltRadiusServerStatusEntry 4 }
+
+eltRadiusServerAuthClientTimeouts  OBJECT-TYPE
+    SYNTAX Unsigned32
+    MAX-ACCESS read-only
+    STATUS current
+    DESCRIPTION
+        "The timeout for RADIUS server response."
+    ::= { eltRadiusServerStatusEntry 5 }
+
+
+
+eltRadiusServerDeadStatus  OBJECT-TYPE
+    SYNTAX TruthValue
+    MAX-ACCESS read-only
+    STATUS current
+    DESCRIPTION
+        "The dead status for this RADIUS server."
+    ::= { eltRadiusServerStatusEntry 6 }
+
+eltRadiusServerRemainDeadTime OBJECT-TYPE
+    SYNTAX Unsigned32
+    MAX-ACCESS read-only
+    STATUS current
+    DESCRIPTION
+        "The remain dead time for this RADIUS server."
+    ::= { eltRadiusServerStatusEntry 7 }
+
+
+eltRadiusServerStatusReset OBJECT-TYPE
+    SYNTAX      INTEGER  (0..1)
+    MAX-ACCESS  read-write
+    STATUS      current
+    DESCRIPTION
+        "Reset dead status for all RADIUS servers."
+    ::= { eltMesAAAStatMIB 22 }
+
+
+END

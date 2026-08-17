@@ -1,0 +1,749 @@
+ORG-MIB DEFINITIONS ::= BEGIN
+IMPORTS
+    MODULE-IDENTITY, OBJECT-TYPE,
+    Integer32, Unsigned32, Counter32, Counter64,
+    Gauge32, IpAddress
+        FROM SNMPv2-SMI
+    TEXTUAL-CONVENTION, RowStatus, DateAndTime,
+    TruthValue
+        FROM SNMPv2-TC
+    generic
+        FROM VERSA-MIB
+;
+
+org MODULE-IDENTITY
+    LAST-UPDATED "201702260000Z"
+    ORGANIZATION "Versa Networks"
+    CONTACT-INFO "
+        2953 Bunker Hill Lane, Suite 210
+        Santa Clara, CA - 95035 (USA)
+        Email: support@versa-networks.com"
+    DESCRIPTION "Versa Networks' Enterprise MIB which provides
+Multi-Tenant statistics"
+    REVISION "201702260000Z"
+    DESCRIPTION "Initial revision"
+    ::= { generic 2 }
+
+UnsignedByte ::= TEXTUAL-CONVENTION
+    DISPLAY-HINT "d"
+    STATUS      current
+    DESCRIPTION "xs:unsignedByte"
+    SYNTAX      Unsigned32 (0 .. 255)
+
+UnsignedShort ::= TEXTUAL-CONVENTION
+    DISPLAY-HINT "d"
+    STATUS      current
+    DESCRIPTION "xs:unsignedShort"
+    SYNTAX      Unsigned32 (0 .. 65535)
+
+ConfdString ::= TEXTUAL-CONVENTION
+    DISPLAY-HINT "1t"
+    STATUS      current
+    DESCRIPTION "xs: and confd: types mapped to strings"
+    SYNTAX      OCTET STRING
+
+String ::= TEXTUAL-CONVENTION
+    DISPLAY-HINT "1t"
+    STATUS      current
+    DESCRIPTION "xs:string"
+    SYNTAX      OCTET STRING
+
+trafficTable OBJECT-TYPE
+    SYNTAX      SEQUENCE OF TrafficEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "Org traffic statistics"
+    ::= { org 2 }
+
+trafficEntry OBJECT-TYPE
+    SYNTAX      TrafficEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION ""
+    INDEX { trafficOrgId }
+        ::= { trafficTable 1 }
+
+TrafficEntry ::=
+    SEQUENCE {
+        trafficOrgId Unsigned32,
+        trafficOrgName String,
+        trafficPktsIn ConfdString,
+        trafficBytesIn ConfdString,
+        trafficPktsOut ConfdString,
+        trafficBytesOut ConfdString,
+        trafficPktsInRate ConfdString,
+        trafficBytesInRate ConfdString,
+        trafficPktsOutRate ConfdString,
+        trafficBytesOutRate ConfdString
+    }
+
+trafficOrgId OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "Organization id"
+    ::= { trafficEntry 1 }
+
+trafficOrgName OBJECT-TYPE
+    SYNTAX      String
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Organization name"
+    ::= { trafficEntry 2 }
+
+trafficPktsIn OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total packets received"
+    ::= { trafficEntry 3 }
+
+trafficBytesIn OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total bytes received"
+    ::= { trafficEntry 4 }
+
+trafficPktsOut OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total packets sent"
+    ::= { trafficEntry 5 }
+
+trafficBytesOut OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total bytes sent"
+    ::= { trafficEntry 6 }
+
+trafficPktsInRate OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Packet input rate"
+    ::= { trafficEntry 7 }
+
+trafficBytesInRate OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Bytes input rate"
+    ::= { trafficEntry 8 }
+
+trafficPktsOutRate OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Packet output rate"
+    ::= { trafficEntry 9 }
+
+trafficBytesOutRate OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Bytes output rate"
+    ::= { trafficEntry 10 }
+
+qosTrafficTable OBJECT-TYPE
+    SYNTAX      SEQUENCE OF QosTrafficEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "Org QOS traffic statistics"
+    ::= { org 3 }
+
+qosTrafficEntry OBJECT-TYPE
+    SYNTAX      QosTrafficEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION ""
+    INDEX { qosTrafficOrgId }
+        ::= { qosTrafficTable 1 }
+
+QosTrafficEntry ::=
+    SEQUENCE {
+        qosTrafficOrgId Unsigned32,
+        qosTrafficOrgName String,
+        qosTrafficPktsIn ConfdString,
+        qosTrafficBytesIn ConfdString,
+        qosTrafficPktsOut ConfdString,
+        qosTrafficBytesOut ConfdString,
+        qosTrafficPktsDropped ConfdString,
+        qosTrafficBytesDropped ConfdString,
+        qosTrafficPktsDroppedPPS ConfdString,
+        qosTrafficBytesDroppedPPS ConfdString,
+        qosTrafficPktsDroppedKBPS ConfdString,
+        qosTrafficBytesDroppedKBPS ConfdString,
+        qosTrafficSessionsIn ConfdString,
+        qosTrafficSessionsDrop ConfdString,
+        qosTrafficSessionsAllow ConfdString,
+        qosTrafficPktsInRate ConfdString,
+        qosTrafficBytesInRate ConfdString,
+        qosTrafficPktsOutRate ConfdString,
+        qosTrafficBytesOutRate ConfdString,
+        qosTrafficPktsDropRate ConfdString,
+        qosTrafficBytesDropRate ConfdString,
+        qosTrafficSessionsInRate ConfdString,
+        qosTrafficSessionsAllowRate ConfdString,
+        qosTrafficSessionsDropRate ConfdString
+    }
+
+qosTrafficOrgId OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "Organization id"
+    ::= { qosTrafficEntry 1 }
+
+qosTrafficOrgName OBJECT-TYPE
+    SYNTAX      String
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Organization name"
+    ::= { qosTrafficEntry 2 }
+
+qosTrafficPktsIn OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total packets received"
+    ::= { qosTrafficEntry 3 }
+
+qosTrafficBytesIn OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total bytes received"
+    ::= { qosTrafficEntry 4 }
+
+qosTrafficPktsOut OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total packets sent"
+    ::= { qosTrafficEntry 5 }
+
+qosTrafficBytesOut OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total bytes sent"
+    ::= { qosTrafficEntry 6 }
+
+qosTrafficPktsDropped OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total packets dropped"
+    ::= { qosTrafficEntry 7 }
+
+qosTrafficBytesDropped OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total bytes dropped"
+    ::= { qosTrafficEntry 8 }
+
+qosTrafficPktsDroppedPPS OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total packets dropped by Pps rate-limit"
+    ::= { qosTrafficEntry 9 }
+
+qosTrafficBytesDroppedPPS OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total bytes dropped by Pps rate-limit"
+    ::= { qosTrafficEntry 10 }
+
+qosTrafficPktsDroppedKBPS OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total packets dropped by Kbps rate-limit"
+    ::= { qosTrafficEntry 11 }
+
+qosTrafficBytesDroppedKBPS OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total bytes dropped by Kbps rate-limit"
+    ::= { qosTrafficEntry 12 }
+
+qosTrafficSessionsIn OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total sessions attempted"
+    ::= { qosTrafficEntry 13 }
+
+qosTrafficSessionsDrop OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total sessions dropped"
+    ::= { qosTrafficEntry 14 }
+
+qosTrafficSessionsAllow OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total sessions allowed"
+    ::= { qosTrafficEntry 15 }
+
+qosTrafficPktsInRate OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Packet input rate"
+    ::= { qosTrafficEntry 16 }
+
+qosTrafficBytesInRate OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Bytes input rate"
+    ::= { qosTrafficEntry 17 }
+
+qosTrafficPktsOutRate OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Packet output rate"
+    ::= { qosTrafficEntry 18 }
+
+qosTrafficBytesOutRate OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Bytes output rate"
+    ::= { qosTrafficEntry 19 }
+
+qosTrafficPktsDropRate OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Packet drop rate"
+    ::= { qosTrafficEntry 20 }
+
+qosTrafficBytesDropRate OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Bytes drop rate"
+    ::= { qosTrafficEntry 21 }
+
+qosTrafficSessionsInRate OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Incoming sessions rate"
+    ::= { qosTrafficEntry 22 }
+
+qosTrafficSessionsAllowRate OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Allowed sessions rate"
+    ::= { qosTrafficEntry 23 }
+
+qosTrafficSessionsDropRate OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Dropped sessions rate"
+    ::= { qosTrafficEntry 24 }
+
+sessStatsTable OBJECT-TYPE
+    SYNTAX      SEQUENCE OF SessStatsEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "Org session statistics"
+    ::= { org 4 }
+
+sessStatsEntry OBJECT-TYPE
+    SYNTAX      SessStatsEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION ""
+    INDEX { sessOrgId }
+        ::= { sessStatsTable 1 }
+
+SessStatsEntry ::=
+    SEQUENCE {
+        sessOrgId Unsigned32,
+        sessOrgName String,
+        sessVsnId UnsignedByte,
+        sessActive Unsigned32,
+        sessCreated Unsigned32,
+        sessClosed Unsigned32,
+        sessActiveNAT Unsigned32,
+        sessCreatedNAT Unsigned32,
+        sessClosedNAT Unsigned32,
+        sessFailed Unsigned32,
+        sessMax Unsigned32,
+        sessTCP Unsigned32,
+        sessUDP Unsigned32,
+        sessICMP Unsigned32,
+        sessOTHER Unsigned32
+    }
+
+sessOrgId OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "Organization id"
+    ::= { sessStatsEntry 1 }
+
+sessOrgName OBJECT-TYPE
+    SYNTAX      String
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Organization name"
+    ::= { sessStatsEntry 2 }
+
+sessVsnId OBJECT-TYPE
+    SYNTAX      UnsignedByte
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "VSN Identifier"
+    ::= { sessStatsEntry 3 }
+
+sessActive OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Number of active sessions"
+    ::= { sessStatsEntry 4 }
+
+sessCreated OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Number of sessions created"
+    ::= { sessStatsEntry 5 }
+
+sessClosed OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Number of sessions closed"
+    ::= { sessStatsEntry 6 }
+
+sessActiveNAT OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Number of active NAT sessions"
+    ::= { sessStatsEntry 7 }
+
+sessCreatedNAT OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Number of NAT sessions created"
+    ::= { sessStatsEntry 8 }
+
+sessClosedNAT OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Number of NAT sessions closed"
+    ::= { sessStatsEntry 9 }
+
+sessFailed OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Number of sessions failed"
+    ::= { sessStatsEntry 10 }
+
+sessMax OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Number of max sessions supported"
+    ::= { sessStatsEntry 11 }
+
+sessTCP OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Number of Active TCP sessions"
+    ::= { sessStatsEntry 12 }
+
+sessUDP OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Number of Active UDP sessions"
+    ::= { sessStatsEntry 13 }
+
+sessICMP OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Number of Active ICMP sessions"
+    ::= { sessStatsEntry 14 }
+
+sessOTHER OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Number of Active apart from TCP, UDP and ICMP sessions"
+    ::= { sessStatsEntry 15 }
+
+sessSdwanStatsTable OBJECT-TYPE
+    SYNTAX      SEQUENCE OF SessSdwanStatsEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "Org SDWAN session statistics"
+    ::= { org 5 }
+
+sessSdwanStatsEntry OBJECT-TYPE
+    SYNTAX      SessSdwanStatsEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION ""
+    INDEX { sessSdwanOrgId }
+        ::= { sessSdwanStatsTable 1 }
+
+SessSdwanStatsEntry ::=
+    SEQUENCE {
+        sessSdwanOrgId Unsigned32,
+        sessSdwanOrgName String,
+        sessSdwanVsnId UnsignedByte,
+        sessSdwanActive Unsigned32,
+        sessSdwanCreated Unsigned32,
+        sessSdwanClosed Unsigned32
+    }
+
+sessSdwanOrgId OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "Organization id"
+    ::= { sessSdwanStatsEntry 1 }
+
+sessSdwanOrgName OBJECT-TYPE
+    SYNTAX      String
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Organization name"
+    ::= { sessSdwanStatsEntry 2 }
+
+sessSdwanVsnId OBJECT-TYPE
+    SYNTAX      UnsignedByte
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "VSN Identifier"
+    ::= { sessSdwanStatsEntry 3 }
+
+sessSdwanActive OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Number of active SDWAN sessions"
+    ::= { sessSdwanStatsEntry 4 }
+
+sessSdwanCreated OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Number of SDWAN sessions created"
+    ::= { sessSdwanStatsEntry 5 }
+
+sessSdwanClosed OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Number of SDWAN sessions closed"
+    ::= { sessSdwanStatsEntry 6 }
+
+sessCgnatStatsTable OBJECT-TYPE
+    SYNTAX      SEQUENCE OF SessCgnatStatsEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "Org CGNAT session statistics"
+    ::= { org 7 }
+
+sessCgnatStatsEntry OBJECT-TYPE
+    SYNTAX      SessCgnatStatsEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION ""
+    INDEX { sessCgnatOrgId }
+        ::= { sessCgnatStatsTable 1 }
+
+SessCgnatStatsEntry ::=
+    SEQUENCE {
+        sessCgnatOrgId Unsigned32,
+        sessCgnatOrgName String,
+        sessCgnatVsnId UnsignedByte,
+        sessCgnatActive Unsigned32,
+        sessCgnatCreated Unsigned32,
+        sessCgnatClosed Unsigned32,
+        sessCgnatFailed Unsigned32
+    }
+
+sessCgnatOrgId OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "Organization id"
+    ::= { sessCgnatStatsEntry 1 }
+
+sessCgnatOrgName OBJECT-TYPE
+    SYNTAX      String
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Organization name"
+    ::= { sessCgnatStatsEntry 2 }
+
+sessCgnatVsnId OBJECT-TYPE
+    SYNTAX      UnsignedByte
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "VSN Identifier"
+    ::= { sessCgnatStatsEntry 3 }
+
+sessCgnatActive OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Number of active CGNAT sessions"
+    ::= { sessCgnatStatsEntry 4 }
+
+sessCgnatCreated OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Number of CGNAT sessions created"
+    ::= { sessCgnatStatsEntry 5 }
+
+sessCgnatClosed OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Number of CGNAT sessions closed"
+    ::= { sessCgnatStatsEntry 6 }
+
+sessCgnatFailed OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Number of CGNAT sessions failed"
+    ::= { sessCgnatStatsEntry 7 }
+
+orgAlarmStatsTable OBJECT-TYPE
+    SYNTAX      SEQUENCE OF OrgAlarmStatsEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "Org alarm statistics"
+    ::= { org 8 }
+
+orgAlarmStatsEntry OBJECT-TYPE
+    SYNTAX      OrgAlarmStatsEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION ""
+    INDEX { alarmOrgId, alarmId }
+        ::= { orgAlarmStatsTable 1 }
+
+OrgAlarmStatsEntry ::=
+    SEQUENCE {
+        alarmOrgId UnsignedShort,
+        alarmId UnsignedShort,
+        alarmOrgName String,
+        alarmName String,
+        alarmNewCnt Unsigned32,
+        alarmChangedCnt Unsigned32,
+        alarmClearedCnt Unsigned32,
+        alarmNetconfCnt Unsigned32,
+        alarmSnmpCnt Unsigned32,
+        alarmSyslogCnt Unsigned32,
+        alarmAnalyticsCnt Unsigned32
+    }
+
+alarmOrgId OBJECT-TYPE
+    SYNTAX      UnsignedShort
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "Organization id"
+    ::= { orgAlarmStatsEntry 1 }
+
+alarmId OBJECT-TYPE
+    SYNTAX      UnsignedShort
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "Organization id"
+    ::= { orgAlarmStatsEntry 2 }
+
+alarmOrgName OBJECT-TYPE
+    SYNTAX      String
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Organization name"
+    ::= { orgAlarmStatsEntry 3 }
+
+alarmName OBJECT-TYPE
+    SYNTAX      String
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Organization name"
+    ::= { orgAlarmStatsEntry 4 }
+
+alarmNewCnt OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Number of new alarms"
+    ::= { orgAlarmStatsEntry 5 }
+
+alarmChangedCnt OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Number of changed alarms"
+    ::= { orgAlarmStatsEntry 6 }
+
+alarmClearedCnt OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Number of cleared alarms"
+    ::= { orgAlarmStatsEntry 7 }
+
+alarmNetconfCnt OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Number of alarms sent over NETCONF"
+    ::= { orgAlarmStatsEntry 8 }
+
+alarmSnmpCnt OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Number of alarms sent to SNMP target"
+    ::= { orgAlarmStatsEntry 9 }
+
+alarmSyslogCnt OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Number of alarms syslogged"
+    ::= { orgAlarmStatsEntry 10 }
+
+alarmAnalyticsCnt OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Number of alarms sent to Analytics"
+    ::= { orgAlarmStatsEntry 11 }
+
+END

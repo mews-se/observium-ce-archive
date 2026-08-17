@@ -1,0 +1,316 @@
+<?php
+/**
+ * Observium
+ *
+ *   This file is part of Observium.
+ *
+ * @package    observium
+ * @subpackage definitions
+ * @copyright  (C) Adam Armstrong
+ *
+ */
+
+/////////////////////////////////////////////////////////
+//  NO CHANGES TO THIS FILE, IT IS NOT USER-EDITABLE   //
+/////////////////////////////////////////////////////////
+//               YES, THAT MEANS YOU                   //
+/////////////////////////////////////////////////////////
+
+
+// Flags (mostly used in snmp and network functions, only 2^bit)
+// Bits 0-3 common flags
+const OBS_QUOTES_STRIP = 1;           // Strip ALL quotes from string
+const OBS_QUOTES_TRIM  = 2;           // Trim double/single quotes only from begin/end of string
+const OBS_ESCAPE       = 4;           // Escape strings or output
+const OBS_DECODE_UTF8  = 8;           // Decode ascii coded chars in string as correct UTF-8
+
+// Bits 4-15 snmp flags
+const OBS_SNMP_NUMERIC       = 16;    // Use numeric OIDs  (-On)
+const OBS_SNMP_NUMERIC_INDEX = 32;    // Use numeric index (-Ob)
+const OBS_SNMP_CONCAT        = 64;    // Concatenate multiline snmp variable (newline chars removed)
+const OBS_SNMP_ENUM          = 128;   // Don't enumerate SNMP values
+const OBS_SNMP_HEX           = 256;   // Force HEX output (-Ox) and disable use of DISPLAY-HINT information when assigning values (-Ih).
+const OBS_SNMP_TABLE         = 512;   // Force Program Like output (-OX)
+const OBS_SNMP_DISPLAY_HINT  = 1024;  // Disables the use of DISPLAY-HINT information when assigning values (-Ih). This would then require providing the raw value.
+const OBS_SNMP_TIMETICKS     = 2048;  // Force TimeTicks values as raw numbers (-Ot)
+const OBS_SNMP_ASCII         = 4096;  // Force all string values as ASCII strings
+const OBS_SNMP_NOINDEX       = 8192;  // Allow walking tables without indexes, like snmpwalk_cache_bare_oid()
+const OBS_SNMP_NOINCREASE    = 16384; // Do not check returned OIDs are increasing in snmpwalk (-Cc)
+const OBS_SNMP_INDEX_PARTS   = 32768; // Use this to split index parts by arrow (->), actually for strings in index part and/or for OBS_SNMP_TABLE flag
+
+const OBS_SNMP_ALL               = OBS_QUOTES_TRIM | OBS_QUOTES_STRIP;
+const OBS_SNMP_ALL_MULTILINE     = OBS_QUOTES_TRIM | OBS_SNMP_CONCAT;
+const OBS_SNMP_ALL_ASCII         = OBS_QUOTES_TRIM | OBS_SNMP_ASCII;
+const OBS_SNMP_ALL_UTF8          = OBS_SNMP_ALL_ASCII | OBS_SNMP_HEX | OBS_DECODE_UTF8;
+const OBS_SNMP_ALL_HEX           = OBS_SNMP_ALL_MULTILINE | OBS_SNMP_HEX;
+const OBS_SNMP_ALL_ENUM          = OBS_SNMP_ALL | OBS_SNMP_ENUM;
+const OBS_SNMP_ALL_NUMERIC       = OBS_SNMP_ALL | OBS_SNMP_NUMERIC;
+const OBS_SNMP_ALL_NUMERIC_INDEX = OBS_SNMP_ALL | OBS_SNMP_NUMERIC_INDEX;
+const OBS_SNMP_ALL_NOINDEX       = OBS_SNMP_ALL | OBS_SNMP_NOINDEX;
+const OBS_SNMP_ALL_TABLE         = OBS_QUOTES_TRIM | OBS_SNMP_TABLE;
+const OBS_SNMP_ALL_TIMETICKS     = OBS_SNMP_ALL | OBS_SNMP_TIMETICKS;
+
+// Register snmp error code constants
+const OBS_SNMP_ERROR_CACHED = -1;
+const OBS_SNMP_ERROR_OK     = 0;
+const OBS_SNMP_ERROR_EMPTY_RESPONSE = 1;
+const OBS_SNMP_ERROR_REQUEST_NOT_COMPLETED = 2;
+const OBS_SNMP_ERROR_TOO_LONG_RESPONSE = 3;
+const OBS_SNMP_ERROR_TOO_BIG_MAX_REPETITION_IN_GETBULK = 4;
+const OBS_SNMP_ERROR_GETNEXT_EMPTY_RESPONSE = 5;
+const OBS_SNMP_ERROR_ISSNMPABLE = 900;
+const OBS_SNMP_ERROR_AUTHORIZATION_ERROR = 990;
+const OBS_SNMP_ERROR_AUTHENTICATION_FAILURE = 991;
+const OBS_SNMP_ERROR_UNSUPPORTED_ALGO = 992;
+const OBS_SNMP_ERROR_OID_NOT_INCREASING = 993;
+const OBS_SNMP_ERROR_UNKNOWN_HOST = 994;
+const OBS_SNMP_ERROR_INCORRECT_ARGUMENTS = 995;
+const OBS_SNMP_ERROR_MIB_OR_OID_NOT_FOUND = 996;
+const OBS_SNMP_ERROR_WRONG_INDEX_IN_MIBS_DIR = 997;
+const OBS_SNMP_ERROR_MIB_OR_OID_DISABLED = 998;
+const OBS_SNMP_ERROR_UNKNOWN = 999;
+const OBS_SNMP_ERROR_FAILED_RESPONSE = 1000;
+const OBS_SNMP_ERROR_REQUEST_TIMEOUT = 1002;
+const OBS_SNMP_ERROR_BULK_REQUEST_TIMEOUT = 1004;
+
+// Common regex patterns
+const OBS_PATTERN_START = '%(?:^|[\s\"\(,=])';       // Beginning of any pattern, matched string can start from newline, space, double quote, opening parenthesis, equal sign
+const OBS_PATTERN_START_S = '%(^|[\s\"\(,=])';       // Same with OBS_PATTERN_START but group \1 matching
+const OBS_PATTERN_END   = '(?:[\s\"\),]|[\:\.]\ |\.?$)%i'; // End of any pattern, matched string can end with endline, space, double quote, closing parenthesis, comma, dot
+const OBS_PATTERN_END_S   = '([\s\"\),]|[\:\.]\ |\.?$)%i'; // Same with OBS_PATTERN_END but group \3 matching
+const OBS_PATTERN_END_U = OBS_PATTERN_END . 'u';    // ++Unicode
+
+// IPv4 string in group \1 or 'ipv4'
+const OBS_PATTERN_IPV4      = '(?<ipv4>(?:(?:25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9])\.){3}(?:25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9]))';
+const OBS_PATTERN_IPV4_FULL = OBS_PATTERN_START . OBS_PATTERN_IPV4 . OBS_PATTERN_END;
+// IPv4 netmask string in group \1 or 'ipv4_mask'
+const OBS_PATTERN_IPV4_MASK = '(?<ipv4_mask>(?:0|128|192|224|240|248|252|254)\.0\.0\.0|255\.(?:0|128|192|224|240|248|252|254)\.0\.0|255\.255\.(?:0|128|192|224|240|248|252|254)\.0|255\.255\.255\.(?:0|128|192|224|240|248|252|254|255))';
+// IPv4 inverse netmask string in group \1 or 'ipv4_inverse_mask'
+const OBS_PATTERN_IPV4_INVERSE_MASK = '(?<ipv4_inverse_mask>(?:255|127|63|31|15|7|3|1|0)\.255\.255\.255|0\.(?:255|127|63|31|15|7|3|1|0)\.255\.255|0\.0\.(?:255|127|63|31|15|7|3|1|0)\.255|0\.0\.0\.(?:255|127|63|31|15|7|3|1|0))';
+// IPv4 network string in group \1 or 'ipv4_network', additionally 'ipv4', 'ipv4_prefix' or 'ipv4_mask' or 'ipv4_inverse_mask'
+const OBS_PATTERN_IPV4_NET      = '(?<ipv4_network>' . OBS_PATTERN_IPV4 . '\/(?:(?<ipv4_prefix>3[0-2]|[1-2][0-9]|[0-9])|' . OBS_PATTERN_IPV4_MASK . '|' . OBS_PATTERN_IPV4_INVERSE_MASK . '))';
+const OBS_PATTERN_IPV4_NET_FULL = OBS_PATTERN_START . OBS_PATTERN_IPV4_NET . OBS_PATTERN_END;
+
+// IPv6 string in group \1 or 'ipv6'
+const OBS_PATTERN_IPV6      = '(?<ipv6>(?:(?:(?:[a-f\d]{1,4}:){5}[a-f\d]{1,4}|(?:[a-f\d]{1,4}:){4}:[a-f\d]{1,4}|(?:[a-f\d]{1,4}:){3}(?::[a-f\d]{1,4}){1,2}|(?:[a-f\d]{1,4}:){2}(?::[a-f\d]{1,4}){1,3}|[a-f\d]{1,4}:(?::[a-f\d]{1,4}){1,4}|(?:[a-f\d]{1,4}:){1,5}|:(?::[a-f\d]{1,4}){1,5}|:):(?:(?:25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9])\.){3}(?:25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9])|(?:[a-f\d]{1,4}:){7}[a-f\d]{1,4}|(?:[a-f\d]{1,4}:){6}:[a-f\d]{1,4}|(?:[a-f\d]{1,4}:){5}(?::[a-f\d]{1,4}){1,2}|(?:[a-f\d]{1,4}:){4}(?::[a-f\d]{1,4}){1,3}|(?:[a-f\d]{1,4}:){3}(?::[a-f\d]{1,4}){1,4}|(?:[a-f\d]{1,4}:){2}(?::[a-f\d]{1,4}){1,5}|[a-f\d]{1,4}:(?::[a-f\d]{1,4}){1,6}|(?:[a-f\d]{1,4}:){1,7}:|:(?::[a-f\d]{1,4}){1,7}|::))';
+const OBS_PATTERN_IPV6_FULL = OBS_PATTERN_START . OBS_PATTERN_IPV6 . OBS_PATTERN_END;
+// IPv6 network string in group \1 or 'ipv6_network', additionally 'ipv6', 'ipv6_prefix'
+const OBS_PATTERN_IPV6_NET      = '(?<ipv6_network>' . OBS_PATTERN_IPV6 . '\/(?<ipv6_prefix>12[0-8]|1[0-1][0-9]|[0-9]{1,2}))';
+const OBS_PATTERN_IPV6_NET_FULL = OBS_PATTERN_START . OBS_PATTERN_IPV6_NET . OBS_PATTERN_END;
+
+// IPv4 or IPv6 string in group \1 or 'ip'
+const OBS_PATTERN_IP      = '(?<ip>' . OBS_PATTERN_IPV4 . '|' . OBS_PATTERN_IPV6 . ')';
+const OBS_PATTERN_IP_FULL = OBS_PATTERN_START . OBS_PATTERN_IP . OBS_PATTERN_END;
+// IPv4 or IPv6 network string in group \1 or 'ip_network'
+const OBS_PATTERN_IP_NET      = '(?<ip_network>' . OBS_PATTERN_IPV4_NET . '|' . OBS_PATTERN_IPV6_NET . ')';
+const OBS_PATTERN_IP_NET_FULL = OBS_PATTERN_START . OBS_PATTERN_IP_NET . OBS_PATTERN_END;
+
+// MAC string in group \1 or 'mac'
+const OBS_PATTERN_MAC      = '(?<mac>(?:[a-f\d]{1,2}(?:\:[a-f\d]{1,2}){5}|[a-f\d]{2}(?:\-[a-f\d]{2}){5}|[a-f\d]{2}(?:\ [a-f\d]{2}){5}|[a-f\d]{4}(?:\.[a-f\d]{4}){2}|(?:0x)?[a-f\d]{12}))';
+const OBS_PATTERN_MAC_FULL = OBS_PATTERN_START . OBS_PATTERN_MAC . OBS_PATTERN_END;
+
+// FQDN string in group \1 or 'domain'
+//define('OBS_PATTERN_FQDN',      '(?<domain>(?:(?:(?:xn--)?[a-z0-9_]+(?:\-[a-z0-9_]+)*\.)+(?:[a-z]{2,}|xn--[a-z0-9]{4,}))|localhost)'); // Alternative, less correct
+//define('OBS_PATTERN_FQDN',      '(?<domain>(?:(?:(?=[a-z0-9\-_]{1,63}\.)(?:xn--)?[a-z0-9_]+(?:\-[a-z0-9_]+)*\.)+(?:[a-z]{2,63}|xn--[a-z0-9]{4,}))|localhost)'); // Punicode, Non-unicode
+const OBS_PATTERN_FQDN      = '(?<domain>(?:(?:(?=[\p{L}\d\-_]{1,63}\.)(?:xn--)?[\p{L}\d_]+(?:\-[\p{L}\d_]+)*\.)+(?:[\p{L}]{2,63}|xn--[a-z\d]{4,}))|localhost)';
+const OBS_PATTERN_FQDN_FULL = OBS_PATTERN_START . OBS_PATTERN_FQDN . OBS_PATTERN_END_U;
+
+// pattern for email only (without Name, ie: user@domain.name)
+// Email string in group \1 or 'email', additional groups: 'user', 'domain'
+const OBS_PATTERN_EMAIL      = '(?<email>(?<user>[\p{L}\d\.\'_\%\+\-]{1,63}|\"[\p{L}\d\.\'_\%\+\-\ \\\\]{1,63}\")@' . OBS_PATTERN_FQDN . ')';
+const OBS_PATTERN_EMAIL_FULL = OBS_PATTERN_START . OBS_PATTERN_EMAIL . OBS_PATTERN_END_U;
+// pattern for Full email with Name (ie: "My Name" <user@domain.name>), but name is optional
+// Long Email string in group \1 or 'email_long', additional groups: 'name', 'email', 'user', 'domain'
+const OBS_PATTERN_EMAIL_LONG      = '(?<email_long>(?<name>[\"\'][\p{L}\d\.\'_\%\+\-\ \\\\]+[\"\']|(?:[\p{L}\d\.\'_\%\+\-]+\ )*[\p{L}\d\.\'_\%\+\-]+)?\s*<' . OBS_PATTERN_EMAIL . '>)';
+const OBS_PATTERN_EMAIL_LONG_FULL = OBS_PATTERN_START . OBS_PATTERN_EMAIL_LONG . OBS_PATTERN_END_U;
+
+//define('OBS_PATTERN_URL',       '(?<url>(?:(?:https?|ftp)://)(?:\S+(?::\S*)?@|\d{1,3}(?:\.\d{1,3}){3}|(?:(?:[a-z\d\x{00a1}-\x{ffff}]+-?)*[a-z\d\x{00a1}-\x{ffff}]+)(?:\.(?:[a-z\d\x{00a1}-\x{ffff}]+-?)*[a-z\d\x{00a1}-\x{ffff}]+)*(?:\.[a-z\x{00a1}-\x{ffff}]{2,6}))(?::\d+)?(?:[^\s]*)?)');
+//define('OBS_PATTERN_URL_FULL',  OBS_PATTERN_START . OBS_PATTERN_URL . OBS_PATTERN_END_U);
+
+// SNMP HEX-STRING group \1 or 'hex'
+const OBS_PATTERN_SNMP_HEX = '(?<hex>[a-f\d]{2}(\ +[a-f\d]{2})*)\ ?';
+// SNMP NUMERIC OID group \1 or 'oid_num'
+const OBS_PATTERN_SNMP_OID_NUM = '/^(?<oid_num>\.?(\d+(?:\.\d+)+))$/';
+
+// Split graph type with subtype
+const OBS_PATTERN_GRAPH_TYPE = '/^(?<type>[a-z\d\-]+)_(?<subtype>[a-z\d\-_]+)/i';
+// timestamps formatted as 'Y-m-d H:i:s'
+const OBS_PATTERN_TIMESTAMP   = '/^(\d{4})-(\d{2})-(\d{2}) ([01][0-9]|2[0-3]):([0-5][0-9]):([0-5][0-9])$/';
+const OBS_PATTERN_WINDOWSTIME = '/^(?<year>\d{4})(?<month>\d{2})(?<day>\d{2})(?<hour>\d{2})(?<min>\d{2})(?<sec>\d{2}\.\d+)(\+\d+)?$/';
+const OBS_PATTERN_RRDTIME     = '/^(\-?\d+|[\-\+]\d+[dwmysh]|now)$/i';
+const OBS_PATTERN_LATLON      = '/(?:^|[\[(])\s*[\'"]?(?<lat>[+\-]?\d+(?:\.\d+)*)[\'"]?\s*[,:; ]\s*[\'"]?(?<lon>[+\-]?\d+(?:\.\d+)*)[\'"]?\s*(?:[\])]|$)/';
+const OBS_PATTERN_LATLON_ALT  = '/\s*\|[\'"]?(?<lat>[+\-]?\d+(?:\.\d+)*)[\'"]?\s*\|\s*[\'"]?(?<lon>[+\-]?\d+(?:\.\d+)*)[\'"]?\s*$/';
+
+// patterns for validating kind of used data
+const OBS_PATTERN_ALPHA    = '/^[\w\.\-]+$/';               // is_alpha()
+const OBS_PATTERN_NOPRINT  = '/[^\p{L}\p{N}\p{P}\p{S} ]/u'; // Non-printable UTF8 chars
+const OBS_PATTERN_NOLATIN  = '/[^\p{Common}\p{Latin}]/u';   // Non Latin (UTF8?) chars
+const OBS_PATTERN_VAR_NAME = '/^\w[\w\s\.\-+]*(\[[\w\.\-+]*\])*$/';
+const OBS_PATTERN_REGEXP   = '/^\s*(?<delimiter>[\/!#@%+])(?<pattern>.+)(\1)(?<modifiers>[imsxu]+)?\s*$/s'; // Detect string is common pattern
+const OBS_PATTERN_PATH_UNIX = '!^\/$|(^(?=\/)|^\.|^\.\.)(\/(?=[^/\0\n\r])[^/\0\n\r]+)*\/?$!'; // https://stackoverflow.com/questions/6416065/c-sharp-regex-for-file-paths-e-g-c-test-test-exe/42036026#42036026
+const OBS_PATTERN_PATH_WIN = '@(^([a-z]|[A-Z]):(?=\\(?![\0-\37<>:"/\\|?*])|\/(?![\0-\37<>:"/\\|?*])|$)|^\\(?=[\\\/][^\0-\37<>:"/\\|?*]+)|^(?=(\\|\/)$)|^\.(?=(\\|\/)$)|^\.\.(?=(\\|\/)$)|^(?=(\\|\/)[^\0-\37<>:"/\\|?*]+)|^\.(?=(\\|\/)[^\0-\37<>:"/\\|?*]+)|^\.\.(?=(\\|\/)[^\0-\37<>:"/\\|?*]+))((\\|\/)[^\0-\37<>:"/\\|?*]+|(\\|\/)$)*()$@';
+const OBS_PATTERN_XSS      = '!((^|<.+=.*?)\s*(J\s*A\s*V\s*A\s*)?S\s*C\s*R\s*I\s*P\s*T\s*:|<\s*/?\s*S\s*C\s*R\s*I\s*P\s*T\s*>|((<\s*\w+.*|.+".*)[\s\/&](o\s*n[\w\s]+|s\s*c\s*r\s*i\s*p\s*t))\s*=|<\s*(i\s*f\s*r\s*a\s*m\s*e|s\s*c\s*r\s*i\s*p\s*t).+s\s*r\s*c\s*=|<.*?=\s*e\s*v\s*a\s*l\s*\(|\s*e\s*v\s*a\s*l\s*\(.*?(a\s*t\s*o\s*b|f\s*r\s*o\s*m\s*C\s*h\s*a\s*r\s*C\s*o\s*d\s*e)\s*\(|\S\s*\'.+[\(\)`].*\'\s*\S)!i';
+
+// Json flags
+$json_encode = JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_PRESERVE_ZERO_FRACTION;
+
+$json_decode = PHP_INT_SIZE > 4 && !(defined('JSON_C_VERSION')) ? JSON_BIGINT_AS_STRING : 0; // Check if BIGINT supported
+$json_decode |= JSON_UNESCAPED_UNICODE;
+/* use fix_json_unicode()
+if (defined('JSON_INVALID_UTF8_SUBSTITUTE')) {
+  // Prevent invalid UTF8 broke whole json
+  // available in php7.2+
+  $json_decode |=  JSON_INVALID_UTF8_IGNORE; //JSON_INVALID_UTF8_SUBSTITUTE;
+}
+*/
+define('OBS_JSON_ENCODE', $json_encode);
+define('OBS_JSON_DECODE', $json_decode);
+unset($json_encode, $json_decode);
+
+// Detect encrypt module
+// Libsodium is part of php since 7.2
+define('OBS_ENCRYPT', extension_loaded('sodium'));
+//var_dump(OBS_ENCRYPT);
+
+/** Default versions by distro
+ +----------------+-----------------------+--------------------+--------+-----------------------------+-----------------------------+
+ | Distro         | PHP (base / ext repo) | MySQL / MariaDB    | Python | RRDTool (base / ext repo)   | Net-SNMP (base / ext repo)  |
+ +----------------+-----------------------+--------------------+--------+-----------------------------+-----------------------------+
+ | Debian 10      | 7.3 / 7.4 (backports) | MariaDB 10.3       | 3.7    | 1.7.1 / 1.7.2 (backports)   | 5.8 / 5.9 (backports)       |
+ | Debian 11      | 7.4 / 8.0 (backports) | MariaDB 10.5       | 3.9    | 1.7.2 / 1.8.0 (backports)   | 5.9 / 5.9.1 (backports)     |
+ | Debian 12      | 8.2 / 8.3 (backports) | MariaDB 10.11      | 3.11   | 1.8.0                       | 5.9.1                       |
+ | Ubuntu 20.04   | 7.4 / 8.0 (PPA)       | MySQL 8.0          | 3.8    | 1.7.2 / 1.8.0 (backports)   | 5.8 / 5.9.1 (backports)     |
+ | Ubuntu 22.04   | 8.1 / 8.2 (PPA)       | MySQL 8.0          | 3.10   | 1.7.2 / 1.8.0 (backports)   | 5.9 / 5.9.1 (backports)     |
+ | Ubuntu 24.04   | 8.4 / 8.4 (PPA)       | MySQL 8.0          | 3.12   | 1.8.0                       | 5.9.1                       |
+ | Red Hat 8      | 7.2 / 8.0 (AppStream) | MariaDB 10.3       | 3.6    | 1.7.0 / 1.7.2 (EPEL 8)      | 5.8 / 5.9 (EPEL 8)          |
+ | Red Hat 9      | 8.0 / 8.1 (AppStream) | MariaDB 10.5       | 3.9    | 1.7.2 / 1.8.0 (EPEL 9)      | 5.9 / 5.9.1 (EPEL 9)        |
+ | Red Hat 10*    | 8.2 / 8.3 (AppStream) | MariaDB 10.11      | 3.11   | 1.8.0                       | 5.9.1                       |
+ +----------------+-----------------------+--------------------+--------+-----------------------------+-----------------------------+
+ */
+// Minimum supported versions
+const OBS_MIN_PHP_VERSION = '7.3.20';     // PHP (09 Jul 2020, https://www.php.net/releases/index.php)
+//const OBS_MIN_PHP_VERSION = '7.4.19';     // PHP (06 May 2021, https://www.php.net/releases/index.php)
+//const OBS_MIN_PYTHON2_VERSION = '2.7.18';  // Python 2.7.18 is the last release of Python 2 (EOL 2020-01-01)
+const OBS_MIN_PYTHON3_VERSION = '3.6.6';  // Python 3 (27 June 2016, https://www.python.org/doc/versions/)
+//const OBS_MIN_PYTHON3_VERSION = '3.7.3';  // Python 3 (25 March 2019, https://www.python.org/doc/versions/)
+const OBS_MIN_MYSQL_VERSION = '5.7.8';    // JSON data type was added in 5.7.8
+const OBS_MIN_MARIADB_VERSION = '10.2.7'; // JSON data type was added in 10.2.7: https://mariadb.com/kb/en/json-data-type/
+//const OBS_MIN_RRD_VERSION =     '1.5.5';  // RRDTool (10 Nov 2015, https://github.com/oetiker/rrdtool-1.x/tags)
+const OBS_MIN_RRD_VERSION     = '1.7.0';  // last in RHEL/CentOS 8
+
+// OBSERVIUM constants
+const OBSERVIUM = TRUE; // Check for direct access to includes
+const OBSERVIUM_URL      = 'https://www.observium.org';
+const OBSERVIUM_DOCS_URL = 'https://docs.observium.org';
+const OBSERVIUM_CHANGELOG_URL = 'https://changelog.observium.org';
+const OBSERVIUM_BUG_URL  = 'https://jira.observium.org';
+const OBSERVIUM_MIBS_URL = 'https://mibs.observium.org/mib';
+
+// DB constants
+//const OBS_DB_EXTENSION = 'mysqli'; // Not required while not used alternative db driver(s)
+const OBS_DB_LINK      = 'observium_link'; // Global variable name for DB link identifier, required for mysqli
+const OBS_DB_FUNCTIONS = [
+    'ABS', 'ACOS', 'ADDDATE', 'ADDTIME', 'AES_DECRYPT', 'AES_ENCRYPT', 'APPROX_COUNT_DISTINCT', 'AREA', 'ASBINARY',
+    'ASCII', 'ASIN', 'ASTEXT', 'ATAN', 'ATAN2', 'AVG', 'BDMPOLYFROMTEXT', 'BDMPOLYFROMWKB', 'BDPOLYFROMTEXT',
+    'BDPOLYFROMWKB', 'BENCHMARK', 'BIN', 'BIT_AND', 'BIT_COUNT', 'BIT_LENGTH', 'BIT_OR', 'BIT_XOR', 'BOUNDARY',
+    'BUFFER', 'CAST', 'CEIL', 'CEILING', 'CENTROID', 'CHARACTER_LENGTH', 'CHAR_LENGTH', 'CHECKSUM_AGG', 'COALESCE',
+    'COERCIBILITY', 'COMPRESS', 'CONCAT', 'CONCAT_WS', 'CONNECTION_ID', 'CONV', 'CONVERT_TZ', 'CONVEXHULL', 'COS',
+    'COT', 'COUNT', 'COUNT_BIG', 'CRC32', 'CROSSES', 'CUME_DIST', 'CURDATE', 'CURRENT_DATE', 'CURRENT_TIME',
+    'CURRENT_USER', 'CURTIME', 'DATE', 'DATEDIFF', 'DATE_ADD', 'DATE_DIFF', 'DATE_FORMAT', 'DATE_SUB', 'DAYNAME',
+    'DAYOFMONTH', 'DAYOFWEEK', 'DAYOFYEAR', 'DECODE', 'DEGREES', 'DENSE_RANK', 'DES_DECRYPT', 'DES_ENCRYPT',
+    'DIFFERENCE', 'DIMENSION', 'DISJOINT', 'DISTANCE', 'ELT', 'ENCODE', 'ENCRYPT', 'ENDPOINT', 'ENVELOPE', 'EQUALS',
+    'EXP', 'EXPORT_SET', 'EXTERIORRING', 'EXTRACT', 'EXTRACTVALUE', 'FIELD', 'FIND_IN_SET', 'FIRST_VALUE', 'FLOOR',
+    'FORMAT', 'FOUND_ROWS', 'FROM_DAYS', 'FROM_UNIXTIME', 'GEOMCOLLFROMTEXT', 'GEOMCOLLFROMWKB', 'GEOMETRYCOLLECTION',
+    'GEOMETRYCOLLECTIONFROMTEXT', 'GEOMETRYCOLLECTIONFROMWKB', 'GEOMETRYFROMTEXT', 'GEOMETRYFROMWKB', 'GEOMETRYN',
+    'GEOMETRYTYPE', 'GEOMFROMTEXT', 'GEOMFROMWKB', 'GET_FORMAT', 'GET_LOCK', 'GLENGTH', 'GREATEST', 'GROUPING',
+    'GROUPING_ID', 'GROUP_CONCAT', 'GROUP_UNIQUE_USERS', 'HEX', 'INET_ATON', 'INET_NTOA', 'INSTR', 'INTERIORRINGN',
+    'INTERSECTION', 'INTERSECTS', 'ISCLOSED', 'ISEMPTY', 'ISNULL', 'ISRING', 'ISSIMPLE', 'IS_FREE_LOCK', 'IS_USED_LOCK',
+    'LAG', 'LAST_DAY', 'LAST_VALUE', 'LCASE', 'LEAD', 'LEAST', 'LENGTH', 'LINEFROMTEXT', 'LINEFROMWKB', 'LINESTRING',
+    'LINESTRINGFROMTEXT', 'LINESTRINGFROMWKB', 'LISTAGG', 'LN', 'LOAD_FILE', 'LOCALTIME', 'LOCALTIMESTAMP', 'LOCATE',
+    'LOG', 'LOG10', 'LOG2', 'LOWER', 'LPAD', 'LTRIM', 'MAKEDATE', 'MAKETIME', 'MAKE_SET', 'MASTER_POS_WAIT', 'MAX',
+    'MBRCONTAINS', 'MBRDISJOINT', 'MBREQUAL', 'MBRINTERSECTS', 'MBROVERLAPS', 'MBRTOUCHES', 'MBRWITHIN', 'MD5',
+    'MICROSECOND', 'MID', 'MIN', 'MLINEFROMTEXT', 'MLINEFROMWKB', 'MOD', 'MONTHNAME', 'MPOINTFROMTEXT', 'MPOINTFROMWKB',
+    'MPOLYFROMTEXT', 'MPOLYFROMWKB', 'MULTILINESTRING', 'MULTILINESTRINGFROMTEXT', 'MULTILINESTRINGFROMWKB',
+    'MULTIPOINT', 'MULTIPOINTFROMTEXT', 'MULTIPOINTFROMWKB', 'MULTIPOLYGON', 'MULTIPOLYGONFROMTEXT',
+    'MULTIPOLYGONFROMWKB', 'NAME_CONST', 'NOW', 'NTH_VALUE', 'NTILE', 'NULLIF', 'NUMGEOMETRIES', 'NUMINTERIORRINGS',
+    'NUMPOINTS', 'OCT', 'OCTET_LENGTH', 'OLD_PASSWORD', 'ORD', 'OVERLAPS', 'PERCENTILE_CONT', 'PERCENTILE_DISC',
+    'PERCENT_RANK', 'PERIOD_ADD', 'PERIOD_DIFF', 'PI', 'POINT', 'POINTFROMTEXT', 'POINTFROMWKB', 'POINTN',
+    'POINTONSURFACE', 'POLYFROMTEXT', 'POLYFROMWKB', 'POLYGON', 'POLYGONFROMTEXT', 'POLYGONFROMWKB', 'POSITION', 'POW',
+    'POWER', 'QUARTER', 'QUOTE', 'RADIANS', 'RAND', 'RANK', 'RELATED', 'RELEASE_LOCK', 'REPEAT', 'REVERSE', 'ROUND',
+    'ROW_COUNT', 'ROW_NUMBER', 'RPAD', 'RTRIM', 'SCHEMA', 'SEC_TO_TIME', 'SESSION_USER', 'SHA', 'SHA1', 'SIGN', 'SIN',
+    'SLEEP', 'SOUNDEX', 'SPACE', 'SQRT', 'SRID', 'STARTPOINT', 'STD', 'STDDEV', 'STDDEV_POP', 'STDDEV_SAMP', 'STDEV',
+    'STDEVP', 'STRCMP', 'STRING_AGG', 'STR_TO_DATE', 'SUBDATE', 'SUBSTR', 'SUBSTRING', 'SUBSTRING_INDEX', 'SUBTIME',
+    'SUM', 'SYMDIFFERENCE', 'SYSDATE', 'SYSTEM_USER', 'TAN', 'TIME', 'TIMEDIFF', 'TIMESTAMP', 'TIMESTAMPADD',
+    'TIMESTAMPDIFF', 'TIME_FORMAT', 'TIME_TO_SEC', 'TOUCHES', 'TO_DAYS', 'TRIM', 'UCASE', 'UNCOMPRESS',
+    'UNCOMPRESSED_LENGTH', 'UNHEX', 'UNIQUE_USERS', 'UNIX_TIMESTAMP', 'UPDATEXML', 'UPPER', 'USER', 'UTC_DATE',
+    'UTC_TIME', 'UTC_TIMESTAMP', 'UUID', 'VAR', 'VARIANCE', 'VARP', 'VAR_POP', 'VAR_SAMP', 'VERSION', 'WEEK', 'WEEKDAY',
+    'WEEKOFYEAR', 'WITHIN', 'X', 'Y', 'YEAR', 'YEARWEEK',
+    // Advanced functions
+    'BINARY', 'CASE', '  CONVERT', 'IF', 'IFNULL',
+];
+
+// Set default Include path
+set_include_path($config['install_dir'] . "/libs/pear" . PATH_SEPARATOR . // Still required Pear path
+                 $config['install_dir'] . "/libs" . PATH_SEPARATOR .
+                 get_include_path());
+
+// Set default paths.
+$config['install_dir'] = rtrim($config['install_dir'], ' /');
+if (!isset($config['html_dir'])) {
+    $config['html_dir'] = $config['install_dir'] . '/html';
+} else {
+    $config['html_dir'] = rtrim($config['html_dir'], ' /');
+}
+if (!isset($config['rrd_dir'])) {
+    $config['rrd_dir'] = $config['install_dir'] . '/rrd';
+} else {
+    $config['rrd_dir'] = rtrim($config['rrd_dir'], ' /');
+}
+
+// Fix RRD Directory path to always have a trailing slash so that it works nicely with rrdcached
+//$config['rrd_dir'] = fix_path_slash($config['rrd_dir']);
+
+if (!isset($config['log_dir'])) {
+    $config['log_dir'] = $config['install_dir'] . '/logs';
+} else {
+    $config['log_dir'] = rtrim($config['log_dir'], ' /');
+}
+if (!isset($config['log_file'])) {
+    $config['log_file'] = $config['log_dir'] . '/observium.log';
+} // FIXME should not be absolute path, look for where it is used
+if (!isset($config['temp_dir'])) {
+    $config['temp_dir'] = '/tmp';
+} else {
+    $config['temp_dir'] = rtrim($config['temp_dir'], ' /');
+}
+if (!isset($config['mib_dir'])) {
+    $config['mib_dir'] = $config['install_dir'] . '/mibs';
+} else {
+    $config['mib_dir'] = rtrim($config['mib_dir'], ' /');
+}
+if (!isset($config['template_dir'])) {
+    $config['template_dir'] = $config['install_dir'] . '/templates';
+} else {
+    $config['template_dir'] = rtrim($config['template_dir'], ' /');
+}
+if (!isset($config['cache_dir'])) {
+    $config['cache_dir'] = $config['temp_dir'] . '/observium_cache';
+} else {
+    $config['cache_dir'] = rtrim($config['cache_dir'], ' /');
+}
+#if (!isset($config['nagplug_dir']))   { $config['nagplug_dir']   = '/usr/lib/nagios/plugins'; }
+#else                                  { $config['nagplug_dir']   = rtrim($config['nagplug_dir'], ' /'); }
+
+// Collect php errors mostly for catch php8 errors
+if ($config['php_debug'] && !defined('__PHPUNIT_PHAR__')) {
+    ini_set("error_log", $config['log_dir'] . "/php-errors.log");
+    if (PHP_VERSION_ID >= 80000) {
+        error_reporting(E_ALL ^ E_DEPRECATED ^ E_NOTICE ^ E_WARNING);
+    } else {
+        // PHP core and core extensions since PHP 8.0 and later do not emit E_STRICT notices at all
+        error_reporting(E_ALL ^ E_DEPRECATED ^ E_NOTICE ^ E_WARNING ^ E_STRICT);
+        //ini_set('error_reporting', E_ALL ^ E_DEPRECATED ^ E_NOTICE ^ E_WARNING ^ E_STRICT);
+    }
+}
+
+// EOF

@@ -1,0 +1,52 @@
+--
+-- @Description: MIB for IP Filtering Traps
+-- @Date       : 2018-03-12
+--
+
+IPF-TRAP DEFINITIONS ::= BEGIN
+IMPORTS
+    MODULE-IDENTITY, OBJECT-TYPE, NOTIFICATION-TYPE,
+    IpAddress
+        FROM SNMPv2-SMI
+    alarmIndex, alarmType, alarmDevice, alarmObject,
+    alarmSpecificProblem, alarmEventType, alarmProbableCause,
+    alarmTime, alarmSeverity, alarmHasClear, alarmText,
+    tenantName, thresholdStatus, currentUtilization,
+    alarmClass
+        FROM TRAPS-COMMON
+    serviceNotification
+        FROM VERSA-MIB;
+
+ipftrapMIB MODULE-IDENTITY
+    LAST-UPDATED "201803120000Z"
+    ORGANIZATION "Versa Networks"
+    CONTACT-INFO "
+        2953 Bunker Hill Lane, Suite 210
+        Santa Clara, CA - 95035 (USA)
+        Email: support@versa-networks.com"
+    DESCRIPTION  "Versa Networks' Enterprise MIB for IP Filtering traps"
+    ::= { serviceNotification 11 }
+
+-- Root Object
+ipfEntities OBJECT IDENTIFIER ::= { ipftrapMIB 1 }
+ipfNotification OBJECT IDENTIFIER ::= { ipftrapMIB 2 }
+
+ipfVSNId OBJECT-TYPE
+    SYNTAX      INTEGER
+    MAX-ACCESS  accessible-for-notify
+    STATUS      current
+    DESCRIPTION "VSN id"
+        ::= { ipfEntities 1 }
+
+iprepEngineLoadFailure NOTIFICATION-TYPE
+    OBJECTS {
+        alarmType, alarmDevice, alarmObject, alarmSpecificProblem,
+        alarmClass, alarmEventType, alarmProbableCause, alarmTime,
+        alarmSeverity, alarmHasClear, alarmText,
+        ipfVSNId
+    }
+    STATUS  current
+    DESCRIPTION "IP reputation engine load failure notification"
+        ::= { ipfNotification 1 }
+
+END

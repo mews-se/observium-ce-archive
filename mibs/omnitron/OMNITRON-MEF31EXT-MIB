@@ -1,0 +1,581 @@
+OMNITRON-MEF31EXT-MIB DEFINITIONS ::= BEGIN
+
+IMPORTS
+    MODULE-IDENTITY, OBJECT-TYPE
+        FROM SNMPv2-SMI           -- RFC-2578
+    TruthValue, MacAddress
+        FROM SNMPv2-TC            -- RFC-2579
+    MODULE-COMPLIANCE, OBJECT-GROUP
+        FROM SNMPv2-CONF          -- RFC-2580
+    dot1agCfmMepEntry
+        FROM IEEE8021-CFM-MIB     -- IEEE 802.1ag
+    omnitron, OstVlanId
+        FROM OMNITRON-TC-MIB;     -- Omnitron Textual Convention MIB
+
+omnitronMef31ExtMib MODULE-IDENTITY
+    LAST-UPDATED "201603171200Z"     -- March 17, 2016
+    ORGANIZATION "Omnitron Systems Technology, Inc."
+    CONTACT-INFO "Omnitron Systems Technology, Inc.
+                  38 Tesla
+                  Irvine, CA 92618-4670
+                  USA
+
+             Tel: (949) 250 6510
+             Fax: (949) 250 6514
+          E-mail: info@omnitron-systems.com
+   International: +1 949 250 6510
+
+                  Technical Support and Customer Service
+             Tel: (800) 675 8410
+          E-mail: support@omnitron-systems.com
+   International: +1 949 250 6510"
+
+    DESCRIPTION
+            "Omnitron Protocol MIB for use with iConverter Management Modules v5.3
+             and NetOutlook.
+
+             Copyright 2016 Omnitron Systems Technology, Inc.
+             All rights reserved.
+            "
+
+    REVISION    "201603171200Z"     -- March 17, 2016
+    DESCRIPTION "Initial version of v5.3 MIB.
+                "
+    ::= { omnitron protocols(10) protocolobjects(1) 5 }
+
+
+--------------------------------------------------------------------------------
+-- Groups in the OST MEF 31 Extension MIB
+--------------------------------------------------------------------------------
+ostEthAisExtensions     OBJECT IDENTIFIER ::= { omnitronMef31ExtMib 1 }
+ostEthLckExtensions     OBJECT IDENTIFIER ::= { omnitronMef31ExtMib 2 }
+
+--------------------------------------------------------------------------------
+-- ETH-AIS Extensions Global Configuration
+--------------------------------------------------------------------------------
+
+ostEthAisGlobalCfgTable  OBJECT IDENTIFIER ::= { ostEthAisExtensions 1 }
+
+ostEthAisGlobalCfgEnable OBJECT-TYPE
+    SYNTAX      TruthValue
+    MAX-ACCESS  read-write
+    STATUS      current
+    DESCRIPTION
+       "This object specifies whether the global ETH-AIS function is enabled.
+
+        The value 'true' indicates that ETH-AIS protocol is globally enabled.
+
+        The value 'false' indicates that ETH-AIS protocol is globally disabled.
+       "
+    DEFVAL { false }
+    ::= { ostEthAisGlobalCfgTable 1 }
+
+
+--------------------------------------------------------------------------------
+-- ETH-AIS Extensions Configuration Table
+--------------------------------------------------------------------------------
+
+ostEthAisCfgTable OBJECT-TYPE
+    SYNTAX      SEQUENCE OF OstEthAisCfgEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION
+       "This table supports ETH-AIS extensions not covered in the MEF SOAM FM MIB
+        (MEF 31) and is an augmentation of the dot1agCfmMepTable. Rows
+        are automatically added or deleted from this table based upon row
+        creation and destruction of the dot1agCfmMepTable.
+
+        The OAM PDU used for ETH-AIS information is AIS PDU as documented in
+        ITU-T Y.1731. This function is only applicable to MEPs. VLAN encapsulation
+        on the generated AIS PDU is application dependent and dependent upon the
+        level on which it is generated.
+
+        The writable objects in this table need to be persistent
+        upon reboot or restart of a device.
+       "
+    ::= { ostEthAisExtensions 2 }
+
+ostEthAisCfgEntry OBJECT-TYPE
+    SYNTAX      OstEthAisCfgEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION
+       "This is a conceptual row of the ostEthAisCfgTable."
+    AUGMENTS {
+             dot1agCfmMepEntry
+             }
+    ::= { ostEthAisCfgTable 1 }
+
+OstEthAisCfgEntry ::= SEQUENCE {
+    ostEthAisCfgTxEnabled       TruthValue,
+    ostEthAisCfgRxEnabled       TruthValue,
+    ostEthAisCfgGenerate        TruthValue,
+    ostEthAisCfgErrorSelection  BITS,
+    ostEthAisCfgStatClear       TruthValue,
+    ostEthAisCfgVid             OstVlanId,
+    ostEthAisCfgVidTx           OstVlanId,
+    ostEthAisCfgVidType         INTEGER,
+    ostEthAisCfgCtagVid         OstVlanId
+    }
+
+ostEthAisCfgTxEnabled OBJECT-TYPE
+    SYNTAX      TruthValue
+    MAX-ACCESS  read-create
+    STATUS      current
+    DESCRIPTION
+       "This attribute specifies whether ETH-AIS transmission is enabled.
+
+        The value 'true' indicates ETH-AIS transmission is enabled. AIS PDUs
+        are transmitted when mefSoamAisCfgEnabled, defect detection is
+        enabled (ostEthAisCfgRxEnabled) and the individual defect is true and
+        a defect condition is detected and enabled.
+
+        The value 'false' indicates ETH-AIS transmission is disabled. AIS PDUs
+        are not transmitted even if mefSoamAisCfgEnabled is true.
+
+        The object in the SOAM FM MIB, mefSoamAisCfgEnabled, is actually the MEP
+        AIS protocol enable, though it is listed as transmission enable/disabled.
+       "
+    DEFVAL { true }
+    ::= { ostEthAisCfgEntry 1 }
+
+ostEthAisCfgRxEnabled OBJECT-TYPE
+    SYNTAX      TruthValue
+    MAX-ACCESS  read-create
+    STATUS      current
+    DESCRIPTION
+       "This attribute specifies whether ETH-AIS defect condition detection
+        is enabled.
+
+        The value 'true' indicates ETH-AIS defect condition detection is
+        enabled. This means an enabled defect is acted upon.
+
+        The value 'false' indicates ETH-AIS defect condition detection is
+        disabled. This means that an active defect is ignored.
+       "
+    DEFVAL { true }
+    ::= { ostEthAisCfgEntry 2 }
+
+ostEthAisCfgGenerate OBJECT-TYPE
+    SYNTAX      TruthValue
+    MAX-ACCESS  read-create
+    STATUS      current
+    DESCRIPTION
+       "This object is used to force AIS generation. When written it forces
+        generation of one AIS from the selected MEP. When read the value always
+        returns 'false'.
+
+        Writing this value does not change any items in the configuration table, but
+        only causes an action: a generation of a single AIS PDU.
+
+        Writing this object at row creation is irrelevant and should not
+        be done.
+      "
+    DEFVAL { false }
+    ::= { ostEthAisCfgEntry 3 }
+
+ostEthAisCfgErrorSelection OBJECT-TYPE
+    SYNTAX      BITS {
+                     bLink(0),
+                     bLock(1),
+                     bLower(2),
+                     bMep(3),
+                     bAisRx(4)
+                }
+    MAX-ACCESS  read-create
+    STATUS      current
+    DESCRIPTION
+       "A vector of bits that indicates what specific errors generate ETH-AIS
+        state entry.
+
+        A bit set to '1' enables the specific error for ETH-AIS state entry.
+
+        A bit set to '0' disables the specific error for ETH-AIS state entry.
+
+        bLink(0)         enables/disables AIS state entry based upon link failure
+        bLock(1)         enables/disables AIS state entry based upon ETH-LCK PDU received
+        bLower(2)        enables/disables AIS state entry based upon lower MEP error
+        bMep(3)          enables/disables AIS state entry based upon local MEP error
+        bAisRx(4)        enables/disables AIS state entry based upon AIS reception
+       "
+    DEFVAL { { } }
+    ::= { ostEthAisCfgEntry 4 }
+
+ostEthAisCfgStatClear OBJECT-TYPE
+    SYNTAX      TruthValue
+    MAX-ACCESS  read-create
+    STATUS      current
+    DESCRIPTION
+       "This object when written clears the ETH-AIS statistic counters associated
+        with the MEP. When read the value always returns 'false'.
+
+        Writing this value does not change any items in the configuration table.
+
+        Writing this object at row creation is irrelevant and should not
+        be done.
+       "
+    DEFVAL { false }
+    ::= { ostEthAisCfgEntry 5 }
+
+ostEthAisCfgVid OBJECT-TYPE
+    SYNTAX      OstVlanId
+    MAX-ACCESS  read-create
+    STATUS      current
+    DESCRIPTION
+       "The ETH-AIS PDU VID associated with. It must be a member of the EVC
+        that the MEP is associated with. The value is used when
+        ostEthAisCfgVidType is 'explicitVid' and is ignored otherwise.
+       "
+    DEFVAL { 0 }
+    ::= { ostEthAisCfgEntry 6 }
+
+ostEthAisCfgVidTx OBJECT-TYPE
+    SYNTAX      OstVlanId
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+       "The VID associated with the AIS PDUs for the MEP.
+
+        If the primary VID was selected it indicates the Primary VID used. If
+        the primary VID was not selected it indicates the VID used for AIS
+        PDUs. A value of '0' indicates that AIS PDUs are untagged.
+       "
+    ::= { ostEthAisCfgEntry 7 }
+
+ostEthAisCfgVidType OBJECT-TYPE
+    SYNTAX      INTEGER {
+        primaryVid   (1),
+        explicitVid  (2)
+    }
+    MAX-ACCESS  read-create
+    STATUS      current
+    DESCRIPTION
+       "This object selects the source of the VID used for the AIS PDUs.
+
+        primaryVid(1)    VID used for AIS PDU is the primary VID of the MEP
+        explicitVid (2)  VID used for AIS PDU defined by ostEthAisCfgVid
+       "
+    DEFVAL { primaryVid }
+    ::= { ostEthAisCfgEntry 8 }
+
+ostEthAisCfgCtagVid OBJECT-TYPE
+    SYNTAX      OstVlanId
+    MAX-ACCESS  read-create
+    STATUS      current
+    DESCRIPTION
+       "The C-TAG VID associated with the AIS PDUs for the MEP that originates
+        on a S-Comp UNI port or an NNI port. The value must be a member of the
+        EVC that the MEP is associated with.
+
+        A value of '0' indicates that no C-TAG is added to a frame that would
+        normally be single tagged. This value of this object is ignored for a
+        down MEP on a UNI port or a non-preserve EVC.
+       "
+       DEFVAL { 0 }
+    ::= { ostEthAisCfgEntry 9 }
+
+
+--------------------------------------------------------------------------------
+-- ETH-LCK Extensions Global Configuration
+--------------------------------------------------------------------------------
+
+ostEthLckGlobalCfgTable  OBJECT IDENTIFIER ::= { ostEthLckExtensions 1 }
+
+ostEthLckGlobalCfgEnable OBJECT-TYPE
+    SYNTAX      TruthValue
+    MAX-ACCESS  read-write
+    STATUS      current
+    DESCRIPTION
+       "This object specifies whether the global ETH-LCK function is enabled.
+
+        The value 'true' indicates that ETH-LCK protocol is globally enabled.
+
+        The value 'false' indicates that ETH-LCK protocol is globally disabled.
+       "
+    DEFVAL { false }
+    ::= { ostEthLckGlobalCfgTable 1 }
+
+
+--------------------------------------------------------------------------------
+-- ETH-LCK Extensions Configuration Table
+--------------------------------------------------------------------------------
+
+ostEthLckCfgTable OBJECT-TYPE
+    SYNTAX      SEQUENCE OF OstEthLckCfgEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION
+       "This table supports ETH-LCK extensions not covered in the MEF SOAM FM MIB
+        (MEF 31) and is an augmentation of the dot1agCfmMepTable. Rows
+        are automatically added or deleted from this table based upon row
+        creation and destruction of the dot1agCfmMepTable.
+
+        The OAM PDU used for ETH-LCK information is LCK PDU as documented in
+        ITU-T Y.1731. This function is only applicable to MEPs. VLAN encapsulation
+        on the generated LCK PDU is application dependent and dependent upon the
+        level on which it is generated.
+
+        The writable objects in this table need to be persistent
+        upon reboot or restart of a device.
+       "
+    ::= { ostEthLckExtensions 2 }
+
+ostEthLckCfgEntry OBJECT-TYPE
+    SYNTAX      OstEthLckCfgEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION
+       "This is a conceptual row of the ostEthLckCfgTable."
+    AUGMENTS {
+             dot1agCfmMepEntry
+             }
+    ::= { ostEthLckCfgTable 1 }
+
+OstEthLckCfgEntry ::= SEQUENCE {
+    ostEthLckCfgTxEnabled       TruthValue,
+    ostEthLckCfgRxEnabled       TruthValue,
+    ostEthLckCfgErrorSelection  BITS,
+    ostEthLckCfgStatClear       TruthValue,
+    ostEthLckCfgVid             OstVlanId,
+    ostEthLckCfgVidTx           OstVlanId,
+    ostEthLckCfgEnabled         TruthValue,
+    ostEthLckCfgInMacAddr       MacAddress,
+    ostEthLckCfgVidType         INTEGER,
+    ostEthLckCfgCtagVid         OstVlanId
+    }
+
+ostEthLckCfgTxEnabled OBJECT-TYPE
+    SYNTAX      TruthValue
+    MAX-ACCESS  read-create
+    STATUS      current
+    DESCRIPTION
+       "This attribute specifies whether ETH-LCK transmission is enabled.
+
+        The value 'true' indicates ETH-LCK transmission is enabled. LCK PDUs
+        are transmitted when mefSoamLckCfgAdminState is true, defect detection
+        is enabled (ostEthLckCfgRxEnabled) and the individual defect is true
+        and a defect condition is detected and enabled..
+
+        The value 'false' indicates ETH-LCK transmission is disabled, even if
+        mefSoamLckCfgAdminState is true.
+
+        The object in the SOAM FM MIB, mefSoamLckCfgAdminState, is the MEP LCK
+        protocol enable, though it is listed as Admin State and makes no direct
+        reference to whether the LCK PDUs are generated.
+       "
+    DEFVAL { true }
+    ::= { ostEthLckCfgEntry 1 }
+
+ostEthLckCfgRxEnabled OBJECT-TYPE
+    SYNTAX      TruthValue
+    MAX-ACCESS  read-create
+    STATUS      current
+    DESCRIPTION
+       "This attribute specifies whether ETH-LCK defect condition detection
+        is enabled.
+
+        The value 'true' indicates ETH-LCK defect condition detection is
+        enabled. This means an enabled defect is acted upon.
+
+        The value 'false' indicates ETH-LCK defect condition detection is
+        disabled. This means that an active defect is ignored.
+
+       "
+    DEFVAL { true }
+    ::= { ostEthLckCfgEntry 2 }
+
+ostEthLckCfgErrorSelection OBJECT-TYPE
+    SYNTAX      BITS {
+                     bLink(0),
+                     bLock(1),
+                     bLower(2),
+                     bMep(3),
+                     bAisRx(4),
+                     bAisTx(5)
+                }
+    MAX-ACCESS  read-create
+    STATUS      current
+    DESCRIPTION
+       "A vector of bits that indicates what specific errors cause entry into
+        automatic LCK admin state.
+
+        A bit set to '1' enables the specific error for LCK admin state entry.
+
+        A bit set to '0' disables the specific error for LCK admin state entry.
+
+        bLink(0)         enables/disables LCK admin state entry based upon link failure
+        bLock(1)         enables/disables LCK admin state entry based upon ETH-LCK PDU received
+        bLower(2)        enables/disables LCK admin state entry based upon lower MEP error
+        bMep(3)          enables/disables LCK admin state entry based upon local MEP error
+        bAisRx(4)        enables/disables LCK admin state entry based upon AIS reception
+        bAisTx(5)        enables/disables LCK admin state entry based upon AIS generation
+       "
+    DEFVAL { { } }
+    ::= { ostEthLckCfgEntry 3 }
+
+ostEthLckCfgStatClear OBJECT-TYPE
+    SYNTAX      TruthValue
+    MAX-ACCESS  read-create
+    STATUS      current
+    DESCRIPTION
+       "This object when written clears the ETH-LCK statistic counters associated
+        with the MEP. When read the value always returns 'false'.
+
+        Writing this value does not change any items in the configuration table.
+
+        Writing this object at row creation is irrelevant and should not
+        be done.
+       "
+    DEFVAL { false }
+    ::= { ostEthLckCfgEntry 4 }
+
+ostEthLckCfgVid OBJECT-TYPE
+    SYNTAX      OstVlanId
+    MAX-ACCESS  read-create
+    STATUS      current
+    DESCRIPTION
+       "The ETH-LCK PDU VID associated with. It must be a member of the EVC
+        that the MEP is associated with. The value is used when
+        ostEthLckCfgVidType is 'explicitVid' and is ignored otherwise.
+       "
+    DEFVAL { 0 }
+    ::= { ostEthLckCfgEntry 5 }
+
+ostEthLckCfgVidTx OBJECT-TYPE
+    SYNTAX      OstVlanId
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+       "The VID associated with the LCK PDUs for the MEP.
+
+        If the primary VID was selected it indicates the Primary VID used. If
+        the primary VID was not selected it indicates the VID used for LCK
+        PDUs. A value of '0' indicates that LCK PDUs are untagged.
+       "
+    ::= { ostEthLckCfgEntry 6 }
+
+ostEthLckCfgEnabled OBJECT-TYPE
+    SYNTAX      TruthValue
+    MAX-ACCESS  read-create
+    STATUS      current
+    DESCRIPTION
+       "This object specifies whether the ETH-LCK function is enabled at a MEP.
+
+        The value 'true' indicates that ETH-LCK protocol is locally enabled.
+
+        The value 'false' indicates that ETH-LCK protocol is locally disabled.
+       "
+    DEFVAL { true }
+    ::= { ostEthLckCfgEntry 7 }
+
+ostEthLckCfgInMacAddr OBJECT-TYPE
+    SYNTAX      MacAddress
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+       "The source MAC Address Field of last ETH-LCK received by the MEP. If
+        no ETH-LCK PDU has been received by the NE the MAC address is set to
+        all zeros.
+       "
+    ::= { ostEthLckCfgEntry 8 }
+
+ostEthLckCfgVidType OBJECT-TYPE
+    SYNTAX      INTEGER {
+        primaryVid   (1),
+        explicitVid  (2)
+    }
+    MAX-ACCESS  read-create
+    STATUS      current
+    DESCRIPTION
+       "This object selects the source of the VID used for the ETH-LCK PDUs.
+
+        primaryVid(1)    VID used for LCK PDU is the primary VID of the MEP
+        explicitVid (2)  VID used for LCK PDU defined by ostEthLckCfgVid
+       "
+    DEFVAL { primaryVid }
+    ::= { ostEthLckCfgEntry 9 }
+
+ostEthLckCfgCtagVid OBJECT-TYPE
+    SYNTAX      OstVlanId
+    MAX-ACCESS  read-create
+    STATUS      current
+    DESCRIPTION
+       "The C-TAG VID associated with the LCK PDUs for the MEP that originates
+        on a S-Comp UNI port or an NNI port. The value must be a member of the
+        EVC that the MEP is associated with.
+
+        A value of '0' indicates that no C-TAG is added to a frame that would
+        normally be single tagged. This value of this object is ignored for a
+        down MEP on a UNI port or a non-preserve EVC.
+       "
+       DEFVAL { 0 }
+    ::= { ostEthLckCfgEntry 10 }
+
+
+--------------------------------------------------------------------------------
+-- Conformance Information
+--------------------------------------------------------------------------------
+
+ostMef31ExtCompliances  OBJECT IDENTIFIER ::= { omnitronMef31ExtMib 3 }
+ostMef31ExtGroups       OBJECT IDENTIFIER ::= { omnitronMef31ExtMib 4 }
+
+
+--------------------------------------------------------------------------------
+-- Omnitron MEF 31 Extension MIB Units of conformance
+--------------------------------------------------------------------------------
+
+ostAisCfgGroup OBJECT-GROUP
+    OBJECTS {
+        ostEthAisGlobalCfgEnable,
+        ostEthAisCfgTxEnabled,
+        ostEthAisCfgRxEnabled,
+        ostEthAisCfgGenerate,
+        ostEthAisCfgErrorSelection,
+        ostEthAisCfgStatClear,
+        ostEthAisCfgVid,
+        ostEthAisCfgVidTx,
+        ostEthAisCfgVidType,
+        ostEthAisCfgCtagVid
+    }
+    STATUS      current
+    DESCRIPTION
+       "Mandatory objects for the ETH-AIS configuration group."
+    ::= { ostMef31ExtGroups 1 }
+
+
+ostLckCfgGroup OBJECT-GROUP
+    OBJECTS {
+        ostEthLckGlobalCfgEnable,
+        ostEthLckCfgTxEnabled,
+        ostEthLckCfgRxEnabled,
+        ostEthLckCfgErrorSelection,
+        ostEthLckCfgStatClear,
+        ostEthLckCfgVid,
+        ostEthLckCfgVidTx,
+        ostEthLckCfgEnabled,
+        ostEthLckCfgInMacAddr,
+        ostEthLckCfgVidType,
+        ostEthLckCfgCtagVid
+    }
+    STATUS      current
+    DESCRIPTION
+       "Mandatory objects for the ETH-LCK configuration group."
+    ::= { ostMef31ExtGroups 2 }
+
+
+--------------------------------------------------------------------------------
+-- Omnitron MEF 31 Extension MIB Compliance statements
+-------------------------------------------------------------------------------
+ostMef31ExtCompliance MODULE-COMPLIANCE
+    STATUS       current
+    DESCRIPTION "The compliance statement for the Omnitron MEF 31 Extension MIB."
+    MODULE
+        MANDATORY-GROUPS {
+            ostAisCfgGroup,
+            ostLckCfgGroup
+        }
+    ::= { ostMef31ExtCompliances 1 }
+
+
+END
+

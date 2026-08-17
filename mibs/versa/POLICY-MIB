@@ -1,0 +1,336 @@
+POLICY-MIB DEFINITIONS ::= BEGIN
+IMPORTS
+    MODULE-IDENTITY, OBJECT-TYPE,
+    Integer32, Unsigned32, Counter32, Counter64,
+    Gauge32, IpAddress
+        FROM SNMPv2-SMI
+    TEXTUAL-CONVENTION, RowStatus, DateAndTime,
+    TruthValue
+        FROM SNMPv2-TC
+    orgServices
+        FROM VERSA-MIB
+;
+
+policy MODULE-IDENTITY
+    LAST-UPDATED "201505130000Z"
+    ORGANIZATION "Versa Networks"
+    CONTACT-INFO "
+        2953 Bunker Hill Lane, Suite 210
+        Santa Clara, CA - 95035 (USA)
+        Email: support@versa-networks.com"
+    DESCRIPTION "Enterprise MIB for Versa Networks'
+Access Policy (FW) solution"
+    REVISION "201505130000Z"
+    DESCRIPTION "Initial revision"
+    ::= { orgServices 4 }
+
+ConfdString ::= TEXTUAL-CONVENTION
+    DISPLAY-HINT "1t"
+    STATUS      current
+    DESCRIPTION "xs: and confd: types mapped to strings"
+    SYNTAX      OCTET STRING
+
+String ::= TEXTUAL-CONVENTION
+    DISPLAY-HINT "1t"
+    STATUS      current
+    DESCRIPTION "xs:string"
+    SYNTAX      OCTET STRING
+
+accessPolicyTable OBJECT-TYPE
+    SYNTAX      SEQUENCE OF AccessPolicyEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "Display statistics of the access-policy"
+    ::= { policy 1 }
+
+accessPolicyEntry OBJECT-TYPE
+    SYNTAX      AccessPolicyEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION ""
+    INDEX { accessPolicyOrgId, accessPolicyId, accessPolicyRuleOrder, accessPolicyRuleId }
+        ::= { accessPolicyTable 1 }
+
+AccessPolicyEntry ::=
+    SEQUENCE {
+        accessPolicyOrgId Unsigned32,
+        accessPolicyId Unsigned32,
+        accessPolicyRuleOrder Unsigned32,
+        accessPolicyRuleId Unsigned32,
+        accessPolicyOrgName String,
+        accessPolicyName String,
+        accessPolicyRuleName String,
+        accessPolicyHitCount ConfdString,
+        accessPolicyForwardPktCount ConfdString,
+        accessPolicyForwardByteCount ConfdString,
+        accessPolicyReversePktCount ConfdString,
+        accessPolicyReverseByteCount ConfdString,
+        accessPolicyHitRate ConfdString,
+        accessPolicyInactiveSessCount ConfdString
+    }
+
+accessPolicyOrgId OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "Organization Id"
+    ::= { accessPolicyEntry 1 }
+
+accessPolicyId OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "Policy Id"
+    ::= { accessPolicyEntry 2 }
+
+accessPolicyRuleOrder OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "rule order"
+    ::= { accessPolicyEntry 3 }
+
+accessPolicyRuleId OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "Policy Rule Id"
+    ::= { accessPolicyEntry 4 }
+
+accessPolicyOrgName OBJECT-TYPE
+    SYNTAX      String
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Name of the Organization"
+    ::= { accessPolicyEntry 5 }
+
+accessPolicyName OBJECT-TYPE
+    SYNTAX      String
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Name of the policy"
+    ::= { accessPolicyEntry 6 }
+
+accessPolicyRuleName OBJECT-TYPE
+    SYNTAX      String
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "rule name"
+    ::= { accessPolicyEntry 7 }
+
+accessPolicyHitCount OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total hits on access-policy"
+    ::= { accessPolicyEntry 8 }
+
+accessPolicyForwardPktCount OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total packets sent in forward direction"
+    ::= { accessPolicyEntry 9 }
+
+accessPolicyForwardByteCount OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total bytes sent in forward direction"
+    ::= { accessPolicyEntry 10 }
+
+accessPolicyReversePktCount OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total packets sent in reverse direction"
+    ::= { accessPolicyEntry 11 }
+
+accessPolicyReverseByteCount OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total bytes sent in reverse direction"
+    ::= { accessPolicyEntry 12 }
+
+accessPolicyHitRate OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Hit rate of access-policy"
+    ::= { accessPolicyEntry 13 }
+
+accessPolicyInactiveSessCount OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total inactive sessions which hit this rule"
+    ::= { accessPolicyEntry 14 }
+
+decryptPolicyTable OBJECT-TYPE
+    SYNTAX      SEQUENCE OF DecryptPolicyEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "Display statistics of the decrypt-policy"
+    ::= { policy 2 }
+
+decryptPolicyEntry OBJECT-TYPE
+    SYNTAX      DecryptPolicyEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION ""
+    INDEX { decryptPolicyOrgId, decryptPolicyId, decryptPolicyRuleOrder, decryptPolicyRuleId }
+        ::= { decryptPolicyTable 1 }
+
+DecryptPolicyEntry ::=
+    SEQUENCE {
+        decryptPolicyOrgId Unsigned32,
+        decryptPolicyId Unsigned32,
+        decryptPolicyRuleOrder Unsigned32,
+        decryptPolicyRuleId Unsigned32,
+        decryptPolicyOrgName String,
+        decryptPolicyName String,
+        decryptPolicyRuleName String,
+        decryptPolicyHitCount ConfdString
+    }
+
+decryptPolicyOrgId OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "Organization Id"
+    ::= { decryptPolicyEntry 1 }
+
+decryptPolicyId OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "Policy Id"
+    ::= { decryptPolicyEntry 2 }
+
+decryptPolicyRuleOrder OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "rule order"
+    ::= { decryptPolicyEntry 3 }
+
+decryptPolicyRuleId OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "Policy Rule Id"
+    ::= { decryptPolicyEntry 4 }
+
+decryptPolicyOrgName OBJECT-TYPE
+    SYNTAX      String
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Name of the Organization"
+    ::= { decryptPolicyEntry 5 }
+
+decryptPolicyName OBJECT-TYPE
+    SYNTAX      String
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Name of the policy"
+    ::= { decryptPolicyEntry 6 }
+
+decryptPolicyRuleName OBJECT-TYPE
+    SYNTAX      String
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "rule name"
+    ::= { decryptPolicyEntry 7 }
+
+decryptPolicyHitCount OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total flow hits on Decrypt policy"
+    ::= { decryptPolicyEntry 8 }
+
+authenticationPolicyTable OBJECT-TYPE
+    SYNTAX      SEQUENCE OF AuthenticationPolicyEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "Display statistics of the Authentication Policy"
+    ::= { policy 3 }
+
+authenticationPolicyEntry OBJECT-TYPE
+    SYNTAX      AuthenticationPolicyEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION ""
+    INDEX { authenticationPolicyOrgId, authenticationPolicyId, authenticationPolicyRuleOrder, authenticationPolicyRuleId }
+        ::= { authenticationPolicyTable 1 }
+
+AuthenticationPolicyEntry ::=
+    SEQUENCE {
+        authenticationPolicyOrgId Unsigned32,
+        authenticationPolicyId Unsigned32,
+        authenticationPolicyRuleOrder Unsigned32,
+        authenticationPolicyRuleId Unsigned32,
+        authenticationPolicyOrgName String,
+        authenticationPolicyName String,
+        authenticationPolicyRuleName String,
+        authenticationPolicyHitCount ConfdString
+    }
+
+authenticationPolicyOrgId OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "Organization Id"
+    ::= { authenticationPolicyEntry 1 }
+
+authenticationPolicyId OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "Policy Id"
+    ::= { authenticationPolicyEntry 2 }
+
+authenticationPolicyRuleOrder OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "rule order"
+    ::= { authenticationPolicyEntry 3 }
+
+authenticationPolicyRuleId OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "Policy Rule Id"
+    ::= { authenticationPolicyEntry 4 }
+
+authenticationPolicyOrgName OBJECT-TYPE
+    SYNTAX      String
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Name of the Organization"
+    ::= { authenticationPolicyEntry 5 }
+
+authenticationPolicyName OBJECT-TYPE
+    SYNTAX      String
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Name of the policy"
+    ::= { authenticationPolicyEntry 6 }
+
+authenticationPolicyRuleName OBJECT-TYPE
+    SYNTAX      String
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "rule name"
+    ::= { authenticationPolicyEntry 7 }
+
+authenticationPolicyHitCount OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Hit count"
+    ::= { authenticationPolicyEntry 8 }
+
+END

@@ -1,0 +1,948 @@
+OMNITRON-PTP-MIB DEFINITIONS ::= BEGIN
+
+IMPORTS
+    MODULE-IDENTITY, OBJECT-TYPE, Integer32, Unsigned32, IpAddress
+        FROM SNMPv2-SMI           -- RFC-2578
+    TruthValue, RowStatus
+        FROM SNMPv2-TC            -- RFC-2579
+    MODULE-COMPLIANCE, OBJECT-GROUP
+        FROM SNMPv2-CONF          -- RFC-2580
+    omnitron, OstPortSingleIndex, OstEvcNameStringOrNone, OstVlanId,
+    OstPortList, OstIpAddr, OstPortNumber
+        FROM OMNITRON-TC-MIB;     -- Omnitron Textual Convention MIB        
+
+omnitronPtpMib MODULE-IDENTITY
+    LAST-UPDATED "201702161200Z"  -- February 16, 2017
+    ORGANIZATION "Omnitron Systems Technology, Inc."
+    CONTACT-INFO "Omnitron Systems Technology, Inc.
+                  38 Tesla
+                  Irvine, CA 92618-4670
+                  USA
+
+             Tel: (949) 250 6510
+             Fax: (949) 250 6514
+          E-mail: info@omnitron-systems.com
+   International: +1 949 250 6510
+
+                  Technical Support and Customer Service
+             Tel: (800) 675 8410
+          E-mail: support@omnitron-systems.com
+   International: +1 949 250 6510"
+
+    DESCRIPTION
+            "Omnitron PTP MIB for use with iConverter Management Modules v5.3
+             and NetOutlook.
+
+             Copyright 2017 Omnitron Systems Technology, Inc.
+             All rights reserved.
+            "
+
+    REVISION    "201702161200Z"  -- February 16, 2017
+    DESCRIPTION "Modified default value for ostPtpInstanceCfgServerIp1,
+                   ostPtpInstanceCfgServerIp2 and ostPtpInstanceCfgSourceIp 
+                "
+
+    REVISION    "201611011200Z"     -- November 1, 2016
+    DESCRIPTION "Changed ostPtPInstanceCfgRowStatus to ostPtpInstanceCfgRowStatus
+                "
+    REVISION    "201603181200Z"  -- March 18, 2016
+    DESCRIPTION "Initial version of v5.3 MIB.
+                   Added ostPtpGlobalCfgServerIp1String
+                   Added ostPtpGlobalCfgServerIp2String
+                   Added ostPtpGlobalCfgClkAccuracy
+                   Added ostPtpGlobalCfgClkClass
+                   Added ostPtpGlobalCfgClkVariance
+                   Added ostPtpInstanceCfgPriority2
+                   Added ostPtpInstanceCfgSubnetMask
+                   Added ostPtpInstanceCfgAnnounceRate
+                   Added ostPtpInstanceCfgAnnounceTimeout
+                   Added ostPtpInstanceCfgSyncRate
+                   Added ostPtpInstanceCfgDelayRequestRate                   
+                "
+    ::= { omnitron 14 }
+
+
+--------------------------------------------------------------------------------
+-- Precision Time Protocol (PTP) Global Configuration Table
+--------------------------------------------------------------------------------
+
+ostPtpGlobalCfgTable  OBJECT IDENTIFIER ::= { omnitronPtpMib 1 }
+
+ostPtpGlobalCfgPtpEnable OBJECT-TYPE
+    SYNTAX      TruthValue
+    MAX-ACCESS  read-write
+    STATUS      current
+    DESCRIPTION
+       "This object specifies whether the PTP function is enabled.
+
+        The value 'true' indicates that PTP is enabled.
+
+        The value 'false' indicates that PTP is disabled.
+       "
+    DEFVAL { false }
+    ::= { ostPtpGlobalCfgTable 1 }
+
+ostPtpGlobalCfgOffset OBJECT-TYPE
+    SYNTAX      Integer32
+    UNITS       "nanoseconds"
+    MAX-ACCESS  read-write
+    STATUS      current
+    DESCRIPTION
+       "This object specifies the clock offset the automatically calculated
+        offset.
+
+        The clock offset is in nanoseconds and ranges from +32768 to 0. Negative
+        values are not valid.  For GM4 only.
+       "
+    DEFVAL { 0 }
+    ::= { ostPtpGlobalCfgTable 2 }
+
+ostPtpGlobalCfgServerIp1 OBJECT-TYPE
+    SYNTAX      IpAddress
+    MAX-ACCESS  read-write
+    STATUS      current
+    DESCRIPTION
+       "The clock source Server 1 IPv4 address. For GM4 only.
+
+        Setting this object also impacts the ostPtpGlobalCfgServerIp1String
+        returned value. If an IPv4 address is written to this object the
+        two objects return the same value. If ostPtpGlobalCfgServerIp1String
+        is set with an IPv6 address then this object returns an all zeros
+        value.        
+       "
+    DEFVAL { '00000000'H }
+    ::= { ostPtpGlobalCfgTable 3 }
+
+
+ostPtpGlobalCfgTransport OBJECT-TYPE
+    SYNTAX      INTEGER {
+        l2Ethernet   (1),
+        ipMulticast  (2),
+        ipUnicast    (3)
+    }
+    MAX-ACCESS  read-write
+    STATUS      current
+    DESCRIPTION
+       "This object selects the specific type of PTP transport protocol.
+        For GM4 only.
+
+        l2Ethernet(1)  Transport is Layer 2 only
+        ipMulticast(2) Transport is Layer 3 with IP multicast address
+        ipUnicast(3)   Transport is Layer 4 with IP unicast address
+       "
+    DEFVAL { l2Ethernet }
+    ::= { ostPtpGlobalCfgTable 4 }
+
+ostPtpGlobalCfgEvc OBJECT-TYPE
+    SYNTAX      OstEvcNameStringOrNone
+    MAX-ACCESS  read-write
+    STATUS      current
+    DESCRIPTION
+       "This object defines which EVC that the PTP PDUs are transported on. A
+        null value indicates that no EVC has been selected. Writing a null
+        value results in an error. Only valid EVC names can be written to this
+        object. For GM4 only.
+       "
+    DEFVAL { "" }
+    ::= { ostPtpGlobalCfgTable 5 }
+
+ostPtpGlobalCfgClockType OBJECT-TYPE
+    SYNTAX      INTEGER {
+        typ1Step      (1),
+        typ2Step      (2)
+    }
+    MAX-ACCESS  read-write
+    STATUS      current
+    DESCRIPTION
+       "This object selects the PTP clock type. For GM4 only.
+
+        typ1Step(1)     One step clock type
+        typ2Step(2)     Two step clock type
+       "
+    DEFVAL { typ2Step }
+    ::= { ostPtpGlobalCfgTable 6 }
+
+ostPtpGlobalCfgServerIp2 OBJECT-TYPE
+    SYNTAX      IpAddress
+    MAX-ACCESS  read-write
+    STATUS      current
+    DESCRIPTION
+       "The clock source Server 2 IPv4 address. When set to the default value
+        Server IP 2 is not used. For GM4 only.
+
+        Setting this object also impacts the ostPtpGlobalCfgServerIp2String
+        returned value. If an IPv4 address is written to this object the
+        two objects return the same value. If ostPtpGlobalCfgServerIp2String
+        is set with an IPv6 address then this object returns an all zeros
+        value.        
+       "
+    DEFVAL { '00000000'H }
+    ::= { ostPtpGlobalCfgTable 7 }
+
+ostPtpGlobalCfgClockTypeMode OBJECT-TYPE
+    SYNTAX      INTEGER {
+        transparent  (1),
+        master       (2),
+        slave        (3),
+        boundary     (4)
+    }
+    MAX-ACCESS  read-write
+    STATUS      current
+    DESCRIPTION
+       "This object selects the PTP clock mode. For GM4 only.
+
+        transparent(1)   PTP transparent clock mode
+        master(2)        PTP master clock
+        slave(3)         PTP slave clock
+        boundary(4)      PTP boundary clock
+       "
+    DEFVAL { transparent }
+    ::= { ostPtpGlobalCfgTable 8 }
+
+ostPtpGlobalCfgServerIp1String OBJECT-TYPE
+    SYNTAX      OstIpAddr
+    MAX-ACCESS  read-write
+    STATUS      current
+    DESCRIPTION
+       "This object configures the IPv4 or IPv6 address for clock source
+        Server 1. For GM4 only.
+
+        Setting this object also impacts the ostPtpGlobalCfgServerIp1String
+        returned value. If an IPv4 address is written to this object the
+        two objects return the same value. If this object is set with an IPv6
+        address then ostPtpGlobalCfgServerIp1 returns an all zeros value.
+       "
+    DEFVAL { "::" }
+    ::= { ostPtpGlobalCfgTable 9 }
+
+ostPtpGlobalCfgServerIp2String OBJECT-TYPE
+    SYNTAX      OstIpAddr
+    MAX-ACCESS  read-write
+    STATUS      current
+    DESCRIPTION
+       "This object configures the IPv4 or IPv6 address for clock source
+        Server 2. For GM4 only.
+
+        Setting this object also impacts the ostPtpGlobalCfgServerIp2
+        returned value. If an IPv4 address is written to this object the
+        two objects return the same value. If this object is set with an IPv6
+        address then ostPtpGlobalCfgServerIp2 returns an all zeros value.
+
+        When this object returns the IPv4 default value Server IP 2 is
+        not used.
+       "
+    DEFVAL { "::" }
+    ::= { ostPtpGlobalCfgTable 10 }
+
+ostPtpGlobalCfgClkAccuracy OBJECT-TYPE
+    SYNTAX      Unsigned32  (0..255)
+    MAX-ACCESS  read-write
+    STATUS      current
+    DESCRIPTION
+       "This object configures the PTP clock accuracy. For XM5 only.
+       "
+    DEFVAL { 254 }
+    ::= { ostPtpGlobalCfgTable 11 }
+
+ostPtpGlobalCfgClkClass OBJECT-TYPE
+    SYNTAX      Unsigned32  (0..255)
+    MAX-ACCESS  read-write
+    STATUS      current
+    DESCRIPTION
+       "This object configures the PTP clock class. For XM5 only.
+       "
+    DEFVAL { 254 }
+    ::= { ostPtpGlobalCfgTable 12 }
+
+ostPtpGlobalCfgClkVariance OBJECT-TYPE
+    SYNTAX      Unsigned32  (0..65535)
+    MAX-ACCESS  read-write
+    STATUS      current
+    DESCRIPTION
+       "This object configures the PTP clock variance. For XM5 only.
+       "
+    DEFVAL { 65535 }
+    ::= { ostPtpGlobalCfgTable 13 }
+    
+
+--------------------------------------------------------------------------------
+-- Precision Time Protocol (PTP) Port Configuration Table
+--------------------------------------------------------------------------------
+
+ostPtpPortCfgTable OBJECT-TYPE
+    SYNTAX      SEQUENCE OF OstPtpPortCfgEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION
+       "This table supports the port PTP configurations. Rows in this table are
+        automatically created, one for each port in the module. For GM4 only.
+
+       "
+    ::= { omnitronPtpMib 2 }
+
+ostPtpPortCfgEntry OBJECT-TYPE
+    SYNTAX      OstPtpPortCfgEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION
+       "This is a PTP port configuration table entry."
+    INDEX { ostPtpPortCfgIndex }
+    ::= { ostPtpPortCfgTable 1 }
+
+OstPtpPortCfgEntry ::= SEQUENCE {
+    ostPtpPortCfgIndex                   OstPortSingleIndex,
+    ostPtpPortCfgMode                    INTEGER
+    }
+
+ostPtpPortCfgIndex OBJECT-TYPE
+    SYNTAX      OstPortSingleIndex
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION
+       "An index that is used to identify a specific PTP port user."
+    ::= { ostPtpPortCfgEntry 1 }
+
+
+ostPtpPortCfgMode OBJECT-TYPE
+    SYNTAX      INTEGER {
+        notConfigured   (1),
+        sourcePort      (2),
+        egressPort      (3)
+    }
+    MAX-ACCESS  read-write
+    STATUS      current
+    DESCRIPTION
+       "The PTP port mode.
+
+        notConfigured(1)      Port does not participate in PTP
+        sourcePort(2)         Source port of PTP PDUs
+        egressPort(3)         Egress port for PTP PDUs
+
+        Ports defind as either a source or egress port need to be
+        a part of the EVC associated with the instance.
+       "
+    DEFVAL { notConfigured }
+    ::= { ostPtpPortCfgEntry 2 }
+
+
+
+--------------------------------------------------------------------------------
+-- Precision Time Protocol (PTP) Instance Configuration Table
+--------------------------------------------------------------------------------
+
+ostPtpInstanceCfgTable OBJECT-TYPE
+    SYNTAX      SEQUENCE OF OstPtpInstanceCfgEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION
+       "This table supports the instance PTP configurations for the XM5.
+
+        Each row in this table indicates a different PTP instance. Each row is
+        created manually via the SNMP manager.
+       "
+    ::= { omnitronPtpMib 3 }
+
+ostPtpInstanceCfgEntry OBJECT-TYPE
+    SYNTAX      OstPtpInstanceCfgEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION
+       "This is a PTP instance configuration table entry."
+    INDEX { ostPtpInstanceCfgIndex }
+    ::= { ostPtpInstanceCfgTable 1 }
+
+OstPtpInstanceCfgEntry ::= SEQUENCE {
+    ostPtpInstanceCfgIndex               Unsigned32,
+    ostPtpInstanceCfgRowStatus           RowStatus,
+    ostPtpInstanceCfgEnable              TruthValue,
+    ostPtpInstanceCfgEvc                 OstEvcNameStringOrNone,
+    ostPtpInstanceCfgPortNumber          OstPortList,
+    ostPtpInstanceCfgTransport           INTEGER,
+    ostPtpInstanceCfgClockMode           INTEGER,
+    ostPtpInstanceCfgClockType           INTEGER,
+    ostPtpInstanceCfgServerIp1           OstIpAddr,
+    ostPtpInstanceCfgServerIp2           OstIpAddr,
+    ostPtpInstanceCfgSourceIp            OstIpAddr,
+    ostPtpInstanceCfgDomain              Unsigned32,
+    ostPtpInstanceCfgPriority            Unsigned32,
+    ostPtpInstanceCfgCtagVid             OstVlanId,
+    ostPtpInstanceCfgOffset              Integer32,
+    ostPtpInstanceCfgStatus              OCTET STRING,
+    ostPtpInstanceCfgTxSourcePort        OstPortNumber,
+    ostPtpInstanceCfgPriority2           Unsigned32,
+    ostPtpInstanceCfgSubnetMask          IpAddress,
+    ostPtpInstanceCfgAnnounceRate        Integer32,   
+    ostPtpInstanceCfgAnnounceTimeout     Integer32,
+    ostPtpInstanceCfgSyncRate            Integer32,
+    ostPtpInstanceCfgDelayRequestRate    Integer32
+    }
+
+ostPtpInstanceCfgIndex OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION
+       "An index that is used to identify a specific PTP instance."
+    ::= { ostPtpInstanceCfgEntry 1 }
+
+ostPtpInstanceCfgRowStatus OBJECT-TYPE
+    SYNTAX      RowStatus
+    MAX-ACCESS  read-create
+    STATUS      current
+    DESCRIPTION
+       "The status of the row.
+
+        The writable columns in a row cannot be changed if the row
+        is active. All columns must have a valid value before a row
+        can be activated.
+       "
+   ::= { ostPtpInstanceCfgEntry 2 }
+
+ostPtpInstanceCfgEnable OBJECT-TYPE
+    SYNTAX      TruthValue
+    MAX-ACCESS  read-create
+    STATUS      current
+    DESCRIPTION
+       "This object specifies whether the PTP instance is enabled.
+
+        The value 'true' indicates that the instance is enabled.
+
+        The value 'false' indicates that the instance is disabled.
+       "
+    DEFVAL { true }
+    ::= { ostPtpInstanceCfgEntry 3 }
+
+ostPtpInstanceCfgEvc OBJECT-TYPE
+    SYNTAX      OstEvcNameStringOrNone
+    MAX-ACCESS  read-create
+    STATUS      current
+    DESCRIPTION
+       "This object defines which EVC that the PTP PDUs are transported on.
+        Only valid EVC names can be written to this object.
+       "
+    ::= { ostPtpInstanceCfgEntry 4 }
+
+ostPtpInstanceCfgPortNumber OBJECT-TYPE
+    SYNTAX      OstPortList
+    MAX-ACCESS  read-create
+    STATUS      current
+    DESCRIPTION
+       "The list of ports that are associated with the PTP instance. At least
+        one port must be selected. Management Ports are not included.
+       "
+    ::= { ostPtpInstanceCfgEntry 5 }
+
+ostPtpInstanceCfgTransport OBJECT-TYPE
+    SYNTAX      INTEGER {
+        l2Ethernet   (1),
+        ipMulticast  (2),
+        ipUnicast    (3)
+    }
+    MAX-ACCESS  read-create
+    STATUS      current
+    DESCRIPTION
+       "This object selects the specific type of PTP transport protocol for
+        the specific PTP instance.
+
+        l2Ethernet(1)  Transport is Layer 2 only
+        ipMulticast(2) Transport is Layer 3 with IP multicast address
+        ipUnicast(3)   Transport is Layer 4 with IP unicast address
+       "
+    DEFVAL { l2Ethernet }
+    ::= { ostPtpInstanceCfgEntry 6 }
+
+ostPtpInstanceCfgClockMode OBJECT-TYPE
+    SYNTAX      INTEGER {
+        transparent  (1),
+        master       (2),
+        slave        (3),
+        boundary     (4)
+    }
+    MAX-ACCESS  read-create
+    STATUS      current
+    DESCRIPTION
+       "This object selects the PTP clock mode for the specific PTP instance.
+
+        transparent(1)   PTP transparent clock mode
+        master(2)        PTP master clock
+        slave(3)         PTP slave clock
+        boundary(4)      PTP boundary clock
+       "
+    DEFVAL { transparent }
+    ::= { ostPtpInstanceCfgEntry 7 }
+
+ostPtpInstanceCfgClockType OBJECT-TYPE
+    SYNTAX      INTEGER {
+        typ1Step      (1),
+        typ2Step      (2)
+    }
+    MAX-ACCESS  read-create
+    STATUS      current
+    DESCRIPTION
+       "This object selects the PTP clock type for the specific PTP instance.
+
+        typ1Step(1)     One step clock type
+        typ2Step(2)     Two step clock type
+       "
+    DEFVAL { typ1Step }
+    ::= { ostPtpInstanceCfgEntry 8 }
+
+ostPtpInstanceCfgServerIp1 OBJECT-TYPE
+    SYNTAX      OstIpAddr
+    MAX-ACCESS  read-create
+    STATUS      current
+    DESCRIPTION
+       "The clock source Server IP 1 address for the specific PTP instance.
+        This object only needs to be defined for IP based transport instances.
+       "
+    DEFVAL { "0.0.0.0" }
+    ::= { ostPtpInstanceCfgEntry 9 }
+
+ostPtpInstanceCfgServerIp2 OBJECT-TYPE
+    SYNTAX      OstIpAddr
+    MAX-ACCESS  read-create
+    STATUS      current
+    DESCRIPTION
+       "The clock source Server IP 2 address for the specific PTP instance.
+        This object only needs to be defined for IP based transport instances.
+       "
+    DEFVAL { "0.0.0.0" }
+    ::= { ostPtpInstanceCfgEntry 10 }
+
+ostPtpInstanceCfgSourceIp OBJECT-TYPE
+    SYNTAX      OstIpAddr
+    MAX-ACCESS  read-create
+    STATUS      current
+    DESCRIPTION
+       "The PTP source IP address for the specific PTP instance.
+        This object only needs to be defined for IP based transport instances.
+       "
+    DEFVAL { "0.0.0.0" }
+    ::= { ostPtpInstanceCfgEntry 11 }
+
+ostPtpInstanceCfgDomain OBJECT-TYPE
+    SYNTAX      Unsigned32 (0..128)
+    MAX-ACCESS  read-create
+    STATUS      current
+    DESCRIPTION
+       "The PTP clock domain for the specific PTP instance.
+       "
+    DEFVAL { 0 }
+    ::= { ostPtpInstanceCfgEntry 12 }
+
+ostPtpInstanceCfgPriority OBJECT-TYPE
+    SYNTAX      Unsigned32 (0..255)
+    MAX-ACCESS  read-create
+    STATUS      current
+    DESCRIPTION
+       "The PTP clock domain priority 1 for the specific PTP instance.
+       "
+    DEFVAL { 0 }
+    ::= { ostPtpInstanceCfgEntry 13 }
+
+ostPtpInstanceCfgCtagVid OBJECT-TYPE
+    SYNTAX      OstVlanId
+    MAX-ACCESS  read-create
+    STATUS      current
+    DESCRIPTION
+       "The C-TAG VID associated with this EVC on this interface. For
+        a NNI port it indicates the PTP frame is double tagged, with the
+        inner tag the value of the object. For a UNI port is indicates a
+        different C-TAG VID from the EVC primary C-TAG VID.
+
+        A value of '0' indicates that this object is not defined or being
+        used for the specific PTP instance.
+        "
+    DEFVAL { 0 }
+    ::= { ostPtpInstanceCfgEntry 14 }
+
+ostPtpInstanceCfgOffset OBJECT-TYPE
+    SYNTAX      Integer32
+    UNITS       "nanoseconds"
+    MAX-ACCESS  read-create
+    STATUS      current
+    DESCRIPTION
+       "This object specifies the clock offset to the automatically calculated
+        offset for this specific PTP instance.
+
+        The clock offset is in nanoseconds and ranges from 0 to +32768. Negative
+        values are not valid.
+       "
+    DEFVAL { 0 }
+    ::= { ostPtpInstanceCfgEntry 15 }
+
+ostPtpInstanceCfgStatus OBJECT-TYPE
+    SYNTAX      OCTET STRING (SIZE(0..64))
+    MAX-ACCESS  read-create
+    STATUS      current
+    DESCRIPTION
+       "This object indicates the status of the PTP instance.
+       "
+    DEFVAL { "" }
+    ::= { ostPtpInstanceCfgEntry 16 }
+
+ostPtpInstanceCfgTxSourcePort OBJECT-TYPE
+    SYNTAX      OstPortNumber
+    MAX-ACCESS  read-create
+    STATUS      current
+    DESCRIPTION
+       "This object indicates the PTP transmission source port when operating
+        as a master or boundary clock instance.
+
+        A value of '0' indicates there is no specific PTP transmission port
+        or the transmission port is undefined, as is the case for Transparent
+        and Slave clocks. A non-zero value indicates that port number is
+        acting as a source of the PTP transmission clock.
+       "
+    ::= { ostPtpInstanceCfgEntry 17 }
+
+ostPtpInstanceCfgPriority2 OBJECT-TYPE
+    SYNTAX      Unsigned32 (0..255)
+    MAX-ACCESS  read-create
+    STATUS      current
+    DESCRIPTION
+       "This object indicates the PTP clock domain priority 2 for the specific 
+        PTP instance.
+       "
+    DEFVAL { 255 }
+    ::= { ostPtpInstanceCfgEntry 18 }
+    
+ostPtpInstanceCfgSubnetMask  OBJECT-TYPE
+    SYNTAX      IpAddress
+    MAX-ACCESS  read-create
+    STATUS      current
+    DESCRIPTION 
+       "This object indicates the PTP IPv4 subnet mask for the specific PTP 
+        instance.
+       "
+    ::= { ostPtpInstanceCfgEntry 19 }
+
+ostPtpInstanceCfgAnnounceRate OBJECT-TYPE
+    SYNTAX      Integer32 (-3..4)
+    MAX-ACCESS  read-create
+    STATUS      current
+    DESCRIPTION
+       "This object specifies the PTP announce rate, where rate is equal to
+        one message every 2^[AnnounceRate] seconds.
+             
+        The default value is 1 message per 2^1 seconds or 1 message/2 seconds
+       "
+    DEFVAL { 1 }
+    ::= { ostPtpInstanceCfgEntry 20 }  
+
+ostPtpInstanceCfgAnnounceTimeout OBJECT-TYPE
+    SYNTAX      Integer32 (0..10)
+    MAX-ACCESS  read-create
+    STATUS      current
+    DESCRIPTION
+       "This object specifies the PTP announce timeout, where the timeout is
+        equal to 2^[AnnounceTimeout] seconds.
+             
+        The default value is a timout after per 2^3 secs, or 1 timeout/8 seconds
+       "
+    DEFVAL { 3 }
+    ::= { ostPtpInstanceCfgEntry 21 }
+
+ostPtpInstanceCfgSyncRate OBJECT-TYPE
+    SYNTAX      Integer32 (-7..4)
+    MAX-ACCESS  read-create
+    STATUS      current
+    DESCRIPTION
+       "This object specifies the PTP sync message announce rate, where rate 
+        is equal to one message every 2^[SyncRate] seconds.
+             
+        The default value is 1 message per 2^0 secs, or 1 messasge/second
+       "
+    DEFVAL { 0 }
+    ::= { ostPtpInstanceCfgEntry 22 }
+
+ostPtpInstanceCfgDelayRequestRate OBJECT-TYPE
+    SYNTAX      Integer32 (-7..4)
+    MAX-ACCESS  read-create
+    STATUS      current
+    DESCRIPTION
+       "This object specifies the PTP delay request message rate, where rate 
+        is equal to one message every 2^[DelayRequestRate] seconds.
+             
+        The default value is 1 message per 2^0 secs, or 1 message/second       
+       "
+    DEFVAL { 0 }
+    ::= { ostPtpInstanceCfgEntry 23 }
+      
+
+--------------------------------------------------------------------------------
+-- Precision Time Protocol (PTP) Port Instance Status Table
+--------------------------------------------------------------------------------
+
+ostPtpPortInstanceStatusTable OBJECT-TYPE
+    SYNTAX      SEQUENCE OF OstPtpPortInstanceStatusEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION
+       "This table supports the PTP port instance status for the XM5.
+
+        Each row in this table is created autmotically when an instance is
+        created and ports are assigned to the instance. Rows in this table
+        are automatically deleted if the associated PTP instance is deleted.
+       "
+    ::= { omnitronPtpMib 4 }
+
+
+ostPtpPortInstanceStatusEntry OBJECT-TYPE
+    SYNTAX      OstPtpPortInstanceStatusEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION
+       "This is a PTP port instance status table entry."
+    INDEX { ostPtpInstanceCfgIndex, ostPtpPortInstanceStatusIndex }
+    ::= { ostPtpPortInstanceStatusTable 1 }
+
+OstPtpPortInstanceStatusEntry ::= SEQUENCE {
+    ostPtpPortInstanceStatusIndex        OstPortSingleIndex,
+    ostPtpPortInstanceStatusValue        OCTET STRING
+    }
+
+ostPtpPortInstanceStatusIndex OBJECT-TYPE
+    SYNTAX      OstPortSingleIndex
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION
+       "An index that is used to identify a specific PTP port number in an
+        instance.
+       "
+    ::= { ostPtpPortInstanceStatusEntry 1 }
+
+ostPtpPortInstanceStatusValue OBJECT-TYPE
+    SYNTAX      OCTET STRING (SIZE(0..64))
+    MAX-ACCESS  read-create
+    STATUS      current
+    DESCRIPTION
+       "This object indicates the status of a port for the PTP instance.
+       "
+    DEFVAL { "" }
+    ::= { ostPtpPortInstanceStatusEntry 2 }
+
+
+--------------------------------------------------------------------------------
+-- Clock I/O Instance Configuration Table
+--------------------------------------------------------------------------------
+
+ostClockIoInstanceCfgTable OBJECT-TYPE
+    SYNTAX      SEQUENCE OF OstClockIoInstanceCfgEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION
+       "This table supports the Clock I/O instance configurations for the XM5.
+
+        Each row in this table indicates a different Clock I/O instance. Each
+        row is created automatically by the SNMP Agent.
+       "
+    ::= { omnitronPtpMib 5 }
+
+ostClockIoInstanceCfgEntry OBJECT-TYPE
+    SYNTAX      OstClockIoInstanceCfgEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION
+       "This is a Clock I/O instance configuration table entry."
+    INDEX { ostClockIoInstanceCfgIndex }
+    ::= { ostClockIoInstanceCfgTable 1 }
+
+OstClockIoInstanceCfgEntry ::= SEQUENCE {
+    ostClockIoInstanceCfgIndex               Unsigned32,
+    ostClockIoInstanceCfgEnable              TruthValue,
+    ostClockIoInstanceCfgDirection           INTEGER,
+    ostClockIoInstanceCfgRate                INTEGER,
+    ostClockIoInstanceCfgTerm                INTEGER,
+    ostClockIoInstanceStatus                 INTEGER
+    }
+
+ostClockIoInstanceCfgIndex OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION
+       "An index that is used to identify a specific Clock I/O instance."
+    ::= { ostClockIoInstanceCfgEntry 1 }
+
+ostClockIoInstanceCfgEnable OBJECT-TYPE
+    SYNTAX      TruthValue
+    MAX-ACCESS  read-write
+    STATUS      current
+    DESCRIPTION
+       "This object specifies whether the Clock I/O instance is enabled.
+
+        The value 'true' indicates that the instance is enabled.
+
+        The value 'false' indicates that the instance is disabled.
+       "
+    DEFVAL { false }
+    ::= { ostClockIoInstanceCfgEntry 2 }
+
+ostClockIoInstanceCfgDirection OBJECT-TYPE
+    SYNTAX      INTEGER {
+        notAvailable (0),
+        input        (1),
+        output       (2)
+    }
+    MAX-ACCESS  read-write
+    STATUS      current
+    DESCRIPTION
+       "This object selects the Clock I/O instance direction type.
+
+        notAvailable(0)  Direction is not supported
+        input(1)         Clock is an input
+        output(2)        Clock is an ouput
+       "
+    DEFVAL { output }
+    ::= { ostClockIoInstanceCfgEntry 3 }
+
+ostClockIoInstanceCfgRate OBJECT-TYPE
+    SYNTAX      INTEGER {
+        notAvailable (0),
+        rate1pps     (1),
+        rate10mhz    (2)
+    }
+    MAX-ACCESS  read-write
+    STATUS      current
+    DESCRIPTION
+       "This object selects the Clock I/O instance rate.
+
+        notAvailable(0)  Rate selection is not supported
+        rate1pps(1)      Clock rate is 1 pulse per second (PPS)
+        rate10mhz(2)     Clock rate is 10 MHz
+       "
+    DEFVAL { rate1pps }
+    ::= { ostClockIoInstanceCfgEntry 4 }
+
+ostClockIoInstanceCfgTerm OBJECT-TYPE
+    SYNTAX      INTEGER {
+        notAvailable (0),
+        on           (1),
+        off          (2)
+    }
+    MAX-ACCESS  read-write
+    STATUS      current
+    DESCRIPTION
+       "This object selects the Clock I/O instance rate.
+
+        notAvailable(0)  Rate selection is not supported
+        on(1)            I/O is terminated
+        off(2)           I/O is terminated
+       "
+    DEFVAL { off }
+    ::= { ostClockIoInstanceCfgEntry 5 }
+
+ostClockIoInstanceStatus OBJECT-TYPE
+    SYNTAX      INTEGER {
+        notAvailable         (0),
+        output               (1),
+        input                (2),
+        inputValid           (3),
+        inputAcquiring       (4),
+        inputLocked          (5),
+        inputLockedHoldover  (6),
+        inputHoldover        (7),
+        inputFreerun         (8),
+        inputNotLocked       (9)
+    }
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+       "This object indicates the Clock I/O instance status
+
+        notAvailable(0)        Clock I/O status is not available
+        output(1)              Clock I/O set to output
+        input(2)               Clock I/O set to input, input not valid
+        inputValid(3)          Clock I/O set to input, input valid
+        inputAcquiring(4)      Clock I/O input is acquiring lock
+        inputLocked(5)         Clock I/O input is locked but holdover not valid
+        inputLockedHoldover(6) Clock I/O input is locked and holdover valid
+        inputHoldover(7)       Clock I/O input is lost, but holdover is valid
+        inputFreerun(8)        Clock I/O input is lost, clock is free running
+        inputNotLocked(9)      Clock I/O input clock extracted, but clock is
+                                 outside of acceptable frequency range
+       "
+    DEFVAL { output }
+    ::= { ostClockIoInstanceCfgEntry 6 }
+
+
+--------------------------------------------------------------------------------
+-- Conformance Information
+--------------------------------------------------------------------------------
+ostPtpCompliances       OBJECT IDENTIFIER ::= { omnitronPtpMib 6 }
+ostPtpGroups            OBJECT IDENTIFIER ::= { omnitronPtpMib 7 }
+
+
+--------------------------------------------------------------------------------
+-- Omnitron PTP MIB Units of conformance
+--------------------------------------------------------------------------------
+ostPtpGroup OBJECT-GROUP
+    OBJECTS {
+        ostPtpGlobalCfgPtpEnable,
+        ostPtpGlobalCfgOffset,
+        ostPtpGlobalCfgServerIp1,
+        ostPtpGlobalCfgTransport,
+        ostPtpGlobalCfgEvc,
+        ostPtpPortCfgMode,
+        ostPtpGlobalCfgServerIp2,
+        ostPtpGlobalCfgClockType,
+        ostPtpGlobalCfgClockTypeMode,
+        ostPtpGlobalCfgServerIp1String,
+        ostPtpGlobalCfgServerIp2String,
+        ostPtpGlobalCfgClkAccuracy,
+        ostPtpGlobalCfgClkClass,
+        ostPtpGlobalCfgClkVariance,
+
+        ostPtpInstanceCfgEnable,
+        ostPtpInstanceCfgRowStatus,
+        ostPtpInstanceCfgEvc,
+        ostPtpInstanceCfgPortNumber,
+        ostPtpInstanceCfgTransport,
+        ostPtpInstanceCfgClockMode,
+        ostPtpInstanceCfgClockType,
+        ostPtpInstanceCfgServerIp1,
+        ostPtpInstanceCfgServerIp2,
+        ostPtpInstanceCfgSourceIp,
+        ostPtpInstanceCfgDomain,
+        ostPtpInstanceCfgPriority,
+        ostPtpInstanceCfgCtagVid,
+        ostPtpInstanceCfgOffset,
+        ostPtpInstanceCfgStatus,
+        ostPtpInstanceCfgTxSourcePort,
+        ostPtpInstanceCfgPriority2,
+        ostPtpInstanceCfgSubnetMask,
+        ostPtpInstanceCfgAnnounceRate,   
+        ostPtpInstanceCfgAnnounceTimeout,
+        ostPtpInstanceCfgSyncRate,
+        ostPtpInstanceCfgDelayRequestRate,        
+
+        ostPtpPortInstanceStatusValue,
+
+        ostClockIoInstanceCfgEnable,
+        ostClockIoInstanceCfgDirection,
+        ostClockIoInstanceCfgRate,
+        ostClockIoInstanceCfgTerm,
+        ostClockIoInstanceStatus
+    }
+    STATUS      current
+    DESCRIPTION
+       "Mandatory objects for the PTP functional group."
+    ::= { ostPtpGroups 1 }
+
+
+--------------------------------------------------------------------------------
+-- Omnitron PTP MIB Compliance statements
+-------------------------------------------------------------------------------
+ostPtpCompliance MODULE-COMPLIANCE
+    STATUS       current
+    DESCRIPTION "The compliance statement for the Omnitron PTP MIB."
+    MODULE
+        MANDATORY-GROUPS {
+            ostPtpGroup
+        }
+    ::= { ostPtpCompliances 2 }
+
+
+END
+

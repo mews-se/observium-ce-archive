@@ -1,0 +1,179 @@
+
+TPLINK-SSH-MIB	DEFINITIONS ::= BEGIN
+	IMPORTS
+		MODULE-IDENTITY, OBJECT-TYPE 
+			FROM SNMPv2-SMI   
+	    tplinkMgmt
+			FROM TPLINK-MIB;
+      	
+      	tplinkSshMIB MODULE-IDENTITY
+			LAST-UPDATED    "201212130930Z"
+			ORGANIZATION    "TPLINK"
+			CONTACT-INFO    "www.tplink.com"
+			DESCRIPTION	    "Private MIB for SSH configuration."
+			REVISION        "201212130930Z"
+			DESCRIPTION
+					"Initial version of this MIB module."
+			::= { tplinkMgmt 5 }
+			
+			tplinkSshMIBObjects OBJECT IDENTIFIER ::= {tplinkSshMIB 1}
+        	tplinkSshNotifications OBJECT IDENTIFIER ::= {tplinkSshMIB 2}
+      	      
+      	    tpSshEnable OBJECT-TYPE
+	          SYNTAX  INTEGER{
+	      		disable(0), 						
+	      		enable(1)						
+	      		}
+	            MAX-ACCESS  read-write
+	            STATUS  current
+	            DESCRIPTION
+	                    "0. disable 
+	                     1. enable"
+	            ::= { tplinkSshMIBObjects 1 }
+	         
+	        tpSshProtocolV1Enable OBJECT-TYPE
+	          SYNTAX  INTEGER{
+	      		disable(0), 						
+	      		enable(1)						
+	      		}
+	            MAX-ACCESS  read-write
+	            STATUS  current
+	            DESCRIPTION
+	                    "0. disable 
+	                     1. enable"
+	            ::= { tplinkSshMIBObjects 2 }
+	            
+	        tpSshProtocolV2Enable OBJECT-TYPE
+	          SYNTAX  INTEGER{
+	      		disable(0), 						
+	      		enable(1)						
+	      		}
+	            MAX-ACCESS  read-write
+	            STATUS  current
+	            DESCRIPTION
+	                    "0. disable 
+	                     1. enable"
+	            ::= { tplinkSshMIBObjects 3 }
+    
+    		tpSshSessionTimeout OBJECT-TYPE
+          	SYNTAX  INTEGER (1..360)
+            MAX-ACCESS  read-write
+            STATUS  current
+            DESCRIPTION
+                    "session timeout(1-360 second)"
+            ::= { tplinkSshMIBObjects 4 }  
+            
+			tpSshMaxConnections OBJECT-TYPE
+			SYNTAX  INTEGER  (1..5)
+            MAX-ACCESS  read-write
+            STATUS  current
+            DESCRIPTION
+                    "max connection(1-5)"
+            ::= { tplinkSshMIBObjects 5 } 
+
+	    	tpSshPort OBJECT-TYPE
+			  SYNTAX  INTEGER (1..65535)
+				MAX-ACCESS  read-write
+				STATUS  current
+				DESCRIPTION
+                    "SSH port(1-65535)"
+			::= { tplinkSshMIBObjects 6 }
+
+--encryption			
+	        tpSshEncryptAlgAES128Enable OBJECT-TYPE
+	          SYNTAX  INTEGER{
+	      		disable(0), 						
+	      		enable(1)						
+	      		}
+	            MAX-ACCESS  read-write
+	            STATUS  current
+	            DESCRIPTION
+	                    "0. disable 
+	                     1. enable"
+	            ::= { tplinkSshMIBObjects 7 }
+
+	        tpSshEncryptAlgAES192Enable OBJECT-TYPE
+	          SYNTAX  INTEGER{
+	      		disable(0), 						
+	      		enable(1)						
+	      		}
+	            MAX-ACCESS  read-write
+	            STATUS  current
+	            DESCRIPTION
+	                    "0. disable 
+	                     1. enable"
+	            ::= { tplinkSshMIBObjects 8 }
+
+	        tpSshEncryptAlgAES256Enable OBJECT-TYPE
+	          SYNTAX  INTEGER{
+	      		disable(0), 						
+	      		enable(1)						
+	      		}
+	            MAX-ACCESS  read-write
+	            STATUS  current
+	            DESCRIPTION
+	                    "0. disable 
+	                     1. enable"
+	            ::= { tplinkSshMIBObjects 9 }
+
+	        tpSshEncryptAlgBlowfishEnable OBJECT-TYPE
+	          SYNTAX  INTEGER{
+	      		disable(0), 						
+	      		enable(1)						
+	      		}
+	            MAX-ACCESS  read-write
+	            STATUS  current
+	            DESCRIPTION
+	                    "0. disable 
+	                     1. enable"
+	            ::= { tplinkSshMIBObjects 10 }
+
+	        tpSshEncryptAlgCast128Enable OBJECT-TYPE
+	          SYNTAX  INTEGER{
+	      		disable(0), 						
+	      		enable(1)						
+	      		}
+	            MAX-ACCESS  read-write
+	            STATUS  current
+	            DESCRIPTION
+	                    "0. disable 
+	                     1. enable"
+	            ::= { tplinkSshMIBObjects 11 }
+
+	        tpSshEncryptAlg3DESEnable OBJECT-TYPE
+	          SYNTAX  INTEGER{
+	      		disable(0), 						
+	      		enable(1)						
+	      		}
+	            MAX-ACCESS  read-write
+	            STATUS  current
+	            DESCRIPTION
+	                    "0. disable 
+	                     1. enable"
+	            ::= { tplinkSshMIBObjects 12 }
+
+	        tpSshInteAlgSHA1Enable OBJECT-TYPE
+	          SYNTAX  INTEGER{
+	      		disable(0), 						
+	      		enable(1)						
+	      		}
+	            MAX-ACCESS  read-write
+	            STATUS  current
+	            DESCRIPTION
+	                    "0. disable 
+	                     1. enable"
+	            ::= { tplinkSshMIBObjects 13 }
+
+	        tpSshInteAlgMD5Enable OBJECT-TYPE
+	          SYNTAX  INTEGER{
+	      		disable(0), 						
+	      		enable(1)						
+	      		}
+	            MAX-ACCESS  read-write
+	            STATUS  current
+	            DESCRIPTION
+	                    "0. disable 
+	                     1. enable"
+	            ::= { tplinkSshMIBObjects 14 }
+	
+          END	  	         

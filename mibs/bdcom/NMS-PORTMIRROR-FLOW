@@ -1,0 +1,276 @@
+
+          NMS-PORTMIRROR-FLOW DEFINITIONS ::= BEGIN
+
+          IMPORTS
+                  mgmt, NetworkAddress, IpAddress, Counter, Gauge,
+                          TimeTicks
+                      FROM RFC1155-SMI
+                  qos   FROM NMS-QOS-MIB
+                  MacAddress, RowStatus FROM SNMPv2-TC  ;
+                       
+
+          portMirrorFlow      OBJECT IDENTIFIER ::= { qos 21 }
+          
+          copPortMirrorTable OBJECT-TYPE
+              SYNTAX  SEQUENCE OF CopNumberEntry
+              ACCESS  not-accessible
+              STATUS  mandatory
+              DESCRIPTION
+                      "A list of interface entries.  The number of
+                      entries is given by the value of ifNumber."
+              ::= { portMirrorFlow 1 }
+
+          copNumberEntry OBJECT-TYPE
+              SYNTAX  CopNumberEntry
+              ACCESS  not-accessible
+              STATUS  mandatory
+              DESCRIPTION
+                      "An interface entry containing objects at the
+                      subnetwork layer and below for a particular
+                      interface."
+              INDEX   { copNumber }
+              ::= { copPortMirrorTable 1 }
+
+          CopNumberEntry ::=
+              SEQUENCE {
+                  copNumber
+                      INTEGER,
+                  copRowStatus
+                      RowStatus,
+                  enable
+                      INTEGER,
+                  timeout
+                      INTEGER,
+                  startPort
+                      INTEGER,
+                  m_p_in
+                      INTEGER,
+                  m_p_out
+                      INTEGER,
+                  endPort
+                      INTEGER,
+                  monitorDirection
+                      INTEGER,
+                  srcMac
+                      MacAddress,
+                  srcMacMask
+                      MacAddress,
+                  destMac
+                      MacAddress,
+                  destMacMask
+                      MacAddress,
+                  vlan
+                      INTEGER,
+                  etherType
+                      INTEGER,
+                  srcIp
+                      IpAddress,
+                  srcIpMask
+                      IpAddress,
+                  destIp
+                      IpAddress,
+                  destIpMask
+                      IpAddress,
+                  l4DestPort
+                      INTEGER,
+                  l4SrcPort
+                      INTEGER,
+                  protocol
+                      INTEGER
+              }
+
+          copNumber OBJECT-TYPE
+              SYNTAX  INTEGER
+              ACCESS  read-only
+              STATUS  mandatory
+              DESCRIPTION
+                      "A unique value for each interface.  Its value
+                      ranges between 1 and the value of ifNumber.  The
+                      value for each interface must remain constant at
+                      least from one re-initialization of the entity's
+                      network management system to the next re-
+                      initialization."
+              ::= { copNumberEntry 1 }
+          
+          copRowStatus OBJECT-TYPE
+              SYNTAX  RowStatus
+              ACCESS  read-create
+              STATUS  mandatory
+              DESCRIPTION
+                      "Row status. It is used to add or delete cop table."
+              ::= { copNumberEntry 2 }
+          
+          
+          enable OBJECT-TYPE
+              SYNTAX  INTEGER{
+                               disable(0),
+			       enable(1)
+                             }
+              ACCESS  read-only
+              STATUS  mandatory
+              DESCRIPTION
+                      "Enable the mirror "
+              ::= { copNumberEntry 3 }
+          
+          timeout OBJECT-TYPE
+              SYNTAX  INTEGER(0..600)
+              ACCESS  read-write
+              STATUS  mandatory
+              DESCRIPTION
+                      "time of duration[1,600],Continuous(0)."
+              ::= { copNumberEntry 4 }
+          
+          startPort OBJECT-TYPE
+              SYNTAX  INTEGER
+              ACCESS  read-write
+              STATUS  mandatory
+              DESCRIPTION
+                      "Source port, value is diid. If it is not match, that would be 0."
+              ::= { copNumberEntry 5 }
+          
+          m_p_in OBJECT-TYPE
+              SYNTAX  INTEGER
+              ACCESS  read-write
+              STATUS  mandatory
+              DESCRIPTION
+                      "Middle in-port , value is diid. If it is not match, that would be 0."
+              ::= { copNumberEntry 6 }
+          
+          m_p_out OBJECT-TYPE
+              SYNTAX  INTEGER
+              ACCESS  read-write
+              STATUS  mandatory
+              DESCRIPTION
+                      "Middle out-port, value is diid. If it is not match, that would be 0."
+              ::= { copNumberEntry 7 }
+          
+          endPort OBJECT-TYPE
+              SYNTAX  INTEGER
+              ACCESS  read-write
+              STATUS  mandatory
+              DESCRIPTION
+                      "Destination port, value is diid. If it is not match, that would be 0."
+              ::= { copNumberEntry 8 }
+           
+          monitorDirection OBJECT-TYPE
+              SYNTAX  INTEGER{
+                               ingress(0),
+                               egress(1)
+                             }
+              ACCESS  read-only
+              STATUS  mandatory
+              DESCRIPTION
+                      "Monitor direction. ingress would be 0 and egress would be 1.  "
+              ::= { copNumberEntry 9 }
+          
+          srcMac OBJECT-TYPE
+              SYNTAX  MacAddress
+              ACCESS  read-write
+              STATUS  mandatory
+              DESCRIPTION
+                      "Source MAC address that would be monitored."
+              ::= { copNumberEntry 10 }
+           
+          srcMacMask OBJECT-TYPE
+              SYNTAX  MacAddress
+              ACCESS  read-write
+              STATUS  mandatory
+              DESCRIPTION
+                      "Source MAC address mask that would be monitored."
+              ::= { copNumberEntry 11 }
+           
+          destMac OBJECT-TYPE
+              SYNTAX  MacAddress
+              ACCESS  read-write
+              STATUS  mandatory
+              DESCRIPTION
+                      "Destination MAC address that would be monitored."
+              ::= { copNumberEntry 12 }
+           
+          destMacMask OBJECT-TYPE
+              SYNTAX  MacAddress
+              ACCESS  read-write
+              STATUS  mandatory
+              DESCRIPTION
+                      "Destination MAC address mask that would be monitored."
+              ::= { copNumberEntry 13 }
+           
+          vlan OBJECT-TYPE
+              SYNTAX  INTEGER(0..4094)
+              ACCESS  read-write
+              STATUS  mandatory
+              DESCRIPTION
+                      "VLAN id. If it is not match, that would be 0."
+              ::= { copNumberEntry 14 }
+          
+          etherType OBJECT-TYPE
+              SYNTAX  INTEGER
+              ACCESS  read-write
+              STATUS  mandatory
+              DESCRIPTION
+                      "Type of ethernet. Range is 0x0001~0xffff, and if it is not match that would be 0."
+              ::= { copNumberEntry 15 }
+          
+          
+          srcIp OBJECT-TYPE
+              SYNTAX  IpAddress
+              ACCESS  read-write
+              STATUS  mandatory
+              DESCRIPTION
+                      "Source IP address . That would be 0.0.0.0 if it is not match."
+              ::= { copNumberEntry 16 }
+          
+          
+          srcIpMask OBJECT-TYPE
+              SYNTAX  IpAddress
+              ACCESS  read-write
+              STATUS  mandatory
+              DESCRIPTION
+                      "Source IP address mask . That would be 0.0.0.0 if it is not match."
+              ::= { copNumberEntry 17 }
+            
+          
+          destIp OBJECT-TYPE
+              SYNTAX  IpAddress
+              ACCESS  read-write
+              STATUS  mandatory
+              DESCRIPTION
+                      "Destination IP address . That would be 0.0.0.0 if it is not match."
+              ::= { copNumberEntry 18 }
+          
+          
+          destIpMask OBJECT-TYPE
+              SYNTAX  IpAddress
+              ACCESS  read-write
+              STATUS  mandatory
+              DESCRIPTION
+                      "Destination IP address mask . That would be 0.0.0.0 if it is not match."
+              ::= { copNumberEntry 19 }
+  
+          l4DestPort OBJECT-TYPE
+              SYNTAX  INTEGER
+              ACCESS  read-write
+              STATUS  mandatory
+              DESCRIPTION
+                      "Destination port of monitoring package. That would be 0 if it is not match."
+              ::= { copNumberEntry 20 }
+          
+          l4SrcPort OBJECT-TYPE
+              SYNTAX  INTEGER
+              ACCESS  read-write
+              STATUS  mandatory
+              DESCRIPTION
+                      "Source port of monitoring package. That would be 0 if it is not match."
+              ::= { copNumberEntry 21 }
+          
+          protocol OBJECT-TYPE
+              SYNTAX  INTEGER(0..255)
+              ACCESS  read-write
+              STATUS  mandatory
+              DESCRIPTION
+                      "IP protocol number. That would be 0 if it is not match."
+              ::= { copNumberEntry 22 }
+          
+          
+
+END

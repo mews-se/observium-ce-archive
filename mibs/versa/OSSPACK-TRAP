@@ -1,0 +1,91 @@
+--
+-- @Description: MIB for OSSPACK
+-- @Date       : 2018-07-12
+--
+
+OSSPACK-TRAP DEFINITIONS ::= BEGIN
+IMPORTS
+    MODULE-IDENTITY, OBJECT-TYPE, NOTIFICATION-TYPE
+        FROM SNMPv2-SMI
+    systemNotification
+        FROM VERSA-MIB
+    alarmIndex, alarmType, alarmDevice, alarmObject,
+    alarmSpecificProblem, alarmEventType, alarmProbableCause,
+    alarmTime, alarmSeverity, alarmHasClear, alarmText,
+    tenantName, alarmClass
+        FROM TRAPS-COMMON;
+
+osspackTrapMIB MODULE-IDENTITY
+    LAST-UPDATED "201706060000Z"
+    ORGANIZATION "Versa Networks"
+    CONTACT-INFO "
+        2953 Bunker Hill Lane, Suite 210
+        Santa Clara, CA - 95035 (USA)
+        Email: support@versa-networks.com"
+    DESCRIPTION  "Versa Networks' Entrprise MIB for OSSPACK"
+    ::= { systemNotification 7 }
+
+-- Root Object
+osspackNotification OBJECT IDENTIFIER ::= { osspackTrapMIB 1 }
+
+newOsspackAvailable NOTIFICATION-TYPE
+    OBJECTS {
+        alarmType, alarmDevice, alarmObject, alarmSpecificProblem,
+        alarmClass, alarmEventType, alarmProbableCause, alarmTime,
+        alarmSeverity, alarmHasClear, alarmText, tenantName
+    }
+    STATUS  current
+    DESCRIPTION "New osspack available for download notification"
+        ::= { osspackNotification 1 }
+
+osspackInstallationStatus NOTIFICATION-TYPE
+    OBJECTS {
+        alarmType, alarmDevice, alarmObject, alarmSpecificProblem,
+        alarmClass, alarmEventType, alarmProbableCause, alarmTime,
+        alarmSeverity, alarmHasClear, alarmText, tenantName
+    }
+    STATUS  current
+    DESCRIPTION "Osspack installation status notification"
+        ::= { osspackNotification 2 }
+
+osspackDownloadSuccess NOTIFICATION-TYPE
+    OBJECTS {
+        alarmType, alarmDevice, alarmObject, alarmSpecificProblem,
+        alarmClass, alarmEventType, alarmProbableCause, alarmTime,
+        alarmSeverity, alarmHasClear, alarmText, tenantName
+    }
+    STATUS  current
+    DESCRIPTION "Osspack download success notification"
+        ::= { osspackNotification 3 }
+
+osspackDownloadFailure NOTIFICATION-TYPE
+    OBJECTS {
+        alarmType, alarmDevice, alarmObject, alarmSpecificProblem,
+        alarmClass, alarmEventType, alarmProbableCause, alarmTime,
+        alarmSeverity, alarmHasClear, alarmText, tenantName
+    }
+    STATUS  current
+    DESCRIPTION "Osspack download failure notification"
+        ::= { osspackNotification 4 }
+
+osspackInstallationSuccess NOTIFICATION-TYPE
+    OBJECTS {
+        alarmType, alarmDevice, alarmObject, alarmSpecificProblem,
+        alarmClass, alarmEventType, alarmProbableCause, alarmTime,
+        alarmSeverity, alarmHasClear, alarmText, tenantName
+    }
+    STATUS  current
+    DESCRIPTION "OSSpack install success notification"
+        ::= { osspackNotification 5 }
+
+osspackInstallationFailure NOTIFICATION-TYPE
+    OBJECTS {
+        alarmType, alarmDevice, alarmObject, alarmSpecificProblem,
+        alarmClass, alarmEventType, alarmProbableCause, alarmTime,
+        alarmSeverity, alarmHasClear, alarmText, tenantName
+    }
+    STATUS  current
+    DESCRIPTION "OSSpack install failure notification"
+        ::= { osspackNotification 6 }
+
+END

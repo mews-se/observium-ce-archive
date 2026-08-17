@@ -1,0 +1,393 @@
+INCA-TS-ALARM-MIB DEFINITIONS ::= BEGIN
+
+IMPORTS
+    MODULE-IDENTITY, OBJECT-TYPE, NOTIFICATION-TYPE, Counter32, Unsigned32, Integer32
+            FROM SNMPv2-SMI
+    OBJECT-GROUP, NOTIFICATION-GROUP
+            FROM SNMPv2-CONF
+    TEXTUAL-CONVENTION, TruthValue, DateAndTime
+            FROM SNMPv2-TC
+    SnmpAdminString
+            FROM SNMP-FRAMEWORK-MIB
+    incaVideo
+            FROM INCA-MIB
+    incaDevEvLevel, incaDevEvType, incaDevEvText, IncaEvLevel
+            FROM INCA-DEVICE-MIB
+    incaTSDirectionIndex, incaTSStreamIndex, incaTSProgIndex, IncaStreamDirection
+            FROM INCA-TS-MIB
+    ;
+
+incaTransportStreamAlarmMIB  MODULE-IDENTITY
+    LAST-UPDATED "201611030000Z"  -- Nov 3rd, 2016
+    ORGANIZATION    "Inca Networks Inc."
+    CONTACT-INFO   
+        "Mike Bradley
+         Postal: Inca Networks
+                 112-19055 Airport Way
+                 Pitt Meadows BC  V3Y 0G4
+                 Canada
+         Phone:  +1 604 998 4665
+         E-mail: support@incanetworks.com
+        "
+    DESCRIPTION
+        "This MIB manages events and alarms for inbound and outbound MPEG transport streams."
+    REVISION     "201611030000Z"  -- Nov 3rd, 2016
+    DESCRIPTION  "Updated contact info"
+    REVISION     "201205250000Z"  -- May 25th, 2012
+    DESCRIPTION  "Initial version"
+
+        ::= { incaVideo 2 }
+
+    incaTransportStreamAlarmObjects OBJECT IDENTIFIER ::= { incaTransportStreamAlarmMIB 1 }
+    incaTransportStreamAlarmNotifications OBJECT IDENTIFIER ::= { incaTransportStreamAlarmMIB 2 0 }
+    incaTransportStreamAlarmNotificationObjects OBJECT IDENTIFIER ::= { incaTransportStreamAlarmNotifications 1 }
+
+    incaTSNotifications OBJECT IDENTIFIER ::= { incaTransportStreamAlarmNotificationObjects 1 }
+    incaUDPNotifications OBJECT IDENTIFIER ::= { incaTransportStreamAlarmNotificationObjects 2 }
+
+    incaTSAlarmMIBConformance OBJECT IDENTIFIER ::= { incaTransportStreamAlarmMIB 3 }
+    incaTSAlarmMIBCompliances OBJECT IDENTIFIER ::= { incaTSAlarmMIBConformance 1 }
+    incaTSAlarmMIBGroups      OBJECT IDENTIFIER ::= { incaTSAlarmMIBConformance 2 }
+
+--
+-- MPEG Transport Stream Traps
+--
+    tsStreamOpenNotif NOTIFICATION-TYPE
+        OBJECTS { 
+            incaDevEvLevel, 
+            incaDevEvType, 
+            incaDevEvText,
+            incaTSDirectionIndex,
+            incaTSStreamIndex
+            }
+        STATUS current
+        DESCRIPTION
+            "This trap is sent when a new transport stream is opened."
+        ::= { incaTSNotifications 1 }
+
+    tsStreamCloseNotif NOTIFICATION-TYPE
+        OBJECTS { 
+            incaDevEvLevel, 
+            incaDevEvType, 
+            incaDevEvText,
+            incaTSDirectionIndex,
+            incaTSStreamIndex
+            }
+        STATUS current
+        DESCRIPTION
+            "This trap is sent when a new transport stream is closed."
+        ::= { incaTSNotifications 2 }
+
+    tsStreamAlarmNotif NOTIFICATION-TYPE
+        OBJECTS { 
+            incaDevEvLevel, 
+            incaDevEvType, 
+            incaDevEvText,
+            incaTSDirectionIndex,
+            incaTSStreamIndex,
+            incaTSProgIndex,
+            incaTSAlarmPIDIndex, -- not defined yet, reference alarm for now
+            incaTSAlarmClear,
+            incaTSAlarmCodeIndex
+            }
+        STATUS current
+        DESCRIPTION
+            "This trap is sent when a transport stream enters or leaves an alarm state."
+        ::= { incaTSNotifications 3 }
+
+    tsProgStartNotif NOTIFICATION-TYPE
+        OBJECTS { 
+            incaDevEvLevel, 
+            incaDevEvType, 
+            incaDevEvText,
+            incaTSDirectionIndex,
+            incaTSStreamIndex,
+            incaTSProgIndex
+            }
+        STATUS current
+        DESCRIPTION
+            "This trap is sent when a new program starts in a transport stream."
+        ::= { incaTSNotifications 4 }
+
+    tsProgEndNotif NOTIFICATION-TYPE
+        OBJECTS { 
+            incaDevEvLevel, 
+            incaDevEvType, 
+            incaDevEvText,
+            incaTSDirectionIndex,
+            incaTSStreamIndex,
+            incaTSProgIndex
+            }
+        STATUS current
+        DESCRIPTION
+            "This trap is sent when a program ends in a transport stream."
+        ::= { incaTSNotifications 5 }
+
+
+
+
+
+-------------------
+-- MPEG Alarm table
+-------------------
+
+    incaTransportStreamAlarmTable OBJECT-TYPE
+        SYNTAX     SEQUENCE OF IncaTransportStreamAlarmEntry
+        MAX-ACCESS not-accessible
+        STATUS     current
+        DESCRIPTION
+                "This table stores information about all transport streams in the
+                 system, both inbound and outbound."
+        ::= { incaTransportStreamAlarmObjects 1 }
+
+        incaTransportStreamAlarmEntry OBJECT-TYPE
+            SYNTAX     IncaTransportStreamAlarmEntry
+            MAX-ACCESS not-accessible
+            STATUS     current
+            DESCRIPTION
+                    "An active alarm."
+            INDEX { incaTSAlarmTSDirectionIndex, incaTSAlarmTSStreamIndex, incaTSAlarmMediaStreamIndex, incaTSAlarmProgIndex, incaTSAlarmPIDIndex, incaTSAlarmCodeIndex}
+            ::= { incaTransportStreamAlarmTable 1 }
+
+            IncaTransportStreamAlarmEntry ::= SEQUENCE {
+                incaTSAlarmTSDirectionIndex    IncaStreamDirection,
+                incaTSAlarmTSStreamIndex       Unsigned32,
+                incaTSAlarmMediaStreamIndex    Unsigned32,
+                incaTSAlarmProgIndex           Unsigned32,
+                incaTSAlarmPIDIndex            Unsigned32,
+                incaTSAlarmCodeIndex           Unsigned32,
+                incaTSAlarmLevel               IncaEvLevel,
+                incaTSAlarmClear               TruthValue,
+                incaTSAlarmDescr               SnmpAdminString
+                }
+
+            incaTSAlarmTSDirectionIndex   OBJECT-TYPE
+                SYNTAX      IncaStreamDirection
+                MAX-ACCESS  read-only
+                STATUS      current
+                DESCRIPTION
+                    "The direction of this Transport Stream."
+                ::= { incaTransportStreamAlarmEntry 1 }
+
+            incaTSAlarmTSStreamIndex   OBJECT-TYPE
+                SYNTAX      Unsigned32
+                MAX-ACCESS  read-only
+                STATUS      current
+                DESCRIPTION
+                    "The unique index that identifies the Transport Stream
+                     within the system."
+                ::= { incaTransportStreamAlarmEntry 2 }
+
+            incaTSAlarmMediaStreamIndex   OBJECT-TYPE
+                SYNTAX      Unsigned32
+                MAX-ACCESS  read-only
+                STATUS      current
+                DESCRIPTION
+                    "The unique index that identifies the Media Stream
+                     within the system."
+                ::= { incaTransportStreamAlarmEntry 3 }
+
+            incaTSAlarmProgIndex   OBJECT-TYPE
+                SYNTAX      Unsigned32
+                MAX-ACCESS  read-only
+                STATUS      current
+                DESCRIPTION
+                    "The unique index that identifies the Media Stream
+                     within the system."
+                ::= { incaTransportStreamAlarmEntry 4 }
+
+            incaTSAlarmPIDIndex   OBJECT-TYPE
+                SYNTAX      Unsigned32
+                MAX-ACCESS  read-only
+                STATUS      current
+                DESCRIPTION
+                    "The unique index that identifies the Media Stream
+                     within the system."
+                ::= { incaTransportStreamAlarmEntry 5 }
+
+            incaTSAlarmCodeIndex   OBJECT-TYPE
+                SYNTAX      Unsigned32
+                MAX-ACCESS  read-only
+                STATUS      current
+                DESCRIPTION
+                    "The unique index that identifies the Media Stream
+                     within the system."
+                ::= { incaTransportStreamAlarmEntry 6 }
+
+            incaTSAlarmLevel   OBJECT-TYPE
+                SYNTAX      IncaEvLevel
+                MAX-ACCESS  read-only
+                STATUS      current
+                DESCRIPTION
+                    "The direction of this Transport Stream."
+                ::= { incaTransportStreamAlarmEntry 7 }
+
+            incaTSAlarmClear   OBJECT-TYPE
+                SYNTAX      TruthValue
+                MAX-ACCESS  read-only
+                STATUS      current
+                DESCRIPTION
+                    "The unique index that identifies the Media Stream
+                     within the system."
+                ::= { incaTransportStreamAlarmEntry 8 }
+
+            incaTSAlarmDescr   OBJECT-TYPE
+                SYNTAX      SnmpAdminString
+                MAX-ACCESS  read-only
+                STATUS      current
+                DESCRIPTION
+                    "The unique index that identifies the Media Stream
+                     within the system."
+                ::= { incaTransportStreamAlarmEntry 9 }
+
+
+-------------------
+-- MPEG Event Log table
+-------------------
+
+    incaTransportStreamEventLogTable OBJECT-TYPE
+        SYNTAX     SEQUENCE OF IncaTransportStreamEventLogEntry
+        MAX-ACCESS not-accessible
+        STATUS     current
+        DESCRIPTION
+                "This table stores information about all transport streams in the
+                 system, both inbound and outbound."
+        ::= { incaTransportStreamAlarmObjects 2 }
+
+        incaTransportStreamEventLogEntry OBJECT-TYPE
+            SYNTAX     IncaTransportStreamEventLogEntry
+            MAX-ACCESS not-accessible
+            STATUS     current
+            DESCRIPTION
+                    "This table contains a log of recent transport stream events."
+            INDEX { incaTSEvIndex }
+            ::= { incaTransportStreamEventLogTable 1 }
+
+            IncaTransportStreamEventLogEntry ::= SEQUENCE {
+                    incaTSEvIndex           Integer32,
+                    incaTSEvFirstTime       DateAndTime,
+                    incaTSEvLastTime        DateAndTime,
+                    incaTSEvCounts          Counter32,
+                    incaTSEvLevel           IncaEvLevel,
+                    incaTSEvType            Unsigned32,
+                    incaTSEvText            SnmpAdminString,
+                    incaTSEvAlarmCode       Unsigned32
+                }
+
+            incaTSEvIndex   OBJECT-TYPE
+                SYNTAX      Integer32
+                MAX-ACCESS  read-only
+                STATUS      current
+                DESCRIPTION
+                    "The unique index that identifies the entry."
+                ::= { incaTransportStreamEventLogEntry 1 }
+
+            incaTSEvFirstTime   OBJECT-TYPE
+                SYNTAX      DateAndTime
+                MAX-ACCESS  read-only
+                STATUS      current
+                DESCRIPTION
+                    "The time that this entry was created."
+                ::= { incaTransportStreamEventLogEntry 2 }
+
+            incaTSEvLastTime OBJECT-TYPE
+                    SYNTAX      DateAndTime
+                    MAX-ACCESS  read-only
+                    STATUS      current
+                    DESCRIPTION
+                        "If multiple events are reported via the same entry, the
+                        time that the last event for this entry occurred,
+                        otherwise this should have the same value as
+                        incaTSEvFirstTime. "
+                    ::= { incaTransportStreamEventLogEntry 3 }
+
+            incaTSEvCounts OBJECT-TYPE
+                    SYNTAX      Counter32
+                    MAX-ACCESS  read-only
+                    STATUS      current
+                    DESCRIPTION
+                        "The number of consecutive event instances reported by
+                        this entry.  This starts at 1 with the creation of this
+                        row and increments by 1 for each subsequent duplicate
+                        event."
+                    ::= { incaTransportStreamEventLogEntry 4 }
+
+            incaTSEvLevel OBJECT-TYPE
+                    SYNTAX      IncaEvLevel
+                    MAX-ACCESS  read-only
+                    STATUS      current
+                    DESCRIPTION
+                        "The priority level of this event as defined by the
+                        vendor.  These are ordered from most serious (emergency)
+                        to least serious (debug)."
+                    ::= { incaTransportStreamEventLogEntry 5 }
+
+            incaTSEvType OBJECT-TYPE
+                    SYNTAX      Unsigned32
+                    MAX-ACCESS  read-only
+                    STATUS      current
+                    DESCRIPTION
+                        "For this product, uniquely identifies the type of event
+                        that is reported by this entry."
+                    ::= { incaTransportStreamEventLogEntry 6 }
+
+            incaTSEvText OBJECT-TYPE
+                    SYNTAX      SnmpAdminString
+                    MAX-ACCESS  read-only
+                    STATUS      current
+                    DESCRIPTION
+                        "Provides a human-readable description of the event,
+                        including all relevant context (interface numbers,
+                        etc.)."
+                    ::= { incaTransportStreamEventLogEntry 7 }
+
+            incaTSEvAlarmCode OBJECT-TYPE
+                    SYNTAX      Unsigned32
+                    MAX-ACCESS  read-only
+                    STATUS      current
+                    DESCRIPTION
+                        "If the event is associated with an alarm, this is the 
+                        alarm code."
+                    ::= { incaTransportStreamEventLogEntry 8 }
+
+
+incaTSAlarmEventNotificationObjectGroup OBJECT-GROUP
+        OBJECTS {
+                incaTSAlarmTSDirectionIndex,
+                incaTSAlarmTSStreamIndex,
+                incaTSAlarmMediaStreamIndex,
+                incaTSAlarmProgIndex,
+                incaTSAlarmPIDIndex,
+                incaTSAlarmCodeIndex,
+                incaTSAlarmLevel,
+                incaTSAlarmClear,
+                incaTSAlarmDescr,
+
+                incaTSEvIndex,
+                incaTSEvFirstTime,
+                incaTSEvLastTime,
+                incaTSEvCounts,
+                incaTSEvLevel,
+                incaTSEvType,
+                incaTSEvText,
+                incaTSEvAlarmCode
+        }
+        STATUS current
+        DESCRIPTION
+                "Notification objects."
+        ::= { incaTSAlarmMIBGroups 1 }
+
+incaTSAlarmEventNotificationGroup NOTIFICATION-GROUP
+        NOTIFICATIONS {
+                tsStreamOpenNotif,
+                tsStreamCloseNotif,
+                tsStreamAlarmNotif,
+                tsProgStartNotif,
+                tsProgEndNotif
+        }
+        STATUS current
+        DESCRIPTION
+                "Notifications."
+        ::= { incaTSAlarmMIBGroups 2 }
+END
+

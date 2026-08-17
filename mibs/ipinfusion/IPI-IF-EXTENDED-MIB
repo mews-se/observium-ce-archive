@@ -1,0 +1,655 @@
+IPI-IF-EXTENDED-MIB DEFINITIONS ::= BEGIN
+
+IMPORTS
+      OBJECT-TYPE, MODULE-IDENTITY,
+      Gauge32, Counter32, Integer32, Unsigned32,
+      IpAddress, Counter64,
+      TimeTicks, NOTIFICATION-TYPE
+          FROM SNMPv2-SMI
+      DateAndTime, DisplayString,
+      PhysAddress, RowStatus, TEXTUAL-CONVENTION
+          FROM SNMPv2-TC
+      MODULE-COMPLIANCE, OBJECT-GROUP, NOTIFICATION-GROUP
+          FROM SNMPv2-CONF
+      snmpTraps
+          FROM SNMPv2-MIB
+      enterprises, OBJECT-IDENTITY
+          FROM SNMPv2-SMI
+      Ipv6Address
+          FROM IPV6-TC
+      ipi  FROM IPI-MODULE-MIB;
+
+ipi-if-extended MODULE-IDENTITY
+   LAST-UPDATED "202506030000Z"
+
+ORGANIZATION "IP Infusion"
+CONTACT-INFO "support@ipinfusion.com"
+   DESCRIPTION 
+      "This MIB module is for managing Datamodel for IPI Interface extended module"
+
+   REVISION      "202506030000Z"
+   DESCRIPTION 
+      "Added port dfe and unreliable-los support"
+
+   REVISION      "202505220000Z"
+   DESCRIPTION 
+      "Added dependency in tunnel container"
+
+   REVISION      "202504150000Z"
+   DESCRIPTION 
+      "Changes in load-interval, added a skip-validation"
+
+   REVISION      "202503280000Z"
+   DESCRIPTION 
+      "Added mode for clear commands"
+
+   REVISION      "202503200000Z"
+   DESCRIPTION 
+      "Added when tags for encapsulation-type dot1q and untagged"
+
+   REVISION      "202503170000Z"
+   DESCRIPTION 
+      "Revert of EFM flag for l2pt efm CLI"
+
+   REVISION      "202502210000Z"
+   DESCRIPTION 
+      "Removed hidden-cli tag from 6.6.1 and allowed debounce-time from 0"
+
+   REVISION      "202502030000Z"
+   DESCRIPTION 
+      "Added when tag to clear L2CP state from interface configuration for IDL interfaces"
+
+   REVISION      "202412220000Z"
+   DESCRIPTION 
+      "Added when tag to clear the storm-control configs from Db on mapping the mlag on po"
+
+   REVISION      "202412030000Z"
+   DESCRIPTION 
+      "Removed llf-enable attr from subinterface to access-if"
+
+   REVISION      "202411180000Z"
+   DESCRIPTION 
+      "Getapi implementation for show errdisable details"
+
+   REVISION      "202411120000Z"
+   DESCRIPTION 
+      "Support for Link-loss Forwarding"
+
+   REVISION      "202411080000Z"
+   DESCRIPTION 
+      "Added support for sub-interface translation to prio-tag, range will be 0-4094 for translation"
+
+   REVISION      "202410290000Z"
+   DESCRIPTION 
+      "Add subtypes for global mtu configuration"
+
+   REVISION      "202410170000Z"
+   DESCRIPTION 
+      "Added missing interface types for IF_HW_TYPE_T"
+
+   REVISION      "202410030000Z"
+   DESCRIPTION 
+      "Added support to 400G and 200G in interface negotiated-port-speed"
+
+   REVISION      "202409190000Z"
+   DESCRIPTION 
+      "Modified cli helpstring for mac ageing mode"
+
+   REVISION      "202409040000Z"
+   DESCRIPTION 
+      "CL108 FEC config support"
+
+   REVISION      "202409030000Z"
+   DESCRIPTION 
+      "Added link-scan-timer support"
+
+   REVISION      "202409020000Z"
+   DESCRIPTION 
+      "Fix global l2protocol vlan-d parameter after 0.22.1 change and move L2C type when tag to tunnel-vlan attribute"
+
+   REVISION      "202408290000Z"
+   DESCRIPTION 
+      "Added HW_SWFDR for L2C type when tag "
+
+   REVISION      "202408210000Z"
+   DESCRIPTION 
+      "CLI implementation mac-ageing"
+
+   REVISION      "202408200000Z"
+   DESCRIPTION 
+      "Added global mtu configuration support"
+
+   REVISION      "202408190000Z"
+   DESCRIPTION 
+      "Adding support for configure global load-interval global. Interface level configuration has priority."
+
+   REVISION      "202408160000Z"
+   DESCRIPTION 
+      "Added the range for vlan-id and when tag under l2protocol"
+
+   REVISION      "202408120000Z"
+   DESCRIPTION 
+      "Added global l2protocol configuration"
+
+   REVISION      "202408090000Z"
+   DESCRIPTION 
+      "Help string change for disable-egr-pcp attribute"
+
+   REVISION      "202408070000Z"
+   DESCRIPTION 
+      "Support for egress pcp disable"
+
+   REVISION      "202407260000Z"
+   DESCRIPTION 
+      "Make previous revision tag consistent"
+
+   REVISION      "202407250000Z"
+   DESCRIPTION 
+      "Added UCMP CLI option"
+
+   REVISION      "202407190000Z"
+   DESCRIPTION 
+      "Fix storm-control and hardware-profile filter dependency in Q2 boards"
+
+   REVISION      "202406270000Z"
+   DESCRIPTION 
+      "Changed xPathExpr in tunnel-config"
+
+   REVISION      "202406180000Z"
+   DESCRIPTION 
+      "Added BVI element in hardware type datatype"
+
+   REVISION      "202406120000Z"
+   DESCRIPTION 
+      "Added platform Clis checks for switchport protected CLI"
+
+   REVISION      "202405240000Z"
+   DESCRIPTION 
+      "Removing restriction for split-horizon commands for DNX"
+
+   REVISION      "202404150000Z"
+   DESCRIPTION 
+      "Updated the help string for protected-port"
+
+   REVISION      "202404020000Z"
+   DESCRIPTION 
+      "Removed when tag for forward-err-correction attribute"
+
+   REVISION      "202403270000Z"
+   DESCRIPTION 
+      "Added limited autonegotiation support"
+
+   REVISION      "202403210000Z"
+   DESCRIPTION 
+      "Added skip-dependency-validation flag for raon attributes"
+
+   REVISION      "202403040000Z"
+   DESCRIPTION 
+      "Added mode for clear interface counter command"
+
+   REVISION      "202402270000Z"
+   DESCRIPTION 
+      "Added cpu-queue and copp support for Marvell"
+
+   REVISION      "202401300000Z"
+   DESCRIPTION 
+      "Removed unused mcec import flag "
+
+   REVISION      "202401240000Z"
+   DESCRIPTION 
+      "Added attr mac-move-priority "
+
+   REVISION      "202401220000Z"
+   DESCRIPTION 
+      "Remove storm-control commands for Tomahawk 4 boards"
+
+   REVISION      "202401160000Z"
+   DESCRIPTION 
+      "Changed if-feature flag for storm-control errdisable"
+
+   REVISION      "202401100000Z"
+   DESCRIPTION 
+      "Added ethernet counters for Streaming Telemetry"
+
+   REVISION      "202401090000Z"
+   DESCRIPTION 
+      "Minor errdisable fix in command description"
+
+   REVISION      "202401060000Z"
+   DESCRIPTION 
+      "Added storm-control errdisable"
+
+   REVISION      "202401050000Z"
+   DESCRIPTION 
+      "Fixed storm-control errdisable when tags"
+
+   REVISION      "202312290000Z"
+   DESCRIPTION 
+      "Corrected the desc for the ip-switchover for cliprependstr "
+
+   REVISION      "202312280000Z"
+   DESCRIPTION 
+      "Changed the ipi-switchover to ip-switchover"
+
+   REVISION      "202312270000Z"
+   DESCRIPTION 
+      "Removed raon CLIs dependency on mlag mode"
+
+   REVISION      "202312260000Z"
+   DESCRIPTION 
+      "Added static MAC support for bridge-domain"
+
+   REVISION      "202312200000Z"
+   DESCRIPTION 
+      "Implementation of raon CLI"
+
+   REVISION      "202312150000Z"
+   DESCRIPTION 
+      "Corrected the patch version of ref tag from 29 to 30"
+
+   REVISION      "202311090000Z"
+   DESCRIPTION 
+      "Updated datatype for attribute 'eee'"
+
+   REVISION      "202310260000Z"
+   DESCRIPTION 
+      "Added dependentObject tag for label-switching over sub-intf encapsulation"
+
+   REVISION      "202310250000Z"
+   DESCRIPTION 
+      "Added implicit_delete tag for aclif and service-queue"
+
+   REVISION      "202310120000Z"
+   DESCRIPTION 
+      "Added dependentObject tag for aclif"
+
+   REVISION      "202310110000Z"
+   DESCRIPTION 
+      "Added dependentObject tag for encapsulation"
+
+   REVISION      "202310100000Z"
+   DESCRIPTION 
+      "Change storm-control maximum level to 99%"
+
+   REVISION      "202310050000Z"
+   DESCRIPTION 
+      "Adding skip-delete for one of encap when expression"
+
+   REVISION      "202309030000Z"
+   DESCRIPTION 
+      "Added a dependentObject tag under rewrite container"
+
+   REVISION      "202308230000Z"
+   DESCRIPTION 
+      "Implementation of aclif CLI in interface mode"
+
+   REVISION      "202308180000Z"
+   DESCRIPTION 
+      "Added utils_func tag for the attribute dot1q-dot1ad-tpid"
+
+   REVISION      "202306270000Z"
+   DESCRIPTION 
+      "Added load-interval command for marvell"
+
+   REVISION      "202306260000Z"
+   DESCRIPTION 
+      "Added install condition for protected-port"
+
+   REVISION      "202306150000Z"
+   DESCRIPTION 
+      "Remove storm-control commands for Tomahawk 3 boards"
+
+   REVISION      "202306090000Z"
+   DESCRIPTION 
+      "updated helpString for outer-vlan-id and inner-vlan-id attribute"
+
+   REVISION      "202305300000Z"
+   DESCRIPTION 
+      "Added when tag for disable-snmp-trap-link-status"
+
+   REVISION      "202305260000Z"
+   DESCRIPTION 
+      "Added element types for FEC type configuration support"
+
+   REVISION      "202305130000Z"
+   DESCRIPTION 
+      "Updated service-queue command dependencies for save and reload"
+
+   REVISION      "202305120000Z"
+   DESCRIPTION 
+      "Added CML_MULTI_VALUED for ether-type-value attribute"
+
+   REVISION      "202305100000Z"
+   DESCRIPTION 
+      "Modified the trigger to remove bridge-group from po interface when mapped to mlag and members"
+
+   REVISION      "202305090000Z"
+   DESCRIPTION 
+      "For bool type attribute error-disable-stp-bpdu-guard updated flag, to avoid invoking unset api."
+
+   REVISION      "202304280000Z"
+   DESCRIPTION 
+      "Removed hardware-profile portmode command "
+
+   REVISION      "202304250000Z"
+   DESCRIPTION 
+      "L2CP changes done w.r.t. CML infra"
+
+   REVISION      "202304200000Z"
+   DESCRIPTION 
+      "Added pattern for the attribute ether-type-value to support the hexadecimal values only"
+
+   REVISION      "202304170000Z"
+   DESCRIPTION 
+      "Added a trigger to remove bridge-group from po interface when mapped to mlag and members"
+
+   REVISION      "202304100000Z"
+   DESCRIPTION 
+      "Added if-feature HAVE_SWFWDR for the attribute disable-multicast"
+
+   REVISION      "202303140000Z"
+   DESCRIPTION 
+      "Moved bridge-domain from interfaces hierarchy to network-instance"
+
+   REVISION      "202303070000Z"
+   DESCRIPTION 
+      "Added fix for DB sync issue"
+
+   REVISION      "202303060000Z"
+   DESCRIPTION 
+      "Blocked hardware-profile portmode command for Q2"
+
+   REVISION      "202303030000Z"
+   DESCRIPTION 
+      "Updated split-horizon datatype and attribute name"
+
+   REVISION      "202302120000Z"
+   DESCRIPTION 
+      "Updated split-horizon with platform specific flags"
+
+   REVISION      "202302080000Z"
+   DESCRIPTION 
+      "Fixed Tibit platform compilation l2cp issue"
+
+   REVISION      "202302010000Z"
+   DESCRIPTION 
+      "Restrict l2cp command to L2 interfaces and fix l2cp cfg lag issue"
+
+   REVISION      "202301200000Z"
+   DESCRIPTION 
+      "Added enclosing container for port vlan object list"
+
+   REVISION      "202212140000Z"
+   DESCRIPTION 
+      "Updated double-tag-vlan-match list key name as encap-type"
+
+   REVISION      "202212120000Z"
+   DESCRIPTION 
+      "Reverting port-vlan enclosing container changes"
+
+   REVISION      "202212090000Z"
+   DESCRIPTION 
+      "Added enclosing container for port vlan object list"
+
+   REVISION      "202212070000Z"
+   DESCRIPTION 
+      "Corrected the spelling mistake for address-table prependstr"
+
+   REVISION      "202212060000Z"
+   DESCRIPTION 
+      "cli-sequence if-feature addition"
+
+   REVISION      "202212050000Z"
+   DESCRIPTION 
+      "Added interface MACsec capability show"
+
+   REVISION      "202211290000Z"
+   DESCRIPTION 
+      "Addressed make cmlgen warnings"
+
+   REVISION      "202211280000Z"
+   DESCRIPTION 
+      "Removed ignore snmp genaration tah for error disable reason"
+
+   REVISION      "202211140000Z"
+   DESCRIPTION 
+      "Added support for Storm-control by Frame per second"
+
+   REVISION      "202210110000Z"
+   DESCRIPTION 
+      "Removed default value for link-flap-max-count and link-flap-timer-interval attrs in err disable cause"
+
+   REVISION      "202209270000Z"
+   DESCRIPTION 
+      "Added loopback-detection in err disable cause"
+
+   REVISION      "202208240000Z"
+   DESCRIPTION 
+      "Revert changes to fix pre-qat failures"
+
+   REVISION      "202208180000Z"
+   DESCRIPTION 
+      "Updated db-trigger for snmp-trap"
+
+   REVISION      "202208160000Z"
+   DESCRIPTION 
+      "Added vpls split-horizon support"
+
+   REVISION      "202208110000Z"
+   DESCRIPTION 
+      "Modified when expression in extended container"
+
+   REVISION      "202208100000Z"
+   DESCRIPTION 
+      "Debug hierarchy change"
+
+   REVISION      "202207300000Z"
+   DESCRIPTION 
+      "Updated when expressions in yang"
+
+   REVISION      "202207200000Z"
+   DESCRIPTION 
+      "Added trigger to delete switchport-allowed-ether-types when interface configured as aggregator-member"
+
+   REVISION      "202207110000Z"
+   DESCRIPTION 
+      "Updated the subinterface encapsulation dependencies correctly"
+
+   REVISION      "202207040000Z"
+   DESCRIPTION 
+      "Updated DB Triggers for snmp trap link-status"
+
+   REVISION      "202206010000Z"
+   DESCRIPTION 
+      "Updated the yang file with feature"
+
+   REVISION      "202204140000Z"
+   DESCRIPTION 
+      "Removed 're-routing' CLI from MEP mode and added in interface mode"
+
+   REVISION      "202202100000Z"
+   DESCRIPTION 
+      "Remodelled attribute subif-service-queue for sub-interface"
+
+   REVISION      "202112220000Z"
+   DESCRIPTION 
+      "FEC will be reset to auto mode upon speed change"
+
+   REVISION      "202111160000Z"
+   DESCRIPTION 
+      "SKU compilation fixes"
+
+   REVISION      "202111100000Z"
+   DESCRIPTION 
+      "Moved cross-connect to network-instance module"
+
+   REVISION      "202109270000Z"
+   DESCRIPTION 
+      "Updated attribute push-tpid and translate-tpid description, added length and pattern tag"
+
+   REVISION      "202109240000Z"
+   DESCRIPTION 
+      "Added notification to remove interfaces from bridge-domain"
+
+   REVISION      "202109150000Z"
+   DESCRIPTION 
+      "Added xc-status to show cross connect operational status"
+
+   REVISION      "202109090000Z"
+   DESCRIPTION 
+      "Inner VLAN ID for double tag match for subinterface encapsulation is changed from key to mandatory attr and made multi valued"
+
+   REVISION      "202109010000Z"
+   DESCRIPTION 
+      "Changed data-types of attribute no-learning and rtp-header from CML_BOOL_T to CML_EMPTY_T.
+                       Changed base interface module's switchport attribute name and the datatype from bool to empty.
+        "
+
+   REVISION      "202108310000Z"
+   DESCRIPTION 
+      "Added dependents for different types of subinterface encapsulation"
+
+   REVISION      "202108260000Z"
+   DESCRIPTION 
+      "Added sniff cli objectAction"
+
+   REVISION      "202108180000Z"
+   DESCRIPTION 
+      "Removed default value tag for attribute warning-threshold, recovery-threshold and Updated description"
+
+   REVISION      "202108130000Z"
+   DESCRIPTION 
+      "Added Multiple match support for L2 Subinterface"
+
+   REVISION      "202107290000Z"
+   DESCRIPTION 
+      "Fix L2cp type options for Software Forwarder Feature"
+
+   REVISION      "202107060000Z"
+   DESCRIPTION 
+      "Added link-debounce-time support"
+
+   REVISION      "202106150000Z"
+   DESCRIPTION 
+      "Added burst-size option to storm-control CLI"
+
+   REVISION      "202106100000Z"
+   DESCRIPTION 
+      "Added new attribute hardware-applied-bcast-value, hardware-applied-mcast-value and hardware-applied-dlf-bcast-value to show hardware applied storm control value in netconf"
+
+   REVISION      "202106090000Z"
+   DESCRIPTION 
+      "Added yang support for attribute storm-total-discards"
+
+   REVISION      "202104080000Z"
+   DESCRIPTION 
+      "Added notification to remove interfaces from cross connects"
+
+   REVISION      "202103290000Z"
+   DESCRIPTION 
+      "Changed container name of hardware-profile to hardware-profile-flexport"
+
+   REVISION      "202103160000Z"
+   DESCRIPTION 
+      "Remodelled encapsulation, rewrite and cross-connects for sub-interface remodelling."
+
+   REVISION      "202103050000Z"
+   DESCRIPTION 
+      "Added dot1q-ether-type from mo_ipi-port.xml to make it independent of bridge"
+
+   REVISION      "202103010000Z"
+   DESCRIPTION 
+      "Added new atrribute in-bpdu-pkts, in-oamp-pkts, in-bfd-pkts, in-vrrp-rip-dhcp-pkts, in-rsvd-mc-pkts,
+                       in-link-local-pkts, in-icmp-pkts, in-icmp-redirect-pkts, in-misc-pkts.
+                       Removed attribute last-flap.
+                       Added support for changing process type for L2 protocols for an interface.
+        "
+
+   REVISION      "202101270000Z"
+   DESCRIPTION 
+      "Changed attribute multicast to disable-multicast and datatype from boolean to empty,
+                       Removed attribute enable and added two attribute enable-speed and enable-queue-drops
+                       and changed datatype to empty,
+                       Removed attribute mac-learn-limit, mdi-crossover, autonegotiation-fault-advertised, autonegotiation-bits-advertised,
+                       default-auto-negotiation and auto-negotiation,
+                       Added new atrribute last-flapped and auto-ipv6-link-local-address,
+                       Changed attribute snmp-trap-link-status to disable-snmp-trap-link-status and datatype from boolean to empty,
+                       Added vxlan dependency on tunnel mode attribute.
+        "
+
+   REVISION      "202012150000Z"
+   DESCRIPTION 
+      "Change to have data-types in lower case instead of camel case"
+
+   REVISION      "202011130000Z"
+   DESCRIPTION 
+      "Initial Version"
+   ::= { ipi  403 } 
+
+
+ipiIfExtendedExtendedCountersTable OBJECT-TYPE 
+	SYNTAX SEQUENCE OF IpiIfExtendedExtendedCountersEntry
+	MAX-ACCESS not-accessible
+	STATUS current
+	DESCRIPTION 
+		"This table provides information for A collection of extended interface-related statistics counters"
+	::= { ipi-if-extended 1 }
+
+ipiIfExtendedExtendedCountersEntry OBJECT-TYPE
+	SYNTAX IpiIfExtendedExtendedCountersEntry
+	MAX-ACCESS not-accessible
+	STATUS current
+	DESCRIPTION 
+		"An entry containing information for A collection of extended interface-related statistics counters"
+	INDEX { ipiInterfaceInterfaceName }
+	::= { ipiIfExtendedExtendedCountersTable 1 }
+
+IpiIfExtendedExtendedCountersEntry::= SEQUENCE { 
+	ipiInterfaceInterfaceName OCTET STRING,
+	ipiIfExtendedExtendedCountersErrorDisableReason BITS	}
+
+ipiInterfaceInterfaceName OBJECT-TYPE
+	SYNTAX OCTET STRING 
+	MAX-ACCESS read-only
+	STATUS current 
+	DESCRIPTION 
+		"
+            The textual name of the interface. The value of this object should
+            be the name of the interface as assigned by the local device and
+            should be suitable for use in commands entered at the device's
+            `console'. This might be a text name, such as `le0' or a simple
+            port number, such as `1', depending on the interface naming syntax
+            of the device. If several entries in the ifTable together represent
+            a single interface as named by the device, then each will have the
+            same value of name. Note that for an agent which responds to SNMP
+            queries concerning an interface on some other (proxied) device,
+            then the value of name for such an interface is the proxied
+            device's local name for it. If there is no local name, or this
+            object is otherwise not applicable, then this object contains a
+            zero-length string.
+          "
+	::= { ipiIfExtendedExtendedCountersEntry 1 }
+
+ipiIfExtendedExtendedCountersErrorDisableReason OBJECT-TYPE
+	SYNTAX BITS {lagmismatch(0), stpbpduguard(1), linkflap(2), macmovelimit(3), stormcontrol(5), notapplicable(6)} 
+	MAX-ACCESS read-only
+	STATUS current 
+	DESCRIPTION 
+		"This attribute specifies the event that caused the interface to be error-disabled. If interface is error-disabled because of lag-mismatch, value of this object is 1. If interface is error-disabled because of stp-bpdu-guard, value of this object is 2. If interface is error-disabled because of link-flap, value of this object is 4. If interface is error-disabled because of storm-control, value of this object is 32. "
+	::= { ipiIfExtendedExtendedCountersEntry 2 }
+
+
+--
+-- Notifications
+--
+
+ipiCMLSEPifCMLSEPextendedNotificationsPrefix OBJECT IDENTIFIER ::=
+        { ipi-if-extended 0 }
+
+interfaceerrordisablenotification NOTIFICATION-TYPE
+   OBJECTS { ipiInterfaceInterfaceName, ipiIfExtendedExtendedCountersErrorDisableReason }
+   STATUS  current
+   DESCRIPTION
+           "The interface-Errdis-Notif/interfaceErrdisNotif is generated when an interface is error-disabled(error-disable-reason will have non-zero value) and when it recovers from errdisabled state (error-disable-reason will have '0'). Severity level is CRITICAL for interface going down and MINOR for interface moving to UP state when it recovers from errdisabled state."
+   ::= { ipiCMLSEPifCMLSEPextendedNotificationsPrefix 1 }
+END

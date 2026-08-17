@@ -1,0 +1,696 @@
+--------------------------------------------------------------------------------
+--                              ATEN KN Generic MIB
+--                Copyright 2006 ATEN International Co., Ltd.
+--                              Version: 1.0.064
+--------------------------------------------------------------------------------
+
+-- Revision History:
+-- *************************************************************************
+
+-- 2015/12/31  -v1.0.061  init documents, version
+-- 2016/01/15  -modify comSetting1/2's object type definition
+-- 2017/05/16  -add deviceinformation category 
+--             -add manufactory NO. definition
+--			   -set version as v1.0.062
+-- 2018/09/05  -add environment status category
+--             -set version as v1.0.063
+-- 2020/03/25  -add firmware version definition in deviceinformation category
+--             -set version as v1.0.064
+-- 2020/03/25  -add Turkey language in console keyboard language
+-- *************************************************************************
+
+     
+     KNGeneric-MIB DEFINITIONS ::= BEGIN
+
+        IMPORTS
+		  MODULE-IDENTITY, OBJECT-TYPE, snmpModules		      		   FROM SNMPv2-SMI
+          IpAddress, Gauge, TimeTicks							             FROM RFC1155-SMI
+          DisplayString                                        FROM RFC1213-MIB
+          OBJECT-TYPE                                          FROM RFC-1212
+          KNGeneric																						 FROM ATEN-PRODUCTS-MIB;
+
+		configuration    OBJECT IDENTIFIER ::= { KNGeneric 1 }
+		
+		operatingMode   OBJECT IDENTIFIER ::= { configuration 1 }
+		network			OBJECT IDENTIFIER ::= { configuration 2 }	
+		logServer		OBJECT IDENTIFIER ::= { configuration 3 }	
+		snmpTrap        OBJECT IDENTIFIER ::= { configuration 4 }	
+		syslog          OBJECT IDENTIFIER ::= { configuration 5 }
+		ccManagement    OBJECT IDENTIFIER ::= { configuration 6 }
+		comSetting      OBJECT IDENTIFIER ::= { configuration 7 }
+		deviceInformation   OBJECT IDENTIFIER ::= { configuration 8 }
+		environmentStatus   OBJECT IDENTIFIER ::= { configuration 9 }
+		
+		networkAdapter			 OBJECT IDENTIFIER ::= { network 8 }
+		
+		adapter1                OBJECT IDENTIFIER ::= { networkAdapter 1 }
+		adapter2                OBJECT IDENTIFIER ::= { networkAdapter 2 }
+		
+		
+
+        forceAllToGray OBJECT-TYPE
+        	SYNTAX      INTEGER  {
+			  unchecked(0),
+			  checked(1)
+		    }
+      		MAX-ACCESS 	read-write
+      		STATUS 		current
+			DESCRIPTION
+			"Set mode Force All to Grayscale  
+			 unchecked(0) disable Force All to Grayscale
+			 checked(1) enable Force All to Grayscale.
+			"
+			::= { operatingMode 1 }
+			
+        enableClientAPDeviceList OBJECT-TYPE
+			SYNTAX      INTEGER  {
+			  unchecked(0),
+			  checked(1)
+		    }
+			MAX-ACCESS 	read-write
+			STATUS 		current
+			DESCRIPTION
+			"Set mode Enable Client AP Device List  
+			 unchecked(0) disable Enable Client AP Device List
+			 checked(1) Enable Client AP Device List.
+			"
+			::= { operatingMode 2 }
+			
+        enableAdapterID OBJECT-TYPE
+			SYNTAX      INTEGER  {
+			  unchecked(0),
+			  checked(1)
+		    }
+			MAX-ACCESS 	read-write
+			STATUS 		current
+			DESCRIPTION
+			"Set mode Enable Adapter ID  
+			 unchecked(0) disable Enable Adapter ID
+			 checked(1) Enable Enable Adapter ID.
+			"
+			::= { operatingMode 3 }
+		
+		enableLocalConsoleCascade OBJECT-TYPE
+			SYNTAX      INTEGER  {
+			  unchecked(0),
+			  checked(1)
+		    }
+			MAX-ACCESS 	read-write
+			STATUS 		current
+			DESCRIPTION
+			"Set mode Enable Local Console Cascade  
+			 unchecked(0) disable Enable Local Console Cascade
+			 checked(1) Enable Enable Local Console Cascade.
+			"
+			::= { operatingMode 4 }
+		
+        enableFirstLogonTransfer OBJECT-TYPE
+			SYNTAX      INTEGER  {
+			  unchecked(0),
+			  checked(1)
+		    }
+			MAX-ACCESS 	read-write
+			STATUS 		current
+			DESCRIPTION
+			"Set mode Enable First Logon Transfer  
+			 unchecked(0) disable Enable First Logon Transfer
+			 checked(1) Enable Enable First Logon Transfer.
+			"
+			::= { operatingMode 5 }
+
+        keyboardMouseBroadcast OBJECT-TYPE
+			SYNTAX      INTEGER  {
+			  disable(0),
+			  enablekeyboard(1),
+			  enablemouse(2),
+			  enablekeyboardmouse(3)
+		    }
+			MAX-ACCESS 	read-write
+			STATUS 		current
+			DESCRIPTION
+			"Set Keyboard Mouse Broadcast option"
+			::= { operatingMode 6 }
+
+        consoleKeyboardLanguage OBJECT-TYPE
+			SYNTAX      INTEGER  {
+			  chinese(0),
+			  englishUK(1),
+			  englishUS(2),
+			  french(3),
+			  german(4),
+			  hungarian(5),
+			  italian(6),
+			  japanese(7),
+			  korean(8),
+			  spanish(9),
+			  swedish(10),
+			  swiss(11),
+			  turkey(12)
+		    }
+			MAX-ACCESS 	read-write
+			STATUS 		current
+			DESCRIPTION
+			"Set Console Keyboard Language "
+			::= { operatingMode 7 }
+			
+        ipInstaller OBJECT-TYPE
+			SYNTAX INTEGER  {
+			  disabled(0),
+			  viewOnly(1),
+			  enabled(2)
+		    }
+			MAX-ACCESS 	read-write
+			STATUS current
+			DESCRIPTION
+			"Set IPInstaller option"
+			::= { network 1 }
+		
+        servicePortsProgram OBJECT-TYPE
+			SYNTAX INTEGER  
+			MAX-ACCESS 	read-write
+			STATUS current
+			DESCRIPTION
+			"Set Service Ports -- Program"
+			::= { network 2 }
+		
+        servicePortsHTTP OBJECT-TYPE
+			SYNTAX INTEGER  
+			MAX-ACCESS 	read-write
+			STATUS current
+			DESCRIPTION
+			"Set Service Ports -- HTTP"
+			::= { network 3 }
+
+        servicePortsHTTPS OBJECT-TYPE
+			SYNTAX INTEGER  
+			MAX-ACCESS 	read-write
+			STATUS current
+			DESCRIPTION
+			"Set Service Ports -- HTTPS"
+			::= { network 4 }
+
+		servicePortsSSH OBJECT-TYPE
+			SYNTAX INTEGER  
+			MAX-ACCESS 	read-write
+			STATUS current
+			DESCRIPTION
+			"Set Service Ports -- SSH"
+			::= { network 5 }
+
+		servicePortsTelnet OBJECT-TYPE
+			SYNTAX INTEGER  
+			MAX-ACCESS 	read-write
+			STATUS current
+			DESCRIPTION
+			"Set Service Ports -- Telnet"
+			::= { network 6 }
+
+		redundantNIC OBJECT-TYPE
+			SYNTAX INTEGER {
+			  unchecked(0),
+			  checked(1)
+		    }  
+			MAX-ACCESS 	read-write
+			STATUS current
+			DESCRIPTION
+			"Set Redundant option"
+			::= { network 7 }
+
+		applyReset OBJECT-TYPE
+			SYNTAX INTEGER {
+			  unchecked(0),
+			  checked(1)
+		    }  
+			MAX-ACCESS 	read-write
+			STATUS current
+			DESCRIPTION
+			"Reset device to make network modification take effect"
+			::= { network 9 }
+			
+		adapter1V4IPADDSEL OBJECT-TYPE
+			SYNTAX INTEGER {
+			  dhcp(0),
+			  fixedip(1)
+		    }  
+			MAX-ACCESS 	read-write
+			STATUS current
+			DESCRIPTION
+			"Set Adapter 1 how to get IP Address "
+			::= { adapter1 1 }
+		
+		adapter1V4FIXIPAddress OBJECT-TYPE
+			SYNTAX DisplayString
+			MAX-ACCESS 	read-write
+			STATUS current
+			DESCRIPTION
+			"Set Adapter 1 IP Address (Fixed IP mode) "
+			::= { adapter1 2 }		
+			
+		adapter1V4FIXIPSubnet OBJECT-TYPE
+			SYNTAX DisplayString
+			MAX-ACCESS 	read-write
+			STATUS current
+			DESCRIPTION
+			"Set Adapter 1 Subnet Mask (Fixed IP mode) "
+			::= { adapter1 3 }		
+			
+		adapter1V4FIXIPGateway OBJECT-TYPE
+			SYNTAX DisplayString
+			MAX-ACCESS 	read-write
+			STATUS current
+			DESCRIPTION
+			"Set Adapter 1 Default Gateway (Fixed IP mode) "
+			::= { adapter1 4 }		
+			
+		adapter1V4DNSSEL OBJECT-TYPE
+			SYNTAX INTEGER {
+			  dnsautomatically(0),
+			  dnsmanually(1)
+		    }  
+			MAX-ACCESS 	read-write
+			STATUS current
+			DESCRIPTION
+			"Set Adapter 1 Obtain DNS method "
+			::= { adapter1 5 }		
+
+		adapter1V4PREDNS OBJECT-TYPE
+			SYNTAX DisplayString
+			MAX-ACCESS 	read-write
+			STATUS current
+			DESCRIPTION
+			"Set Adapter 1 Preferred DNS Sever "
+			::= { adapter1 6 }		
+
+		adapter1V4ALTDNS OBJECT-TYPE
+			SYNTAX DisplayString
+			MAX-ACCESS 	read-write
+			STATUS current
+			DESCRIPTION
+			"Set Adapter 1 Alternate DNS Sever "
+			::= { adapter1 7 }		
+
+		adapter1V6IPADDSEL OBJECT-TYPE
+			SYNTAX INTEGER {
+			  dhcp(0),
+			  fixedip(1)
+		    }  
+			MAX-ACCESS 	read-write
+			STATUS current
+			DESCRIPTION
+			"Set Adapter 1 V6 how to get IP Address "
+			::= { adapter1 8 }
+		
+		adapter1V6FIXIPAddress OBJECT-TYPE
+			SYNTAX DisplayString
+			MAX-ACCESS 	read-write
+			STATUS current
+			DESCRIPTION
+			"Set Adapter 1 V6 IP Address (Fixed IP mode) "
+			::= { adapter1 9 }		
+			
+		adapter1V6FIXIPSubnet OBJECT-TYPE
+			SYNTAX INTEGER
+			MAX-ACCESS 	read-write
+			STATUS current
+			DESCRIPTION
+			"Set Adapter 1 V6 Subnet Prefix length (0-128) (Fixed IP mode) "
+			::= { adapter1 10 }		
+			
+		adapter1V6FIXIPGateway OBJECT-TYPE
+			SYNTAX DisplayString
+			MAX-ACCESS 	read-write
+			STATUS current
+			DESCRIPTION
+			"Set Adapter 1 V6 Default Gateway (Fixed IP mode) "
+			::= { adapter1 11 }		
+			
+		adapter1V6DNSSEL OBJECT-TYPE
+			SYNTAX INTEGER {
+			  dnsautomatically(0),
+			  dnsmanually(1)
+		    }  
+			MAX-ACCESS 	read-write
+			STATUS current
+			DESCRIPTION
+			"Set Adapter 1 V6 Obtain DNS method "
+			::= { adapter1 12 }		
+
+		adapter1V6PREDNS OBJECT-TYPE
+			SYNTAX DisplayString
+			MAX-ACCESS 	read-write
+			STATUS current
+			DESCRIPTION
+			"Set Adapter 1 V6 Preferred DNS Sever "
+			::= { adapter1 13 }		
+
+		adapter1V6ALTDNS OBJECT-TYPE
+			SYNTAX DisplayString
+			MAX-ACCESS 	read-write
+			STATUS current
+			DESCRIPTION
+			"Set Adapter 1 V6 Alternate DNS Sever "
+			::= { adapter1 14 }		
+		
+		adapter1TransferRate OBJECT-TYPE
+			SYNTAX INTEGER		
+			MAX-ACCESS 	read-write
+			STATUS current
+			DESCRIPTION
+			"Set Adapter 1 Network Transfer Rate(4-99999) "
+			::= { adapter1 15 }		
+		
+		adapter2V4IPADDSEL OBJECT-TYPE
+			SYNTAX INTEGER {
+			  dhcp(0),
+			  fixedip(1)
+		    }  
+			MAX-ACCESS 	read-write
+			STATUS current
+			DESCRIPTION
+			"Set Adapter 2 how to get IP Address "
+			::= { adapter2 1 }
+		
+		adapter2V4FIXIPAddress OBJECT-TYPE
+			SYNTAX DisplayString
+			MAX-ACCESS 	read-write
+			STATUS current
+			DESCRIPTION
+			"Set Adapter 2 IP Address (Fixed IP mode) "
+			::= { adapter2 2 }		
+			
+		adapter2V4FIXIPSubnet OBJECT-TYPE
+			SYNTAX DisplayString
+			MAX-ACCESS 	read-write
+			STATUS current
+			DESCRIPTION
+			"Set Adapter 2 Subnet Mask (Fixed IP mode) "
+			::= { adapter2 3 }		
+			
+		adapter2V4FIXIPGateway OBJECT-TYPE
+			SYNTAX DisplayString
+			MAX-ACCESS 	read-write
+			STATUS current
+			DESCRIPTION
+			"Set Adapter 2 Default Gateway (Fixed IP mode) "
+			::= { adapter2 4 }		
+			
+		adapter2V4DNSSEL OBJECT-TYPE
+			SYNTAX INTEGER {
+			  dnsautomatically(0),
+			  dnsmanually(1)
+		    }  
+			MAX-ACCESS 	read-write
+			STATUS current
+			DESCRIPTION
+			"Set Adapter 2 Obtain DNS method "
+			::= { adapter2 5 }		
+
+		adapter2V4PREDNS OBJECT-TYPE
+			SYNTAX DisplayString
+			MAX-ACCESS 	read-write
+			STATUS current
+			DESCRIPTION
+			"Set Adapter 2 Preferred DNS Sever "
+			::= { adapter2 6 }		
+
+		adapter2V4ALTDNS OBJECT-TYPE
+			SYNTAX DisplayString
+			MAX-ACCESS 	read-write
+			STATUS current
+			DESCRIPTION
+			"Set Adapter 2 Alternate DNS Sever "
+			::= { adapter2 7 }		
+
+		adapter2V6IPADDSEL OBJECT-TYPE
+			SYNTAX INTEGER {
+			  dhcp(0),
+			  fixedip(1)
+		    }  
+			MAX-ACCESS 	read-write
+			STATUS current
+			DESCRIPTION
+			"Set Adapter 2 V6 how to get IP Address "
+			::= { adapter2 8 }
+		
+		adapter2V6FIXIPAddress OBJECT-TYPE
+			SYNTAX DisplayString
+			MAX-ACCESS 	read-write
+			STATUS current
+			DESCRIPTION
+			"Set Adapter 2 V6 IP Address (Fixed IP mode) "
+			::= { adapter2 9 }		
+			
+		adapter2V6FIXIPSubnet OBJECT-TYPE
+			SYNTAX INTEGER
+			MAX-ACCESS 	read-write
+			STATUS current
+			DESCRIPTION
+			"Set Adapter 2 V6 Subnet Prefix length (0-128) (Fixed IP mode) "
+			::= { adapter2 10 }		
+			
+		adapter2V6FIXIPGateway OBJECT-TYPE
+			SYNTAX DisplayString
+			MAX-ACCESS 	read-write
+			STATUS current
+			DESCRIPTION
+			"Set Adapter 2 V6 Default Gateway (Fixed IP mode) "
+			::= { adapter2 11 }		
+			
+		adapter2V6DNSSEL OBJECT-TYPE
+			SYNTAX INTEGER {
+			  dnsautomatically(0),
+			  dnsmanually(1)
+		    }  
+			MAX-ACCESS 	read-write
+			STATUS current
+			DESCRIPTION
+			"Set Adapter 2 V6 Obtain DNS method "
+			::= { adapter2 12 }		
+
+		adapter2V6PREDNS OBJECT-TYPE
+			SYNTAX DisplayString
+			MAX-ACCESS 	read-write
+			STATUS current
+			DESCRIPTION
+			"Set Adapter 2 V6 Preferred DNS Sever "
+			::= { adapter2 13 }		
+
+		adapter2V6ALTDNS OBJECT-TYPE
+			SYNTAX DisplayString
+			MAX-ACCESS 	read-write
+			STATUS current
+			DESCRIPTION
+			"Set Adapter 2 V6 Alternate DNS Sever "
+			::= { adapter2 14 }		
+		
+		adapter2TransferRate OBJECT-TYPE
+			SYNTAX INTEGER		
+			MAX-ACCESS 	read-write
+			STATUS current
+			DESCRIPTION
+			"Set Adapter 2 Network Transfer Rate(4-99999) "
+			::= { adapter2 15 }		
+			
+
+		logServerEnable OBJECT-TYPE
+			SYNTAX INTEGER{
+			  disable(0),
+			  enable(1)
+		    }  		
+			MAX-ACCESS 	read-write
+			STATUS current
+			DESCRIPTION
+			"Enable/disable Log Server "
+			::= { logServer 1 }		
+			
+
+		logServerMAC OBJECT-TYPE
+			SYNTAX DisplayString
+			MAX-ACCESS 	read-write
+			STATUS current
+			DESCRIPTION
+			"Set Log Server's MAC Address "
+			::= { logServer 2 }		
+
+		logServerPort OBJECT-TYPE
+			SYNTAX INTEGER
+			MAX-ACCESS 	read-write
+			STATUS current
+			DESCRIPTION
+			"Set Log Server Service Port(1-65535) "
+			::= { logServer 3 }		
+
+
+		snmpTrapEnable OBJECT-TYPE
+			SYNTAX INTEGER{
+			  disable(0),
+			  enable(1)
+		    }  		
+			MAX-ACCESS 	read-write
+			STATUS current
+			DESCRIPTION
+			"Enable/disable SNMP Trap "
+			::= { snmpTrap 1 }		
+			
+
+		snmpTrapIP OBJECT-TYPE
+			SYNTAX DisplayString
+			MAX-ACCESS 	read-write
+			STATUS current
+			DESCRIPTION
+			"Set SNMP Trap's Server IP "
+			::= { snmpTrap 2 }		
+
+		snmpTrapPort OBJECT-TYPE
+			SYNTAX INTEGER
+			MAX-ACCESS 	read-write
+			STATUS current
+			DESCRIPTION
+			"Set SNMP Trap Service Port(1-65535) "
+			::= { snmpTrap 3 }		
+
+
+		syslogEnable OBJECT-TYPE
+			SYNTAX INTEGER{
+			  disable(0),
+			  enable(1)
+		    }  		
+			MAX-ACCESS 	read-write
+			STATUS current
+			DESCRIPTION
+			"Enable/disable Syslog Server "
+			::= { syslog 1 }		
+			
+
+		syslogIP OBJECT-TYPE
+			SYNTAX DisplayString
+			MAX-ACCESS 	read-write
+			STATUS current
+			DESCRIPTION
+			"Set Syslog Server IP "
+			::= { syslog 2 }		
+
+		syslogPort OBJECT-TYPE
+			SYNTAX INTEGER
+			MAX-ACCESS 	read-write
+			STATUS current
+			DESCRIPTION
+			"Set Syslog Server Service Port(1-65535) "
+			::= { syslog 3 }		
+
+
+		ccManagementEnable OBJECT-TYPE
+			SYNTAX INTEGER{
+			  disable(0),
+			  enable(1)
+		    }  		
+			MAX-ACCESS 	read-write
+			STATUS current
+			DESCRIPTION
+			"Enable/disable CC Management "
+			::= { ccManagement 1 }		
+			
+
+		ccManagementIP OBJECT-TYPE
+			SYNTAX DisplayString
+			MAX-ACCESS 	read-write
+			STATUS current
+			DESCRIPTION
+			"Set CC Management Server IP "
+			::= { ccManagement 2 }		
+
+		ccManagementPort OBJECT-TYPE
+			SYNTAX INTEGER
+			MAX-ACCESS 	read-write
+			STATUS current
+			DESCRIPTION
+			"Set CC Management Port(1-65535) "
+			::= { ccManagement 3 }		
+
+		com1Option OBJECT-TYPE
+			SYNTAX INTEGER {
+			  pdu(0),
+			  serialport(1)
+		    }  
+			MAX-ACCESS 	read-write
+			STATUS current
+			DESCRIPTION
+			"Set COM1 option "
+			::= { comSetting 1 }		
+
+		com2Option OBJECT-TYPE
+			SYNTAX INTEGER {
+			  modem(0),
+			  serialport(1)
+		    }  
+			MAX-ACCESS 	read-write
+			STATUS current
+			DESCRIPTION
+			"Set COM2 option "
+			::= { comSetting 2 }		
+
+        manufactoryNo OBJECT-TYPE
+			SYNTAX DisplayString
+			MAX-ACCESS 	read-only
+			STATUS current
+			DESCRIPTION
+			"Get Device's manufactory number"
+			::= { deviceInformation 1 }
+			
+        version OBJECT-TYPE
+			SYNTAX DisplayString
+			MAX-ACCESS 	read-only
+			STATUS current
+			DESCRIPTION
+			"Get current firmware's version"
+			::= { deviceInformation 2 }
+			
+		PSU1Status OBJECT-TYPE
+		    SYNTAX DisplayString
+			MAX-ACCESS read-only
+			STATUS current
+			DESCRIPTION
+			"Get PSU1's status"
+			::= { environmentStatus 1 }
+
+		PSU2Status OBJECT-TYPE
+		    SYNTAX DisplayString
+			MAX-ACCESS read-only
+			STATUS current
+			DESCRIPTION
+			"Get PSU2's status"
+			::= { environmentStatus 2 }
+			
+		fanSpeed OBJECT-TYPE
+		    SYNTAX DisplayString
+			MAX-ACCESS read-only
+			STATUS current
+			DESCRIPTION
+			"Get Fan's speed status"
+			::= { environmentStatus 3 }
+			
+		temperature OBJECT-TYPE
+		    SYNTAX DisplayString
+			MAX-ACCESS read-only
+			STATUS current
+			DESCRIPTION
+			"Get Temperature's status"
+			::= { environmentStatus 4 }
+		
+		LAN1Status OBJECT-TYPE
+		    SYNTAX DisplayString
+			MAX-ACCESS read-only
+			STATUS current
+			DESCRIPTION
+			"Get LAN1's status"
+			::= { environmentStatus 5 }
+
+		LAN2Status OBJECT-TYPE
+		    SYNTAX DisplayString
+			MAX-ACCESS read-only
+			STATUS current
+			DESCRIPTION
+			"Get LAN2's status"
+			::= { environmentStatus 6 }
+		
+     END

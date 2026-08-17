@@ -1,0 +1,3116 @@
+OMNITRON-Y1731-MIB DEFINITIONS ::= BEGIN
+
+IMPORTS
+    MODULE-IDENTITY, OBJECT-TYPE, Unsigned32
+        FROM SNMPv2-SMI           -- RFC-2578
+    RowStatus, TruthValue, MacAddress
+        FROM SNMPv2-TC            -- RFC-2579
+    MODULE-COMPLIANCE, OBJECT-GROUP
+        FROM SNMPv2-CONF          -- RFC-2580
+    NTPTimeStamp
+        FROM NTP-MIB              -- NTP MIB
+    Dot1agCfmMaintDomainName, Dot1agCfmMDLevelOrNone,
+    Dot1agCfmMaintAssocName
+        FROM IEEE8021-CFM-MIB     -- IEEE 802.1ag
+    ostModuleIndex
+        FROM OMNITRON-EXT-MIB     -- Omnitron Extension MIB
+    omnitron, OstVlanId, OstEvcNameString, OstFrameCount64,
+    OstProbeNameString
+        FROM OMNITRON-TC-MIB;     -- Omnitron Textual Convention MIB        
+
+omnitronY1731MIB MODULE-IDENTITY
+    LAST-UPDATED "201603181200Z"  -- March 18, 2016
+    ORGANIZATION "Omnitron Systems Technology, Inc."
+    CONTACT-INFO "Omnitron Systems Technology, Inc.
+                  38 Tesla
+                  Irvine, CA 92618-4670
+                  USA
+
+             Tel: (949) 250 6510
+             Fax: (949) 250 6514
+          E-mail: info@omnitron-systems.com
+   International: +1 949 250 6510
+
+                  Technical Support and Customer Service
+             Tel: (800) 675 8410
+          E-mail: support@omnitron-systems.com
+   International: +1 949 250 6510"
+
+    DESCRIPTION
+            "Omnitron Y.1731 MIB for use with iConverter Management Modules v5.3
+             and NetOutlook.
+
+             Copyright 2016 Omnitron Systems Technology, Inc.
+             All rights reserved
+            "
+
+    REVISION    "201603181200Z"  -- March 18, 2016
+    DESCRIPTION "Initial version of v5.3 MIB.
+                "
+    ::= { omnitron 8 }
+
+ostY1731MibObjects    OBJECT IDENTIFIER ::= { omnitronY1731MIB 1 }
+ostY1731Conformance   OBJECT IDENTIFIER ::= { omnitronY1731MIB 2 }
+
+
+--------------------------------------------------------------------------------------------
+--------------------------------------------------------------------------------------------
+-- Y.1731 Groups - These groups contains all the Y.1731 managed objects.
+--------------------------------------------------------------------------------------------
+--------------------------------------------------------------------------------------------
+
+ostY1731Global        OBJECT IDENTIFIER ::= { ostY1731MibObjects 1 }
+ostY1731Probe         OBJECT IDENTIFIER ::= { ostY1731MibObjects 2 }
+ostY1731Results       OBJECT IDENTIFIER ::= { ostY1731MibObjects 3 }
+
+
+--------------------------------------------------------------------------------------------
+-- Y.1731 Global Settings Table
+--------------------------------------------------------------------------------------------
+
+ostY1731GlobalTable OBJECT-TYPE
+    SYNTAX      SEQUENCE OF OstY1731GlobalEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION
+       "This supports Y.1731 global settings."
+    ::= { ostY1731Global 1 }
+
+ostY1731GlobalEntry OBJECT-TYPE
+    SYNTAX      OstY1731GlobalEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION
+       "Y.1731 global settings table entry."
+    INDEX { ostModuleIndex }
+    ::= { ostY1731GlobalTable 1 }
+
+OstY1731GlobalEntry ::= SEQUENCE {
+        ostY1731Enable                  TruthValue,
+        ostY1731BucketPeriod            Unsigned32,
+        ostY1731BinLimits               OCTET STRING,
+        ostY1731VarBinLimits            OCTET STRING,
+        ostY1731ProbeDlyUnits           INTEGER
+    }
+
+ostY1731Enable OBJECT-TYPE
+    SYNTAX      TruthValue
+    MAX-ACCESS  read-write
+    STATUS      current
+    DESCRIPTION
+        "Enables Y.1731 operation when true, otherwise Y.1731 operation is disabled.
+         Default value is false(2), disabling Y.1731 operation."
+    DEFVAL { 2 }
+    ::= { ostY1731GlobalEntry 1 }
+
+ostY1731BucketPeriod OBJECT-TYPE
+    SYNTAX      Unsigned32 (1..60)
+    MAX-ACCESS  read-write
+    STATUS      current
+    DESCRIPTION
+        "Frame Delay histogram collection period, 1 to 60 minutes. Default is 15 minutes."
+    DEFVAL { 15 }
+    ::= { ostY1731GlobalEntry 2 }
+
+ostY1731BinLimits OBJECT-TYPE
+    SYNTAX      OCTET STRING (SIZE(0..64))
+    MAX-ACCESS  read-write
+    STATUS      current
+    DESCRIPTION
+        "A text string list of the Frame Delay histogram bin limits.
+
+         The format of the string is as follows:
+            1 to 15 unsigned integers separated by commas.  The values must be from 1 up to the bucket period
+            in milliseconds, and must be in ascending order.  Bin limit values greater than the
+            bucket period are added to an implied bucket that tracks all frame delays greater than the
+            maximum stated size.
+
+         The first bin begins at 0 ms, the second bin begins at the first bin limit value specified in this object,
+         the next bin begins at the next bin limit value, and so forth. The last implied bucket begins at the
+         last specified value and ends at the Bucket Period.
+
+         ex. A Bucket Period of 15 minutes, creates a time window of 0 to 900,000 ms in which bins may be defined.
+             Setting this object to '5,10,15' creates 4 bins as follows:
+
+            Bin # | Bin Limits (ms)
+            ------+------------------
+              1   |     0 to       5
+              2   |     5 to      10
+              3   |    10 to      15
+              4   |    15 to 900,000
+
+
+         inclusive of lower value and exclusive of the upper value.
+
+         The default value for this object is an empty string."
+    ::= { ostY1731GlobalEntry 3 }
+
+ostY1731VarBinLimits OBJECT-TYPE
+    SYNTAX      OCTET STRING (SIZE(0..64))
+    MAX-ACCESS  read-write
+    STATUS      current
+    DESCRIPTION
+        "A text string list of the Frame Variable Delay histogram bin limits.
+
+         The format of the string is as follows:
+            1 to 15 unsigned integers separated by commas.  The values must be from 1 up to the bucket period
+            in milliseconds, and must be in ascending order.   Variable Bin limit values greater than the
+            bucket period are added to an implied bucket that tracks all frame delays greater than the
+            maximum stated size.
+
+         The first bin begins at 0 ms, the second bin begins at the first bin limit value specified in this object,
+         the next bin begins at the next bin limit value, and so forth. The last implied bucket begins at the
+         last specified value and ends at the Bucket Period.
+
+         ex. A Bucket Period of 15 minutes, creates a time window of 0 to 900,000 ms in which bins may be defined.
+             Setting this object to '5,10,15' creates 4 bins as follows:
+
+            Bin # | Bin Limits (ms)
+            ------+------------------
+              1   |     0 to       5
+              2   |     5 to      10
+              3   |    10 to      15
+              4   |    15 to 900,000
+
+
+         inclusive of lower value and exclusive of the upper value.
+
+         The default value for this object is an empty string."
+    ::= { ostY1731GlobalEntry 4 }
+
+ostY1731ProbeDlyUnits OBJECT-TYPE
+    SYNTAX      INTEGER {
+        ms     (1),
+        us     (2),
+        ns     (3)
+    }
+    MAX-ACCESS  read-write
+    STATUS      current
+    DESCRIPTION
+       "This object selects the delay value units that are in the delay results tables.
+
+        ms(1)        Delay values are in milliseconds
+        us(2)        Delay values are in microseconds
+        ns(3)        Delay values are in nanoseconds
+       "
+    DEFVAL { ms }
+    ::= { ostY1731GlobalEntry 5 }
+
+
+--------------------------------------------------------------------------------------------
+-- Y.1731 Probe Settings Table
+--------------------------------------------------------------------------------------------
+
+ostY1731ProbeTable OBJECT-TYPE
+    SYNTAX      SEQUENCE OF OstY1731ProbeEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION
+       "This table supports Y.1731 probe settings.
+        Probe settings may not be modified following creation.  To change the settings
+        of a probe, delete the probe and then create a probe with the desired settings."
+    ::= { ostY1731Probe 1 }
+
+ostY1731ProbeEntry OBJECT-TYPE
+    SYNTAX      OstY1731ProbeEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION
+       "Y.1731 probe settings table entry."
+    INDEX { ostModuleIndex, ostY1731ProbeNum }
+    ::= { ostY1731ProbeTable 1 }
+
+OstY1731ProbeEntry ::= SEQUENCE {
+        ostY1731ProbeNum               Unsigned32,
+        ostY1731ProbeRowStatus         RowStatus,
+        ostY1731ProbeType              INTEGER,
+        ostY1731ProbeInterval          Unsigned32,
+        ostY1731ProbeOneDmReceive      TruthValue,
+        ostY1731ProbeOneDmTransmit     TruthValue,
+        ostY1731ProbeLmmLmrTimeout     Unsigned32,
+        ostY1731ProbeAcceptFrameLoss   Unsigned32,
+        ostY1731ProbeDataTlvPattern    OCTET STRING,
+        ostY1731ProbePriorityVlanBits  Unsigned32,
+        ostY1731ProbeIsTargetMepId     TruthValue,
+        ostY1731ProbeTargetMac         MacAddress,
+        ostY1731ProbeTargetMepId       Unsigned32,
+        ostY1731ProbePort              Unsigned32,
+        ostY1731ProbeCfmMdLevelSel     INTEGER,
+        ostY1731ProbeCfmMdName         Dot1agCfmMaintDomainName,
+        ostY1731ProbeCfmMdNum          Unsigned32,
+        ostY1731ProbeCfmMdLvl          Dot1agCfmMDLevelOrNone,
+        ostY1731ProbeCfmPriVidSel      INTEGER,
+        ostY1731ProbeCfmMaName         Dot1agCfmMaintAssocName,
+        ostY1731ProbeCfmMaNum          Unsigned32,
+        ostY1731ProbeEvc               OstEvcNameString,
+        ostY1731ProbePriVid            OstVlanId,
+        ostY1731ProbeInitiatorType     INTEGER,
+        ostY1731ProbeHistoryClear      TruthValue,
+        ostY1731ProbeName              OstProbeNameString,
+        ostY1731ProbeTimeSync          INTEGER,
+        ostY1731ProbeAcceptFrameDelay  Unsigned32,
+        ostY1731ProbeAcceptFrameDelayVar Unsigned32,
+        ostY1731ProbeOamCountEnable    INTEGER,
+        ostY1731ProbeAcceptAvail       Unsigned32,
+        ostY1731ProbeCountVersion      INTEGER,
+        ostY1731ProbeTestId            Unsigned32,
+        ostY1731ProbeDeltaT            Unsigned32,
+        ostY1731ProbeNDeltaT           Unsigned32
+    }
+
+ostY1731ProbeNum OBJECT-TYPE
+    SYNTAX      Unsigned32 (1..15)
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION
+        "Probe index, 1 to 15."
+    ::= { ostY1731ProbeEntry 1 }
+
+ostY1731ProbeRowStatus OBJECT-TYPE
+    SYNTAX      RowStatus
+    MAX-ACCESS  read-create
+    STATUS      current
+    DESCRIPTION
+       "Status of the row.  Used for row creation and destruction."
+    ::= { ostY1731ProbeEntry 2 }
+
+ostY1731ProbeType OBJECT-TYPE
+    SYNTAX      INTEGER {
+        twoWayDelay   (1),
+        oneWayDelay   (2),
+        singleEndLoss (3),
+        dualEndLoss   (4),
+        singleSynLoss (5)
+    }
+    MAX-ACCESS  read-create
+    STATUS      current
+    DESCRIPTION
+        "Configures the probe type:
+            1 = 2-way delay/variation (DMM/DMR)
+            2 = 1-way delay/variation (1DM)
+            3 = single-ended loss/availability (LMM/LMR)
+            4 = dual ended loss/availability (CCM)
+            5 = synthetic loss measurement (SLM/SLR)
+        "
+    ::= { ostY1731ProbeEntry 3 }
+
+ostY1731ProbeInterval OBJECT-TYPE
+    SYNTAX      Unsigned32 (3..7)
+    MAX-ACCESS  read-create
+    STATUS      current
+    DESCRIPTION
+        "Probe interval:
+            3 = 100 ms
+            4 = 1 second (default)
+            5 = 10 seconds
+            6 = 1 minute
+            7 = 10 minutes
+         This object may not be modified after creation."
+    DEFVAL { 4 }
+    ::= { ostY1731ProbeEntry 4 }
+
+ostY1731ProbeOneDmReceive OBJECT-TYPE
+    SYNTAX      TruthValue
+    MAX-ACCESS  read-create
+    STATUS      current
+    DESCRIPTION
+        "Enables 1DM receive when true.  Default value is false.
+         This object may not be modified after creation."
+    DEFVAL { 2 }
+    ::= { ostY1731ProbeEntry 5 }
+
+ostY1731ProbeOneDmTransmit OBJECT-TYPE
+    SYNTAX      TruthValue
+    MAX-ACCESS  read-create
+    STATUS      current
+    DESCRIPTION
+        "Enables 1DM transmit when true.  Default value is false.
+         This object may not be modified after creation."
+    DEFVAL { 2 }
+    ::= { ostY1731ProbeEntry 6 }
+
+ostY1731ProbeLmmLmrTimeout OBJECT-TYPE
+    SYNTAX      Unsigned32 (100..2100000)
+    MAX-ACCESS  read-create
+    STATUS      current
+    DESCRIPTION
+        "Single-ended loss/availability (LMM/LMR) probe timeout in milliseconds,
+         Default value is 1000 msecs.
+         This object may not be modified after creation."
+    DEFVAL { 1000 }
+    ::= { ostY1731ProbeEntry 7 }
+
+ostY1731ProbeAcceptFrameLoss OBJECT-TYPE
+    SYNTAX      Unsigned32 (0..1000)
+    MAX-ACCESS  read-create
+    STATUS      current
+    DESCRIPTION
+        "Acceptable frame loss for this probe.  Range is from 0.0 to 100.0% (0 to 1000) with a
+         range of 0.1%.  Default value is 50.0% (500).
+         This object may not be modified after creation."
+    DEFVAL { 500 }
+    ::= { ostY1731ProbeEntry 8 }
+
+ostY1731ProbeDataTlvPattern OBJECT-TYPE
+    SYNTAX      OCTET STRING (SIZE(0..1000))
+    MAX-ACCESS  read-create
+    STATUS      current
+    DESCRIPTION
+        "Test pattern to fill data TLV. Only all zeros or all ones are
+         supported. If another pattern is chosen all zeros will be inserted
+         into the PDU.
+
+         This object may not be modified after creation."
+    ::= { ostY1731ProbeEntry 9 }
+
+ostY1731ProbePriorityVlanBits OBJECT-TYPE
+    SYNTAX      Unsigned32 (0..7)
+    MAX-ACCESS  read-create
+    STATUS      current
+    DESCRIPTION
+        "VLAN priority bits.  Default value is 0.
+         This object may not be modified after creation."
+    DEFVAL { 0 }
+    ::= { ostY1731ProbeEntry 10 }
+
+ostY1731ProbeIsTargetMepId OBJECT-TYPE
+    SYNTAX      TruthValue
+    MAX-ACCESS  read-create
+    STATUS      current
+    DESCRIPTION
+        "ostY1731ProbeTargetMepId determines the target MEP ID when true, otherwise
+         ostY1731ProbeTargetMac determines the target MAC address.  Default value is true.
+         This object may not be modified after creation."
+    DEFVAL { 1 }
+    ::= { ostY1731ProbeEntry 11 }
+
+ostY1731ProbeTargetMac OBJECT-TYPE
+    SYNTAX      MacAddress
+    MAX-ACCESS  read-create
+    STATUS      current
+    DESCRIPTION
+        "MAC address of the target MEP.  Ignored if ostY1731ProbeIsTargetMepId is true.
+         This object may not be modified after creation."
+    ::= { ostY1731ProbeEntry 12 }
+
+ostY1731ProbeTargetMepId OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  read-create
+    STATUS      current
+    DESCRIPTION
+        "MEP ID of the target MEP.  Ignored if ostY1731ProbeIsTargetMepId is false.
+         This object may not be modified after creation."
+    ::= { ostY1731ProbeEntry 13 }
+
+ostY1731ProbePort OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  read-create
+    STATUS      current
+    DESCRIPTION
+        "Initiating probe port.
+         This object may not be modified after creation."
+    ::= { ostY1731ProbeEntry 14 }
+
+ostY1731ProbeCfmMdLevelSel OBJECT-TYPE
+    SYNTAX      INTEGER {
+        useMdName   (1),
+        useMdNum    (2),
+        useMdLvl    (3)
+    }
+    MAX-ACCESS  read-create
+    STATUS      current
+    DESCRIPTION
+        "Selects the objects to used to determine the probe CFM MD level.
+            1 = use ostY1731ProbeCfmMdName (default)
+            2 = use ostY1731ProbeCfmMdNum
+            3 = use ostY1731ProbeCfmMdLvl
+         This object may not be modified after creation."
+    DEFVAL { 1 }
+    ::= { ostY1731ProbeEntry 15 }
+
+ostY1731ProbeCfmMdName OBJECT-TYPE
+    SYNTAX      Dot1agCfmMaintDomainName
+    MAX-ACCESS  read-create
+    STATUS      current
+    DESCRIPTION
+        "Probe 802.1ag Maintanence Domain name.
+         This object may not be modified after creation."
+    ::= { ostY1731ProbeEntry 16 }
+
+ostY1731ProbeCfmMdNum OBJECT-TYPE
+    SYNTAX      Unsigned32 (1..64)
+    MAX-ACCESS  read-create
+    STATUS      current
+    DESCRIPTION
+        "Probe 802.1ag Maintanence Domain index.
+         This object may not be modified after creation."
+    ::= { ostY1731ProbeEntry 17 }
+
+ostY1731ProbeCfmMdLvl OBJECT-TYPE
+    SYNTAX      Dot1agCfmMDLevelOrNone
+    MAX-ACCESS  read-create
+    STATUS      current
+    DESCRIPTION
+        "Probe 802.1ag Maintanence Domain level.
+         This object may not be modified after creation."
+    ::= { ostY1731ProbeEntry 18 }
+
+ostY1731ProbeCfmPriVidSel OBJECT-TYPE
+    SYNTAX      INTEGER {
+        useMaName   (1),
+        useMaNum    (2),
+        useEvc      (3),
+        usePriVid   (4)
+    }
+    MAX-ACCESS  read-create
+    STATUS      current
+    DESCRIPTION
+        "Selects the objects used to determine the probe primary vid.
+            1 = use ostY1731ProbeCfmMaName (default)
+            2 = use ostY1731ProbeCfmMaNum
+            3 = use ostY1731ProbeEvc
+            4 = use ostY1731ProbePriVid
+         This object may not be modified after creation."
+    DEFVAL { 1 }
+    ::= { ostY1731ProbeEntry 19 }
+
+ostY1731ProbeCfmMaName OBJECT-TYPE
+    SYNTAX      Dot1agCfmMaintAssocName
+    MAX-ACCESS  read-create
+    STATUS      current
+    DESCRIPTION
+        "Probe 802.1ag Maintanence Domain name.
+         This object may not be modified after creation."
+    ::= { ostY1731ProbeEntry 20 }
+
+ostY1731ProbeCfmMaNum OBJECT-TYPE
+    SYNTAX      Unsigned32 (1..256)
+    MAX-ACCESS  read-create
+    STATUS      current
+    DESCRIPTION
+        "Probe 802.1ag Maintanence Association index.
+         This object may not be modified after creation."
+    ::= { ostY1731ProbeEntry 21 }
+
+ostY1731ProbeEvc OBJECT-TYPE
+    SYNTAX      OstEvcNameString
+    MAX-ACCESS  read-create
+    STATUS      current
+    DESCRIPTION
+        "Probe EVC associated with the primary VID.
+         This object may not be modified after creation."
+    ::= { ostY1731ProbeEntry 22 }
+
+ostY1731ProbePriVid OBJECT-TYPE
+    SYNTAX      OstVlanId
+    MAX-ACCESS  read-create
+    STATUS      current
+    DESCRIPTION
+        "Probe primary VLAN ID.
+         This object may not be modified after creation."
+    ::= { ostY1731ProbeEntry 23 }
+
+ostY1731ProbeInitiatorType OBJECT-TYPE
+    SYNTAX      INTEGER {
+        cpe   (1),
+        cpp   (2)
+    }
+    MAX-ACCESS  read-create
+    STATUS      current
+    DESCRIPTION
+        "This object is used to determine the probe initiator type.
+           cpe(1) = enables counting of probe info on a per EVC basis (default value)
+           cpp(2) = enables counting of probe info on a per priority basis
+         This object may not be modified after creation."
+    DEFVAL { 1 }
+    ::= { ostY1731ProbeEntry 24 }
+
+ostY1731ProbeHistoryClear OBJECT-TYPE
+    SYNTAX      TruthValue
+    MAX-ACCESS  read-create
+    STATUS      current
+    DESCRIPTION
+       "This object when written clears the Probe history  table
+        (ostY1731PerfMetricsResults) - all rows are deleted for the selected
+        probe.
+
+        When read the value always returns 'false'.
+
+        Writing this value does not change the real time results,
+        nor any of the items in the configuration table.
+       "
+    DEFVAL { false }
+    ::= { ostY1731ProbeEntry 25 }
+
+ostY1731ProbeName OBJECT-TYPE
+    SYNTAX      OstProbeNameString
+    MAX-ACCESS  read-create
+    STATUS      current
+    DESCRIPTION
+        "Probe name associated with the probe instance.
+         This object may not be modified after creation.
+        "
+    DEFVAL { "" }
+    ::= { ostY1731ProbeEntry 26 }
+
+
+ostY1731ProbeTimeSync OBJECT-TYPE
+    SYNTAX      INTEGER {
+        timeSync   (1),
+        noSync     (2)
+    }
+    MAX-ACCESS  read-create
+    STATUS      current
+    DESCRIPTION
+        "This object is used to synchronize probe transmit time to the DMR
+        received time of day.
+
+        timeSync(1)         Probe time of day based upon DMR response
+        noSync(2)           Probe time of day based upon internal time
+
+        This object is only applicable for two-way delay (DMM/DMR) probe type
+        and is ignored by other probe types.
+       "
+    DEFVAL { timeSync }
+    ::= { ostY1731ProbeEntry 27 }
+
+
+ostY1731ProbeAcceptFrameDelay OBJECT-TYPE
+    SYNTAX      Unsigned32 (1..10000)
+    MAX-ACCESS  read-create
+    STATUS      current
+    DESCRIPTION
+        "Acceptable frame delay for this probe.  Range is from 1 to 10,000ms.
+
+         This object may not be modified after creation.
+        "
+    DEFVAL {1000 }
+    ::= { ostY1731ProbeEntry 28 }
+
+ostY1731ProbeAcceptFrameDelayVar OBJECT-TYPE
+    SYNTAX      Unsigned32 (1..10000)
+    MAX-ACCESS  read-create
+    STATUS      current
+    DESCRIPTION
+        "Acceptable frame delay variation for this probe.  Range is from 1 to
+         10,000ms.
+
+         This object may not be modified after creation.
+        "
+    DEFVAL {1000 }
+    ::= { ostY1731ProbeEntry 29 }
+
+ostY1731ProbeOamCountEnable OBJECT-TYPE
+    SYNTAX      INTEGER {
+        noCountOam    (1),
+        countCcmOam   (2),
+        countLbOam    (3)
+    }
+    MAX-ACCESS  read-create
+    STATUS      current
+    DESCRIPTION
+        "*** Deprecated ***
+        "
+    DEFVAL {noCountOam }
+    ::= { ostY1731ProbeEntry 30 }
+
+ostY1731ProbeAcceptAvail OBJECT-TYPE
+    SYNTAX      Unsigned32 (0..100000)
+    UNITS       "milli-percent"
+    MAX-ACCESS  read-create
+    STATUS      current
+    DESCRIPTION
+       "This object is used to set the availability ratio threshold value
+        that will be used to determine if a threshold
+        notification is generated if the availability time drops below the
+        configured value.
+
+        The percent value is expressed as a percent with a value of 0 (ratio
+        0.000%) through 100000 (100.000%)
+
+        Units are in milli-percent, where 1 indicates 0.001 percent.
+       "
+    DEFVAL { 50000 }
+    ::= { ostY1731ProbeEntry 31 }
+
+ostY1731ProbeCountVersion OBJECT-TYPE
+    SYNTAX      INTEGER {
+        v1   (1),
+        v2   (2)
+    }
+    MAX-ACCESS  read-create
+    STATUS      current
+    DESCRIPTION
+        "Configures the probe counting type:
+            v1 = Original 2006 version, CCM not counted at same MEG level
+            v2 = Modified 2008 version, CCM counted at same MEG level
+        "
+    DEFVAL { v2 }
+    ::= { ostY1731ProbeEntry 32 }
+
+ostY1731ProbeTestId OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  read-create
+    STATUS      current
+    DESCRIPTION
+        "This object is the Test Identification count that is used for SLM/SLR
+         and 1SLM probes. It is used to identify a test when multiple tests
+         run simultaneously between MEPs.
+
+         The value of this object is undefined and not used for DMM/DMR, 1DM,
+         LMM/LMR, and CCM probe types.
+        "
+    DEFVAL { 1 }
+    ::= { ostY1731ProbeEntry 33 }
+
+ostY1731ProbeDeltaT OBJECT-TYPE
+    SYNTAX      Unsigned32 (1..10)
+    MAX-ACCESS  read-create
+    STATUS      current
+    DESCRIPTION
+       "This object specifies the number loss measurement PDUs to be
+        used in evaluating the availability/unavailability status and FLR
+        of each small time interval, 'delta_t', per MEF 10.3.  Loss
+        Measurement PDUs (LMMs, CCMs or SLMs) are sent regularly with a
+        period defined by ostY1731ProbeInterval. Therefore, this object,
+        when multiplied by ostY1731ProbeInterval, is equivalent to
+        the Availability parameter of 'delta_t' as specified by MEF 10.3.
+       "
+    DEFVAL { 10 }
+    ::= { ostY1731ProbeEntry 34 }
+
+ostY1731ProbeNDeltaT OBJECT-TYPE
+    SYNTAX      Unsigned32 (1..10)
+    MAX-ACCESS  read-create
+    STATUS      current
+    DESCRIPTION
+       "This object specifies a configurable number of consecutive
+        delta_t intervals (n delta_t) to be used to determine a change in the
+        availability status as indicated by MEF 10.3. This parameter is
+        equivalent to the Availability parameter of 'n' as specified
+        by MEF 10.3. Availability for each delta_t interval is a sliding
+        window based upon a width n delta_t.
+       "
+    DEFVAL { 10 }
+    ::= { ostY1731ProbeEntry 35 }
+
+
+--------------------------------------------------------------------------------------------
+--------------------------------------------------------------------------------------------
+-- Y.1731 Results Managed Objects
+--
+-- The Y.1731 results managed objects consist of Real Time and Performance Metric
+-- managed objects.
+--------------------------------------------------------------------------------------------
+--------------------------------------------------------------------------------------------
+
+--------------------------------------------------------------------------------------------
+-- Y.1731 Real Time Result Managed Objects
+--
+-- Real time results managed objects provide read only access to the last 900 probe
+-- intervals of data for each probe.  Real time results are accessed for a single probe at
+-- a time, using one of the following tables, based on the probe type:
+--
+--            Table                                  Probe Type
+--            -----------------------------------------------------
+--            ostY1731RealTimeResultsCcmTable        CCM
+--            ostY1731RealTimeResultsLmmLmrTable     LMM/LMR
+--            ostY1731RealTimeResults1DmTable        1DM
+--            ostY1731RealTimeResultsDmmDmrTable     DMM/DMR
+--            ostY1731RealTimeResultsSlmSlrTable     SLM/SLR
+--
+-- The ostY1731RealTimeResultsAccessTable table objects control which probe real time data
+-- is currently selected for retrieval.
+--------------------------------------------------------------------------------------------
+
+ostY1731RealTimeResults OBJECT IDENTIFIER ::= { ostY1731Results 1 }
+
+--------------------------------------------------------------------------------------------
+-- Y.1731 Real Time Results Access Table
+--------------------------------------------------------------------------------------------
+
+ostY1731RealTimeResultsAccessTable OBJECT-TYPE
+    SYNTAX      SEQUENCE OF OstY1731RealTimeResultsAccessEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION
+        "The Y.1731 Real Time Results Access Table selects the real time probe data
+         to be retrieved using one of the following probe tables:
+
+            ostY1731RealTimeResultsCcmTable
+            ostY1731RealTimeResultsLmmLmrTable
+            ostY1731RealTimeResults1DmTable
+            ostY1731RealTimeResultsDmmDmrTable
+
+         A management entity should use the following steps to retrieve data from one of
+         the above tables:
+            1) Send an SNMP GET PDU for the following:
+                 snmpSetSerialNo and ostY1731RealTimeResultsAccessAvailable
+            2) If ostY1731RealTimeResultsAccessAvailable is false repeat step 1.
+            3) Send an SNMP SET PDU with the following:
+
+                 varbind                                 | value
+                 ----------------------------------------+--------------------------------------
+                 snmpSetSerialNo                         | snmpSetSerialNo value read in step 1
+                 ostY1731RealTimeResultsAccessAvailable  | false
+
+               snmpSetSerialNo must be the first varbind to ensure no other cooperating
+               management entity will use this resource. A failure to set snmpSetSerialNo due to
+               another management entity having set it, requires a return to step 1.
+            4) Set ostY1731RealTimeResultsAccessProbeNum to select the probe index of the probe
+               from which to retrieve realtime probe data.
+            5) The number of entries available in the probe table is available from
+               ostY1731RealTimeResultsAccessCount.
+            6) Read data from the probe table appropriate for the probe type.
+            7) To retrieve data for a different probe, or to update the data for the currently
+               selected probe, go to step 4.
+            8) Set ostY1731RealTimeResultsAccessAvailable to true to allow other management
+               entities to use this resource."
+    ::= { ostY1731RealTimeResults 1 }
+
+ostY1731RealTimeResultsAccessEntry OBJECT-TYPE
+    SYNTAX      OstY1731RealTimeResultsAccessEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION
+        "Y.1731 Real Time Results Access table entry."
+    INDEX { ostModuleIndex }
+    ::= { ostY1731RealTimeResultsAccessTable 1 }
+
+OstY1731RealTimeResultsAccessEntry ::= SEQUENCE {
+        ostY1731RealTimeResultsAccessAvailable    TruthValue,
+        ostY1731RealTimeResultsAccessProbeNum     Unsigned32,
+        ostY1731RealTimeResultsAccessCount        Unsigned32,
+        ostY1731RealTimeResultsAccessMaxGet       Unsigned32
+    }
+
+ostY1731RealTimeResultsAccessAvailable OBJECT-TYPE
+    SYNTAX      TruthValue
+    MAX-ACCESS  read-write
+    STATUS      current
+    DESCRIPTION
+       "This object indicates the availability of the ostY1731RealTimeResults objects for
+        cooperating mangement entities.  A value of true indicates the
+        ostY1731RealTimeResults objects are available.
+        See the ostY1731RealTimeResultsAccessTable description for use of this object."
+    DEFVAL { true }
+    ::= { ostY1731RealTimeResultsAccessEntry 1 }
+
+ostY1731RealTimeResultsAccessProbeNum OBJECT-TYPE
+    SYNTAX      Unsigned32 (1..15)
+    MAX-ACCESS  read-write
+    STATUS      current
+    DESCRIPTION
+        "This object selects the probe to be accessed by the probe table."
+    DEFVAL { 1 }
+    ::= { ostY1731RealTimeResultsAccessEntry 2 }
+
+ostY1731RealTimeResultsAccessCount OBJECT-TYPE
+    SYNTAX      Unsigned32 (0..900)
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+        "This object specifies the number of probe intervals available for the selected probe."
+    ::= { ostY1731RealTimeResultsAccessEntry 3 }
+
+ostY1731RealTimeResultsAccessMaxGet OBJECT-TYPE
+    SYNTAX      Unsigned32 (0..900)
+    MAX-ACCESS  read-write
+    STATUS      current
+    DESCRIPTION
+        "This object specifies the maximum number of probe intervals to be read."
+    DEFVAL { 20 }
+    ::= { ostY1731RealTimeResultsAccessEntry 4 }
+
+--------------------------------------------------------------------------------------------
+-- Y.1731 Frame Loss and Availability, Dual Ended (CCM) Probe Real Time Result Table
+--------------------------------------------------------------------------------------------
+
+ostY1731RealTimeResultsCcmTable OBJECT-TYPE
+    SYNTAX      SEQUENCE OF OstY1731RealTimeResultsCcmEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION
+       "This table provides read only access to the last 900 real time measurements for
+        Y.1731 'dual ended loss/availability (CCM)' probes.
+
+        Each table row represents one real time measurement.
+        The ostY1731RtrIntrvlNum table index selects a given real time measurement.
+        The rate at which the real time measurements are made is set by the probe interval.
+
+        The following table specifies the relationship of the probe interval setting and the
+        total time represented by the 900 real time measurements:
+
+        +----------------+-------------+
+        | Probe Interval | Total Time  |
+        +----------------+-------------+
+        |    100 ms      |  90 seconds |
+        |      1 second  |  15 minutes |
+        |     10 seconds | 150 minutes |
+        |      1 minute  |  15 hours   |
+        |     10 minutes | 150 hours   |
+        +----------------+-------------+
+        "
+    ::= { ostY1731RealTimeResults 2 }
+
+ostY1731RealTimeResultsCcmEntry OBJECT-TYPE
+    SYNTAX      OstY1731RealTimeResultsCcmEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION
+       "Y.1731 'dual ended loss/availability (CCM)' probe real time result table entry."
+    INDEX { ostModuleIndex, ostY1731RtrIntrvlNum }
+    ::= { ostY1731RealTimeResultsCcmTable 1 }
+
+OstY1731RealTimeResultsCcmEntry ::= SEQUENCE {
+        ostY1731RtrIntrvlNum    Unsigned32,
+        ostY1731RtrCcmTime      NTPTimeStamp,
+        ostY1731RtrCcmRxFC1     Unsigned32,
+        ostY1731RtrCcmTxFCf     Unsigned32,
+        ostY1731RtrCcmRxFCb     Unsigned32,
+        ostY1731RtrCcmTxFCb     Unsigned32
+    }
+
+ostY1731RtrIntrvlNum OBJECT-TYPE
+    SYNTAX      Unsigned32 (1..900)
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION
+        "Selects the result interval number, where 1 is the most recent entry, and 900 is the oldest entry.
+         Time between table entries is determined by the probe interval, see ostY1731ProbeInterval.  The total
+         time represented by 900 entries is based on the probe interval, see the description for this table."
+    ::= { ostY1731RealTimeResultsCcmEntry 1 }
+
+ostY1731RtrCcmTime OBJECT-TYPE
+    SYNTAX      NTPTimeStamp
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+        "Timestamp for captured counter values."
+    ::= { ostY1731RealTimeResultsCcmEntry 2 }
+
+ostY1731RtrCcmRxFC1 OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+        "In-profile Ethernet (service) data frames transmitted by the MEP toward the target MEP."
+    ::= { ostY1731RealTimeResultsCcmEntry 3 }
+
+ostY1731RtrCcmTxFCf OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+        "The value of the local counter TxFC1 at the time the last CCM frame was transmitted."
+    ::= { ostY1731RealTimeResultsCcmEntry 4 }
+
+ostY1731RtrCcmRxFCb OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+        "The value of the local counter RxFC1 at the time the last CCM frame was received from
+         the target MEP."
+    ::= { ostY1731RealTimeResultsCcmEntry 5 }
+
+ostY1731RtrCcmTxFCb OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+        "The value of the TxFCb field in the last CCM frame received by the MEP from the target MEP."
+    ::= { ostY1731RealTimeResultsCcmEntry 6 }
+
+--------------------------------------------------------------------------------------------
+-- Y.1731 Frame Loss and Availability, Single Ended (LMM/LMR) Probe Real Time Result Table
+--------------------------------------------------------------------------------------------
+
+ostY1731RealTimeResultsLmmLmrTable OBJECT-TYPE
+    SYNTAX      SEQUENCE OF OstY1731RealTimeResultsLmmLmrEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION
+       "This table provides read only access to the last 900 real time measurements for
+        Y.1731 'single-ended loss/availability (LMM/LMR)' probes.
+
+        Each table row represents one real time measurement.
+        The ostY1731RtrIntrvlNum table index selects a given real time measurement.
+        The rate at which the real time measurements are made is set by the probe interval.
+
+        The following table specifies the relationship of the probe interval setting and the
+        total time represented by the 900 real time measurements:
+
+        +----------------+-------------+
+        | Probe Interval | Total Time  |
+        +----------------+-------------+
+        |    100 ms      |  90 seconds |
+        |      1 second  |  15 minutes |
+        |     10 seconds | 150 minutes |
+        |      1 minute  |  15 hours   |
+        |     10 minutes | 150 hours   |
+        +----------------+-------------+
+        "
+    ::= { ostY1731RealTimeResults 3 }
+
+ostY1731RealTimeResultsLmmLmrEntry OBJECT-TYPE
+    SYNTAX      OstY1731RealTimeResultsLmmLmrEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION
+       "Y.1731 'single-ended loss/availability (LMM/LMR)' probe real time result table entry."
+    INDEX { ostModuleIndex, ostY1731RtrIntrvlNum }
+    ::= { ostY1731RealTimeResultsLmmLmrTable 1 }
+
+OstY1731RealTimeResultsLmmLmrEntry ::= SEQUENCE {
+        ostY1731RtrLmmLmrTime   NTPTimeStamp,
+        ostY1731RtrLmmLmrRxFC1  Unsigned32,
+        ostY1731RtrLmmLmrTxFCf  Unsigned32,
+        ostY1731RtrLmmLmrRxFCf  Unsigned32,
+        ostY1731RtrLmmLmrTxFCb  Unsigned32
+    }
+
+ostY1731RtrLmmLmrTime OBJECT-TYPE
+    SYNTAX      NTPTimeStamp
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+        "Timestamp for captured counter values."
+    ::= { ostY1731RealTimeResultsLmmLmrEntry 1 }
+
+ostY1731RtrLmmLmrRxFC1 OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+        "In-profile Ethernet (service) data frames transmitted by the MEP toward the target MEP."
+    ::= { ostY1731RealTimeResultsLmmLmrEntry 2 }
+
+ostY1731RtrLmmLmrTxFCf OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+        "The value of the TxFC1 field copied from the last LMM frame transmitted."
+    ::= { ostY1731RealTimeResultsLmmLmrEntry 3 }
+
+ostY1731RtrLmmLmrRxFCf OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+        "The value of the local counter RxFC1 at the time of the last LMM frame reception."
+    ::= { ostY1731RealTimeResultsLmmLmrEntry 4 }
+
+ostY1731RtrLmmLmrTxFCb OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+        "The value of the TxFC1 local counter at the time of the last LMR frame transmission."
+    ::= { ostY1731RealTimeResultsLmmLmrEntry 5 }
+
+
+--------------------------------------------------------------------------------------------
+-- Y.1731 1-Way Delay/Variation (1DM) Probe Real Time Result Table
+--------------------------------------------------------------------------------------------
+
+ostY1731RealTimeResults1DmTable OBJECT-TYPE
+    SYNTAX      SEQUENCE OF OstY1731RealTimeResults1DmEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION
+       "This table provides read only access to the last 900 real time measurements for
+        Y.1731 '1-way delay/variation (1DM)' probes.
+
+        Each table row represents one real time measurement.
+        The ostY1731RtrIntrvlNum table index selects a given real time measurement.
+        The rate at which the real time measurements are made is set by the probe interval.
+
+        The following table specifies the relationship of the probe interval setting and the
+        total time represented by the 900 real time measurements:
+
+        +----------------+-------------+
+        | Probe Interval | Total Time  |
+        +----------------+-------------+
+        |    100 ms      |  90 seconds |
+        |      1 second  |  15 minutes |
+        |     10 seconds | 150 minutes |
+        |      1 minute  |  15 hours   |
+        |     10 minutes | 150 hours   |
+        +----------------+-------------+
+        "
+    ::= { ostY1731RealTimeResults 4 }
+
+ostY1731RealTimeResults1DmEntry OBJECT-TYPE
+    SYNTAX      OstY1731RealTimeResults1DmEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION
+       "Y.1731 '1-way delay/variation (1DM)' probe real time result table entry."
+    INDEX { ostModuleIndex, ostY1731RtrIntrvlNum }
+    ::= { ostY1731RealTimeResults1DmTable 1 }
+
+OstY1731RealTimeResults1DmEntry ::= SEQUENCE {
+        ostY1731Rtr1DmTxTimeStampf  NTPTimeStamp,
+        ostY1731Rtr1DmRxTimeStampf  NTPTimeStamp
+    }
+
+ostY1731Rtr1DmTxTimeStampf OBJECT-TYPE
+    SYNTAX      NTPTimeStamp
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+        "TxTimeStampf counter value."
+    ::= { ostY1731RealTimeResults1DmEntry 1 }
+
+ostY1731Rtr1DmRxTimeStampf OBJECT-TYPE
+    SYNTAX      NTPTimeStamp
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+        "RxTimeStampf counter value."
+    ::= { ostY1731RealTimeResults1DmEntry 2 }
+
+
+--------------------------------------------------------------------------------------------
+-- Y.1731 2-Way Delay/Variation (DMM/DMR) Probe Real Time Result Table
+--------------------------------------------------------------------------------------------
+
+ostY1731RealTimeResultsDmmDmrTable OBJECT-TYPE
+    SYNTAX      SEQUENCE OF OstY1731RealTimeResultsDmmDmrEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION
+       "This table provides read only access to the last 900 real time measurements for
+        Y.1731 '2-way delay/variation (DMM/DMR)' probes.
+
+        Each table row represents one real time measurement.
+        The ostY1731RtrIntrvlNum table index selects a given real time measurement.
+        The rate at which the real time measurements are made is set by the probe interval.
+
+        The following table specifies the relationship of the probe interval setting and the
+        total time represented by the 900 real time measurements:
+
+        +----------------+-------------+
+        | Probe Interval | Total Time  |
+        +----------------+-------------+
+        |    100 ms      |  90 seconds |
+        |      1 second  |  15 minutes |
+        |     10 seconds | 150 minutes |
+        |      1 minute  |  15 hours   |
+        |     10 minutes | 150 hours   |
+        +----------------+-------------+
+        "
+    ::= { ostY1731RealTimeResults 5 }
+
+ostY1731RealTimeResultsDmmDmrEntry OBJECT-TYPE
+    SYNTAX      OstY1731RealTimeResultsDmmDmrEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION
+       "Y.1731 '2-way delay/variation (DMM/DMR)' probe real time result table entry."
+    INDEX { ostModuleIndex, ostY1731RtrIntrvlNum }
+    ::= { ostY1731RealTimeResultsDmmDmrTable 1 }
+
+OstY1731RealTimeResultsDmmDmrEntry ::= SEQUENCE {
+        ostY1731RtrDmmDmrTxTimeStampf  NTPTimeStamp,
+        ostY1731RtrDmmDmrRxTimeStampf  NTPTimeStamp,
+        ostY1731RtrDmmDmrTxTimeStampb  NTPTimeStamp,
+        ostY1731RtrDmmDmrRxTimeStampb  NTPTimeStamp
+    }
+
+ostY1731RtrDmmDmrTxTimeStampf OBJECT-TYPE
+    SYNTAX      NTPTimeStamp
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+        "TxTimeStampf counter value."
+    ::= { ostY1731RealTimeResultsDmmDmrEntry 1 }
+
+ostY1731RtrDmmDmrRxTimeStampf OBJECT-TYPE
+    SYNTAX      NTPTimeStamp
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+        "RxTimeStampf counter value."
+    ::= { ostY1731RealTimeResultsDmmDmrEntry 2 }
+
+ostY1731RtrDmmDmrTxTimeStampb OBJECT-TYPE
+    SYNTAX      NTPTimeStamp
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+        "TxTimeStampb counter value."
+    ::= { ostY1731RealTimeResultsDmmDmrEntry 3 }
+
+ostY1731RtrDmmDmrRxTimeStampb OBJECT-TYPE
+    SYNTAX      NTPTimeStamp
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+        "RxTimeStampb counter value."
+    ::= { ostY1731RealTimeResultsDmmDmrEntry 4 }
+
+
+--------------------------------------------------------------------------------------------
+-- Y.1731 Frame Loss and Availability, Single Ended Synthetic (SLM/SLR) Probe Real Time Result Table
+--------------------------------------------------------------------------------------------
+
+ostY1731RealTimeResultsSlmSlrTable OBJECT-TYPE
+    SYNTAX      SEQUENCE OF OstY1731RealTimeResultsSlmSlrEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION
+       "This table provides read only access to the last 900 real time measurements for
+        Y.1731 'single-ended synthetic loss/availability (SLM/SLR)' probes.
+
+        Each table row represents one real time measurement.
+        The ostY1731RtrIntrvlNum table index selects a given real time measurement.
+        The rate at which the real time measurements are made is set by the probe interval.
+
+        The following table specifies the relationship of the probe interval setting and the
+        total time represented by the 900 real time measurements:
+
+        +----------------+-------------+
+        | Probe Interval | Total Time  |
+        +----------------+-------------+
+        |    100 ms      |  90 seconds |
+        |      1 second  |  15 minutes |
+        |     10 seconds | 150 minutes |
+        +----------------+-------------+
+        "
+    ::= { ostY1731RealTimeResults 6 }
+
+ostY1731RealTimeResultsSlmSlrEntry OBJECT-TYPE
+    SYNTAX      OstY1731RealTimeResultsSlmSlrEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION
+       "Y.1731 'single-ended synthetic loss/availability (SLM/SLR)' probe real time result table entry."
+    INDEX { ostModuleIndex, ostY1731RtrIntrvlNum }
+    ::= { ostY1731RealTimeResultsSlmSlrTable 1 }
+
+OstY1731RealTimeResultsSlmSlrEntry ::= SEQUENCE {
+        ostY1731RtrSlmSlrTime   NTPTimeStamp,
+        ostY1731RtrSlmSlrRxFCl  Unsigned32,
+        ostY1731RtrSlmSlrTxFCf  Unsigned32,
+        ostY1731RtrSlmSlrTxFCb  Unsigned32
+    }
+
+ostY1731RtrSlmSlrTime OBJECT-TYPE
+    SYNTAX      NTPTimeStamp
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+        "Timestamp for captured counter values."
+    ::= { ostY1731RealTimeResultsSlmSlrEntry 1 }
+
+ostY1731RtrSlmSlrRxFCl OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+        "In-profile Ethernet (service) SLM data frames transmitted by the MEP toward the target MEP."
+    ::= { ostY1731RealTimeResultsSlmSlrEntry 2 }
+
+ostY1731RtrSlmSlrTxFCf OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+        "The value of the TxFC1 field copied from the last SLM frame transmitted."
+    ::= { ostY1731RealTimeResultsSlmSlrEntry 3 }
+
+ostY1731RtrSlmSlrTxFCb OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+        "The value of the TxFC1 local counter at the time of the last SLR frame transmission."
+    ::= { ostY1731RealTimeResultsSlmSlrEntry 4 }
+
+
+----------------------------------------------------------------------------------------------
+-- Y.1731 Performance Metric Result Managed Objects
+--
+-- Performance Metric results managed objects provide read only access to the last 24 hours
+-- of Performance Metric buckets and the last 7 days of Performance Metric daily buckets
+-- for each probe.  Performance Metric results are accessed for a single probe at
+-- a time, using one of the following tables, based on the probe type:
+--
+--            Table                     Bin table                    Probe Type
+--            --------------------------------------------------------------------
+--            ostY1731PmrCcmTable       N/A                          CCM
+--            ostY1731PmrLmmLmrTable    N/A                          LMM/LMR
+--            ostY1731Pmr1DmTable       ostY1731Pmr1DmBinTable       1DM
+--            ostY1731PmrDmmDmrTable    ostY1731PmrDmmDmrBinTable    DMM/DMR
+--
+-- The ostY1731PerformanceMetricResultsAccessTable table objects control which probe
+-- is currently selected for retrieval of Performance Metric results.
+----------------------------------------------------------------------------------------------
+
+ostY1731PerfMetricsResults OBJECT IDENTIFIER ::= { ostY1731Results 2 }
+
+--------------------------------------------------------------------------------------------
+-- Y.1731 Performance Metric Results Access Table
+--------------------------------------------------------------------------------------------
+
+ostY1731PerformanceMetricResultsAccessTable OBJECT-TYPE
+    SYNTAX      SEQUENCE OF OstY1731PerformanceMetricResultsAccessEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION
+        "The Y.1731 Performance Metric Results Access Table selects the probe bucket data
+         to be retrieved using one of the following probe tables:
+
+            ostY1731PerformanceMetricResultsCcmTable
+            ostY1731PerformanceMetricResultsLmmLmrTable
+            ostY1731PerformanceMetricResults1DmTable
+            ostY1731PerformanceMetricResultsDmmDmrTable
+
+         A management entity should use the following steps to retrieve probe buckets from
+         one of the above tables:
+            1) Send an SNMP GET PDU for the following:
+                 snmpSetSerialNo and ostY1731PerformanceMetricResultsAccessAvailable
+            2) If ostY1731PerformanceMetricResultsAccessAvailable is false repeat step 1.
+            3) Send an SNMP SET PDU with the following:
+
+                 varbind                                         | value
+                 ------------------------------------------------+-------------------------------------
+                 snmpSetSerialNo                                 | snmpSetSerialNo value read in step 1
+                 ostY1731PerformanceMetricResultsAccessAvailable | false
+
+               snmpSetSerialNo must be the first varbind to ensure no other cooperating
+               management entity will use this resource. A failure to set snmpSetSerialNo due to
+               another management entity having set it, requires a return to step 1.
+            4) Set ostY1731PerformanceMetricResultsAccessProbeNum to select the probe index of the probe
+               from which to retrieve probe bucket data.
+            5) The number of entries available in the probe table is available from
+               ostY1731PerformanceMetricResultsAccessCount.
+            6) Read data from the probe table appropriate for the probe type.
+            7) To retrieve data for a different probe, or to update the data for the currently
+               selected probe, go to step 4.
+            8) Set ostY1731PerformanceMetricResultsAccessAvailable to true to allow other management
+               entities to use this resource."
+    ::= { ostY1731PerfMetricsResults 1 }
+
+ostY1731PerformanceMetricResultsAccessEntry OBJECT-TYPE
+    SYNTAX      OstY1731PerformanceMetricResultsAccessEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION
+        "Y.1731 Performance Metric Results Access table entry."
+    INDEX { ostModuleIndex }
+    ::= { ostY1731PerformanceMetricResultsAccessTable 1 }
+
+OstY1731PerformanceMetricResultsAccessEntry ::= SEQUENCE {
+        ostY1731PerformanceMetricResultsAccessAvailable    TruthValue,
+        ostY1731PerformanceMetricResultsAccessProbeNum     Unsigned32,
+        ostY1731PerformanceMetricResultsAccessCount        Unsigned32,
+        ostY1731PerformanceMetricResultsAccessMaxGet       Unsigned32
+    }
+
+ostY1731PerformanceMetricResultsAccessAvailable OBJECT-TYPE
+    SYNTAX      TruthValue
+    MAX-ACCESS  read-write
+    STATUS      current
+    DESCRIPTION
+       "This object indicates the availability of the ostY1731PerformanceMetricResults objects for
+        cooperating mangement entities.  A value of true indicates the
+        ostY1731PerformanceMetricResults objects are available.
+        See the ostY1731PerformanceMetricResultsAccessTable description for use of this object."
+    DEFVAL { true }
+    ::= { ostY1731PerformanceMetricResultsAccessEntry 1 }
+
+ostY1731PerformanceMetricResultsAccessProbeNum OBJECT-TYPE
+    SYNTAX      Unsigned32 (1..15)
+    MAX-ACCESS  read-write
+    STATUS      current
+    DESCRIPTION
+        "This object selects the probe to be accessed by the PM table."
+    DEFVAL { 1 }
+    ::= { ostY1731PerformanceMetricResultsAccessEntry 2 }
+
+ostY1731PerformanceMetricResultsAccessCount OBJECT-TYPE
+    SYNTAX      Unsigned32 (0..1440)
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+        "This object specifies the number of buckets available for the selected probe."
+    ::= { ostY1731PerformanceMetricResultsAccessEntry 3 }
+
+ostY1731PerformanceMetricResultsAccessMaxGet OBJECT-TYPE
+    SYNTAX      Unsigned32 (0..1440)
+    MAX-ACCESS  read-write
+    STATUS      current
+    DESCRIPTION
+        "This object specifies the maximum number of buckets to be read."
+    DEFVAL { 1440 }
+    ::= { ostY1731PerformanceMetricResultsAccessEntry 4 }
+
+
+--------------------------------------------------------------------------------------------
+-- Y.1731 2-Way Delay/Variation (DMM/DMR) Probe Performance Metric Result Table
+--------------------------------------------------------------------------------------------
+
+ostY1731PmrDmmDmrTable OBJECT-TYPE
+    SYNTAX      SEQUENCE OF OstY1731PmrDmmDmrEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION
+       "This table provides read only access to the last 24 hours of performance metrics and
+        to the last 7 days of performance metrics for Y.1731 '2-way delay/variation (DMM/DMR)'
+        probes.  Frame delay and frame delay variation values are in millisecond resolution.
+
+        For the last 24 hours of performance measurement buckets, each table row represents the
+        performance measurements for 1 bucket period. The ostY1731PmrIntrvlNum table index
+        selects a given bucket.  Performance metric measurements are calculated over a period
+        specified by the Bucket Period setting, which is from 1 to 60 minutes.
+
+        For the last 7 days of performance metrics, there is only one row which represents the
+        accumulated performance metrics for that 24 hour period.
+
+        The following table specifies the number of buckets for a 24 hour period based on the
+        Bucket Period setting.
+
+         +---------------+--------------+
+         | Bucket Period | # of buckets |
+         |   (minutes)   | for 24 hours |
+         +---------------+--------------+
+         |        1      |      1440    |
+         +---------------+--------------+
+         |       10      |       144    |
+         +---------------+--------------+
+         |       15      |        96    |
+         +---------------+--------------+
+         |       30      |        48    |
+         +---------------+--------------+
+         |       60      |        24    |
+         +---------------+--------------+
+
+        The following table specifies the number of real time measurements used to compute a
+        performance measurement based on the probe interval and various bucket periods.  The
+        number of real time measurements specified are not stored, only the last 900 are
+        accessible from the MIB, see ostY1731RealTimeResults.
+
+                          +------------------------+
+                          | Bucket Period (minutes)|
+         +----------------+-------+--------+-------+
+         | Probe Interval |    1  |   15   |   60  |
+         +----------------+-------+--------+-------+
+         |   100 ms       | 600   | 9000   | 36000 |
+         +----------------+-------+--------+-------+
+         |     1 second   |  60   |  900   |  3600 |
+         +----------------+-------+--------+-------+
+         |    10 seconds  |   6   |   90   |   360 |
+         +----------------+-------+--------+-------+
+         |     1 minute   |   1   |   15   |    60 |
+         +----------------+-------+--------+-------+
+         |    10 minutes  |   0.1 |    2.5 |     6 |
+         +----------------+-------+--------+-------+
+       "
+    ::= { ostY1731PerfMetricsResults 2 }
+
+ostY1731PmrDmmDmrEntry OBJECT-TYPE
+    SYNTAX      OstY1731PmrDmmDmrEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION
+       "Y.1731 '2-way delay/variation (DMM/DMR)' probe performance metric result table entry."
+    INDEX { ostModuleIndex, ostY1731PmrDayNum, ostY1731PmrIntrvlNum }
+    ::= { ostY1731PmrDmmDmrTable 1 }
+
+OstY1731PmrDmmDmrEntry ::= SEQUENCE {
+        ostY1731PmrDmmDmrTime                NTPTimeStamp,
+        ostY1731PmrDmmDmrSuspect             TruthValue,
+        ostY1731PmrDmmDmrInitMeas            Unsigned32,
+        ostY1731PmrDmmDmrCmplMeas            Unsigned32,
+        ostY1731PmrDmmDmr2wayFrmDlyMin       Unsigned32,
+        ostY1731PmrDmmDmr2wayFrmDlyMax       Unsigned32,
+        ostY1731PmrDmmDmr2wayFrmDlyAvg       OCTET STRING,
+        ostY1731PmrDmmDmrFwdFrmDlyMin        Unsigned32,
+        ostY1731PmrDmmDmrFwdFrmDlyMax        Unsigned32,
+        ostY1731PmrDmmDmrFwdFrmDlyAvg        OCTET STRING,
+        ostY1731PmrDmmDmrBckFrmDlyMin        Unsigned32,
+        ostY1731PmrDmmDmrBckFrmDlyMax        Unsigned32,
+        ostY1731PmrDmmDmrBckFrmDlyAvg        OCTET STRING,
+        ostY1731PmrDmmDmr2WayFrmDlyVarMin    Unsigned32,
+        ostY1731PmrDmmDmr2WayFrmDlyVarMax    Unsigned32,
+        ostY1731PmrDmmDmr2WayFrmDlyVarAvg    OCTET STRING,
+        ostY1731PmrDmmDmrFwdFrmDlyVarMin     Unsigned32,
+        ostY1731PmrDmmDmrFwdFrmDlyVarMax     Unsigned32,
+        ostY1731PmrDmmDmrFwdFrmDlyVarAvg     OCTET STRING,
+        ostY1731PmrDmmDmrBckFrmDlyVarMin     Unsigned32,
+        ostY1731PmrDmmDmrBckFrmDlyVarMax     Unsigned32,
+        ostY1731PmrDmmDmrBckFrmDlyVarAvg     OCTET STRING
+    }
+
+ostY1731PmrDmmDmrTime OBJECT-TYPE
+    SYNTAX      NTPTimeStamp
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+        "Timestamp for captured counter values."
+    ::= { ostY1731PmrDmmDmrEntry 1 }
+
+ostY1731PmrDmmDmrSuspect OBJECT-TYPE
+    SYNTAX      TruthValue
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+        "Entry suspect flag.  Indicates discontinuity during measurement time."
+    ::= { ostY1731PmrDmmDmrEntry 2 }
+
+ostY1731PmrDmmDmrInitMeas OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+        "Number of initiated measurements."
+    ::= { ostY1731PmrDmmDmrEntry 3 }
+
+ostY1731PmrDmmDmrCmplMeas OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+        "Number of completed measurements."
+    ::= { ostY1731PmrDmmDmrEntry 4 }
+
+ostY1731PmrDmmDmr2wayFrmDlyMin OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+        "2 way frame delay minimum value."
+    ::= { ostY1731PmrDmmDmrEntry 5 }
+
+ostY1731PmrDmmDmr2wayFrmDlyMax OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+        "2 way frame delay maximum value."
+    ::= { ostY1731PmrDmmDmrEntry 6 }
+
+ostY1731PmrDmmDmr2wayFrmDlyAvg OBJECT-TYPE
+    SYNTAX      OCTET STRING
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+        "2 way frame delay average value."
+    ::= { ostY1731PmrDmmDmrEntry 7 }
+
+ostY1731PmrDmmDmrFwdFrmDlyMin OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+        "Forward direction frame delay minimum value."
+    ::= { ostY1731PmrDmmDmrEntry 8 }
+
+ostY1731PmrDmmDmrFwdFrmDlyMax OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+        "Forward direction frame delay maximum value."
+    ::= { ostY1731PmrDmmDmrEntry 9 }
+
+ostY1731PmrDmmDmrFwdFrmDlyAvg OBJECT-TYPE
+    SYNTAX      OCTET STRING
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+        "Forward direction frame delay average value."
+    ::= { ostY1731PmrDmmDmrEntry 10 }
+
+ostY1731PmrDmmDmrBckFrmDlyMin OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+        "Backward direction frame delay minimum value."
+    ::= { ostY1731PmrDmmDmrEntry 11 }
+
+ostY1731PmrDmmDmrBckFrmDlyMax OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+        "Backward direction frame delay maximum value."
+    ::= { ostY1731PmrDmmDmrEntry 12 }
+
+ostY1731PmrDmmDmrBckFrmDlyAvg OBJECT-TYPE
+    SYNTAX      OCTET STRING
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+        "Backward direction frame delay average value."
+    ::= { ostY1731PmrDmmDmrEntry 13 }
+
+ostY1731PmrDmmDmr2WayFrmDlyVarMin OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+        "2 way frame delay variation minimum value."
+    ::= { ostY1731PmrDmmDmrEntry 14 }
+
+ostY1731PmrDmmDmr2WayFrmDlyVarMax OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+        "2 way frame delay variation maximum value."
+    ::= { ostY1731PmrDmmDmrEntry 15 }
+
+ostY1731PmrDmmDmr2WayFrmDlyVarAvg OBJECT-TYPE
+    SYNTAX      OCTET STRING
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+        "2 way frame delay variation average value."
+    ::= { ostY1731PmrDmmDmrEntry 16 }
+
+ostY1731PmrDmmDmrFwdFrmDlyVarMin OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+        "Forward direction frame delay variation minimum value."
+    ::= { ostY1731PmrDmmDmrEntry 17 }
+
+ostY1731PmrDmmDmrFwdFrmDlyVarMax OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+        "Forward direction frame delay variation maximum value."
+    ::= { ostY1731PmrDmmDmrEntry 18 }
+
+ostY1731PmrDmmDmrFwdFrmDlyVarAvg OBJECT-TYPE
+    SYNTAX      OCTET STRING
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+        "Forward direction frame delay variation average value."
+    ::= { ostY1731PmrDmmDmrEntry 19 }
+
+ostY1731PmrDmmDmrBckFrmDlyVarMin OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+        "Backward direction frame delay variation minimum value."
+    ::= { ostY1731PmrDmmDmrEntry 20 }
+
+ostY1731PmrDmmDmrBckFrmDlyVarMax OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+        "Backward direction frame delay variation maximum value."
+    ::= { ostY1731PmrDmmDmrEntry 21 }
+
+ostY1731PmrDmmDmrBckFrmDlyVarAvg OBJECT-TYPE
+    SYNTAX      OCTET STRING
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+        "Backward direction frame delay variation average value."
+    ::= { ostY1731PmrDmmDmrEntry 22 }
+
+
+--------------------------------------------------------------------------------------------
+-- Y.1731 1-Way Delay/Variation (1DM) Probe Performance Metric Result Table
+--------------------------------------------------------------------------------------------
+
+ostY1731Pmr1DmTable OBJECT-TYPE
+    SYNTAX      SEQUENCE OF OstY1731Pmr1DmEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION
+       "This table provides read only access to the last 24 hours of performance metrics and
+        to the last 7 days of performance metrics for Y.1731 '1-way delay/variation (1DM)' probes.
+        Frame delay and frame delay variation values are in millisecond resolution.
+
+        For the last 24 hours of performance measurement buckets, each table row represents the
+        performance measurements for 1 bucket period. The ostY1731PmrIntrvlNum table index
+        selects a given bucket.  Performance metric measurements are calculated over a period
+        specified by the Bucket Period setting, which is from 1 to 60 minutes.
+
+        For the last 7 days of performance metrics, there is only one row which represents the
+        accumulated performance metrics for that 24 hour period.
+
+        The following table specifies the number of buckets for a 24 hour period based on the
+        Bucket Period setting.
+
+         +---------------+--------------+
+         | Bucket Period | # of buckets |
+         |   (minutes)   | for 24 hours |
+         +---------------+--------------+
+         |        1      |      1440    |
+         +---------------+--------------+
+         |       10      |       144    |
+         +---------------+--------------+
+         |       15      |        96    |
+         +---------------+--------------+
+         |       30      |        48    |
+         +---------------+--------------+
+         |       60      |        24    |
+         +---------------+--------------+
+
+        The following table specifies the number of real time measurements used to compute a
+        performance measurement based on the probe interval and various bucket periods.  The
+        number of real time measurements specified are not stored, only the last 900 are
+        accessible from the MIB, see ostY1731RealTimeResults.
+
+                          +------------------------+
+                          | Bucket Period (minutes)|
+         +----------------+-------+--------+-------+
+         | Probe Interval |    1  |   15   |   60  |
+         +----------------+-------+--------+-------+
+         |   100 ms       | 600   | 9000   | 36000 |
+         +----------------+-------+--------+-------+
+         |     1 second   |  60   |  900   |  3600 |
+         +----------------+-------+--------+-------+
+         |    10 seconds  |   6   |   90   |   360 |
+         +----------------+-------+--------+-------+
+         |     1 minute   |   1   |   15   |    60 |
+         +----------------+-------+--------+-------+
+         |    10 minutes  |   0.1 |    2.5 |     6 |
+         +----------------+-------+--------+-------+
+       "
+    ::= { ostY1731PerfMetricsResults 3 }
+
+ostY1731Pmr1DmEntry OBJECT-TYPE
+    SYNTAX      OstY1731Pmr1DmEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION
+       "Y.1731 '1-way delay/variation (1DM)' probe performance metric result table entry."
+    INDEX { ostModuleIndex, ostY1731PmrDayNum, ostY1731PmrIntrvlNum }
+    ::= { ostY1731Pmr1DmTable 1 }
+
+OstY1731Pmr1DmEntry ::= SEQUENCE {
+        ostY1731Pmr1DmTime                NTPTimeStamp,
+        ostY1731Pmr1DmSuspect             TruthValue,
+        ostY1731Pmr1DmInitMeas            Unsigned32,
+        ostY1731Pmr1DmCmplMeas            Unsigned32,
+        ostY1731Pmr1DmFwdFrmDlyMin        Unsigned32,
+        ostY1731Pmr1DmFwdFrmDlyMax        Unsigned32,
+        ostY1731Pmr1DmFwdFrmDlyAvg        OCTET STRING,
+        ostY1731Pmr1DmFwdFrmDlyVarMin     Unsigned32,
+        ostY1731Pmr1DmFwdFrmDlyVarMax     Unsigned32,
+        ostY1731Pmr1DmFwdFrmDlyVarAvg     OCTET STRING
+        }
+
+ostY1731Pmr1DmTime OBJECT-TYPE
+    SYNTAX      NTPTimeStamp
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+        "Timestamp for captured counter values."
+    ::= { ostY1731Pmr1DmEntry 1 }
+
+ostY1731Pmr1DmSuspect OBJECT-TYPE
+    SYNTAX      TruthValue
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+        "Entry suspect flag.  Indicates discontinuity during measurement time."
+    ::= { ostY1731Pmr1DmEntry 2 }
+
+ostY1731Pmr1DmInitMeas OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+        "Number of initiated measurements."
+    ::= { ostY1731Pmr1DmEntry 3 }
+
+ostY1731Pmr1DmCmplMeas OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+        "Number of completed measurements."
+    ::= { ostY1731Pmr1DmEntry 4 }
+
+ostY1731Pmr1DmFwdFrmDlyMin OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+        "Forward direction frame delay minimum value."
+    ::= { ostY1731Pmr1DmEntry 5 }
+
+ostY1731Pmr1DmFwdFrmDlyMax OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+        "Forward direction frame delay maximum value."
+    ::= { ostY1731Pmr1DmEntry 6 }
+
+ostY1731Pmr1DmFwdFrmDlyAvg OBJECT-TYPE
+    SYNTAX      OCTET STRING
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+        "Forward direction frame delay average value."
+    ::= { ostY1731Pmr1DmEntry 7 }
+
+ostY1731Pmr1DmFwdFrmDlyVarMin OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+        "Forward direction frame delay variation minimum value."
+    ::= { ostY1731Pmr1DmEntry 8 }
+
+ostY1731Pmr1DmFwdFrmDlyVarMax OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+        "Forward direction frame delay variation maximum value."
+    ::= { ostY1731Pmr1DmEntry 9 }
+
+ostY1731Pmr1DmFwdFrmDlyVarAvg OBJECT-TYPE
+    SYNTAX      OCTET STRING
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+        "Forward direction frame delay variation average value."
+    ::= { ostY1731Pmr1DmEntry 10 }
+
+
+----------------------------------------------------------------------------------------------------
+-- Y.1731 Frame Loss and Availability, Single Ended (LMM/LMR) Probe Performance Metric Result Table
+----------------------------------------------------------------------------------------------------
+
+ostY1731PmrLmmLmrTable OBJECT-TYPE
+    SYNTAX      SEQUENCE OF OstY1731PmrLmmLmrEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION
+       "This table provides read only access to the last 24 hours of performance metrics and
+        to the last 7 days of performance metrics for Y.1731 'single-ended loss/availability
+        (LMM/LMR)' probes.
+
+        For the last 24 hours of performance measurement buckets, each table row represents the
+        performance measurements for 1 bucket period. The ostY1731PmrIntrvlNum table index
+        selects a given bucket.  Performance metric measurements are calculated over a period
+        specified by the Bucket Period setting, which is from 1 to 60 minutes.
+
+        For the last 7 days of performance metrics, there is only one row which represents the
+        accumulated performance metrics for that 24 hour period.
+
+        The following table specifies the number of buckets for a 24 hour period based on the
+        Bucket Period setting.
+
+         +---------------+--------------+
+         | Bucket Period | # of buckets |
+         |   (minutes)   | for 24 hours |
+         +---------------+--------------+
+         |        1      |      1440    |
+         +---------------+--------------+
+         |       10      |       144    |
+         +---------------+--------------+
+         |       15      |        96    |
+         +---------------+--------------+
+         |       30      |        48    |
+         +---------------+--------------+
+         |       60      |        24    |
+         +---------------+--------------+
+
+        The following table specifies the number of real time measurements used to compute a
+        performance measurement based on the probe interval and various bucket periods.  The
+        number of real time measurements specified are not stored, only the last 900 are
+        accessible from the MIB, see ostY1731RealTimeResults.
+
+                          +------------------------+
+                          | Bucket Period (minutes)|
+         +----------------+-------+--------+-------+
+         | Probe Interval |    1  |   15   |   60  |
+         +----------------+-------+--------+-------+
+         |   100 ms       | 600   | 9000   | 36000 |
+         +----------------+-------+--------+-------+
+         |     1 second   |  60   |  900   |  3600 |
+         +----------------+-------+--------+-------+
+         |    10 seconds  |   6   |   90   |   360 |
+         +----------------+-------+--------+-------+
+         |     1 minute   |   1   |   15   |    60 |
+         +----------------+-------+--------+-------+
+         |    10 minutes  |   0.1 |    2.5 |     6 |
+         +----------------+-------+--------+-------+
+       "
+    ::= { ostY1731PerfMetricsResults 4 }
+
+ostY1731PmrLmmLmrEntry OBJECT-TYPE
+    SYNTAX      OstY1731PmrLmmLmrEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION
+       "Y.1731 'single-ended loss/availability (LMM/LMR)' probe performance metric result table entry."
+    INDEX { ostModuleIndex, ostY1731PmrDayNum, ostY1731PmrIntrvlNum }
+    ::= { ostY1731PmrLmmLmrTable 1 }
+
+OstY1731PmrLmmLmrEntry ::= SEQUENCE {
+        ostY1731PmrLmmLmrTime               NTPTimeStamp,
+        ostY1731PmrLmmLmrSuspect            TruthValue,
+        ostY1731PmrLmmLmrInitMeas           Unsigned32,
+        ostY1731PmrLmmLmrCmplMeas           Unsigned32,
+        ostY1731PmrLmmLmrFwdFrmReceived     OstFrameCount64,
+        ostY1731PmrLmmLmrFwdFrmSent         OstFrameCount64,
+        ostY1731PmrLmmLmrBckFrmReceived     OstFrameCount64,
+        ostY1731PmrLmmLmrBckFrmSent         OstFrameCount64,
+        ostY1731PmrLmmLmrFwdFrmLossRatioMin OCTET STRING,
+        ostY1731PmrLmmLmrFwdFrmLossRatioMax OCTET STRING,
+        ostY1731PmrLmmLmrFwdFrmLossRatioAvg OCTET STRING,
+        ostY1731PmrLmmLmrBckFrmLossRatioMin OCTET STRING,
+        ostY1731PmrLmmLmrBckFrmLossRatioMax OCTET STRING,
+        ostY1731PmrLmmLmrBckFrmLossRatioAvg OCTET STRING,
+        ostY1731PmrLmmLmrFwdAvail           OCTET STRING,
+        ostY1731PmrLmmLmrBckAvail           OCTET STRING
+    }
+
+ostY1731PmrLmmLmrTime OBJECT-TYPE
+    SYNTAX      NTPTimeStamp
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+        "Timestamp for captured counter values."
+    ::= { ostY1731PmrLmmLmrEntry 1 }
+
+ostY1731PmrLmmLmrSuspect OBJECT-TYPE
+    SYNTAX      TruthValue
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+        "Entry suspect flag.  Indicates discontinuity during measurement time."
+    ::= { ostY1731PmrLmmLmrEntry 2 }
+
+ostY1731PmrLmmLmrInitMeas OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+        "Number of initiated measurements."
+    ::= { ostY1731PmrLmmLmrEntry 3 }
+
+ostY1731PmrLmmLmrCmplMeas OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+        "Number of completed measurements."
+    ::= { ostY1731PmrLmmLmrEntry 4 }
+
+ostY1731PmrLmmLmrFwdFrmReceived OBJECT-TYPE
+    SYNTAX      OstFrameCount64
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+        "Number of frames received in the forward direction."
+    ::= { ostY1731PmrLmmLmrEntry 5 }
+
+ostY1731PmrLmmLmrFwdFrmSent OBJECT-TYPE
+    SYNTAX      OstFrameCount64
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+        "Number of frames transmitted in the forward direction."
+    ::= { ostY1731PmrLmmLmrEntry 6 }
+
+ostY1731PmrLmmLmrBckFrmReceived OBJECT-TYPE
+    SYNTAX      OstFrameCount64
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+        "Number of frames received in the backward direction."
+    ::= { ostY1731PmrLmmLmrEntry 7 }
+
+ostY1731PmrLmmLmrBckFrmSent OBJECT-TYPE
+    SYNTAX      OstFrameCount64
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+        "Number of frames transmitted in the backward direction."
+    ::= { ostY1731PmrLmmLmrEntry 8 }
+
+ostY1731PmrLmmLmrFwdFrmLossRatioMin OBJECT-TYPE
+    SYNTAX      OCTET STRING
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+        "Forward direction frame loss ratio minimum value."
+    ::= { ostY1731PmrLmmLmrEntry 9 }
+
+ostY1731PmrLmmLmrFwdFrmLossRatioMax OBJECT-TYPE
+    SYNTAX      OCTET STRING
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+        "Forward direction frame loss ratio maximum value."
+    ::= { ostY1731PmrLmmLmrEntry 10 }
+
+ostY1731PmrLmmLmrFwdFrmLossRatioAvg OBJECT-TYPE
+    SYNTAX      OCTET STRING
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+        "Forward direction frame loss ratio average value."
+    ::= { ostY1731PmrLmmLmrEntry 11 }
+
+ostY1731PmrLmmLmrBckFrmLossRatioMin OBJECT-TYPE
+    SYNTAX      OCTET STRING
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+        "Backward direction frame loss ratio minimum value."
+    ::= { ostY1731PmrLmmLmrEntry 12 }
+
+ostY1731PmrLmmLmrBckFrmLossRatioMax OBJECT-TYPE
+    SYNTAX      OCTET STRING
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+        "Backward direction frame loss ratio maximum value."
+    ::= { ostY1731PmrLmmLmrEntry 13 }
+
+ostY1731PmrLmmLmrBckFrmLossRatioAvg OBJECT-TYPE
+    SYNTAX      OCTET STRING
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+        "Backward direction frame loss ratio average value."
+    ::= { ostY1731PmrLmmLmrEntry 14 }
+
+ostY1731PmrLmmLmrFwdAvail           OBJECT-TYPE
+    SYNTAX      OCTET STRING
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+        "Forward direction availability value is the percentage ratio of availability
+         during the selected time interval in tenths of a percent, range 0-100.0."
+    ::= { ostY1731PmrLmmLmrEntry 15 }
+
+ostY1731PmrLmmLmrBckAvail           OBJECT-TYPE
+    SYNTAX      OCTET STRING
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+        "Backward direction availability value is the percentage ratio of availability
+         during the selected time interval in tenths of a percent, range 0-100.0."
+    ::= { ostY1731PmrLmmLmrEntry 16 }
+
+
+----------------------------------------------------------------------------------------------
+-- Y.1731 Frame Loss and Availability, Dual Ended (CCM) Probe Performance Metric Result Table
+----------------------------------------------------------------------------------------------
+
+ostY1731PmrCcmTable OBJECT-TYPE
+    SYNTAX      SEQUENCE OF OstY1731PmrCcmEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION
+       "This table provides read only access to the last 24 hours of performance metrics and
+        to the last 7 days of performance metrics for Y.1731 'dual ended loss/availability (CCM)'
+        probes.
+
+        For the last 24 hours of performance measurement buckets, each table row represents the
+        performance measurements for 1 bucket period. The ostY1731PmrIntrvlNum table index
+        selects a given bucket.  Performance metric measurements are calculated over a period
+        specified by the Bucket Period setting, which is from 1 to 60 minutes.
+
+        For the last 7 days of performance metrics, there is only one row which represents the
+        accumulated performance metrics for that 24 hour period.
+
+        The following table specifies the number of buckets for a 24 hour period based on the
+        Bucket Period setting.
+
+         +---------------+--------------+
+         | Bucket Period | # of buckets |
+         |   (minutes)   | for 24 hours |
+         +---------------+--------------+
+         |        1      |      1440    |
+         +---------------+--------------+
+         |       10      |       144    |
+         +---------------+--------------+
+         |       15      |        96    |
+         +---------------+--------------+
+         |       30      |        48    |
+         +---------------+--------------+
+         |       60      |        24    |
+         +---------------+--------------+
+
+        The following table specifies the number of real time measurements used to compute a
+        performance measurement based on the probe interval and various bucket periods.  The
+        number of real time measurements specified are not stored, only the last 900 are
+        accessible from the MIB, see ostY1731RealTimeResults.
+
+                          +------------------------+
+                          | Bucket Period (minutes)|
+         +----------------+-------+--------+-------+
+         | Probe Interval |    1  |   15   |   60  |
+         +----------------+-------+--------+-------+
+         |   100 ms       | 600   | 9000   | 36000 |
+         +----------------+-------+--------+-------+
+         |     1 second   |  60   |  900   |  3600 |
+         +----------------+-------+--------+-------+
+         |    10 seconds  |   6   |   90   |   360 |
+         +----------------+-------+--------+-------+
+         |     1 minute   |   1   |   15   |    60 |
+         +----------------+-------+--------+-------+
+         |    10 minutes  |   0.1 |    2.5 |     6 |
+         +----------------+-------+--------+-------+
+       "
+    ::= { ostY1731PerfMetricsResults 5 }
+
+ostY1731PmrCcmEntry OBJECT-TYPE
+    SYNTAX      OstY1731PmrCcmEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION
+       "Y.1731 'dual ended loss/availability (CCM)' probe performance metric result table entry."
+    INDEX { ostModuleIndex, ostY1731PmrDayNum, ostY1731PmrIntrvlNum }
+    ::= { ostY1731PmrCcmTable 1 }
+
+OstY1731PmrCcmEntry ::= SEQUENCE {
+        ostY1731PmrDayNum                   Unsigned32,
+        ostY1731PmrIntrvlNum                Unsigned32,
+        ostY1731PmrCcmTime                  NTPTimeStamp,
+        ostY1731PmrCcmSuspect               TruthValue,
+        ostY1731PmrCcmTx                    Unsigned32,
+        ostY1731PmrCcmRx                    Unsigned32,
+        ostY1731PmrCcmFwdFrmReceived        OstFrameCount64,
+        ostY1731PmrCcmFwdFrmSent            OstFrameCount64,
+        ostY1731PmrCcmBckFrmReceived        OstFrameCount64,
+        ostY1731PmrCcmBckFrmSent            OstFrameCount64,
+        ostY1731PmrCcmFwdFrmLossRatioMin    OCTET STRING,
+        ostY1731PmrCcmFwdFrmLossRatioMax    OCTET STRING,
+        ostY1731PmrCcmFwdFrmLossRatioAvg    OCTET STRING,
+        ostY1731PmrCcmBckFrmLossRatioMin    OCTET STRING,
+        ostY1731PmrCcmBckFrmLossRatioMax    OCTET STRING,
+        ostY1731PmrCcmBckFrmLossRatioAvg    OCTET STRING,
+        ostY1731PmrCcmFwdAvail              OCTET STRING,
+        ostY1731PmrCcmBckAvail              OCTET STRING
+    }
+
+ostY1731PmrDayNum OBJECT-TYPE
+    SYNTAX      Unsigned32 (1..8)
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION
+        "Selects the 24 hour period from which table entries will be retrieved, where 1 is the most current
+         24 hour period, 2 is the day previous, and so forth."
+    ::= { ostY1731PmrCcmEntry 1 }
+
+ostY1731PmrIntrvlNum OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION
+        "When ostY1731PmrDayNum is 1, this object selects the bucket period number, where 1 is the most
+         recent entry and the largest value for this Bucket Period is the oldest entry.  The largest value
+         for a given Bucket Period is listed in the description for this table.
+         Each table row represents the performance measurements for 1 bucket period.
+         The Bucket Period setting determines the time between each table row.
+         When ostY1731PmrDayNum is not 1, this object must be set to 1 as it selects the daily performance metrics."
+    ::= { ostY1731PmrCcmEntry 2 }
+
+ostY1731PmrCcmTime OBJECT-TYPE
+    SYNTAX      NTPTimeStamp
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+        "Entry timestamp.  End of interval."
+    ::= { ostY1731PmrCcmEntry 3 }
+
+ostY1731PmrCcmSuspect OBJECT-TYPE
+    SYNTAX      TruthValue
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+        "Entry suspect flag.  Indicates discontinuity during measurement time."
+    ::= { ostY1731PmrCcmEntry 4 }
+
+ostY1731PmrCcmTx OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+        "Number of transmitted CCM frames."
+    ::= { ostY1731PmrCcmEntry 5 }
+
+ostY1731PmrCcmRx OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+        "Number of received CCM frames."
+    ::= { ostY1731PmrCcmEntry 6 }
+
+ostY1731PmrCcmFwdFrmReceived OBJECT-TYPE
+    SYNTAX      OstFrameCount64
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+        "Number of frames received in the forward direction."
+    ::= { ostY1731PmrCcmEntry 7 }
+
+ostY1731PmrCcmFwdFrmSent OBJECT-TYPE
+    SYNTAX      OstFrameCount64
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+        "Number of frames transmitted in the forward direction."
+    ::= { ostY1731PmrCcmEntry 8 }
+
+ostY1731PmrCcmBckFrmReceived OBJECT-TYPE
+    SYNTAX      OstFrameCount64
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+        "Number of frames received in the backward direction."
+    ::= { ostY1731PmrCcmEntry 9 }
+
+ostY1731PmrCcmBckFrmSent OBJECT-TYPE
+    SYNTAX      OstFrameCount64
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+        "Number of frames transmitted in the backward direction."
+    ::= { ostY1731PmrCcmEntry 10 }
+
+ostY1731PmrCcmFwdFrmLossRatioMin OBJECT-TYPE
+    SYNTAX      OCTET STRING
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+        "Forward direction frame loss ratio minimum value."
+    ::= { ostY1731PmrCcmEntry 11 }
+
+ostY1731PmrCcmFwdFrmLossRatioMax OBJECT-TYPE
+    SYNTAX      OCTET STRING
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+        "Forward direction frame loss ratio maximum value."
+    ::= { ostY1731PmrCcmEntry 12 }
+
+ostY1731PmrCcmFwdFrmLossRatioAvg OBJECT-TYPE
+    SYNTAX      OCTET STRING
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+        "Forward direction frame loss ratio average value."
+    ::= { ostY1731PmrCcmEntry 13 }
+
+ostY1731PmrCcmBckFrmLossRatioMin OBJECT-TYPE
+    SYNTAX      OCTET STRING
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+        "Backward direction frame loss ratio minimum value."
+    ::= { ostY1731PmrCcmEntry 14 }
+
+ostY1731PmrCcmBckFrmLossRatioMax OBJECT-TYPE
+    SYNTAX      OCTET STRING
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+        "Backward direction frame loss ratio maximum value."
+    ::= { ostY1731PmrCcmEntry 15 }
+
+ostY1731PmrCcmBckFrmLossRatioAvg OBJECT-TYPE
+    SYNTAX      OCTET STRING
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+        "Backward direction frame loss ratio average value."
+    ::= { ostY1731PmrCcmEntry 16 }
+
+ostY1731PmrCcmFwdAvail           OBJECT-TYPE
+    SYNTAX      OCTET STRING
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+        "Forward direction availability value is the percentage ratio of availability
+         during the selected time interval in tenths of a percent, range 0-100.0."
+    ::= { ostY1731PmrCcmEntry 17 }
+
+ostY1731PmrCcmBckAvail           OBJECT-TYPE
+    SYNTAX      OCTET STRING
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+        "Backward direction availability value is the percentage ratio of availability
+         during the selected time interval in tenths of a percent, range 0-100.0."
+    ::= { ostY1731PmrCcmEntry 18 }
+
+
+----------------------------------------------------------------------------------------------------
+-- Y.1731 Frame Loss and Availability, Synthetic Single Ended (SLM/SLR) Probe Performance Metric Result Table
+----------------------------------------------------------------------------------------------------
+
+ostY1731PmrSlmSlrTable OBJECT-TYPE
+    SYNTAX      SEQUENCE OF OstY1731PmrSlmSlrEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION
+       "This table provides read only access to the last 24 hours of performance metrics and
+        to the last 7 days of performance metrics for Y.1731 'single-ended synthetic loss/availability
+        (SLM/SLR)' probes.
+
+        For the last 24 hours of performance measurement buckets, each table row represents the
+        performance measurements for 1 bucket period. The ostY1731PmrIntrvlNum table index
+        selects a given bucket.  Performance metric measurements are calculated over a period
+        specified by the Bucket Period setting, which is from 1 to 60 minutes.
+
+        For the last 7 days of performance metrics, there is only one row which represents the
+        accumulated performance metrics for that 24 hour period.
+
+        The following table specifies the number of buckets for a 24 hour period based on the
+        Bucket Period setting.
+
+         +---------------+--------------+
+         | Bucket Period | # of buckets |
+         |   (minutes)   | for 24 hours |
+         +---------------+--------------+
+         |        1      |      1440    |
+         +---------------+--------------+
+         |       10      |       144    |
+         +---------------+--------------+
+         |       15      |        96    |
+         +---------------+--------------+
+         |       30      |        48    |
+         +---------------+--------------+
+         |       60      |        24    |
+         +---------------+--------------+
+
+        The following table specifies the number of real time measurements used to compute a
+        performance measurement based on the probe interval and various bucket periods.  The
+        number of real time measurements specified are not stored, only the last 900 are
+        accessible from the MIB, see ostY1731RealTimeResults.
+
+                          +------------------------+
+                          | Bucket Period (minutes)|
+         +----------------+-------+--------+-------+
+         | Probe Interval |    1  |   15   |   60  |
+         +----------------+-------+--------+-------+
+         |   100 ms       | 600   | 9000   | 36000 |
+         +----------------+-------+--------+-------+
+         |     1 second   |  60   |  900   |  3600 |
+         +----------------+-------+--------+-------+
+         |    10 seconds  |   6   |   90   |   360 |
+         +----------------+-------+--------+-------+
+       "
+    ::= { ostY1731PerfMetricsResults 7 }
+
+ostY1731PmrSlmSlrEntry OBJECT-TYPE
+    SYNTAX      OstY1731PmrSlmSlrEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION
+       "Y.1731 'single-ended synthetic loss/availability (SLM/SLR)' probe performance metric result table entry."
+    INDEX { ostModuleIndex, ostY1731PmrDayNum, ostY1731PmrIntrvlNum }
+    ::= { ostY1731PmrSlmSlrTable 1 }
+
+OstY1731PmrSlmSlrEntry ::= SEQUENCE {
+        ostY1731PmrSlmSlrTime               NTPTimeStamp,
+        ostY1731PmrSlmSlrSuspect            TruthValue,
+        ostY1731PmrSlmSlrInitMeas           Unsigned32,
+        ostY1731PmrSlmSlrCmplMeas           Unsigned32,
+        ostY1731PmrSlmSlrFwdFrmReceived     OstFrameCount64,
+        ostY1731PmrSlmSlrFwdFrmSent         OstFrameCount64,
+        ostY1731PmrSlmSlrBckFrmReceived     OstFrameCount64,
+        ostY1731PmrSlmSlrBckFrmSent         OstFrameCount64,
+        ostY1731PmrSlmSlrFwdFrmLossRatioMin OCTET STRING,
+        ostY1731PmrSlmSlrFwdFrmLossRatioMax OCTET STRING,
+        ostY1731PmrSlmSlrFwdFrmLossRatioAvg OCTET STRING,
+        ostY1731PmrSlmSlrBckFrmLossRatioMin OCTET STRING,
+        ostY1731PmrSlmSlrBckFrmLossRatioMax OCTET STRING,
+        ostY1731PmrSlmSlrBckFrmLossRatioAvg OCTET STRING,
+        ostY1731PmrSlmSlrFwdAvail           OCTET STRING,
+        ostY1731PmrSlmSlrBckAvail           OCTET STRING
+    }
+
+ostY1731PmrSlmSlrTime OBJECT-TYPE
+    SYNTAX      NTPTimeStamp
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+        "Timestamp for captured counter values."
+    ::= { ostY1731PmrSlmSlrEntry 1 }
+
+ostY1731PmrSlmSlrSuspect OBJECT-TYPE
+    SYNTAX      TruthValue
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+        "Entry suspect flag.  Indicates discontinuity during measurement time."
+    ::= { ostY1731PmrSlmSlrEntry 2 }
+
+ostY1731PmrSlmSlrInitMeas OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+        "Number of initiated measurements."
+    ::= { ostY1731PmrSlmSlrEntry 3 }
+
+ostY1731PmrSlmSlrCmplMeas OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+        "Number of completed measurements."
+    ::= { ostY1731PmrSlmSlrEntry 4 }
+
+ostY1731PmrSlmSlrFwdFrmReceived OBJECT-TYPE
+    SYNTAX      OstFrameCount64
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+        "Number of frames received in the forward direction."
+    ::= { ostY1731PmrSlmSlrEntry 5 }
+
+ostY1731PmrSlmSlrFwdFrmSent OBJECT-TYPE
+    SYNTAX      OstFrameCount64
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+        "Number of frames transmitted in the forward direction."
+    ::= { ostY1731PmrSlmSlrEntry 6 }
+
+ostY1731PmrSlmSlrBckFrmReceived OBJECT-TYPE
+    SYNTAX      OstFrameCount64
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+        "Number of frames received in the backward direction."
+    ::= { ostY1731PmrSlmSlrEntry 7 }
+
+ostY1731PmrSlmSlrBckFrmSent OBJECT-TYPE
+    SYNTAX      OstFrameCount64
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+        "Number of frames transmitted in the backward direction."
+    ::= { ostY1731PmrSlmSlrEntry 8 }
+
+ostY1731PmrSlmSlrFwdFrmLossRatioMin OBJECT-TYPE
+    SYNTAX      OCTET STRING
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+        "Forward direction frame loss ratio minimum value."
+    ::= { ostY1731PmrSlmSlrEntry 9 }
+
+ostY1731PmrSlmSlrFwdFrmLossRatioMax OBJECT-TYPE
+    SYNTAX      OCTET STRING
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+        "Forward direction frame loss ratio maximum value."
+    ::= { ostY1731PmrSlmSlrEntry 10 }
+
+ostY1731PmrSlmSlrFwdFrmLossRatioAvg OBJECT-TYPE
+    SYNTAX      OCTET STRING
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+        "Forward direction frame loss ratio average value."
+    ::= { ostY1731PmrSlmSlrEntry 11 }
+
+ostY1731PmrSlmSlrBckFrmLossRatioMin OBJECT-TYPE
+    SYNTAX      OCTET STRING
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+        "Backward direction frame loss ratio minimum value."
+    ::= { ostY1731PmrSlmSlrEntry 12 }
+
+ostY1731PmrSlmSlrBckFrmLossRatioMax OBJECT-TYPE
+    SYNTAX      OCTET STRING
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+        "Backward direction frame loss ratio maximum value."
+    ::= { ostY1731PmrSlmSlrEntry 13 }
+
+ostY1731PmrSlmSlrBckFrmLossRatioAvg OBJECT-TYPE
+    SYNTAX      OCTET STRING
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+        "Backward direction frame loss ratio average value."
+    ::= { ostY1731PmrSlmSlrEntry 14 }
+
+ostY1731PmrSlmSlrFwdAvail           OBJECT-TYPE
+    SYNTAX      OCTET STRING
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+        "Forward direction availability value is the percentage ratio of availability
+         during the selected time interval in tenths of a percent, range 0-100.0."
+    ::= { ostY1731PmrSlmSlrEntry 15 }
+
+ostY1731PmrSlmSlrBckAvail           OBJECT-TYPE
+    SYNTAX      OCTET STRING
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+        "Backward direction availability value is the percentage ratio of availability
+         during the selected time interval in tenths of a percent, range 0-100.0."
+    ::= { ostY1731PmrSlmSlrEntry 16 }
+
+
+--------------------------------------------------------------------------------------------
+-- Y.1731 Probe Performance Metric Result Bin Tables
+--------------------------------------------------------------------------------------------
+
+ostY1731PerfMetricBinResults OBJECT IDENTIFIER ::= { ostY1731PerfMetricsResults 6 }
+
+
+--------------------------------------------------------------------------------------------
+-- Y.1731 1-Way Delay/Variation (1DM) Probe Performance Metric Result Bin Table
+--------------------------------------------------------------------------------------------
+
+ostY1731Pmr1DmBinTable OBJECT-TYPE
+    SYNTAX      SEQUENCE OF OstY1731Pmr1DmBinEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION
+       "This table provides read only access to performance metric bin results for
+        Y.1731 '1-way delay/variation (1DM)' probes.
+
+        For the current 24 hour period, each table row represents the performance measurements
+        for 1 bin calculated over a period specified by the Bucket Period setting, which is
+        from 1 to 60 minutes.  The ostY1731PmrIntrvlNum table index selects a given bucket
+        period, and the ostY1731PmrBinNum table index selects a given bin.
+
+        For previous 24 hour periods, there is only one row which represents the aggregate
+        performance metrics for that 24 hour period.
+
+        Bin sizes are set by the ostY1731BinLimits, a text string list of the Frame Delay
+        histogram bin sizes."
+    ::= { ostY1731PerfMetricBinResults 2 }
+
+ostY1731Pmr1DmBinEntry OBJECT-TYPE
+    SYNTAX      OstY1731Pmr1DmBinEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION
+       "Y.1731 '1-way delay/variation (1DM)' probe performance metric bin result table entry."
+    INDEX { ostModuleIndex, ostY1731PmrDayNum, ostY1731PmrIntrvlNum, ostY1731PmrBinNum }
+    ::= { ostY1731Pmr1DmBinTable 1 }
+
+OstY1731Pmr1DmBinEntry ::= SEQUENCE {
+        ostY1731PmrBinNum           Unsigned32,
+        ostY1731Pmr1Dm1wayFdFwdBin  Unsigned32,
+        ostY1731Pmr1Dm1wayFdvFwdBin Unsigned32
+     }
+
+ostY1731PmrBinNum OBJECT-TYPE
+    SYNTAX      Unsigned32 (1..8)
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION
+        "Bin number 1 to 8."
+    ::= { ostY1731Pmr1DmBinEntry 1 }
+
+ostY1731Pmr1Dm1wayFdFwdBin OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+        "1 way frame delay forward bin counter values."
+    ::= { ostY1731Pmr1DmBinEntry 2 }
+
+ostY1731Pmr1Dm1wayFdvFwdBin OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+        "1 way frame delay variation forward bin counter values."
+    ::= { ostY1731Pmr1DmBinEntry 3 }
+
+
+--------------------------------------------------------------------------------------------
+-- Y.1731 2-Way Delay/Variation (DMM/DMR) Probe Performance Metric Result Bin Table
+--------------------------------------------------------------------------------------------
+
+ostY1731PmrDmmDmrBinTable OBJECT-TYPE
+    SYNTAX      SEQUENCE OF OstY1731PmrDmmDmrBinEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION
+       "This table provides read only access to performance metric bin results for
+        Y.1731 '2-way delay/variation (DMM/DMR)' probes.
+
+        For the current 24 hour period, each table row represents the performance measurements
+        for 1 bin calculated over a period specified by the Bucket Period setting, which is
+        from 1 to 60 minutes.  The ostY1731PmrIntrvlNum table index selects a given bucket
+        period, and the ostY1731PmrBinNum table index selects a given bin.
+
+        For previous 24 hour periods, there is only one row which represents the aggregate
+        performance metrics for that 24 hour period.
+
+        Bin sizes are set by the ostY1731BinLimits, a text string list of the Frame Delay
+        histogram bin sizes."
+    ::= { ostY1731PerfMetricBinResults 1 }
+
+ostY1731PmrDmmDmrBinEntry OBJECT-TYPE
+    SYNTAX      OstY1731PmrDmmDmrBinEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION
+       "Y.1731 '2-way delay/variation (DMM/DMR)' probe performance metric bin result table entry."
+    INDEX { ostModuleIndex, ostY1731PmrDayNum, ostY1731PmrIntrvlNum, ostY1731PmrBinNum }
+    ::= { ostY1731PmrDmmDmrBinTable 1 }
+
+OstY1731PmrDmmDmrBinEntry ::= SEQUENCE {
+        ostY1731PmrDmmDmr2wayBin        Unsigned32,
+        ostY1731PmrDmmDmr1wayFdFwdBin   Unsigned32,
+        ostY1731PmrDmmDmr1wayFdBckBin   Unsigned32,
+        ostY1731PmrDmmDmr2wayFdvBin     Unsigned32,
+        ostY1731PmrDmmDmr1wayFdvFwdBin  Unsigned32,
+        ostY1731PmrDmmDmr1wayFdvBckBin  Unsigned32
+     }
+
+ostY1731PmrDmmDmr2wayBin OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+        "2 way bin counter values."
+    ::= { ostY1731PmrDmmDmrBinEntry 1 }
+
+ostY1731PmrDmmDmr1wayFdFwdBin OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+        "1 way frame delay forward bin counter values."
+    ::= { ostY1731PmrDmmDmrBinEntry 2 }
+
+ostY1731PmrDmmDmr1wayFdBckBin OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+        "1 way frame delay backward bin counter values."
+    ::= { ostY1731PmrDmmDmrBinEntry 3 }
+
+ostY1731PmrDmmDmr2wayFdvBin OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+        "2 way frame delay variation bin counter values."
+    ::= { ostY1731PmrDmmDmrBinEntry 4 }
+
+ostY1731PmrDmmDmr1wayFdvFwdBin OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+        "1 way frame delay variation forward bin counter values."
+    ::= { ostY1731PmrDmmDmrBinEntry 5 }
+
+ostY1731PmrDmmDmr1wayFdvBckBin OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+        "1 way frame delay variation backward bin counter values."
+    ::= { ostY1731PmrDmmDmrBinEntry 6 }
+
+
+-------------------------------------------------------------------------------
+-- Y.1731 Performance Metric Results Selection Table
+-------------------------------------------------------------------------------
+ostY1731ResultsSelection OBJECT IDENTIFIER ::= { ostY1731Results 3 }
+
+ostY1731ResultsSelectionTable OBJECT-TYPE
+    SYNTAX      SEQUENCE OF OstY1731ResultsSelectionEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION
+       "The Y.1731 Results Selection table allows the selection of probe
+        results without needing to perform SetRequest operation as defined for
+        the ostY1731RealTimeResultsAccessTable or the
+        ostY1731PerformanceMetricResultsAccessTable. Reading a specific
+        object in this table via a GetRequest operation will be equivalent to
+        performaning a SetRequest to the appropriate probe number selection
+        object in one of those two tables.
+
+        Reading this table with a GetNextRequest or a GetBulk does not perform
+        the equivalent SetRequest operation.
+
+        This table is designed for those performance monitoring tools that can
+        only do read operations.
+       "
+    ::= { ostY1731ResultsSelection 1 }
+
+ostY1731ResultsSelectionEntry OBJECT-TYPE
+    SYNTAX      OstY1731ResultsSelectionEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION
+        "Y.1731 Performance Metric Results Selection table entry."
+    INDEX { ostModuleIndex, ostY1731ProbeNum  }
+    ::= { ostY1731ResultsSelectionTable 1 }
+
+OstY1731ResultsSelectionEntry ::= SEQUENCE {
+        ostY1731ResultsSelectionRealTime     Unsigned32,
+        ostY1731ResultsSelectionPerfMetrics  Unsigned32
+    }
+
+ostY1731ResultsSelectionRealTime OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+        "When this object is read via a GetRequet it is equivalent to writing
+         the ostY1731RealTimeResultsAccessProbeNum with the probe
+         selected. Reading the ostY1731RealTimeResultsAccessProbeNum
+         after this object is read returns the probe number associated
+         with the ostY1731ProbeNum index.
+
+         After this object is read the appropriate results are loaded into the
+         ostY1731RealTimeResultsCcmTable, ostY1731RealTimeResultsLmmLmrTable,
+         ostY1731RealTimeResults1DmTable, or ostY1731RealTimeResultsDmmDmrTable,
+         ostY1731RealTimeResultsSlmSlrTable.
+
+         The value returned is the probe number that was accessed.
+        "
+    ::= { ostY1731ResultsSelectionEntry 1 }
+
+ostY1731ResultsSelectionPerfMetrics OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+        "When this object is read via a GetRequest it is equivalent to writing
+         the ostY1731PerformanceMetricResultsAccessProbeNum with the probe
+         selected. Reading the ostY1731PerformanceMetricResultsAccessProbeNum
+         after this object is read returns the probe number associated
+         with the ostY1731ProbeNum index.
+
+         After this object is read the appropriate results are loaded into the
+         ostY1731PmrDmmDmrTable, ostY1731Pmr1DmTable, ostY1731PmrLmmLmrTable,
+         ostY1731PmrCcmTable or ostY1731PmrSlmSlrTable.
+
+         The value returned is the probe number that was accessed.
+        "
+    ::= { ostY1731ResultsSelectionEntry 2 }
+
+
+-------------------------------------------------------------------------------
+-- Y.1731 Performance Metric Current Results Table
+-------------------------------------------------------------------------------
+ostY1731ResultsCurrent OBJECT IDENTIFIER ::= { ostY1731Results 4 }
+
+ostY1731ResultsCurrentTable OBJECT-TYPE
+    SYNTAX      SEQUENCE OF OstY1731ResultsCurrentEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION
+       "The Y.1731 Performance Metric Current Results table is a compact
+        version of the instaneous results for all the DMM/DMR and LMM/LMR
+        probes currently operating in the module. It provides the last
+        5 seconds average result values. The Frame Delay and Frame
+        Delay Variation is from the DMM/DMR probe. The Frame Loss Ratio
+        and Availability are from the LMM/LMR probe.
+
+        Rows are created automatically when a probe is created. Each
+        half of the table becomes populated by the respective probe,
+        either a DMM/DMR or LMM/LMR is configured. If the first two
+        probes are created are a DMM/DMR probe and then a LMM/LMR probe
+        the data for both probes will be displayed in ostY1731ResultsCurrentIndex
+        number 1. A second DMM/DMR probe will be displayed for index
+        value 2, etc. A second LMM/LMR probe will be dispalyed for
+        index value 2, etc.
+
+        Once the rows are configured the results are updated once a second
+        based upon the last five seconds of data and represents the
+        average value for the object during the last five seconds.
+       "
+    ::= { ostY1731ResultsCurrent 1 }
+
+ostY1731ResultsCurrentEntry OBJECT-TYPE
+    SYNTAX      OstY1731ResultsCurrentEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION
+        "Y.1731 Performance Metric Curernt Results table entry."
+    INDEX { ostModuleIndex, ostY1731ResultsCurrentIndex  }
+    ::= { ostY1731ResultsCurrentTable 1 }
+
+OstY1731ResultsCurrentEntry ::= SEQUENCE {
+        ostY1731ResultsCurrentIndex                 Unsigned32,
+        ostY1731ResultsCurrent2WayFrmDly            OCTET STRING,
+        ostY1731ResultsCurrent2WayFrmDlyVar         OCTET STRING,
+        ostY1731ResultsCurrentFwdFrmLossRatio       OCTET STRING,
+        ostY1731ResultsCurrentBwdFrmLossRatio       OCTET STRING,
+        ostY1731ResultsCurrentFwdAvail              OCTET STRING,
+        ostY1731ResultsCurrentBwdAvail              OCTET STRING,
+        ostY1731ResultsCurrent2WayProbeNum          Unsigned32,
+        ostY1731ResultsCurrentLossAvailProbeNum     Unsigned32,
+        ostY1731ResultsCurrent2WayProbeName         OstProbeNameString,
+        ostY1731ResultsCurrentLossAvailProbeName    OstProbeNameString,
+        ostY1731ResultsCurrentFwdFrameSent          OstFrameCount64,
+        ostY1731ResultsCurrentFwdFrameReceived      OstFrameCount64,
+        ostY1731ResultsCurrentBwdFrameSent          OstFrameCount64,
+        ostY1731ResultsCurrentBwdFrameReceived      OstFrameCount64
+    }
+
+ostY1731ResultsCurrentIndex OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION
+       "The index associated with this Y1731 current results row."
+    ::= { ostY1731ResultsCurrentEntry 1 }
+
+ostY1731ResultsCurrent2WayFrmDly OBJECT-TYPE
+    SYNTAX      OCTET STRING
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+        "2 way frame delay (latency) value during the current time interval.
+
+         Units are defined by ostY1731ProbeDlyUnits, but are milliseconds
+         by default.
+        "
+    ::= { ostY1731ResultsCurrentEntry 2 }
+
+ostY1731ResultsCurrent2WayFrmDlyVar OBJECT-TYPE
+    SYNTAX      OCTET STRING
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+        "2 way frame delay variation (jitter) during the current time interval.
+
+         Units are defined by ostY1731ProbeDlyUnits, but are milliseconds
+         by default.
+        "
+    ::= { ostY1731ResultsCurrentEntry 3 }
+
+ostY1731ResultsCurrentFwdFrmLossRatio OBJECT-TYPE
+    SYNTAX      OCTET STRING
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+        "Forward direction frame loss ratio during the current time interval
+         in 0.001 of a percent, range 0-100.000."
+    ::= { ostY1731ResultsCurrentEntry 4 }
+
+ostY1731ResultsCurrentBwdFrmLossRatio OBJECT-TYPE
+    SYNTAX      OCTET STRING
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+        "Backward direction frame loss ratio during the current time interval
+         in 0.001 of a percent, range 0-100.000."
+    ::= { ostY1731ResultsCurrentEntry 5 }
+
+ostY1731ResultsCurrentFwdAvail OBJECT-TYPE
+    SYNTAX      OCTET STRING
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+        "Forward direction availability value is the percentage ratio of availability
+         during the current time interval in tenths of a percent, range 0-100.0."
+    ::= { ostY1731ResultsCurrentEntry 6 }
+
+ostY1731ResultsCurrentBwdAvail OBJECT-TYPE
+    SYNTAX      OCTET STRING
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+        "Backward direction availability value is the percentage ratio of availability
+         during the current time interval in tenths of a percent, range 0-100.0."
+    ::= { ostY1731ResultsCurrentEntry 7 }
+
+ostY1731ResultsCurrent2WayProbeNum OBJECT-TYPE
+    SYNTAX      Unsigned32 (1..15)
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+        "Delay and Delay Variation probe number, 1 to 15."
+    ::= { ostY1731ResultsCurrentEntry 8 }
+
+ostY1731ResultsCurrentLossAvailProbeNum OBJECT-TYPE
+    SYNTAX      Unsigned32 (1..15)
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+        "Loss and Availability probe number, 1 to 15."
+    ::= { ostY1731ResultsCurrentEntry 9 }
+
+ostY1731ResultsCurrent2WayProbeName OBJECT-TYPE
+    SYNTAX      OstProbeNameString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+        "Probe name for the Delay and Delay variation probe."
+    ::= { ostY1731ResultsCurrentEntry 10 }
+
+ostY1731ResultsCurrentLossAvailProbeName OBJECT-TYPE
+    SYNTAX      OstProbeNameString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+        "Probe name for the Loss and Availability probe."
+    ::= { ostY1731ResultsCurrentEntry 11 }
+
+ostY1731ResultsCurrentFwdFrameSent OBJECT-TYPE
+    SYNTAX      OstFrameCount64
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+        "Frames sent in the forward direction."
+    ::= { ostY1731ResultsCurrentEntry 12 }
+
+ostY1731ResultsCurrentFwdFrameReceived OBJECT-TYPE
+    SYNTAX      OstFrameCount64
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+        "Frames received in the forward direction."
+    ::= { ostY1731ResultsCurrentEntry 13 }
+
+ostY1731ResultsCurrentBwdFrameSent OBJECT-TYPE
+    SYNTAX      OstFrameCount64
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+        "Frames sent in the backward direction."
+    ::= { ostY1731ResultsCurrentEntry 14 }
+
+ostY1731ResultsCurrentBwdFrameReceived OBJECT-TYPE
+    SYNTAX      OstFrameCount64
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+        "Frames received in the backward direction."
+    ::= { ostY1731ResultsCurrentEntry 15 }
+
+
+--------------------------------------------------------------------------------------------
+-- Conformance
+--------------------------------------------------------------------------------------------
+
+ostY1731Compliances OBJECT IDENTIFIER ::= { ostY1731Conformance 1 }
+ostY1731Groups      OBJECT IDENTIFIER ::= { ostY1731Conformance 2 }
+
+-- compliance statements
+
+ostY1731Compliance MODULE-COMPLIANCE
+    STATUS       current
+    DESCRIPTION "The compliance statement for iConverter modules which support Y.1731."
+    MODULE
+        MANDATORY-GROUPS { ostY1731Group }
+    ::= { ostY1731Compliances 1 }
+
+-- units of conformance
+
+ostY1731Group OBJECT-GROUP
+    OBJECTS {
+        ostY1731Enable,
+        ostY1731BucketPeriod,
+        ostY1731BinLimits,
+        ostY1731VarBinLimits,
+        ostY1731ProbeDlyUnits,
+
+        ostY1731ProbeRowStatus,
+        ostY1731ProbeType,
+        ostY1731ProbeInterval,
+        ostY1731ProbeOneDmReceive,
+        ostY1731ProbeOneDmTransmit,
+        ostY1731ProbeLmmLmrTimeout,
+        ostY1731ProbeAcceptFrameLoss,
+        ostY1731ProbeDataTlvPattern,
+        ostY1731ProbePriorityVlanBits,
+        ostY1731ProbeIsTargetMepId,
+        ostY1731ProbeTargetMac,
+        ostY1731ProbeTargetMepId,
+        ostY1731ProbePort,
+        ostY1731ProbeCfmMdLevelSel,
+        ostY1731ProbeCfmMdName,
+        ostY1731ProbeCfmMdNum,
+        ostY1731ProbeCfmMdLvl,
+        ostY1731ProbeCfmPriVidSel,
+        ostY1731ProbeCfmMaName,
+        ostY1731ProbeCfmMaNum,
+        ostY1731ProbeEvc,
+        ostY1731ProbePriVid,
+        ostY1731ProbeInitiatorType,
+        ostY1731ProbeHistoryClear,
+        ostY1731ProbeName,
+        ostY1731ProbeTimeSync,
+        ostY1731ProbeAcceptFrameDelay,
+        ostY1731ProbeAcceptFrameDelayVar,
+        ostY1731ProbeOamCountEnable,
+        ostY1731ProbeAcceptAvail,
+        ostY1731ProbeCountVersion,
+        ostY1731ProbeTestId,
+        ostY1731ProbeDeltaT,
+        ostY1731ProbeNDeltaT,
+
+        ostY1731RealTimeResultsAccessAvailable,
+        ostY1731RealTimeResultsAccessProbeNum,
+        ostY1731RealTimeResultsAccessCount,
+        ostY1731RealTimeResultsAccessMaxGet,
+
+        ostY1731RtrCcmTime,
+        ostY1731RtrCcmRxFC1,
+        ostY1731RtrCcmTxFCf,
+        ostY1731RtrCcmRxFCb,
+        ostY1731RtrCcmTxFCb,
+        ostY1731RtrLmmLmrTime,
+        ostY1731RtrLmmLmrRxFC1,
+        ostY1731RtrLmmLmrTxFCf,
+        ostY1731RtrLmmLmrRxFCf,
+        ostY1731RtrLmmLmrTxFCb,
+        ostY1731Rtr1DmTxTimeStampf,
+        ostY1731Rtr1DmRxTimeStampf,
+        ostY1731RtrDmmDmrTxTimeStampf,
+        ostY1731RtrDmmDmrRxTimeStampf,
+        ostY1731RtrDmmDmrTxTimeStampb,
+        ostY1731RtrDmmDmrRxTimeStampb,
+        ostY1731RtrSlmSlrTime,
+        ostY1731RtrSlmSlrRxFCl,
+        ostY1731RtrSlmSlrTxFCf,
+        ostY1731RtrSlmSlrTxFCb,
+
+        ostY1731PerformanceMetricResultsAccessAvailable,
+        ostY1731PerformanceMetricResultsAccessProbeNum,
+        ostY1731PerformanceMetricResultsAccessCount,
+        ostY1731PerformanceMetricResultsAccessMaxGet,
+
+        ostY1731PmrCcmTime,
+        ostY1731PmrCcmSuspect,
+        ostY1731PmrCcmTx,
+        ostY1731PmrCcmRx,
+        ostY1731PmrCcmFwdFrmReceived,
+        ostY1731PmrCcmFwdFrmSent,
+        ostY1731PmrCcmBckFrmReceived,
+        ostY1731PmrCcmBckFrmSent,
+        ostY1731PmrCcmFwdFrmLossRatioMin,
+        ostY1731PmrCcmFwdFrmLossRatioMax,
+        ostY1731PmrCcmFwdFrmLossRatioAvg,
+        ostY1731PmrCcmBckFrmLossRatioMin,
+        ostY1731PmrCcmBckFrmLossRatioMax,
+        ostY1731PmrCcmBckFrmLossRatioAvg,
+        ostY1731PmrCcmFwdAvail,
+        ostY1731PmrCcmBckAvail,
+
+        ostY1731PmrLmmLmrTime,
+        ostY1731PmrLmmLmrSuspect,
+        ostY1731PmrLmmLmrInitMeas,
+        ostY1731PmrLmmLmrCmplMeas,
+        ostY1731PmrLmmLmrFwdFrmReceived,
+        ostY1731PmrLmmLmrFwdFrmSent,
+        ostY1731PmrLmmLmrBckFrmReceived,
+        ostY1731PmrLmmLmrBckFrmSent,
+        ostY1731PmrLmmLmrFwdFrmLossRatioMin,
+        ostY1731PmrLmmLmrFwdFrmLossRatioMax,
+        ostY1731PmrLmmLmrFwdFrmLossRatioAvg,
+        ostY1731PmrLmmLmrBckFrmLossRatioMin,
+        ostY1731PmrLmmLmrBckFrmLossRatioMax,
+        ostY1731PmrLmmLmrBckFrmLossRatioAvg,
+        ostY1731PmrLmmLmrFwdAvail,
+        ostY1731PmrLmmLmrBckAvail,
+
+        ostY1731Pmr1DmTime,
+        ostY1731Pmr1DmSuspect,
+        ostY1731Pmr1DmInitMeas,
+        ostY1731Pmr1DmCmplMeas,
+        ostY1731Pmr1DmFwdFrmDlyMin,
+        ostY1731Pmr1DmFwdFrmDlyMax,
+        ostY1731Pmr1DmFwdFrmDlyAvg,
+        ostY1731Pmr1DmFwdFrmDlyVarMin,
+        ostY1731Pmr1DmFwdFrmDlyVarMax,
+        ostY1731Pmr1DmFwdFrmDlyVarAvg,
+
+        ostY1731PmrDmmDmrTime,
+        ostY1731PmrDmmDmrSuspect,
+        ostY1731PmrDmmDmrInitMeas,
+        ostY1731PmrDmmDmrCmplMeas,
+        ostY1731PmrDmmDmr2wayFrmDlyMin,
+        ostY1731PmrDmmDmr2wayFrmDlyMax,
+        ostY1731PmrDmmDmr2wayFrmDlyAvg,
+        ostY1731PmrDmmDmrFwdFrmDlyMin,
+        ostY1731PmrDmmDmrFwdFrmDlyMax,
+        ostY1731PmrDmmDmrFwdFrmDlyAvg,
+        ostY1731PmrDmmDmrBckFrmDlyMin,
+        ostY1731PmrDmmDmrBckFrmDlyMax,
+        ostY1731PmrDmmDmrBckFrmDlyAvg,
+        ostY1731PmrDmmDmr2WayFrmDlyVarMin,
+        ostY1731PmrDmmDmr2WayFrmDlyVarMax,
+        ostY1731PmrDmmDmr2WayFrmDlyVarAvg,
+        ostY1731PmrDmmDmrFwdFrmDlyVarMin,
+        ostY1731PmrDmmDmrFwdFrmDlyVarMax,
+        ostY1731PmrDmmDmrFwdFrmDlyVarAvg,
+        ostY1731PmrDmmDmrBckFrmDlyVarMin,
+        ostY1731PmrDmmDmrBckFrmDlyVarMax,
+        ostY1731PmrDmmDmrBckFrmDlyVarAvg,
+
+        ostY1731Pmr1Dm1wayFdFwdBin,
+        ostY1731Pmr1Dm1wayFdvFwdBin,
+        ostY1731PmrDmmDmr2wayBin,
+        ostY1731PmrDmmDmr1wayFdFwdBin,
+        ostY1731PmrDmmDmr1wayFdBckBin,
+        ostY1731PmrDmmDmr2wayFdvBin,
+        ostY1731PmrDmmDmr1wayFdvFwdBin,
+        ostY1731PmrDmmDmr1wayFdvBckBin,
+
+        ostY1731PmrSlmSlrTime,
+        ostY1731PmrSlmSlrSuspect,
+        ostY1731PmrSlmSlrInitMeas,
+        ostY1731PmrSlmSlrCmplMeas,
+        ostY1731PmrSlmSlrFwdFrmReceived,
+        ostY1731PmrSlmSlrFwdFrmSent,
+        ostY1731PmrSlmSlrBckFrmReceived,
+        ostY1731PmrSlmSlrBckFrmSent,
+        ostY1731PmrSlmSlrFwdFrmLossRatioMin,
+        ostY1731PmrSlmSlrFwdFrmLossRatioMax,
+        ostY1731PmrSlmSlrFwdFrmLossRatioAvg,
+        ostY1731PmrSlmSlrBckFrmLossRatioMin,
+        ostY1731PmrSlmSlrBckFrmLossRatioMax,
+        ostY1731PmrSlmSlrBckFrmLossRatioAvg,
+        ostY1731PmrSlmSlrFwdAvail,
+        ostY1731PmrSlmSlrBckAvail,
+
+        ostY1731ResultsSelectionRealTime,
+        ostY1731ResultsSelectionPerfMetrics,
+        ostY1731ResultsCurrent2WayFrmDly,
+        ostY1731ResultsCurrent2WayFrmDlyVar,
+        ostY1731ResultsCurrentFwdFrmLossRatio,
+        ostY1731ResultsCurrentBwdFrmLossRatio,
+        ostY1731ResultsCurrentFwdAvail,
+        ostY1731ResultsCurrentBwdAvail,
+        ostY1731ResultsCurrent2WayProbeNum,
+        ostY1731ResultsCurrentLossAvailProbeNum,
+        ostY1731ResultsCurrent2WayProbeName,
+        ostY1731ResultsCurrentLossAvailProbeName,
+        ostY1731ResultsCurrentFwdFrameSent,
+        ostY1731ResultsCurrentFwdFrameReceived,
+        ostY1731ResultsCurrentBwdFrameSent,
+        ostY1731ResultsCurrentBwdFrameReceived
+    }
+    STATUS       current
+    DESCRIPTION "A collection of OST Y.1731 objects."
+    ::= { ostY1731Groups 1 }
+
+END
+

@@ -1,0 +1,333 @@
+PPM-IGNIS-V1TRAPS-MIB DEFINITIONS ::= BEGIN
+
+	IMPORTS
+		TRAP-TYPE
+			FROM RFC-1215
+		ppm
+			FROM PPM-ORG-MIB
+		trapsModuleType, trapsSlotIndex, trapsSeverity
+			FROM PPM-IGNIS-MIB;
+
+-- ---------------------------------------------------------- -- 
+-- This MIB defines the SNMP (v1) traps which can be 
+-- sent by the ViaLiteHD (IGNIS) Web & SNMP Controller Module HRC-1 and HRC-3
+
+-- This MIB must be loaded alongside the PPM-ORG-MIB and PPM-IGNIS-MIB, and should be used 
+-- with product specific MIB revisions no older than 11/10/2017. 
+-- This MIB file supersedes the PPM-TRAPS-MIB file, both MIBs should not be used in conjunction. 
+
+-- REVISION "201710111300Z"
+-- DESCRIPTION "1.1 - Updated to add the HRC-3 specific traps"
+-- REVISION "201701101300Z"
+-- DESCRIPTION "1.0 - SNMP v1 Traps moved to separate MIB file (taken from PPM-IGNIS-MIB)"
+
+-- Pulse Power & Measurement Ltd. reserves the right to make chamges in specifications 
+-- and all other information contained in this document without prior notice.
+
+-- Pulse Power & Measurement Ltd. grants vendors, end-users, and other interested parties 
+-- a non-exclusive license to use this specification in connection with the management of
+-- Pulse Power & Measurement products.
+-- ---------------------------------------------------------- -- 
+			
+	majorAlarm TRAP-TYPE
+		ENTERPRISE ppm
+		VARIABLES { trapsModuleType,trapsSlotIndex,trapsSeverity }
+		DESCRIPTION
+		   "Major alarm."
+	::= 10
+	majorClear TRAP-TYPE
+		ENTERPRISE ppm
+		VARIABLES { trapsModuleType,trapsSlotIndex,trapsSeverity }
+		DESCRIPTION
+		   "Major alarm is cleared."
+	::= 11
+
+	minorAlarm TRAP-TYPE
+		ENTERPRISE ppm
+		VARIABLES { trapsModuleType,trapsSlotIndex,trapsSeverity }
+		DESCRIPTION
+		   "Minor alarm."
+	::= 12
+	minorCleared TRAP-TYPE
+		ENTERPRISE ppm
+		VARIABLES { trapsModuleType,trapsSlotIndex,trapsSeverity }
+		DESCRIPTION
+		   "Minor alarm is cleared."
+	::= 13
+
+	agcAlarm TRAP-TYPE
+		ENTERPRISE ppm
+		VARIABLES { trapsModuleType,trapsSlotIndex,trapsSeverity }
+		DESCRIPTION
+		   "AGC alarm."
+	::= 14
+	agcCleared TRAP-TYPE
+		ENTERPRISE ppm
+		VARIABLES { trapsModuleType,trapsSlotIndex,trapsSeverity }
+		DESCRIPTION
+		   "AGC alarm is cleared."
+	::= 15
+
+	vccAlarm TRAP-TYPE
+		ENTERPRISE ppm
+		VARIABLES { trapsModuleType,trapsSlotIndex,trapsSeverity }
+		DESCRIPTION
+		   "VCC alarm."
+	::= 16
+	vccCleared TRAP-TYPE
+		ENTERPRISE ppm
+		VARIABLES { trapsModuleType,trapsSlotIndex,trapsSeverity }
+		DESCRIPTION
+		   "VCC alarm is cleared."
+	::= 17
+
+	rllAlarm TRAP-TYPE
+		ENTERPRISE ppm
+		VARIABLES { trapsModuleType,trapsSlotIndex,trapsSeverity }
+		DESCRIPTION
+		   "RLL alarm."
+	::= 18
+	rllCleared TRAP-TYPE
+		ENTERPRISE ppm
+		VARIABLES { trapsModuleType,trapsSlotIndex,trapsSeverity }
+		DESCRIPTION
+		   "RLL alarm is cleared."
+	::= 19
+
+	rflAlarm TRAP-TYPE
+		ENTERPRISE ppm
+		VARIABLES { trapsModuleType,trapsSlotIndex,trapsSeverity }
+		DESCRIPTION
+		   "RFL alarm."
+	::= 21
+	rflCleared TRAP-TYPE
+		ENTERPRISE ppm
+		VARIABLES { trapsModuleType,trapsSlotIndex,trapsSeverity }
+		DESCRIPTION
+		   "RFL alarm is cleared."
+	::= 22
+
+	rfGainAlarm TRAP-TYPE
+		ENTERPRISE ppm
+		VARIABLES { trapsModuleType,trapsSlotIndex,trapsSeverity }
+		DESCRIPTION
+		   "RF gain alarm."
+	::= 23
+	rfGainCleared TRAP-TYPE
+		ENTERPRISE ppm
+		VARIABLES { trapsModuleType,trapsSlotIndex,trapsSeverity }
+		DESCRIPTION
+		   "RF gain alarm is cleared."
+	::= 24
+
+	laserAlarm TRAP-TYPE
+		ENTERPRISE ppm
+		VARIABLES { trapsModuleType,trapsSlotIndex,trapsSeverity }
+		DESCRIPTION
+		   "Laser alarm."
+	::= 25
+	laserCleared TRAP-TYPE
+		ENTERPRISE ppm
+		VARIABLES { trapsModuleType,trapsSlotIndex,trapsSeverity }
+		DESCRIPTION
+		   "Laser alarm is cleared."
+	::= 26
+
+	biasAlarm TRAP-TYPE
+		ENTERPRISE ppm
+		VARIABLES { trapsModuleType,trapsSlotIndex,trapsSeverity }
+		DESCRIPTION
+		   "Bias alarm."
+	::= 27
+	biasCleared TRAP-TYPE
+		ENTERPRISE ppm
+		VARIABLES { trapsModuleType,trapsSlotIndex,trapsSeverity }
+		DESCRIPTION
+		   "Bias alarm is cleared."
+	::= 28
+
+	powerAlarm TRAP-TYPE
+		ENTERPRISE ppm
+		VARIABLES { trapsModuleType,trapsSlotIndex,trapsSeverity }
+		DESCRIPTION
+		   "Power level alarm."
+	::= 29
+	powerCleared TRAP-TYPE
+		ENTERPRISE ppm
+		VARIABLES { trapsModuleType,trapsSlotIndex,trapsSeverity }
+		DESCRIPTION
+		   "Power level alarm is cleared."
+	::= 30
+
+	feedIAlarm TRAP-TYPE
+		ENTERPRISE ppm
+		VARIABLES { trapsModuleType,trapsSlotIndex,trapsSeverity }
+		DESCRIPTION
+		   "Feed I alarm."
+	::= 31
+	feedICleared TRAP-TYPE
+		ENTERPRISE ppm
+		VARIABLES { trapsModuleType,trapsSlotIndex,trapsSeverity }
+		DESCRIPTION
+		   "Feed I alarm is cleared."
+	::= 32
+
+	feedVAlarm TRAP-TYPE
+		ENTERPRISE ppm
+		VARIABLES { trapsModuleType,trapsSlotIndex,trapsSeverity }
+		DESCRIPTION
+		   "Feed V alarm."
+	::= 33
+	feedVCleared TRAP-TYPE
+		ENTERPRISE ppm
+		VARIABLES { trapsModuleType,trapsSlotIndex,trapsSeverity }
+		DESCRIPTION
+		   "Feed V alarm is cleared."
+	::= 34
+
+	txTempAlarm TRAP-TYPE
+		ENTERPRISE ppm
+		VARIABLES { trapsModuleType,trapsSlotIndex,trapsSeverity }
+		DESCRIPTION
+		   "Transmitter over temperature alarm."
+	::= 35
+		txTempCleared TRAP-TYPE
+		ENTERPRISE ppm
+		VARIABLES { trapsModuleType,trapsSlotIndex,trapsSeverity }
+		DESCRIPTION
+		   "Transmitter over temperature alarm is cleared."
+	::= 36
+
+	lnbOverloadAlarm TRAP-TYPE
+		ENTERPRISE ppm
+		VARIABLES { trapsModuleType,trapsSlotIndex,trapsSeverity }
+		DESCRIPTION
+		   "LNB overload alarm."
+	::= 37
+	lnbOverloadCleared TRAP-TYPE
+		ENTERPRISE ppm
+		VARIABLES { trapsModuleType,trapsSlotIndex,trapsSeverity }
+		DESCRIPTION
+		   "LNB overload alarm is cleared."
+	::= 38
+
+	lnbTempAlarm TRAP-TYPE
+		ENTERPRISE ppm
+		VARIABLES { trapsModuleType,trapsSlotIndex,trapsSeverity }
+		DESCRIPTION
+		   "LNB over temperature alarm."
+	::= 39
+	lnbTempCleared TRAP-TYPE
+		ENTERPRISE ppm
+		VARIABLES { trapsModuleType,trapsSlotIndex,trapsSeverity }
+		DESCRIPTION
+		   "LNB over temperature alarm is cleared."
+	::= 40
+
+	sysVoltageAlarm TRAP-TYPE
+		ENTERPRISE ppm
+		VARIABLES { trapsModuleType,trapsSlotIndex,trapsSeverity }
+		DESCRIPTION
+		   "System supply voltage alarm."
+	::= 50
+	sysVoltageCleared TRAP-TYPE
+		ENTERPRISE ppm
+		VARIABLES { trapsModuleType,trapsSlotIndex,trapsSeverity }
+		DESCRIPTION
+		   "System supply voltage alarm is cleared."
+	::= 51
+
+	sysTempAlarm TRAP-TYPE
+		ENTERPRISE ppm
+		VARIABLES { trapsModuleType,trapsSlotIndex,trapsSeverity }
+		DESCRIPTION
+		   "System temperature alarm."
+	::= 52
+	sysTempCleared TRAP-TYPE
+		ENTERPRISE ppm
+		VARIABLES { trapsModuleType,trapsSlotIndex,trapsSeverity }
+		DESCRIPTION
+		   "System temperature alarm is cleared."
+	::= 53
+
+	sysPowerUp TRAP-TYPE
+		ENTERPRISE ppm
+		VARIABLES { trapsModuleType,trapsSlotIndex,trapsSeverity }
+		DESCRIPTION
+		   "System was powered up or reset."
+	::= 54
+	sysEventHistoryCleared TRAP-TYPE
+		ENTERPRISE ppm
+		VARIABLES { trapsModuleType,trapsSlotIndex,trapsSeverity }
+		DESCRIPTION
+		   "System event log was cleared."
+	::= 55
+
+	cardInserted TRAP-TYPE
+		ENTERPRISE ppm
+		VARIABLES { trapsModuleType,trapsSlotIndex,trapsSeverity }
+		DESCRIPTION
+		   "Card inserted."
+	::= 60
+	cardRemoved TRAP-TYPE
+		ENTERPRISE ppm
+		VARIABLES { trapsModuleType,trapsSlotIndex,trapsSeverity }
+		DESCRIPTION
+		   "Card removed or failure."
+	::= 61
+
+	psuNormal TRAP-TYPE
+		ENTERPRISE ppm
+		VARIABLES { trapsModuleType,trapsSlotIndex,trapsSeverity }
+		DESCRIPTION
+		   "Power supply normal."
+	::= 62
+	psuAlarm TRAP-TYPE
+		ENTERPRISE ppm
+		VARIABLES { trapsModuleType,trapsSlotIndex,trapsSeverity }
+		DESCRIPTION
+			"Power supply alarm."
+	::= 63
+
+	ethNoLinkAlarm TRAP-TYPE
+		ENTERPRISE ppm
+		VARIABLES { trapsModuleType,trapsSlotIndex,trapsSeverity }
+		DESCRIPTION
+		   "The Ethernet Mediaconverter has no ethernt link."
+	::= 64	   
+	ethLink TRAP-TYPE
+		ENTERPRISE ppm
+		VARIABLES { trapsModuleType,trapsSlotIndex,trapsSeverity }
+		DESCRIPTION
+		   "An Ethernet link has been established by the Ethernet Mediaconverter."
+	::= 65	  
+
+	moduleInMaintenaceMode TRAP-TYPE
+		ENTERPRISE ppm
+		VARIABLES { trapsModuleType,trapsSlotIndex,trapsSeverity }
+		DESCRIPTION
+		   "This trap is sent when a module in the ViaLiteHD enclosure is put into maintenance mode.
+		   Modules in maintenance mode will not generate any further traps until taken out of maintenance mode.
+		   The SlotsTable SNMP objects are still updated as normal whilst in maintenance mode"
+	::= 66	   
+	moduleNotInMaintenaceMode TRAP-TYPE
+		ENTERPRISE ppm
+		VARIABLES { trapsModuleType,trapsSlotIndex,trapsSeverity }
+		DESCRIPTION
+		   "This trap is sent when a module in the ViaLiteHD enclosure is taken out of maintenance mode."
+	::= 67
+
+	doorOpen TRAP-TYPE
+		ENTERPRISE ppm
+		VARIABLES { trapsModuleType,trapsSlotIndex,trapsSeverity }
+		DESCRIPTION
+		   "SATCOM6 Door open indicator"
+	::= 68	   
+	doorClosed TRAP-TYPE
+		ENTERPRISE ppm
+		VARIABLES { trapsModuleType,trapsSlotIndex,trapsSeverity }
+		DESCRIPTION
+		   "SATCOM6 Door open indicator"
+	::= 69	
+
+END

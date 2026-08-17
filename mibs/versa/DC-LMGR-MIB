@@ -1,0 +1,727 @@
+DC-LMGR-MIB DEFINITIONS ::= BEGIN
+
+  IMPORTS
+      MODULE-IDENTITY, OBJECT-TYPE, Unsigned32      FROM SNMPv2-SMI
+
+      OBJECT-GROUP, MODULE-COMPLIANCE                          FROM SNMPv2-CONF
+
+      TEXTUAL-CONVENTION, RowStatus, TruthValue                FROM SNMPv2-TC
+
+      InetAddressType, InetAddress                             FROM INET-ADDRESS-MIB
+
+      NumericIndexOrZero                                       FROM DC-MASTER-TC;
+
+  dcLmgr  MODULE-IDENTITY
+      LAST-UPDATED "200509160000Z" -- Fri Jul 17 00:00:00 GMT 2005
+      ORGANIZATION "Data Connection Ltd."
+      CONTACT-INFO
+                   "Postal: Data Connection Ltd.
+                            Windsor House
+                            Pepper Street
+                            Chester CH1 1DF
+                            United Kingdom
+                    Tel:    +44 1244 313440
+                    E-mail: dcmpls@datcon.co.uk"
+      DESCRIPTION  "The MIB module for management of the DC-LMGR
+                    product."
+
+  ::= { iso member-body(2) gb(826) national (0) eng-ltd (1)
+        dataConnectionLtd (1578918) adg (5) lmgr (32) 1 }
+
+  dcLmgrObjects OBJECT IDENTIFIER ::= { dcLmgr 1 } -- tables
+
+--  Textual Conventions.
+
+  DcLmgrAdminStatus ::= TEXTUAL-CONVENTION
+      STATUS      current
+      DESCRIPTION "The desired administrative state of a Label
+                   Manager entity."
+      SYNTAX      INTEGER {
+                      adminStatusUp(1),
+                      adminStatusDown(2)
+                  }
+
+  DcLmgrOperStatus ::= TEXTUAL-CONVENTION
+      STATUS      current
+      DESCRIPTION "The current operational state of a Label Manager
+                   entity. If the operational state is goingDown then
+                   a request to activate the Label Manager entity
+                   is rejected."
+      SYNTAX      INTEGER {
+                      operStatusUp(1),          -- active
+                      operStatusDown(2),        -- inactive
+                      operStatusGoingUp(3),     -- activating
+                      operStatusGoingDown(4),   -- deactivating
+                      operStatusActFailed(5)    -- activation failed
+                  }
+
+  DcLmgrPartnerStatus ::= TEXTUAL-CONVENTION
+      STATUS      current
+      DESCRIPTION "The state of a Label Manager partner entity."
+      SYNTAX      INTEGER {
+                      initial(0),     -- partner not active
+                      activating(1),  -- partner activating
+                      active(2),      -- partner active
+                      deactivating(3),-- partner deactivating
+                      failedOver(4),  -- partner failed, but recovering
+                      failed(5),      -- partner failed, but recovering
+                      unavailable(6)  -- partner unavailable
+                  }
+
+  DcLmgrIndex ::= TEXTUAL-CONVENTION
+      STATUS      current
+      DESCRIPTION "The index value identifying a Label Manager
+                   entity."
+      SYNTAX      Unsigned32
+
+  DcLmgrControlModes ::= TEXTUAL-CONVENTION
+      STATUS      current
+      DESCRIPTION "The Control Mode of Label Manager."
+      SYNTAX      INTEGER {
+                      ordered(1),     -- control is ordered
+                      independent(2)  -- control is independent
+                  }
+
+  DcLmgrFtModes ::= TEXTUAL-CONVENTION
+      STATUS      current
+      DESCRIPTION "The Fault Tolerant Mode of Label Manager."
+      SYNTAX      INTEGER {
+                      full(1),        -- full replication
+                      recovery(2)     -- recovery replication
+                  }
+
+-- End of textual conventions
+
+-- Label Manager entity table.
+-- This table is used to create and manage Label Manager entities.
+
+    dcLmgrLsrEntityTable OBJECT-TYPE
+        SYNTAX      SEQUENCE OF DcLmgrLsrEntityEntry
+        MAX-ACCESS  not-accessible
+        STATUS      current
+        DESCRIPTION
+            "Each entry represents an instance of the Label Manager.
+             Each instance is identified by LSR index."
+       ::= { dcLmgrObjects 1 }
+
+    dcLmgrLsrEntityEntry OBJECT-TYPE
+        SYNTAX      DcLmgrLsrEntityEntry
+        MAX-ACCESS  not-accessible
+        STATUS      current
+        DESCRIPTION
+            "Each entry represents a Label Manager entity."
+        INDEX       {  dcLmgrLsrEntityLsrIndex  }
+       ::= { dcLmgrLsrEntityTable 1 }
+
+
+    DcLmgrLsrEntityEntry ::= SEQUENCE {
+            dcLmgrLsrEntityLsrIndex           DcLmgrIndex,
+            dcLmgrLsrEntityAdminStatus        DcLmgrAdminStatus,
+            dcLmgrLsrEntityOperStatus         DcLmgrOperStatus,
+            dcLmgrLsrEntityRowStatus          RowStatus,
+            dcLmgrLsrEntityMinLsiBuffers      Unsigned32,
+            dcLmgrLsrEntityMaxLsiBuffers      Unsigned32,
+            dcLmgrLscStatus                   DcLmgrPartnerStatus,
+            dcLmgrLdbCount                    Unsigned32,
+            dcLmgrLsrEntityLsrId              Unsigned32,
+            dcLmgrLsrEntityTranAddrType       InetAddressType,
+            dcLmgrLsrEntityTranAddrLen        Unsigned32,
+            dcLmgrLsrEntityTranAddr           InetAddress,
+            dcLmgrLsrEntityControlMode        DcLmgrControlModes,
+            dcLmgrLsrEntityMergeLsps          TruthValue,
+            dcLmgrLsrEntityLoopDetection      TruthValue,
+            dcLmgrLsrEntityPerformGrouping    TruthValue,
+            dcLmgrLsrAutoStaticLsps           TruthValue,
+            dcLmgrLsrDisplayPhpXCs            TruthValue,
+            dcLmgrLsrEntityIpv6TranAddr       InetAddress,
+            dcLmgrLsrEnableStaticP2MP         TruthValue,
+            dcLmgrLsrStaticP2MPActive         TruthValue,
+            dcLmgrLsrLsiEntIndex              NumericIndexOrZero,
+            dcLmgrLsrI3EntIndex               NumericIndexOrZero,
+            dcLmgrLabelReleaseDelay           Unsigned32,
+            dcLmgrGlobalId                    Unsigned32,
+            dcLmgrNodeId                      Unsigned32,
+            dcLmgrFtMode                      DcLmgrFtModes
+        }
+
+    dcLmgrLsrEntityLsrIndex OBJECT-TYPE
+        SYNTAX      DcLmgrIndex
+        MAX-ACCESS  not-accessible
+        STATUS      current
+        DESCRIPTION
+            "LSR index for this dcLmgrLsrEntityEntry. This is the
+             entity index passed in the Label Manager create
+             parameters."
+       ::= { dcLmgrLsrEntityEntry 1 }
+
+    dcLmgrLsrEntityAdminStatus   OBJECT-TYPE
+        SYNTAX      DcLmgrAdminStatus
+        MAX-ACCESS  read-create
+        STATUS      current
+        DESCRIPTION
+         "Administrative status for Label Manager. When
+          dcLmgrLsrEntityRowStatus is 'active' and
+          dcLmgrLsrEntityAdminStatus is 'up' Label Manager is
+          active and only these two fields and
+          dcLmgrLsrEntityMinLsiBuffers can be modified."
+        DEFVAL { adminStatusUp }
+       ::= { dcLmgrLsrEntityEntry 2 }
+
+    dcLmgrLsrEntityOperStatus OBJECT-TYPE
+        SYNTAX      DcLmgrOperStatus
+        MAX-ACCESS  read-only
+        STATUS      current
+        DESCRIPTION
+         "The current operational status of the Label Manager
+          entity."
+       ::= { dcLmgrLsrEntityEntry 3 }
+
+    dcLmgrLsrEntityRowStatus OBJECT-TYPE
+        SYNTAX      RowStatus
+        MAX-ACCESS  read-create
+        STATUS      current
+        DESCRIPTION
+         "Row status for the Label Manager table entry, used to
+          create and destroy table entries. When
+          dcLmgrLsrEntityRowStatus is 'active' and
+          dcLmgrLsrEntityAdminStatus is 'up' Label Manager is
+          active and only these two fields and
+          dcLmgrLsrEntityMinLsiBuffers can be modified."
+       ::= { dcLmgrLsrEntityEntry 4 }
+
+    dcLmgrLsrEntityMinLsiBuffers OBJECT-TYPE
+        SYNTAX      Unsigned32
+        MAX-ACCESS  read-create
+        STATUS      current
+        DESCRIPTION
+         "Minimum number of buffers to allocate for Label Switch
+          Interface requests.  This number includes any buffers sent
+          to the Label Switch Controller and awaiting a response.
+
+          This field is deprecated and has no effect."
+       ::= { dcLmgrLsrEntityEntry 5 }
+
+    dcLmgrLsrEntityMaxLsiBuffers OBJECT-TYPE
+        SYNTAX      Unsigned32
+        MAX-ACCESS  read-create
+        STATUS      current
+        DESCRIPTION
+         "Maximum number of buffers to allocate for Label Switch
+          Interface requests.  A value of 0 means no maximum.
+
+          This field can not be changed when the row is active."
+        DEFVAL { 0 }
+       ::= { dcLmgrLsrEntityEntry 6 }
+
+    dcLmgrLscStatus OBJECT-TYPE
+        SYNTAX      DcLmgrPartnerStatus
+        MAX-ACCESS  read-only
+        STATUS      current
+        DESCRIPTION
+         "Diagnostic field providing information about the status
+          of the Label Switch Controller as seen by Label Manager."
+       ::= { dcLmgrLsrEntityEntry 7 }
+
+    dcLmgrLdbCount  OBJECT-TYPE
+        SYNTAX      Unsigned32
+        MAX-ACCESS  read-only
+        STATUS      current
+        DESCRIPTION
+         "Diagnostic field providing information about the number
+         of active interfaces between Label Manager and the its
+         Label Database Interface users (DC-TPM and DC-RSVP)."
+       ::= { dcLmgrLsrEntityEntry 8 }
+
+    dcLmgrLsrEntityLsrId  OBJECT-TYPE
+        SYNTAX      Unsigned32
+        MAX-ACCESS  read-create
+        STATUS      current
+        DESCRIPTION
+         "An ID that uniquely identifies this LSR within the
+          network.
+
+          The LSR ID is typically derived from one of the LSR's IPv4
+          addresses.  It may be used for path vector based loop
+          detection if the signaling protocol in use implements
+          that.
+
+          A value of zero indicates that no LSR ID has been
+          configured.  In this case, the signaling protocol stack
+          should construct a unique LSR ID from the other
+          information that is available to it (such as IPv4
+          addresses).  For example, DC-CR-LDP and DC-RSVP derive
+          the LSR ID by taking the 32 low bits of the following
+          _transport_address_ field, left padding with zeros if
+          necessary.
+
+          The LSR ID is only used to identify this LSR on IPv4
+          networks.  See dcLmgrLsrEntityIpv6TranAddr for the
+          equivalent field for use in IPv6 networks.
+
+          The LSR ID provides the ASON SC PC ID for this node in a
+          UNI 2.0-capable system."
+       ::= { dcLmgrLsrEntityEntry 9 }
+
+     dcLmgrLsrEntityTranAddrType  OBJECT-TYPE
+        SYNTAX      InetAddressType
+        MAX-ACCESS  read-create
+        STATUS      current
+        DESCRIPTION
+         "The type of the internetwork layer address used as the
+          transport address.  Currently this must be IPv4.  See
+          dcLmgrLsrEntityIpv6TranAddr, below, for the equivalent
+          field for use in IPv6 networks.
+
+          The transport address is used by LDP as the source
+          transport address for LDP Hello messages for the global
+          (per-platform) label space.
+
+          The transport address is used by RSVP as the source
+          address for messages originating on unnumbered interfaces.
+
+          This object indicates how the value of
+          mplsLdpEntityTransAddr is to be interpreted."
+       ::= { dcLmgrLsrEntityEntry 10 }
+
+     dcLmgrLsrEntityTranAddrLen  OBJECT-TYPE
+        SYNTAX      Unsigned32
+        MAX-ACCESS  read-create
+        STATUS      current
+        DESCRIPTION
+         "The length of the internetwork layer address used as the
+          transport address for LDP Hello messages in the global
+          label space and for messages originating on unnumbered
+          interfaces in RSVP.  Currently this must be an IPv4
+          address.
+
+          This object indicates how many elements of the
+          mplsLdpEntityTransAddr array are valid.  This value must
+          not exceed _LMGR_LSR_ADDR_LEN_."
+       ::= { dcLmgrLsrEntityEntry 11 }
+
+     dcLmgrLsrEntityTranAddr  OBJECT-TYPE
+        SYNTAX      InetAddress
+        MAX-ACCESS  read-create
+        STATUS      current
+        DESCRIPTION
+         "The value of the internetwork layer address used as the
+          transport address for LDP Hello messages in the global
+          label space and for messages originating on unnumbered
+          interfaces in RSVP.
+
+          This must be an IPv4 address.  See
+          dcLmgrLsrEntityIpv6TranAddr, below, for the equivalent
+          field for use in IPv6 networks.
+
+          If the transport address is not set, then _lsr_id_ must be
+          set to zero.  In this case, the transport address and LSR
+          ID are taken from an address on the Interface Information
+          Interface.
+
+          The IPv4 transport address provides the default ASON SC PC
+          SCN address for this node.  This is used in a UNI
+          2.0-capable system.  To interact with a UNI 1.0-capable
+          system, the IPv4 transport address must be identical to
+          _lsr_id_."
+       ::= { dcLmgrLsrEntityEntry 12 }
+
+     dcLmgrLsrEntityControlMode  OBJECT-TYPE
+        SYNTAX      DcLmgrControlModes
+        MAX-ACCESS  read-create
+        STATUS      current
+        DESCRIPTION
+         "The LSP control mode that this LSR should adopt.
+          This field is only used by Label Manager in systems where
+          it supports LDP and/or CR-LDP."
+       ::= { dcLmgrLsrEntityEntry 13 }
+
+     dcLmgrLsrEntityMergeLsps  OBJECT-TYPE
+        SYNTAX      TruthValue
+        MAX-ACCESS  read-create
+        STATUS      current
+        DESCRIPTION
+         "Whether this LSR should aim to merge LSPs, where permitted
+          by the underlying hardware.
+          This field is only used by Label Manager in systems where
+          it supports LDP and/or CR-LDP."
+        DEFVAL { true }
+       ::= { dcLmgrLsrEntityEntry 14 }
+
+     dcLmgrLsrEntityLoopDetection  OBJECT-TYPE
+        SYNTAX      TruthValue
+        MAX-ACCESS  read-create
+        STATUS      current
+        DESCRIPTION
+         "Whether this LSR should perform loop detection.
+          This field is only used by Label Manager in systems where
+          it supports LDP and/or CR-LDP."
+        DEFVAL { false }
+       ::= { dcLmgrLsrEntityEntry 15 }
+
+     dcLmgrLsrEntityPerformGrouping  OBJECT-TYPE
+        SYNTAX      TruthValue
+        MAX-ACCESS  read-create
+        STATUS      current
+        DESCRIPTION
+         "Whether Label Manager should perform LSP grouping on
+          behalf of the LDBI user.  This field is currently only
+          used for systems supporting RSVP."
+        DEFVAL { false }
+       ::= { dcLmgrLsrEntityEntry 16 }
+
+     dcLmgrLsrAutoStaticLsps  OBJECT-TYPE
+        SYNTAX      TruthValue
+        MAX-ACCESS  read-create
+        STATUS      current
+        DESCRIPTION
+         "Whether Label Manager should automatically activate or
+          deactivate static LSPs when the interfaces on which they
+          depend become active or inactive."
+        DEFVAL { false }
+       ::= { dcLmgrLsrEntityEntry 17 }
+
+     dcLmgrLsrDisplayPhpXCs  OBJECT-TYPE
+        SYNTAX      TruthValue
+        MAX-ACCESS  read-create
+        STATUS      current
+        DESCRIPTION
+         "Whether Label Manager should display the virtual cross
+          connects its sets up at the Egress node of Implicit Null
+          and Explicit Null LSPs in the mplsXcTable.  These cross
+          connects do not represent real switch programming, but do
+          show the prescence of such LSPs, and correspond to the
+          entries in the mplsTunnelTable for theses types of LSP."
+        DEFVAL { false }
+       ::= { dcLmgrLsrEntityEntry 18 }
+
+     dcLmgrLsrEntityIpv6TranAddr  OBJECT-TYPE
+        SYNTAX      InetAddress
+        MAX-ACCESS  read-create
+        STATUS      current
+        DESCRIPTION
+         "The value of the internetwork address used for messages
+          originating on unnumbered interfaces in RSVP in an IPv6
+          network.
+
+          This value also uniquely identifies this LSR within an
+          IPv6 network.
+
+          If this address is not set, the IPv6 transport address is
+          taken from an address on the Interface Information
+          Interface.
+
+          A length value of zero indicates that no IPv6 transport
+          address has been configured.  In this case, if IPv6
+          support is configured, the signaling protocol stack should
+          use an IPv6 address configured to the signaling stack over
+          the Interface Information Interface that is flagged as
+          suitable for use as a stable address."
+        ::= { dcLmgrLsrEntityEntry 19 }
+
+     dcLmgrLsrEnableStaticP2MP  OBJECT-TYPE
+        SYNTAX      TruthValue
+        MAX-ACCESS  read-create
+        STATUS      current
+        DESCRIPTION
+         "Whether Label Manager should allow configuration of
+          static point-to-multipoint LSPs.
+
+          Disabling point-to-multipoint support causes any
+          statically configured point-to-multipoint LSPs to be
+          destroyed."
+        DEFVAL { false }
+       ::= { dcLmgrLsrEntityEntry 20 }
+
+     dcLmgrLsrStaticP2MPActive  OBJECT-TYPE
+        SYNTAX      TruthValue
+        MAX-ACCESS  read-only
+        STATUS      current
+        DESCRIPTION
+         "The current state of support for static
+          point-to-multipoint LSPs.  This field is set to true when
+          support for static point-to-multipoint LSPs is enabled.
+          It is set to false when support for static
+          point-to-multipoint LSPs is disabled and all statically
+          configured point-to-multipoint LSPs have been destroyed."
+        DEFVAL { false }
+       ::= { dcLmgrLsrEntityEntry 21 }
+
+     dcLmgrLsrLsiEntIndex OBJECT-TYPE
+        SYNTAX      NumericIndexOrZero
+        MAX-ACCESS  read-create
+        STATUS      current
+        DESCRIPTION
+         "The index of the Label Switch Controller instance which
+          this LMGR is to join to as its LSI interface provider.  If
+          this value is not specified, or the value of this object
+          is 0, LMGR will use the dcLmgrLsrEntityLsrIndex value as
+          the LSR index when joining over the LSI interface.
+
+          This field follows the replaceOnlyWhileDisabled behavior."
+        DEFVAL { 0 }
+       ::= { dcLmgrLsrEntityEntry 22 }
+
+     dcLmgrLsrI3EntIndex OBJECT-TYPE
+        SYNTAX      NumericIndexOrZero
+        MAX-ACCESS  read-create
+        STATUS      current
+        DESCRIPTION
+         "The index of the I3 entity which this LMGR is to join to
+          as its I3 interface provider.  If this value is not
+          specified, or the value of this object is 0, LMGR will use
+          the dcLmgrLsrEntityLsrIndex value as the LSR index when
+          joining over the I3 interface.
+
+          This field follows the replaceOnlyWhileDisabled behavior."
+        DEFVAL { 0 }
+       ::= { dcLmgrLsrEntityEntry 23 }
+
+     dcLmgrLabelReleaseDelay OBJECT-TYPE
+        SYNTAX      Unsigned32
+        MAX-ACCESS  read-create
+        STATUS      current
+        DESCRIPTION
+         "A length of time (in seconds) to wait after releasing an
+          MPLS label before the label will be released to the
+          general pool to be assigned to new LSPs.
+
+          Changes made to this value will not take effect while the
+          Label Manager is active."
+        DEFVAL { 180 }
+        ::= { dcLmgrLsrEntityEntry 24 }
+
+     dcLmgrGlobalId OBJECT-TYPE
+        SYNTAX      Unsigned32
+        MAX-ACCESS  read-create
+        STATUS      current
+        DESCRIPTION
+         "The Global ID is defined in RFC 6370 and uniquely
+          identifies an operator.  It is derived from a 4-octet AS
+          number assigned to the operator and is used solely to
+          provide a globally unique context for other MPLS-TP
+          identifiers."
+        DEFVAL { 0 }
+        ::= { dcLmgrLsrEntityEntry 25 }
+
+     dcLmgrNodeId OBJECT-TYPE
+        SYNTAX      Unsigned32
+        MAX-ACCESS  read-create
+        STATUS      current
+        DESCRIPTION
+         "The Node ID is defined in RFC 6370 and is assigned by the
+          operator within the scope of a Global ID."
+        DEFVAL { 0 }
+        ::= { dcLmgrLsrEntityEntry 26 }
+
+     dcLmgrFtMode OBJECT-TYPE
+        SYNTAX      DcLmgrFtModes
+        MAX-ACCESS  read-create
+        STATUS      current
+        DESCRIPTION
+         "The fault tolerant mode used by Label Manager if used in a
+          fault tolerant environment.  The default value is full
+          replication which should be used in conjunction with full
+          replication in other MPLS components.  This approach is
+          not recommended for new deployments and is the default for
+          back compatibility only.  The other option is recovery
+          replication which can be used in conjunction with graceful
+          restart of other MPLS components."
+        DEFVAL { full }
+        ::= { dcLmgrLsrEntityEntry 27 }
+
+-- End of Label Manager entity table.
+-- Label Manager LSP XC Table
+-- This table is used to create and manage LSP XCs
+
+    dcLmgrLsrLspXcTable OBJECT-TYPE
+        SYNTAX      SEQUENCE OF DcLmgrLsrLspXcEntry
+        MAX-ACCESS  not-accessible
+        STATUS      current
+        DESCRIPTION
+            "Each entry represents an instance of an LSP
+             cross-conect between a single in-segment and a
+             single out-segment."
+       ::= { dcLmgrObjects 2 }
+
+    dcLmgrLsrLspXcEntry OBJECT-TYPE
+        SYNTAX      DcLmgrLsrLspXcEntry
+        MAX-ACCESS  not-accessible
+        STATUS      current
+        DESCRIPTION
+            "Each entry represents an LSP cross connect."
+        INDEX       {  dcLmgrLsrEntityLsrIndex,
+                       dcLmgrLsrLspXcIndex,
+                       dcLmgrLsrLspInSegIndex,
+                       dcLmgrLsrLspOutSegIndex }
+
+       ::= { dcLmgrLsrLspXcTable 1 }
+
+    DcLmgrLsrLspXcEntry ::= SEQUENCE {
+            dcLmgrLsrLspXcIndex               Unsigned32,
+            dcLmgrLsrLspInSegIndex            Unsigned32,
+            dcLmgrLsrLspInSegIfIndex          Unsigned32,
+            dcLmgrLsrLspInSegLabel            Unsigned32,
+            dcLmgrLsrLspOutSegIndex           Unsigned32,
+            dcLmgrLsrLspOutSegIfIndex         Unsigned32,
+            dcLmgrLsrLspOutSegLabel           Unsigned32,
+            dcLmgrLsrLspOutSegNextHopAddr     InetAddress,
+            dcLmgrLsrLspOutSegNHAddrType      InetAddressType
+         }
+
+    dcLmgrLsrLspXcIndex  OBJECT-TYPE
+        SYNTAX      Unsigned32
+        MAX-ACCESS  not-accessible
+        STATUS      current
+        DESCRIPTION
+            "XC index for this dcLmgrLsrLspXc.  This is the XC index
+             assigned by Label Manager for the LSP."
+       ::= { dcLmgrLsrLspXcEntry 2 }
+
+    dcLmgrLsrLspInSegIndex  OBJECT-TYPE
+        SYNTAX      Unsigned32
+        MAX-ACCESS  not-accessible
+        STATUS      current
+        DESCRIPTION
+            "Index for the in segment.  This is the index assigned
+             by Label Manager for the in segment."
+       ::= { dcLmgrLsrLspXcEntry 3 }
+
+    dcLmgrLsrLspInSegIfIndex  OBJECT-TYPE
+        SYNTAX      Unsigned32
+        MAX-ACCESS  read-only
+        STATUS      current
+        DESCRIPTION
+            "If index for the in segment.  This is the If index
+             specified on setting up the in segment."
+       ::= { dcLmgrLsrLspXcEntry 4 }
+
+    dcLmgrLsrLspInSegLabel  OBJECT-TYPE
+        SYNTAX      Unsigned32
+        MAX-ACCESS  read-only
+        STATUS      current
+        DESCRIPTION
+            "Top label for the in segment.  This is the Label assigned
+             by Label Manager Label Library for the in segment."
+       ::= { dcLmgrLsrLspXcEntry 5 }
+
+
+    dcLmgrLsrLspOutSegIndex  OBJECT-TYPE
+        SYNTAX      Unsigned32
+        MAX-ACCESS  not-accessible
+        STATUS      current
+        DESCRIPTION
+            "Index for the out segment.  This is the index assigned
+             by Label Manager for the out segment."
+       ::= { dcLmgrLsrLspXcEntry 6 }
+
+     dcLmgrLsrLspOutSegIfIndex  OBJECT-TYPE
+        SYNTAX      Unsigned32
+        MAX-ACCESS  read-only
+        STATUS      current
+        DESCRIPTION
+            "Interface Index for the out segment.  This is the
+             interface index specified when setting up the out segment."
+       ::= { dcLmgrLsrLspXcEntry 7 }
+
+     dcLmgrLsrLspOutSegLabel  OBJECT-TYPE
+        SYNTAX      Unsigned32
+        MAX-ACCESS  read-only
+        STATUS      current
+        DESCRIPTION
+            "Top label for the out segment.  This is the label
+             specified by the remote LSR for the out segment."
+       ::= { dcLmgrLsrLspXcEntry 8 }
+
+     dcLmgrLsrLspOutSegNHAddrType  OBJECT-TYPE
+        SYNTAX      InetAddressType
+        MAX-ACCESS  read-only
+        STATUS      current
+        DESCRIPTION
+            "The type of the next hop address for the out segment."
+       ::= { dcLmgrLsrLspXcEntry 9 }
+
+     dcLmgrLsrLspOutSegNextHopAddr  OBJECT-TYPE
+        SYNTAX      InetAddress
+        MAX-ACCESS  read-only
+        STATUS      current
+        DESCRIPTION
+            "Next hop address for the out segment.  This is the address
+             specified by the remote LSR for the out segment."
+       ::= { dcLmgrLsrLspXcEntry 10 }
+
+-- Module compliance.
+
+-- Conformance Information.
+
+  dcLmgrConformance   OBJECT IDENTIFIER ::= { dcLmgr 2 }
+
+  dcLmgrCompliances  OBJECT IDENTIFIER ::= { dcLmgrConformance 1 }
+  dcLmgrGroups       OBJECT IDENTIFIER ::= { dcLmgrConformance 2 }
+
+  dcLmgrCompliance MODULE-COMPLIANCE
+    STATUS current
+    DESCRIPTION
+        "The compliance statement for the DC-LMGR product."
+    MODULE
+
+    GROUP dcLmgrEntityGroup
+    DESCRIPTION
+        "Objects for dcLmgrEntTable."
+
+    GROUP dcLmgrMiscGroup
+    DESCRIPTION
+        "Miscellaneous objects."
+
+    ::= { dcLmgrCompliances 1 }
+
+-- Units of Conformance (Groups)
+
+dcLmgrEntityGroup OBJECT-GROUP
+   OBJECTS {
+      dcLmgrLsrEntityAdminStatus,
+      dcLmgrLsrEntityOperStatus,
+      dcLmgrLsrEntityRowStatus,
+      dcLmgrLsrEntityMinLsiBuffers,
+      dcLmgrLsrEntityMaxLsiBuffers,
+      dcLmgrLsrEntityLsrId,
+      dcLmgrLsrEntityTranAddrType,
+      dcLmgrLsrEntityTranAddrLen,
+      dcLmgrLsrEntityTranAddr,
+      dcLmgrLsrEntityControlMode,
+      dcLmgrLsrEntityMergeLsps,
+      dcLmgrLsrEntityLoopDetection,
+      dcLmgrLsrEntityPerformGrouping
+   }
+    STATUS  current
+    DESCRIPTION
+           "Label Manager Entity Objects."
+    ::= { dcLmgrGroups 2 }
+
+dcLmgrMiscGroup OBJECT-GROUP
+   OBJECTS {
+      dcLmgrLscStatus,
+      dcLmgrLdbCount,
+      dcLmgrLsrAutoStaticLsps,
+      dcLmgrLsrDisplayPhpXCs,
+      dcLmgrLsrLspInSegIfIndex,
+      dcLmgrLsrLspInSegLabel,
+      dcLmgrLsrLspOutSegIfIndex,
+      dcLmgrLsrLspOutSegLabel,
+      dcLmgrLsrLspOutSegNextHopAddr,
+      dcLmgrLsrLspOutSegNHAddrType,
+      dcLmgrLsrEntityIpv6TranAddr,
+      dcLmgrLsrEnableStaticP2MP,
+      dcLmgrLsrStaticP2MPActive,
+      dcLmgrLsrLsiEntIndex,
+      dcLmgrLsrI3EntIndex,
+      dcLmgrLabelReleaseDelay,
+      dcLmgrGlobalId,
+      dcLmgrNodeId,
+      dcLmgrFtMode
+   }
+    STATUS  current
+    DESCRIPTION
+           "Miscellaneous Non-Mandatory Objects."
+    ::= { dcLmgrGroups 3 }
+
+END

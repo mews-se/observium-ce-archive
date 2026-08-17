@@ -1,0 +1,30 @@
+<?php
+
+// Observium MySQL Agent Script -> Config File
+// (c) 2012, Tom Laermans for Observium (www.observium.org)
+
+// Autodetect user/pass on Debian, please configure if other distro.
+
+
+if (is_readable('/etc/mysql/debian.cnf')) {
+
+    // parse_ini_file(), hash marks (#) are no longer recognized as comments in php7
+    $mysql_ini = preg_replace('/^\s*#/', ';', file_get_contents('/etc/mysql/debian.cnf'));
+
+} elseif (is_readable('/root/.my.cnf')) {
+
+    // parse_ini_file(), hash marks (#) are no longer recognized as comments in php7
+    $mysql_ini = preg_replace('/^\s*#/', ';', file_get_contents('/root/.my.cnf'));
+
+} else {
+    $mysql_user = '';
+    $mysql_pass = '';
+
+    return;
+}
+
+$mysql_cnf  = parse_ini_string($mysql_ini, TRUE);
+$mysql_user = $mysql_cnf['client']['user'] ?? 'root';
+$mysql_pass = $mysql_cnf['client']['password'] ?? ($mysql_cnf['client']['pass'] ?? '');
+
+// EOF

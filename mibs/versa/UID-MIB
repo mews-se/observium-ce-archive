@@ -1,0 +1,646 @@
+UID-MIB DEFINITIONS ::= BEGIN
+IMPORTS
+    MODULE-IDENTITY, OBJECT-TYPE,
+    Integer32, Unsigned32, Counter32, Counter64,
+    Gauge32, IpAddress
+        FROM SNMPv2-SMI
+    TEXTUAL-CONVENTION, RowStatus, DateAndTime,
+    TruthValue
+        FROM SNMPv2-TC
+    ngfw
+        FROM VERSA-MIB
+;
+
+uid MODULE-IDENTITY
+    LAST-UPDATED "201803310000Z"
+    ORGANIZATION "Versa Networks"
+    CONTACT-INFO "
+        2953 Bunker Hill Lane, Suite 210
+        Santa Clara, CA - 95035 (USA)
+        Email: support@versa-networks.com"
+    DESCRIPTION "Enterprise MIB for Versa Networks'
+User Identification"
+    REVISION "201803310000Z"
+    DESCRIPTION "Initial revision"
+    ::= { ngfw 12 }
+
+ConfdString ::= TEXTUAL-CONVENTION
+    DISPLAY-HINT "1t"
+    STATUS      current
+    DESCRIPTION "xs: and confd: types mapped to strings"
+    SYNTAX      OCTET STRING
+
+String ::= TEXTUAL-CONVENTION
+    DISPLAY-HINT "1t"
+    STATUS      current
+    DESCRIPTION "xs:string"
+    SYNTAX      OCTET STRING
+
+authProfileStatsTable OBJECT-TYPE
+    SYNTAX      SEQUENCE OF AuthProfileStatsEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "Authentication profile statistics"
+    ::= { uid 1 }
+
+authProfileStatsEntry OBJECT-TYPE
+    SYNTAX      AuthProfileStatsEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION ""
+    INDEX { authProfileOrgId, authProfileId }
+        ::= { authProfileStatsTable 1 }
+
+AuthProfileStatsEntry ::=
+    SEQUENCE {
+        authProfileOrgId Unsigned32,
+        authProfileId Unsigned32,
+        authProfileOrgName String,
+        authProfileName String,
+        authProfileHitCount ConfdString,
+        authProfileLocalDbHits ConfdString,
+        authProfileKerberosHits ConfdString,
+        authProfileLdapHits ConfdString,
+        authProfileSamlHits ConfdString
+    }
+
+authProfileOrgId OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "Organization id"
+    ::= { authProfileStatsEntry 1 }
+
+authProfileId OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "Profile id"
+    ::= { authProfileStatsEntry 2 }
+
+authProfileOrgName OBJECT-TYPE
+    SYNTAX      String
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Organization Name"
+    ::= { authProfileStatsEntry 3 }
+
+authProfileName OBJECT-TYPE
+    SYNTAX      String
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Profile Name"
+    ::= { authProfileStatsEntry 4 }
+
+authProfileHitCount OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Hit count"
+    ::= { authProfileStatsEntry 5 }
+
+authProfileLocalDbHits OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "local dp hits"
+    ::= { authProfileStatsEntry 6 }
+
+authProfileKerberosHits OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Kerberos hits"
+    ::= { authProfileStatsEntry 7 }
+
+authProfileLdapHits OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "ldap hits"
+    ::= { authProfileStatsEntry 8 }
+
+authProfileSamlHits OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "SAML hits"
+    ::= { authProfileStatsEntry 9 }
+
+ldapProfileStatsTable OBJECT-TYPE
+    SYNTAX      SEQUENCE OF LdapProfileStatsEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "LDAP profile statistics"
+    ::= { uid 2 }
+
+ldapProfileStatsEntry OBJECT-TYPE
+    SYNTAX      LdapProfileStatsEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION ""
+    INDEX { ldapProfileOrgId, ldapProfileId }
+        ::= { ldapProfileStatsTable 1 }
+
+LdapProfileStatsEntry ::=
+    SEQUENCE {
+        ldapProfileOrgId Unsigned32,
+        ldapProfileId Unsigned32,
+        ldapProfileOrgName String,
+        ldapProfileName String,
+        ldapProfileHitCount ConfdString,
+        ldapProfileSplitSuccess ConfdString,
+        ldapProfileSplitFailure ConfdString,
+        ldapProfileAuthPageShown ConfdString,
+        ldapProfileAuthRespReceived ConfdString,
+        ldapProfileReqSentToPam ConfdString,
+        ldapProfileRespReceivedFromPam ConfdString,
+        ldapProfileAuthenticationSuccess ConfdString,
+        ldapProfileAuthenticationFailure ConfdString
+    }
+
+ldapProfileOrgId OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "Organization id"
+    ::= { ldapProfileStatsEntry 1 }
+
+ldapProfileId OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "Profile id"
+    ::= { ldapProfileStatsEntry 2 }
+
+ldapProfileOrgName OBJECT-TYPE
+    SYNTAX      String
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Organization Name"
+    ::= { ldapProfileStatsEntry 3 }
+
+ldapProfileName OBJECT-TYPE
+    SYNTAX      String
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Profile Name"
+    ::= { ldapProfileStatsEntry 4 }
+
+ldapProfileHitCount OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "LDAP hit count"
+    ::= { ldapProfileStatsEntry 5 }
+
+ldapProfileSplitSuccess OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "split success"
+    ::= { ldapProfileStatsEntry 6 }
+
+ldapProfileSplitFailure OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "split failure"
+    ::= { ldapProfileStatsEntry 7 }
+
+ldapProfileAuthPageShown OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "authentication page shown"
+    ::= { ldapProfileStatsEntry 8 }
+
+ldapProfileAuthRespReceived OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "authentication response received"
+    ::= { ldapProfileStatsEntry 9 }
+
+ldapProfileReqSentToPam OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "request sent to PAM"
+    ::= { ldapProfileStatsEntry 10 }
+
+ldapProfileRespReceivedFromPam OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "request received from PAM"
+    ::= { ldapProfileStatsEntry 11 }
+
+ldapProfileAuthenticationSuccess OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "authentication success"
+    ::= { ldapProfileStatsEntry 12 }
+
+ldapProfileAuthenticationFailure OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "authentication failure"
+    ::= { ldapProfileStatsEntry 13 }
+
+kerberosProfileStatsTable OBJECT-TYPE
+    SYNTAX      SEQUENCE OF KerberosProfileStatsEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "Kerberos profile statistics"
+    ::= { uid 3 }
+
+kerberosProfileStatsEntry OBJECT-TYPE
+    SYNTAX      KerberosProfileStatsEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION ""
+    INDEX { kerberosProfileOrgId, kerberosProfileId }
+        ::= { kerberosProfileStatsTable 1 }
+
+KerberosProfileStatsEntry ::=
+    SEQUENCE {
+        kerberosProfileOrgId Unsigned32,
+        kerberosProfileId Unsigned32,
+        kerberosProfileOrgName String,
+        kerberosProfileName String,
+        kerberosProfileHitCount ConfdString,
+        kerberosProfileExplicitProxySession ConfdString,
+        kerberosProfileTransparentProxySession ConfdString,
+        kerberosProfile407Sent ConfdString,
+        kerberosProfile401Sent ConfdString,
+        kerberosProfileNTLMtokenReceived ConfdString,
+        kerberosProfileKRBtokenReceived ConfdString,
+        kerberosProfileAuthenticationSuccess ConfdString,
+        kerberosProfileAuthenticationFailure ConfdString
+    }
+
+kerberosProfileOrgId OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "Organization id"
+    ::= { kerberosProfileStatsEntry 1 }
+
+kerberosProfileId OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "Profile id"
+    ::= { kerberosProfileStatsEntry 2 }
+
+kerberosProfileOrgName OBJECT-TYPE
+    SYNTAX      String
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Organization Name"
+    ::= { kerberosProfileStatsEntry 3 }
+
+kerberosProfileName OBJECT-TYPE
+    SYNTAX      String
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Profile Name"
+    ::= { kerberosProfileStatsEntry 4 }
+
+kerberosProfileHitCount OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Kerberos hit count"
+    ::= { kerberosProfileStatsEntry 5 }
+
+kerberosProfileExplicitProxySession OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Explicit proxy session"
+    ::= { kerberosProfileStatsEntry 6 }
+
+kerberosProfileTransparentProxySession OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Transparent proxy session"
+    ::= { kerberosProfileStatsEntry 7 }
+
+kerberosProfile407Sent OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "407 sent"
+    ::= { kerberosProfileStatsEntry 8 }
+
+kerberosProfile401Sent OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "401 sent"
+    ::= { kerberosProfileStatsEntry 9 }
+
+kerberosProfileNTLMtokenReceived OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "NTLM token received"
+    ::= { kerberosProfileStatsEntry 10 }
+
+kerberosProfileKRBtokenReceived OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "KRB token received"
+    ::= { kerberosProfileStatsEntry 11 }
+
+kerberosProfileAuthenticationSuccess OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "authentication success"
+    ::= { kerberosProfileStatsEntry 12 }
+
+kerberosProfileAuthenticationFailure OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "authentication failure"
+    ::= { kerberosProfileStatsEntry 13 }
+
+localDbStatsTable OBJECT-TYPE
+    SYNTAX      SEQUENCE OF LocalDbStatsEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "Local db statistics"
+    ::= { uid 4 }
+
+localDbStatsEntry OBJECT-TYPE
+    SYNTAX      LocalDbStatsEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION ""
+    INDEX { localDbOrgId }
+        ::= { localDbStatsTable 1 }
+
+LocalDbStatsEntry ::=
+    SEQUENCE {
+        localDbOrgId Unsigned32,
+        localDbOrgName String,
+        localDbHitCount ConfdString,
+        localDbSplitSuccess ConfdString,
+        localDbSplitFailure ConfdString,
+        localDbAuthPageShown ConfdString,
+        localDbAuthRespReceived ConfdString,
+        localDbAuthenticationSuccess ConfdString,
+        localDbAuthenticationFailure ConfdString
+    }
+
+localDbOrgId OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "Organization id"
+    ::= { localDbStatsEntry 1 }
+
+localDbOrgName OBJECT-TYPE
+    SYNTAX      String
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Organization Name"
+    ::= { localDbStatsEntry 2 }
+
+localDbHitCount OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Local Db hit count"
+    ::= { localDbStatsEntry 3 }
+
+localDbSplitSuccess OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "split success"
+    ::= { localDbStatsEntry 4 }
+
+localDbSplitFailure OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "split failure"
+    ::= { localDbStatsEntry 5 }
+
+localDbAuthPageShown OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "authentication page shown"
+    ::= { localDbStatsEntry 6 }
+
+localDbAuthRespReceived OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "authentication response received"
+    ::= { localDbStatsEntry 7 }
+
+localDbAuthenticationSuccess OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "authentication success"
+    ::= { localDbStatsEntry 8 }
+
+localDbAuthenticationFailure OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "authentication failure"
+    ::= { localDbStatsEntry 9 }
+
+samlProfileStatsTable OBJECT-TYPE
+    SYNTAX      SEQUENCE OF SamlProfileStatsEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "SAML profile statistics"
+    ::= { uid 5 }
+
+samlProfileStatsEntry OBJECT-TYPE
+    SYNTAX      SamlProfileStatsEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION ""
+    INDEX { samlProfileOrgId, samlProfileId }
+        ::= { samlProfileStatsTable 1 }
+
+SamlProfileStatsEntry ::=
+    SEQUENCE {
+        samlProfileOrgId Unsigned32,
+        samlProfileId Unsigned32,
+        samlProfileOrgName String,
+        samlProfileName String,
+        samlProfileHitCount ConfdString,
+        samlProfileAuthenticationSuccess ConfdString,
+        samlProfileAuthenticationFailure ConfdString,
+        samlProfileExplicitProxySession ConfdString,
+        samlProfileTransparentProxySession ConfdString,
+        samlProfileForwardProxySession ConfdString,
+        samlProfileNoProxySession ConfdString,
+        samlProfileSplitFailure ConfdString,
+        samlProfileAuthNReqSent ConfdString,
+        samlProfileAuthNReqDeflateFailure ConfdString,
+        samlProfileAuthNRespReceived ConfdString,
+        samlProfileAuthNRespExpired ConfdString,
+        samlProfileAuthNRespYetNotValid ConfdString,
+        samlProfileAuthNRespInvalid ConfdString,
+        samlProfileAuthNRespInvalidSignature ConfdString,
+        samlProfileAuthNRespInvalidX509Cert ConfdString
+    }
+
+samlProfileOrgId OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "Organization id"
+    ::= { samlProfileStatsEntry 1 }
+
+samlProfileId OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "SAML Profile id"
+    ::= { samlProfileStatsEntry 2 }
+
+samlProfileOrgName OBJECT-TYPE
+    SYNTAX      String
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Organization Name"
+    ::= { samlProfileStatsEntry 3 }
+
+samlProfileName OBJECT-TYPE
+    SYNTAX      String
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "SAML Profile Name"
+    ::= { samlProfileStatsEntry 4 }
+
+samlProfileHitCount OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "SAML hit count"
+    ::= { samlProfileStatsEntry 5 }
+
+samlProfileAuthenticationSuccess OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "authentication success"
+    ::= { samlProfileStatsEntry 6 }
+
+samlProfileAuthenticationFailure OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "authentication failure"
+    ::= { samlProfileStatsEntry 7 }
+
+samlProfileExplicitProxySession OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Explicit proxy session"
+    ::= { samlProfileStatsEntry 8 }
+
+samlProfileTransparentProxySession OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Transparent proxy session"
+    ::= { samlProfileStatsEntry 9 }
+
+samlProfileForwardProxySession OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Forward proxy session"
+    ::= { samlProfileStatsEntry 10 }
+
+samlProfileNoProxySession OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "No proxy session"
+    ::= { samlProfileStatsEntry 11 }
+
+samlProfileSplitFailure OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Number of split failure occurrences"
+    ::= { samlProfileStatsEntry 12 }
+
+samlProfileAuthNReqSent OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Number of AuthN request sent"
+    ::= { samlProfileStatsEntry 13 }
+
+samlProfileAuthNReqDeflateFailure OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Number of AuthN request deflate failure"
+    ::= { samlProfileStatsEntry 14 }
+
+samlProfileAuthNRespReceived OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Number of AuthN response received"
+    ::= { samlProfileStatsEntry 15 }
+
+samlProfileAuthNRespExpired OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Number of expired AuthN response received"
+    ::= { samlProfileStatsEntry 16 }
+
+samlProfileAuthNRespYetNotValid OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Number of yet-not-valid AuthN response received"
+    ::= { samlProfileStatsEntry 17 }
+
+samlProfileAuthNRespInvalid OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Number of invalid AuthN response received"
+    ::= { samlProfileStatsEntry 18 }
+
+samlProfileAuthNRespInvalidSignature OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Number of AuthN response having invalid signature received"
+    ::= { samlProfileStatsEntry 19 }
+
+samlProfileAuthNRespInvalidX509Cert OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Number of AuthN response having invalid x509 certificate received"
+    ::= { samlProfileStatsEntry 20 }
+
+END

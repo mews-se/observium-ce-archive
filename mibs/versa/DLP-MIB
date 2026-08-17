@@ -1,0 +1,379 @@
+DLP-MIB DEFINITIONS ::= BEGIN
+IMPORTS
+    MODULE-IDENTITY, OBJECT-TYPE,
+    Integer32, Unsigned32, Counter32, Counter64,
+    Gauge32, IpAddress
+        FROM SNMPv2-SMI
+    TEXTUAL-CONVENTION, RowStatus, DateAndTime,
+    TruthValue
+        FROM SNMPv2-TC
+    ngfw
+        FROM VERSA-MIB
+;
+
+dlp MODULE-IDENTITY
+    LAST-UPDATED "202009190000Z"
+    ORGANIZATION "Versa Networks"
+    CONTACT-INFO "
+        2953 Bunker Hill Lane, Suite 210
+        Santa Clara, CA - 95035 (USA)
+        Email: support@versa-networks.com"
+    DESCRIPTION "Enterprise MIB for Versa Networks'
+DLP solution"
+    REVISION "202009190000Z"
+    DESCRIPTION "Initial revision"
+    ::= { ngfw 15 }
+
+ConfdString ::= TEXTUAL-CONVENTION
+    DISPLAY-HINT "1t"
+    STATUS      current
+    DESCRIPTION "xs: and confd: types mapped to strings"
+    SYNTAX      OCTET STRING
+
+String ::= TEXTUAL-CONVENTION
+    DISPLAY-HINT "1t"
+    STATUS      current
+    DESCRIPTION "xs:string"
+    SYNTAX      OCTET STRING
+
+-- DLP statistics
+dlpTable OBJECT IDENTIFIER ::= { dlp 1 }
+
+dlpUserDefTable OBJECT-TYPE
+    SYNTAX      SEQUENCE OF DlpUserDefEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "URL User-defined Category Statistics"
+    ::= { dlpTable 1 }
+
+dlpUserDefEntry OBJECT-TYPE
+    SYNTAX      DlpUserDefEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION ""
+    INDEX { dlpUserDefOrgId, dlpUserDefProfileID }
+        ::= { dlpUserDefTable 1 }
+
+DlpUserDefEntry ::=
+    SEQUENCE {
+        dlpUserDefOrgId Unsigned32,
+        dlpUserDefProfileID Unsigned32,
+        dlpUserDefOrgName String,
+        dlpUserDefProfileName String,
+        dlpUserDefProfileHitCnt ConfdString,
+        dlpUserDefFileSizeExceedCnt ConfdString,
+        dlpUserDefDefaultActionCnt ConfdString,
+        dlpUserDefFileNameMatchCnt ConfdString,
+        dlpUserDefFileTypeMatchCnt ConfdString,
+        dlpUserDeKeywordMatchCnt ConfdString,
+        dlpUserDefRegexMatchCnt ConfdString,
+        dlpUserDefContentFoundInHeader ConfdString,
+        dlpUserDefContentFoundInBody ConfdString,
+        dlpUserDefContentFoundInPayload ConfdString,
+        dlpUserDefCCNumMatchCnt ConfdString,
+        dlpUserDefSSNumMatchCnt ConfdString,
+        dlpUserDefDLNumMatchCnt ConfdString,
+        dlpUserDefActionAllowCnt ConfdString,
+        dlpUserDefActionAlertCnt ConfdString,
+        dlpUserDefActionRejectCnt ConfdString,
+        dlpUserDefActionBlockCnt ConfdString
+    }
+
+dlpUserDefOrgId OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "Organization id"
+    ::= { dlpUserDefEntry 1 }
+
+dlpUserDefProfileID OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "DLP Profile Id"
+    ::= { dlpUserDefEntry 2 }
+
+dlpUserDefOrgName OBJECT-TYPE
+    SYNTAX      String
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Organization Name"
+    ::= { dlpUserDefEntry 3 }
+
+dlpUserDefProfileName OBJECT-TYPE
+    SYNTAX      String
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "DLP Profile Name"
+    ::= { dlpUserDefEntry 4 }
+
+dlpUserDefProfileHitCnt OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "No of times profile hit"
+    ::= { dlpUserDefEntry 5 }
+
+dlpUserDefFileSizeExceedCnt OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "No of times file size exceeded"
+    ::= { dlpUserDefEntry 6 }
+
+dlpUserDefDefaultActionCnt OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "No of time default action hit"
+    ::= { dlpUserDefEntry 7 }
+
+dlpUserDefFileNameMatchCnt OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "No of file name matched"
+    ::= { dlpUserDefEntry 8 }
+
+dlpUserDefFileTypeMatchCnt OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "No of file type matched"
+    ::= { dlpUserDefEntry 9 }
+
+dlpUserDeKeywordMatchCnt OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "No of keywords matched"
+    ::= { dlpUserDefEntry 10 }
+
+dlpUserDefRegexMatchCnt OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "No of egex matched"
+    ::= { dlpUserDefEntry 11 }
+
+dlpUserDefContentFoundInHeader OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "No of times content matched in header"
+    ::= { dlpUserDefEntry 12 }
+
+dlpUserDefContentFoundInBody OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "No of time conetent found in body"
+    ::= { dlpUserDefEntry 13 }
+
+dlpUserDefContentFoundInPayload OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "No of times content found in payload"
+    ::= { dlpUserDefEntry 14 }
+
+dlpUserDefCCNumMatchCnt OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "No of times credit card number matched"
+    ::= { dlpUserDefEntry 15 }
+
+dlpUserDefSSNumMatchCnt OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "No of times credit card number matched"
+    ::= { dlpUserDefEntry 16 }
+
+dlpUserDefDLNumMatchCnt OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "No of times credit card number matched"
+    ::= { dlpUserDefEntry 17 }
+
+dlpUserDefActionAllowCnt OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "No of flow allowed."
+    ::= { dlpUserDefEntry 18 }
+
+dlpUserDefActionAlertCnt OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "No of flow alerted."
+    ::= { dlpUserDefEntry 19 }
+
+dlpUserDefActionRejectCnt OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "No of flow rejected."
+    ::= { dlpUserDefEntry 20 }
+
+dlpUserDefActionBlockCnt OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "No of flow blocked"
+    ::= { dlpUserDefEntry 21 }
+
+dlpUserDefProtocolTable OBJECT-TYPE
+    SYNTAX      SEQUENCE OF DlpUserDefProtocolEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "DLP file types Statistics"
+    ::= { dlpTable 2 }
+
+dlpUserDefProtocolEntry OBJECT-TYPE
+    SYNTAX      DlpUserDefProtocolEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION ""
+    INDEX { dlpUserDefProtocolOrgId, dlpUserDefProtocolProfileID, dlpUserDefProtocol }
+        ::= { dlpUserDefProtocolTable 1 }
+
+DlpUserDefProtocolEntry ::=
+    SEQUENCE {
+        dlpUserDefProtocolOrgId Unsigned32,
+        dlpUserDefProtocolProfileID Unsigned32,
+        dlpUserDefProtocol Unsigned32,
+        dlpUserDefProtocolOrgName String,
+        dlpUserDefProtocolProfileName String,
+        dlpUserDefProtocolName String,
+        dlpUserDefProtScanned ConfdString
+    }
+
+dlpUserDefProtocolOrgId OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "Organization id"
+    ::= { dlpUserDefProtocolEntry 1 }
+
+dlpUserDefProtocolProfileID OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "URLF Profile Id"
+    ::= { dlpUserDefProtocolEntry 2 }
+
+dlpUserDefProtocol OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "Protocol ID"
+    ::= { dlpUserDefProtocolEntry 3 }
+
+dlpUserDefProtocolOrgName OBJECT-TYPE
+    SYNTAX      String
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Organization Name"
+    ::= { dlpUserDefProtocolEntry 4 }
+
+dlpUserDefProtocolProfileName OBJECT-TYPE
+    SYNTAX      String
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "URLF Profile Name"
+    ::= { dlpUserDefProtocolEntry 5 }
+
+dlpUserDefProtocolName OBJECT-TYPE
+    SYNTAX      String
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Protocol Name"
+    ::= { dlpUserDefProtocolEntry 6 }
+
+dlpUserDefProtScanned OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Number of times protocol scanned."
+    ::= { dlpUserDefProtocolEntry 7 }
+
+dlpUserDefFileTypeTable OBJECT-TYPE
+    SYNTAX      SEQUENCE OF DlpUserDefFileTypeEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "DLP file types Statistics"
+    ::= { dlpTable 3 }
+
+dlpUserDefFileTypeEntry OBJECT-TYPE
+    SYNTAX      DlpUserDefFileTypeEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION ""
+    INDEX { dlpUserDefFileTypeOrgId, dlpUserDefFileTypeProfileID, dlpUserDefFileType }
+        ::= { dlpUserDefFileTypeTable 1 }
+
+DlpUserDefFileTypeEntry ::=
+    SEQUENCE {
+        dlpUserDefFileTypeOrgId Unsigned32,
+        dlpUserDefFileTypeProfileID Unsigned32,
+        dlpUserDefFileType Unsigned32,
+        dlpUserDefFileTypeOrgName String,
+        dlpUserDefFileTypeProfileName String,
+        dlpUserDefFileTypeName String,
+        dlpUserDefFileTypeScanned ConfdString
+    }
+
+dlpUserDefFileTypeOrgId OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "Organization id"
+    ::= { dlpUserDefFileTypeEntry 1 }
+
+dlpUserDefFileTypeProfileID OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "URLF Profile Id"
+    ::= { dlpUserDefFileTypeEntry 2 }
+
+dlpUserDefFileType OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "File Type id"
+    ::= { dlpUserDefFileTypeEntry 3 }
+
+dlpUserDefFileTypeOrgName OBJECT-TYPE
+    SYNTAX      String
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Organization Name"
+    ::= { dlpUserDefFileTypeEntry 4 }
+
+dlpUserDefFileTypeProfileName OBJECT-TYPE
+    SYNTAX      String
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "URLF Profile Name"
+    ::= { dlpUserDefFileTypeEntry 5 }
+
+dlpUserDefFileTypeName OBJECT-TYPE
+    SYNTAX      String
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "File Type Name"
+    ::= { dlpUserDefFileTypeEntry 6 }
+
+dlpUserDefFileTypeScanned OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "No of file scanned of this type"
+    ::= { dlpUserDefFileTypeEntry 7 }
+
+END

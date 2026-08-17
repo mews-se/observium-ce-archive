@@ -1,0 +1,14 @@
+-- Bridgetech Enterprise OID
+-- All Bridgetech devices with SNMP support
+
+BtechBase-MIB DEFINITIONS ::= BEGIN
+
+IMPORTS
+   enterprises
+      FROM RFC1155-SMI;
+
+-- Base MIB module.
+
+mibBridgetech OBJECT IDENTIFIER ::= { enterprises 24562 }
+
+END

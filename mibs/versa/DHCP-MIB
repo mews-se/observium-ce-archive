@@ -1,0 +1,1398 @@
+DHCP-MIB DEFINITIONS ::= BEGIN
+IMPORTS
+    MODULE-IDENTITY, OBJECT-TYPE,
+    Integer32, Unsigned32, Counter32, Counter64,
+    Gauge32, IpAddress
+        FROM SNMPv2-SMI
+    TEXTUAL-CONVENTION, RowStatus, DateAndTime,
+    TruthValue
+        FROM SNMPv2-TC
+    orgServices
+        FROM VERSA-MIB
+;
+
+dhcp MODULE-IDENTITY
+    LAST-UPDATED "201608080000Z"
+    ORGANIZATION "Versa Networks"
+    CONTACT-INFO "
+        2953 Bunker Hill Lane, Suite 210
+        Santa Clara, CA - 95035 (USA)
+        Email: support@versa-networks.com"
+    DESCRIPTION "Enterprise MIB for Versa Networks'
+DHCP Server and Relay"
+    REVISION "201608080000Z"
+    DESCRIPTION "Initial revision"
+    ::= { orgServices 14 }
+
+ConfdString ::= TEXTUAL-CONVENTION
+    DISPLAY-HINT "1t"
+    STATUS      current
+    DESCRIPTION "xs: and confd: types mapped to strings"
+    SYNTAX      OCTET STRING
+
+String ::= TEXTUAL-CONVENTION
+    DISPLAY-HINT "1t"
+    STATUS      current
+    DESCRIPTION "xs:string"
+    SYNTAX      OCTET STRING
+
+-- DHCPD global statistics
+dhcpGlobalTable OBJECT IDENTIFIER ::= { dhcp 1 }
+
+dhcpGlobalIntfMatchFailCnt OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total number of packets for which interface did not match."
+    ::= { dhcpGlobalTable 1 }
+
+dhcpGlobalUnknownTypeCnt OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total number of DHCP packets with unknown message type."
+    ::= { dhcpGlobalTable 2 }
+
+dhcpGlobalIntfIgnoreCnt OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total number of DHCP packets ignored because of unsupported interface type."
+    ::= { dhcpGlobalTable 3 }
+
+dhcp6GlobalIntfMatchFailCnt OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total number of packets for which interface did not match."
+    ::= { dhcpGlobalTable 4 }
+
+dhcp6GlobalUnknownTypeCnt OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total number of DHCP packets with unknown message type."
+    ::= { dhcpGlobalTable 5 }
+
+dhcp6GlobalIntfIgnoreCnt OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total number of DHCP packets ignored because of unsupported interface type."
+    ::= { dhcpGlobalTable 6 }
+
+dhcpInterfaceTable OBJECT-TYPE
+    SYNTAX      SEQUENCE OF DhcpInterfaceEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "DHCPD interface statistics"
+    ::= { dhcp 2 }
+
+dhcpInterfaceEntry OBJECT-TYPE
+    SYNTAX      DhcpInterfaceEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION ""
+    INDEX { dhcpInterfaceOrgId, dhcpInterfaceId }
+        ::= { dhcpInterfaceTable 1 }
+
+DhcpInterfaceEntry ::=
+    SEQUENCE {
+        dhcpInterfaceOrgId Unsigned32,
+        dhcpInterfaceId Unsigned32,
+        dhcpInterfaceOrgName String,
+        dhcpInterfaceName String,
+        dhcpAckMsgCnt ConfdString,
+        dhcpBulkLeaseQueryMsgCnt ConfdString,
+        dhcpDeclineMsgCnt ConfdString,
+        dhcpDiscoverMsgCnt ConfdString,
+        dhcpInformMsgCnt ConfdString,
+        dhcpLeaseActiveMsgCnt ConfdString,
+        dhcpLeaseQueryMsgCnt ConfdString,
+        dhcpLeaseQueryDoneMsgCnt ConfdString,
+        dhcpLeaseUnassignedMsgCnt ConfdString,
+        dhcpLeaseUnknownMsgCnt ConfdString,
+        dhcpNakMsgCnt ConfdString,
+        dhcpOfferMsgCnt ConfdString,
+        dhcpReleaseMsgCnt ConfdString,
+        dhcpRequestMsgCnt ConfdString,
+        dhcpIntfRelayResponseIgnoredCnt ConfdString,
+        dhcpIntfRelayRepsonseInvalidOptionCnt ConfdString,
+        dhcpIntfRelayResponsesForwardedCnt ConfdString,
+        dhcpIntfRuleMatchCnt ConfdString,
+        dhcpIntfNoRuleMatchCnt ConfdString,
+        dhcpIntfPassThroughRelayCnt ConfdString,
+        dhcpIntfPassThroughRelayIgnoredCnt ConfdString,
+        dhcpIntfClientRelayCnt ConfdString,
+        dhcpIntfClientRelayIgnoredCnt ConfdString,
+        dhcpIntfClientRelayForwardCnt ConfdString,
+        dhcpIntfStaticAddressServiceCnt ConfdString,
+        dhcpIntfDynamicAddressServiceCnt ConfdString,
+        dhcpIntfClientRelayErrorrCnt ConfdString
+    }
+
+dhcpInterfaceOrgId OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "Organization Id"
+    ::= { dhcpInterfaceEntry 1 }
+
+dhcpInterfaceId OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "DHCPD Interface Id"
+    ::= { dhcpInterfaceEntry 2 }
+
+dhcpInterfaceOrgName OBJECT-TYPE
+    SYNTAX      String
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Organization Name"
+    ::= { dhcpInterfaceEntry 3 }
+
+dhcpInterfaceName OBJECT-TYPE
+    SYNTAX      String
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "DHCPD Interface Name"
+    ::= { dhcpInterfaceEntry 4 }
+
+dhcpAckMsgCnt OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total number of DHCP Ack messages."
+    ::= { dhcpInterfaceEntry 5 }
+
+dhcpBulkLeaseQueryMsgCnt OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total number of DHCP Bulk Lease Query messages."
+    ::= { dhcpInterfaceEntry 6 }
+
+dhcpDeclineMsgCnt OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total number of DHCP Decline messages."
+    ::= { dhcpInterfaceEntry 7 }
+
+dhcpDiscoverMsgCnt OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total number of DHCP Discover messages."
+    ::= { dhcpInterfaceEntry 8 }
+
+dhcpInformMsgCnt OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total number of DHCP Inform messages."
+    ::= { dhcpInterfaceEntry 9 }
+
+dhcpLeaseActiveMsgCnt OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total number of DHCP Lease Active messages."
+    ::= { dhcpInterfaceEntry 10 }
+
+dhcpLeaseQueryMsgCnt OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total number of DHCP Lease Query messages."
+    ::= { dhcpInterfaceEntry 11 }
+
+dhcpLeaseQueryDoneMsgCnt OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total number of DHCP Lease Query Done messages."
+    ::= { dhcpInterfaceEntry 12 }
+
+dhcpLeaseUnassignedMsgCnt OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total number of DHCP Lease Unassigned messages."
+    ::= { dhcpInterfaceEntry 13 }
+
+dhcpLeaseUnknownMsgCnt OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total number of DHCP Lease Unknown messages."
+    ::= { dhcpInterfaceEntry 14 }
+
+dhcpNakMsgCnt OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total number DHCP NAK messages."
+    ::= { dhcpInterfaceEntry 15 }
+
+dhcpOfferMsgCnt OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total number of DHCP Offer messages."
+    ::= { dhcpInterfaceEntry 16 }
+
+dhcpReleaseMsgCnt OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total number DHCP Release messages."
+    ::= { dhcpInterfaceEntry 17 }
+
+dhcpRequestMsgCnt OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total number of DHCP Request messages."
+    ::= { dhcpInterfaceEntry 18 }
+
+dhcpIntfRelayResponseIgnoredCnt OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total number of DHCP Relay Responses Ignored."
+    ::= { dhcpInterfaceEntry 19 }
+
+dhcpIntfRelayRepsonseInvalidOptionCnt OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total number of DHCP Relay Responses with invalid option."
+    ::= { dhcpInterfaceEntry 20 }
+
+dhcpIntfRelayResponsesForwardedCnt OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total number of DHCP Relay responses forwarded."
+    ::= { dhcpInterfaceEntry 21 }
+
+dhcpIntfRuleMatchCnt OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total number of DHCP Requests for which rule matched."
+    ::= { dhcpInterfaceEntry 22 }
+
+dhcpIntfNoRuleMatchCnt OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total number of DHCP Requests for which no rule matched."
+    ::= { dhcpInterfaceEntry 23 }
+
+dhcpIntfPassThroughRelayCnt OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total number of DHCP Requests configured for Pass Through Relay."
+    ::= { dhcpInterfaceEntry 24 }
+
+dhcpIntfPassThroughRelayIgnoredCnt OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total number of DHCP Pass Through Relay Requests Ignored."
+    ::= { dhcpInterfaceEntry 25 }
+
+dhcpIntfClientRelayCnt OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total number of DHCP client request messages configured for DHCP relay."
+    ::= { dhcpInterfaceEntry 26 }
+
+dhcpIntfClientRelayIgnoredCnt OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total number of DHCP client request messages not relayed."
+    ::= { dhcpInterfaceEntry 27 }
+
+dhcpIntfClientRelayForwardCnt OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total number of DHCP client request messages relayed."
+    ::= { dhcpInterfaceEntry 28 }
+
+dhcpIntfStaticAddressServiceCnt OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total number of DHCP client request messages to be serviced for static address allocation."
+    ::= { dhcpInterfaceEntry 29 }
+
+dhcpIntfDynamicAddressServiceCnt OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total number of DHCP client request messages to be serviced for dynamic address allocation."
+    ::= { dhcpInterfaceEntry 30 }
+
+dhcpIntfClientRelayErrorrCnt OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total number of DHCP client messages failed to forward to server."
+    ::= { dhcpInterfaceEntry 31 }
+
+dhcpServiceProfileTable OBJECT-TYPE
+    SYNTAX      SEQUENCE OF DhcpServiceProfileEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "DHCPD Service Profile statistics"
+    ::= { dhcp 3 }
+
+dhcpServiceProfileEntry OBJECT-TYPE
+    SYNTAX      DhcpServiceProfileEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION ""
+    INDEX { dhcpServiceProfileOrgId, dhcpServiceProfileId }
+        ::= { dhcpServiceProfileTable 1 }
+
+DhcpServiceProfileEntry ::=
+    SEQUENCE {
+        dhcpServiceProfileOrgId Unsigned32,
+        dhcpServiceProfileId Unsigned32,
+        dhcpServiceProfileOrgName String,
+        dhcpServiceProfileName String,
+        dhcpServiceProfileRequestCnt ConfdString,
+        dhcpNewAllocCnt ConfdString,
+        dhcpRenewalCnt ConfdString,
+        dhcpSvcProfDiscoverMsgCnt ConfdString,
+        dhcpSvcProfRequestMsgCnt ConfdString,
+        dhcpSvcProfDeclineMsgCnt ConfdString,
+        dhcpSvcProfInformMsgCnt ConfdString,
+        dhcpSvcProfReleaseMsgCnt ConfdString,
+        dhcpSvcProfBulkLeaseQueryMsgCnt ConfdString,
+        dhcpSvcProfLeaseQueryMsgCnt ConfdString,
+        dhcpSvcProfAckMsgCnt ConfdString,
+        dhcpSvcProfNakMsgCnt ConfdString,
+        dhcpSvcProfOfferMsgCnt ConfdString,
+        dhcpSvcProfLeaseActiveMsgCnt ConfdString,
+        dhcpSvcProfLeaseUnassignedMsgCnt ConfdString,
+        dhcpSvcProfLeaseUnknownMsgCnt ConfdString,
+        dhcpSvcProfLeaseQueryDoneMsgCnt ConfdString
+    }
+
+dhcpServiceProfileOrgId OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "Organization Id"
+    ::= { dhcpServiceProfileEntry 1 }
+
+dhcpServiceProfileId OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "Service Profile Id"
+    ::= { dhcpServiceProfileEntry 2 }
+
+dhcpServiceProfileOrgName OBJECT-TYPE
+    SYNTAX      String
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Organization Name"
+    ::= { dhcpServiceProfileEntry 3 }
+
+dhcpServiceProfileName OBJECT-TYPE
+    SYNTAX      String
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Service Profile Name"
+    ::= { dhcpServiceProfileEntry 4 }
+
+dhcpServiceProfileRequestCnt OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total number of requests processed using the service profile."
+    ::= { dhcpServiceProfileEntry 5 }
+
+dhcpNewAllocCnt OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total number of new address allocations using the service profile."
+    ::= { dhcpServiceProfileEntry 6 }
+
+dhcpRenewalCnt OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total number of address renewals using the service profile."
+    ::= { dhcpServiceProfileEntry 7 }
+
+dhcpSvcProfDiscoverMsgCnt OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total number of DHCP Discover messages."
+    ::= { dhcpServiceProfileEntry 8 }
+
+dhcpSvcProfRequestMsgCnt OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total number of DHCP Request messages."
+    ::= { dhcpServiceProfileEntry 9 }
+
+dhcpSvcProfDeclineMsgCnt OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total number of DHCP Decline messages."
+    ::= { dhcpServiceProfileEntry 10 }
+
+dhcpSvcProfInformMsgCnt OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total number of DHCP Inform messages."
+    ::= { dhcpServiceProfileEntry 11 }
+
+dhcpSvcProfReleaseMsgCnt OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total number DHCP Release messages."
+    ::= { dhcpServiceProfileEntry 12 }
+
+dhcpSvcProfBulkLeaseQueryMsgCnt OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total number of DHCP Bulk Lease Query messages."
+    ::= { dhcpServiceProfileEntry 13 }
+
+dhcpSvcProfLeaseQueryMsgCnt OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total number of DHCP Lease Query messages."
+    ::= { dhcpServiceProfileEntry 14 }
+
+dhcpSvcProfAckMsgCnt OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total number of DHCP Ack messages."
+    ::= { dhcpServiceProfileEntry 15 }
+
+dhcpSvcProfNakMsgCnt OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total number DHCP NAK messages."
+    ::= { dhcpServiceProfileEntry 16 }
+
+dhcpSvcProfOfferMsgCnt OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total number of DHCP Offer messages."
+    ::= { dhcpServiceProfileEntry 17 }
+
+dhcpSvcProfLeaseActiveMsgCnt OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total number of DHCP Lease Active messages."
+    ::= { dhcpServiceProfileEntry 18 }
+
+dhcpSvcProfLeaseUnassignedMsgCnt OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total number of DHCP Lease Unassigned messages."
+    ::= { dhcpServiceProfileEntry 19 }
+
+dhcpSvcProfLeaseUnknownMsgCnt OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total number of DHCP Lease Unknown messages."
+    ::= { dhcpServiceProfileEntry 20 }
+
+dhcpSvcProfLeaseQueryDoneMsgCnt OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total number of DHCP Lease Query Done messages."
+    ::= { dhcpServiceProfileEntry 21 }
+
+dhcpRelayProfileTable OBJECT-TYPE
+    SYNTAX      SEQUENCE OF DhcpRelayProfileEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "DHCPD Relay Profile statistics"
+    ::= { dhcp 4 }
+
+dhcpRelayProfileEntry OBJECT-TYPE
+    SYNTAX      DhcpRelayProfileEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION ""
+    INDEX { dhcpRelayProfileOrgId, dhcpRelayProfileId }
+        ::= { dhcpRelayProfileTable 1 }
+
+DhcpRelayProfileEntry ::=
+    SEQUENCE {
+        dhcpRelayProfileOrgId Unsigned32,
+        dhcpRelayProfileId Unsigned32,
+        dhcpRelayProfileOrgName String,
+        dhcpRelayProfileName String,
+        dhcpRelayProfileRequestCnt ConfdString,
+        dhcpRequestIgnoredCnt ConfdString,
+        dhcpRequestForwardedCnt ConfdString,
+        dhcpRlyProfDiscoverMsgCnt ConfdString,
+        dhcpRlyProfRequestMsgCnt ConfdString,
+        dhcpRlyProfDeclineMsgCnt ConfdString,
+        dhcpRlyProfInformMsgCnt ConfdString,
+        dhcpRlyProfReleaseMsgCnt ConfdString,
+        dhcpRlyProfBulkLeaseQueryMsgCnt ConfdString,
+        dhcpRlyProfLeaseQueryMsgCnt ConfdString,
+        dhcpRlyProfAckMsgCnt ConfdString,
+        dhcpRlyProfNakMsgCnt ConfdString,
+        dhcpRlyProfOfferMsgCnt ConfdString,
+        dhcpRlyProfLeaseActiveMsgCnt ConfdString,
+        dhcpRlyProfLeaseUnassignedMsgCnt ConfdString,
+        dhcpRlyProfLeaseUnknownMsgCnt ConfdString,
+        dhcpRlyProfLeaseQueryDoneMsgCnt ConfdString
+    }
+
+dhcpRelayProfileOrgId OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "Organization Id"
+    ::= { dhcpRelayProfileEntry 1 }
+
+dhcpRelayProfileId OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "Relay Profile Id"
+    ::= { dhcpRelayProfileEntry 2 }
+
+dhcpRelayProfileOrgName OBJECT-TYPE
+    SYNTAX      String
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Organization Name"
+    ::= { dhcpRelayProfileEntry 3 }
+
+dhcpRelayProfileName OBJECT-TYPE
+    SYNTAX      String
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Relay Profile Name"
+    ::= { dhcpRelayProfileEntry 4 }
+
+dhcpRelayProfileRequestCnt OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total number of requests processed using the relay profile."
+    ::= { dhcpRelayProfileEntry 5 }
+
+dhcpRequestIgnoredCnt OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total number of requests ignored for the relay profile."
+    ::= { dhcpRelayProfileEntry 6 }
+
+dhcpRequestForwardedCnt OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total number of requests forwarded using the relay profile."
+    ::= { dhcpRelayProfileEntry 7 }
+
+dhcpRlyProfDiscoverMsgCnt OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total number of DHCP Discover messages."
+    ::= { dhcpRelayProfileEntry 8 }
+
+dhcpRlyProfRequestMsgCnt OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total number of DHCP Request messages."
+    ::= { dhcpRelayProfileEntry 9 }
+
+dhcpRlyProfDeclineMsgCnt OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total number of DHCP Decline messages."
+    ::= { dhcpRelayProfileEntry 10 }
+
+dhcpRlyProfInformMsgCnt OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total number of DHCP Inform messages."
+    ::= { dhcpRelayProfileEntry 11 }
+
+dhcpRlyProfReleaseMsgCnt OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total number DHCP Release messages."
+    ::= { dhcpRelayProfileEntry 12 }
+
+dhcpRlyProfBulkLeaseQueryMsgCnt OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total number of DHCP Bulk Lease Query messages."
+    ::= { dhcpRelayProfileEntry 13 }
+
+dhcpRlyProfLeaseQueryMsgCnt OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total number of DHCP Lease Query messages."
+    ::= { dhcpRelayProfileEntry 14 }
+
+dhcpRlyProfAckMsgCnt OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total number of DHCP Ack messages."
+    ::= { dhcpRelayProfileEntry 15 }
+
+dhcpRlyProfNakMsgCnt OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total number DHCP NAK messages."
+    ::= { dhcpRelayProfileEntry 16 }
+
+dhcpRlyProfOfferMsgCnt OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total number of DHCP Offer messages."
+    ::= { dhcpRelayProfileEntry 17 }
+
+dhcpRlyProfLeaseActiveMsgCnt OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total number of DHCP Lease Active messages."
+    ::= { dhcpRelayProfileEntry 18 }
+
+dhcpRlyProfLeaseUnassignedMsgCnt OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total number of DHCP Lease Unassigned messages."
+    ::= { dhcpRelayProfileEntry 19 }
+
+dhcpRlyProfLeaseUnknownMsgCnt OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total number of DHCP Lease Unknown messages."
+    ::= { dhcpRelayProfileEntry 20 }
+
+dhcpRlyProfLeaseQueryDoneMsgCnt OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total number of DHCP Lease Query Done messages."
+    ::= { dhcpRelayProfileEntry 21 }
+
+dhcp6InterfaceTable OBJECT-TYPE
+    SYNTAX      SEQUENCE OF Dhcp6InterfaceEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "DHCPDv6 interface statistics"
+    ::= { dhcp 5 }
+
+dhcp6InterfaceEntry OBJECT-TYPE
+    SYNTAX      Dhcp6InterfaceEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION ""
+    INDEX { dhcp6InterfaceOrgId, dhcp6InterfaceId }
+        ::= { dhcp6InterfaceTable 1 }
+
+Dhcp6InterfaceEntry ::=
+    SEQUENCE {
+        dhcp6InterfaceOrgId Unsigned32,
+        dhcp6InterfaceId Unsigned32,
+        dhcp6InterfaceOrgName String,
+        dhcp6InterfaceName String,
+        dhcp6SolicitMsgCnt ConfdString,
+        dhcp6AdvertiseMsgCnt ConfdString,
+        dhcp6RequestMsgCnt ConfdString,
+        dhcp6ConfirmMsgCnt ConfdString,
+        dhcp6RenewMsgCnt ConfdString,
+        dhcp6RebindMsgCnt ConfdString,
+        dhcp6ReplyMsgCnt ConfdString,
+        dhcp6ReleaseMsgCnt ConfdString,
+        dhcp6DeclineMsgCnt ConfdString,
+        dhcp6ReconfigureMsgCnt ConfdString,
+        dhcp6InformationMsgCnt ConfdString,
+        dhcp6RelayForwardMsgCnt ConfdString,
+        dhcp6RelayReplyMsgCnt ConfdString,
+        dhcp6LeaseQueryMsgCnt ConfdString,
+        dhcp6LeaseQueryReplyMsgCnt ConfdString,
+        dhcp6RelayResponseIgnoredMsgCnt ConfdString,
+        dhcp6RelayResponseInvalidMsgCnt ConfdString,
+        dhcp6RelayResponseForwardMsgCnt ConfdString,
+        dhcp6RuleMatchMsgCnt ConfdString,
+        dhcp6NoRuleMatchCnt ConfdString,
+        dhcp6PassThroughRelayMsgCnt ConfdString,
+        dhcp6PassThroughRelayIgnoredMsgCnt ConfdString,
+        dhcp6ClientRelayMsgCnt ConfdString,
+        dhcp6ClientRelayIgnoredMsgCnt ConfdString,
+        dhcp6ClientRelayForwardMsgCnt ConfdString,
+        dhcp6ClientStaticAddressServiceMsgCnt ConfdString,
+        dhcp6ClientDynamicAddressServiceMsgCnt ConfdString,
+        dhcp6ClientRelayErrorMsgCnt ConfdString
+    }
+
+dhcp6InterfaceOrgId OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "Organization Id"
+    ::= { dhcp6InterfaceEntry 1 }
+
+dhcp6InterfaceId OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "DHCPD Interface Id"
+    ::= { dhcp6InterfaceEntry 2 }
+
+dhcp6InterfaceOrgName OBJECT-TYPE
+    SYNTAX      String
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Organization Name"
+    ::= { dhcp6InterfaceEntry 3 }
+
+dhcp6InterfaceName OBJECT-TYPE
+    SYNTAX      String
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "DHCPD Interface Name"
+    ::= { dhcp6InterfaceEntry 4 }
+
+dhcp6SolicitMsgCnt OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total number of DHCP Solicit messages."
+    ::= { dhcp6InterfaceEntry 5 }
+
+dhcp6AdvertiseMsgCnt OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total number of DHCP Advertise messages."
+    ::= { dhcp6InterfaceEntry 6 }
+
+dhcp6RequestMsgCnt OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total number of DHCP Request messages."
+    ::= { dhcp6InterfaceEntry 7 }
+
+dhcp6ConfirmMsgCnt OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total number of DHCP Confirm messages."
+    ::= { dhcp6InterfaceEntry 8 }
+
+dhcp6RenewMsgCnt OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total number of DHCP Renew messages."
+    ::= { dhcp6InterfaceEntry 9 }
+
+dhcp6RebindMsgCnt OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total number of DHCP Rebind messages."
+    ::= { dhcp6InterfaceEntry 10 }
+
+dhcp6ReplyMsgCnt OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total number of DHCP Reply messages."
+    ::= { dhcp6InterfaceEntry 11 }
+
+dhcp6ReleaseMsgCnt OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total number of DHCP Release messages."
+    ::= { dhcp6InterfaceEntry 12 }
+
+dhcp6DeclineMsgCnt OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total number of DHCP Decline messages."
+    ::= { dhcp6InterfaceEntry 13 }
+
+dhcp6ReconfigureMsgCnt OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total number of DHCP Reconfigure messages."
+    ::= { dhcp6InterfaceEntry 14 }
+
+dhcp6InformationMsgCnt OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total number of DHCP Information messages."
+    ::= { dhcp6InterfaceEntry 15 }
+
+dhcp6RelayForwardMsgCnt OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total number of DHCP Relay Forward messages."
+    ::= { dhcp6InterfaceEntry 16 }
+
+dhcp6RelayReplyMsgCnt OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total number of DHCP Relay Reply messages."
+    ::= { dhcp6InterfaceEntry 17 }
+
+dhcp6LeaseQueryMsgCnt OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total number of DHCP Lease Query messages."
+    ::= { dhcp6InterfaceEntry 18 }
+
+dhcp6LeaseQueryReplyMsgCnt OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total number of DHCP Lease Query Reply messages."
+    ::= { dhcp6InterfaceEntry 19 }
+
+dhcp6RelayResponseIgnoredMsgCnt OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total number of DHCP Relay Response Ignored messages."
+    ::= { dhcp6InterfaceEntry 20 }
+
+dhcp6RelayResponseInvalidMsgCnt OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total number of DHCP Relay Response Invalid messages."
+    ::= { dhcp6InterfaceEntry 21 }
+
+dhcp6RelayResponseForwardMsgCnt OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total number of DHCP Relay Response Forward messages."
+    ::= { dhcp6InterfaceEntry 22 }
+
+dhcp6RuleMatchMsgCnt OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total number of DHCP messages for which a matching rule was found."
+    ::= { dhcp6InterfaceEntry 23 }
+
+dhcp6NoRuleMatchCnt OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total number of DHCP messages for which no matching rule was found."
+    ::= { dhcp6InterfaceEntry 24 }
+
+dhcp6PassThroughRelayMsgCnt OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total number of DHCP Pass Through Relay messages."
+    ::= { dhcp6InterfaceEntry 25 }
+
+dhcp6PassThroughRelayIgnoredMsgCnt OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total number of DHCP Pass Through Relay Ignored messages."
+    ::= { dhcp6InterfaceEntry 26 }
+
+dhcp6ClientRelayMsgCnt OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total number of DHCP Client Relay messages."
+    ::= { dhcp6InterfaceEntry 27 }
+
+dhcp6ClientRelayIgnoredMsgCnt OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total number of DHCP Client Relay Ignored messages."
+    ::= { dhcp6InterfaceEntry 28 }
+
+dhcp6ClientRelayForwardMsgCnt OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total number of DHCP Client Relay Forward messages."
+    ::= { dhcp6InterfaceEntry 29 }
+
+dhcp6ClientStaticAddressServiceMsgCnt OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total number of DHCP Client Static Address Service messages."
+    ::= { dhcp6InterfaceEntry 30 }
+
+dhcp6ClientDynamicAddressServiceMsgCnt OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total number of DHCP Client Dynamic Address Service messages."
+    ::= { dhcp6InterfaceEntry 31 }
+
+dhcp6ClientRelayErrorMsgCnt OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total number of DHCP client messages failed to forward to server."
+    ::= { dhcp6InterfaceEntry 32 }
+
+dhcp6ServiceProfileTable OBJECT-TYPE
+    SYNTAX      SEQUENCE OF Dhcp6ServiceProfileEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "DHCPDv6 Service Profile statistics"
+    ::= { dhcp 6 }
+
+dhcp6ServiceProfileEntry OBJECT-TYPE
+    SYNTAX      Dhcp6ServiceProfileEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION ""
+    INDEX { dhcp6ServiceProfileOrgId, dhcp6ServiceProfileId }
+        ::= { dhcp6ServiceProfileTable 1 }
+
+Dhcp6ServiceProfileEntry ::=
+    SEQUENCE {
+        dhcp6ServiceProfileOrgId Unsigned32,
+        dhcp6ServiceProfileId Unsigned32,
+        dhcp6ServiceProfileOrgName String,
+        dhcp6ServiceProfileName String,
+        dhcp6SvcProfRequestCnt ConfdString,
+        dhcp6SvcProfNewAllocCnt ConfdString,
+        dhcp6SvcProfRenewalCnt ConfdString,
+        dhcp6SvcProfSolicitMsgCnt ConfdString,
+        dhcp6SvcProfAdvertiseMsgCnt ConfdString,
+        dhcp6SvcProfRequestMsgCnt ConfdString,
+        dhcp6SvcProfConfirmMsgCnt ConfdString,
+        dhcp6SvcProfRenewMsgCnt ConfdString,
+        dhcp6SvcProfRebindMsgCnt ConfdString,
+        dhcp6SvcProfReplyMsgCnt ConfdString,
+        dhcp6SvcProfReleaseMsgCnt ConfdString,
+        dhcp6SvcProfDeclineMsgCnt ConfdString,
+        dhcp6SvcProfReconfigureMsgCnt ConfdString,
+        dhcp6SvcProfInformationMsgCnt ConfdString,
+        dhcp6SvcProfRelayForwardMsgCnt ConfdString,
+        dhcp6SvcProfRelayReplyMsgCnt ConfdString,
+        dhcp6SvcProfLeaseQueryMsgCnt ConfdString,
+        dhcp6SvcProfLeaseQueryReplyMsgCnt ConfdString
+    }
+
+dhcp6ServiceProfileOrgId OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "Organization Id"
+    ::= { dhcp6ServiceProfileEntry 1 }
+
+dhcp6ServiceProfileId OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "Service Profile Id"
+    ::= { dhcp6ServiceProfileEntry 2 }
+
+dhcp6ServiceProfileOrgName OBJECT-TYPE
+    SYNTAX      String
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Organization Name"
+    ::= { dhcp6ServiceProfileEntry 3 }
+
+dhcp6ServiceProfileName OBJECT-TYPE
+    SYNTAX      String
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Service Profile Name"
+    ::= { dhcp6ServiceProfileEntry 4 }
+
+dhcp6SvcProfRequestCnt OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total number of requests processed using the DHCPv6 service profile."
+    ::= { dhcp6ServiceProfileEntry 5 }
+
+dhcp6SvcProfNewAllocCnt OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total number of New Allocations processed using the DHCPv6 service profile."
+    ::= { dhcp6ServiceProfileEntry 6 }
+
+dhcp6SvcProfRenewalCnt OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total number of renewals processed using the DHCPv6 service profile."
+    ::= { dhcp6ServiceProfileEntry 7 }
+
+dhcp6SvcProfSolicitMsgCnt OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total number of Solicit messages."
+    ::= { dhcp6ServiceProfileEntry 8 }
+
+dhcp6SvcProfAdvertiseMsgCnt OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total number of Advertise messages."
+    ::= { dhcp6ServiceProfileEntry 9 }
+
+dhcp6SvcProfRequestMsgCnt OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total number of Request messages."
+    ::= { dhcp6ServiceProfileEntry 10 }
+
+dhcp6SvcProfConfirmMsgCnt OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total number of Confirm messages."
+    ::= { dhcp6ServiceProfileEntry 11 }
+
+dhcp6SvcProfRenewMsgCnt OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total number of Renew messages."
+    ::= { dhcp6ServiceProfileEntry 12 }
+
+dhcp6SvcProfRebindMsgCnt OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total number of Rebind messages."
+    ::= { dhcp6ServiceProfileEntry 13 }
+
+dhcp6SvcProfReplyMsgCnt OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total number of Reply messages."
+    ::= { dhcp6ServiceProfileEntry 14 }
+
+dhcp6SvcProfReleaseMsgCnt OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total number of Release messages."
+    ::= { dhcp6ServiceProfileEntry 15 }
+
+dhcp6SvcProfDeclineMsgCnt OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total number of Decline messages."
+    ::= { dhcp6ServiceProfileEntry 16 }
+
+dhcp6SvcProfReconfigureMsgCnt OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total number of Reconfigure messages."
+    ::= { dhcp6ServiceProfileEntry 17 }
+
+dhcp6SvcProfInformationMsgCnt OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total number of Information messages."
+    ::= { dhcp6ServiceProfileEntry 18 }
+
+dhcp6SvcProfRelayForwardMsgCnt OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total number of Relay Forward messages."
+    ::= { dhcp6ServiceProfileEntry 19 }
+
+dhcp6SvcProfRelayReplyMsgCnt OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total number of Relay Reply messages."
+    ::= { dhcp6ServiceProfileEntry 20 }
+
+dhcp6SvcProfLeaseQueryMsgCnt OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total number of Lease Query messages."
+    ::= { dhcp6ServiceProfileEntry 21 }
+
+dhcp6SvcProfLeaseQueryReplyMsgCnt OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total number of Lease Query Reply messages."
+    ::= { dhcp6ServiceProfileEntry 22 }
+
+dhcp6RelayProfileTable OBJECT-TYPE
+    SYNTAX      SEQUENCE OF Dhcp6RelayProfileEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "DHCPDv6 Relay Profile statistics"
+    ::= { dhcp 7 }
+
+dhcp6RelayProfileEntry OBJECT-TYPE
+    SYNTAX      Dhcp6RelayProfileEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION ""
+    INDEX { dhcp6RelayProfileOrgId, dhcp6RelayProfileId }
+        ::= { dhcp6RelayProfileTable 1 }
+
+Dhcp6RelayProfileEntry ::=
+    SEQUENCE {
+        dhcp6RelayProfileOrgId Unsigned32,
+        dhcp6RelayProfileId Unsigned32,
+        dhcp6RelayProfileOrgName String,
+        dhcp6RelayProfileName String,
+        dhcp6RelayProfileRequestCnt ConfdString,
+        dhcp6RelayProfileRequestIgnoredCnt ConfdString,
+        dhcp6RelayProfileRequestForwardCnt ConfdString,
+        dhcp6RelayProfileRequestForwardMsgCnt ConfdString,
+        dhcp6RelayProfileSolicitMsgCnt ConfdString,
+        dhcp6RelayProfileAdvertiseMsgCnt ConfdString,
+        dhcp6RelayProfileRequestMsgCnt ConfdString,
+        dhcp6RelayProfileConfirmMsgCnt ConfdString,
+        dhcp6RelayProfileRenewMsgCnt ConfdString,
+        dhcp6RelayProfileRebindMsgCnt ConfdString,
+        dhcp6RelayProfileReplyMsgCnt ConfdString,
+        dhcp6RelayProfileReleaseMsgCnt ConfdString,
+        dhcp6RelayProfileDeclineMsgCnt ConfdString,
+        dhcp6RelayProfileReconfigureMsgCnt ConfdString,
+        dhcp6RelayProfileInformationMsgCnt ConfdString,
+        dhcp6RelayProfileRelayForwardMsgCnt ConfdString,
+        dhcp6RelayProfileRelayReplyMsgCnt ConfdString,
+        dhcp6RelayProfileLeaseQueryMsgCnt ConfdString,
+        dhcp6RelayProfileLeaseQueryReplyMsgCnt ConfdString
+    }
+
+dhcp6RelayProfileOrgId OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "Organization Id"
+    ::= { dhcp6RelayProfileEntry 1 }
+
+dhcp6RelayProfileId OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "Relay Profile Id"
+    ::= { dhcp6RelayProfileEntry 2 }
+
+dhcp6RelayProfileOrgName OBJECT-TYPE
+    SYNTAX      String
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Organization Name"
+    ::= { dhcp6RelayProfileEntry 3 }
+
+dhcp6RelayProfileName OBJECT-TYPE
+    SYNTAX      String
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Relay Profile Name"
+    ::= { dhcp6RelayProfileEntry 4 }
+
+dhcp6RelayProfileRequestCnt OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total number of requests processed using the DHCPv6 relay profile."
+    ::= { dhcp6RelayProfileEntry 5 }
+
+dhcp6RelayProfileRequestIgnoredCnt OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total number of requests ignored by the DHCPv6 relay profile."
+    ::= { dhcp6RelayProfileEntry 6 }
+
+dhcp6RelayProfileRequestForwardCnt OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total number of requests forwarded by the DHCPv6 relay profile."
+    ::= { dhcp6RelayProfileEntry 7 }
+
+dhcp6RelayProfileRequestForwardMsgCnt OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total number of requests forwarded by the DHCPv6 relay profile."
+    ::= { dhcp6RelayProfileEntry 8 }
+
+dhcp6RelayProfileSolicitMsgCnt OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total number of Solicit requests."
+    ::= { dhcp6RelayProfileEntry 9 }
+
+dhcp6RelayProfileAdvertiseMsgCnt OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total number of Advertise requests."
+    ::= { dhcp6RelayProfileEntry 10 }
+
+dhcp6RelayProfileRequestMsgCnt OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total number of Request requests."
+    ::= { dhcp6RelayProfileEntry 11 }
+
+dhcp6RelayProfileConfirmMsgCnt OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total number of Confirm requests."
+    ::= { dhcp6RelayProfileEntry 12 }
+
+dhcp6RelayProfileRenewMsgCnt OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total number of Renew requests."
+    ::= { dhcp6RelayProfileEntry 13 }
+
+dhcp6RelayProfileRebindMsgCnt OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total number of Rebind requests."
+    ::= { dhcp6RelayProfileEntry 14 }
+
+dhcp6RelayProfileReplyMsgCnt OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total number of Reply requests."
+    ::= { dhcp6RelayProfileEntry 15 }
+
+dhcp6RelayProfileReleaseMsgCnt OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total number of Release requests."
+    ::= { dhcp6RelayProfileEntry 16 }
+
+dhcp6RelayProfileDeclineMsgCnt OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total number of Decline requests."
+    ::= { dhcp6RelayProfileEntry 17 }
+
+dhcp6RelayProfileReconfigureMsgCnt OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total number of Reconfigure requests."
+    ::= { dhcp6RelayProfileEntry 18 }
+
+dhcp6RelayProfileInformationMsgCnt OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total number of Information requests."
+    ::= { dhcp6RelayProfileEntry 19 }
+
+dhcp6RelayProfileRelayForwardMsgCnt OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total number of Relay Forward requests."
+    ::= { dhcp6RelayProfileEntry 20 }
+
+dhcp6RelayProfileRelayReplyMsgCnt OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total number of Relay Reply requests."
+    ::= { dhcp6RelayProfileEntry 21 }
+
+dhcp6RelayProfileLeaseQueryMsgCnt OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total number of Lease Query requests."
+    ::= { dhcp6RelayProfileEntry 22 }
+
+dhcp6RelayProfileLeaseQueryReplyMsgCnt OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total number of Lease Query Reply requests."
+    ::= { dhcp6RelayProfileEntry 23 }
+
+END

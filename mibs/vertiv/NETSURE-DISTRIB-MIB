@@ -1,0 +1,1448 @@
+------------------------------------------------------------
+-- Vertiv Co.
+-- Distribution MIB
+------------------------------------------------------------
+
+-- Renamed by Observium developers
+
+NETSURE-DISTRIB-MIB DEFINITIONS ::= BEGIN
+
+
+IMPORTS
+	MODULE-IDENTITY, OBJECT-TYPE, NOTIFICATION-TYPE,
+	Integer32, Counter32, mgmt, enterprises, IpAddress, TimeTicks
+		FROM SNMPv2-SMI
+	TEXTUAL-CONVENTION, DisplayString, DateAndTime
+		FROM SNMPv2-TC;
+		
+		
+distribMIB MODULE-IDENTITY
+	LAST-UPDATED "201705041042Z"
+	ORGANIZATION "
+		Vertiv Co."
+	CONTACT-INFO "
+		Vertiv Co.
+		141 82 Stockholm
+		Sweden"
+	DESCRIPTION "
+		Vertiv Co. Distribution MIB, revision A."
+	
+    REVISION     "201705042210Z"
+    DESCRIPTION
+	"updated version"
+	
+    REVISION     "201612201042Z"
+    DESCRIPTION
+	"Initial version"
+
+	::= { enterprises 6302 4 1 }
+
+
+          stdmib-2      OBJECT IDENTIFIER ::= { mgmt 1 }
+
+          system	OBJECT IDENTIFIER ::= { stdmib-2 1 }
+
+sysDescr OBJECT-TYPE
+	SYNTAX DisplayString
+	MAX-ACCESS read-only
+	STATUS current
+	DESCRIPTION "
+		A textual description of the Power System entity. 
+		"
+	::= { system 1 }
+
+sysObjectID OBJECT-TYPE
+	SYNTAX OBJECT IDENTIFIER
+	MAX-ACCESS read-only
+	STATUS current
+	DESCRIPTION "
+		1.3.6.1.4.1.6302.3.1
+		which is the base OID for the information in this MIB
+		."
+ 	::= { system 2 }
+		
+sysUpTime OBJECT-TYPE
+              SYNTAX  TimeTicks
+              MAX-ACCESS read-only
+              STATUS  current
+              DESCRIPTION
+                      "The time (in hundredths of a second) since the
+                      network management portion of the system was last
+                      re-initialized."
+              ::= { system 3 }
+
+sysContact OBJECT-TYPE
+              SYNTAX  DisplayString (SIZE (0..255))
+              MAX-ACCESS read-write
+              STATUS  current
+              DESCRIPTION
+                      "The textual identification of the contact person
+                      for this managed node, together with information
+                      on how to contact this person."
+              ::= { system 4 }
+
+sysName OBJECT-TYPE
+              SYNTAX  DisplayString (SIZE (0..255))
+              MAX-ACCESS read-write
+              STATUS  current
+              DESCRIPTION
+                      "An administratively-assigned name for this
+                      managed node.  By convention, this is the node's
+                      fully-qualified domain name."
+              ::= { system 5 }
+
+sysLocation OBJECT-TYPE
+              SYNTAX  DisplayString (SIZE (0..255))
+              MAX-ACCESS read-write
+              STATUS  current
+              DESCRIPTION
+                      "The physical location of this node (e.g.,
+                      `telephone closet, 3rd floor')."
+              ::= { system 6 }
+
+sysServices OBJECT-TYPE
+              SYNTAX  INTEGER (0..127)
+              MAX-ACCESS read-only
+              STATUS  current
+              DESCRIPTION
+                      "A value which indicates the set of services that
+                      this entity primarily offers.
+
+                      The value is a sum.  This sum initially takes the
+                      value zero, Then, for each layer, L, in the range
+                      1 through 7, that this node performs transactions
+                      for, 2 raised to (L - 1) is added to the sum.  For
+                      example, a node which performs primarily routing
+                      functions would have a value of 4 (2^(3-1)).  In
+                      contrast, a node which is a host offering
+                      application services would have a value of 72
+                      (2^(4-1) + 2^(7-1)).  Note that in the context of
+                      the Internet suite of protocols, values should be
+                      calculated accordingly:
+
+                           layer  functionality
+                               1  physical (e.g., repeaters)
+                               2  datalink/subnetwork (e.g., bridges)
+                               3  internet (e.g., IP gateways)
+                               4  end-to-end  (e.g., IP hosts)
+                               7  applications (e.g., mail relays)
+
+                      For systems including OSI protocols, layers 5 and
+                      6 may also be counted."
+              ::= { system 7 }
+
+
+
+------------------------------------------------------------
+-- Node definitions
+------------------------------------------------------------
+
+ees OBJECT IDENTIFIER ::= { enterprises 6302 }
+
+global OBJECT IDENTIFIER ::= { ees 4 }
+
+
+
+
+------------------------------------------------------------
+-- Textual conventions
+------------------------------------------------------------
+
+Status ::= TEXTUAL-CONVENTION
+	STATUS current
+	DESCRIPTION "
+		This integer value represents the operational or administrative
+		status of the system. Also used as alarm severity.
+		Depending on situation there may be limits on allowed values.
+		Operational values:
+		(1) unknown - status has not yet been defined
+		(2) normal - there are no activated alarms
+		(3) warning - OA, lowest level of 'abnormal' status
+		(4) minor - A3
+		(5) major - MA
+		(6) critical - CA, highest level of 'abnormal' status
+		Administrative values:
+		(7) unmanaged
+		(8) restricted
+		(9) testing
+		(10) disabled"
+	SYNTAX INTEGER {
+		unknown(1),
+		normal(2),
+		warning(3),
+		minor(4),
+		major(5),
+		critical(6),
+		unmanaged(7),
+		restricted(8),
+		testing(9),
+		disabled(10) }
+
+StatusChange ::= TEXTUAL-CONVENTION
+	STATUS current
+	DESCRIPTION "
+		Indicates 'activated' (1) or 'deactivated' (2) alarm events."
+	SYNTAX INTEGER {
+		activated(1),
+		deactivated(2) }
+
+
+EnableState ::= TEXTUAL-CONVENTION
+	STATUS current
+	DESCRIPTION "
+		Indicates 'enabled' (0) or 'disabled' (1)"
+	SYNTAX INTEGER {
+		enabled(0),
+		disabled(1) }
+
+RelayState ::= TEXTUAL-CONVENTION
+	STATUS current
+	DESCRIPTION "
+		Indicates 'off' (0) or 'on' (1)"
+	SYNTAX INTEGER {
+		off(0),
+		on(1) }
+
+FACBState ::= TEXTUAL-CONVENTION
+	STATUS current
+	DESCRIPTION "
+		Indicates 'ok' (0) or 'alarm' (1)"
+	SYNTAX INTEGER {
+		ok(0),
+		alarm(1) }
+
+PanelTypeOptions ::= TEXTUAL-CONVENTION
+	STATUS current
+	DESCRIPTION "
+		Indicates 'Standard' (0) or 'Advanced' (1)"
+	SYNTAX INTEGER {
+		standard(0),
+		advanced(1) }
+
+
+
+MeasurementType ::= TEXTUAL-CONVENTION
+	STATUS current
+	DESCRIPTION "
+		Indicates'Hall' (0) or 'Shunt' (1)"
+	SYNTAX INTEGER {
+		hall(0),
+		shunt(1) }		
+
+PanelPositionNum ::= TEXTUAL-CONVENTION
+	STATUS current
+	DESCRIPTION "
+		Indicates 'two' (0) or 'four' (1) or 'six' (2) or 'eight' (3)"
+	SYNTAX INTEGER {
+		two(0),
+		four(1),
+		six(2),
+		eight(3) }
+		
+		
+PanelPositionString ::= TEXTUAL-CONVENTION
+	STATUS current
+	DESCRIPTION "
+		Indicates 'a' (0) or 'b' (1) or 'c' (2) or 'd' (3) or 'e' (4) or 'f' (5) or 'g' (6)  or 'h' (7)"
+	SYNTAX INTEGER {
+		a(0),
+		b(1),
+		c(2),
+		d(3),
+		e(4),
+		f(5),
+		g(6),
+		h(7) }	
+
+ClearDataOptions ::= TEXTUAL-CONVENTION
+	STATUS current
+	DESCRIPTION "
+		Indicates 'Clear' (1)"
+	SYNTAX INTEGER {
+		clear(1) }
+
+DeviceNumberofBreaker ::= TEXTUAL-CONVENTION
+	STATUS current
+	DESCRIPTION "
+		Indicates 'one' (0) or 'two' (1) or 'three' (2) or 'four' (3) "
+	SYNTAX INTEGER {
+		one(0),
+		two(1),
+		three(2),
+		four(3) }
+------------------------------------------------------------
+-- 6302.4.1.1 Identification of the plant { distribMIB 1 }
+------------------------------------------------------------
+
+ident OBJECT IDENTIFIER ::= { distribMIB 1 }
+
+identManufacturer OBJECT-TYPE
+	SYNTAX DisplayString
+	MAX-ACCESS read-only
+	STATUS current
+	DESCRIPTION "
+		The name of the equipment manufacturer."
+	::= { ident 1 }
+
+identModel OBJECT-TYPE
+	SYNTAX DisplayString
+	MAX-ACCESS read-only
+	STATUS current
+	DESCRIPTION "
+		The manufacturers model designation of the controller."
+	::= { ident 2 }
+
+identControllerFirmwareVersion OBJECT-TYPE
+	SYNTAX DisplayString
+	MAX-ACCESS read-only
+	STATUS current
+	DESCRIPTION "
+		The firmware (software) version of the controller."
+	::= { ident 3 }
+
+identName OBJECT-TYPE
+	SYNTAX DisplayString
+	MAX-ACCESS read-write
+	STATUS current
+	DESCRIPTION "
+		The name of the distribution bay. This object should be set by
+		the administrator."
+	::= { ident 4 }
+
+identControllerSerialNumber OBJECT-TYPE
+	SYNTAX DisplayString
+	MAX-ACCESS read-only
+	STATUS current
+	DESCRIPTION "
+		The serial number of this controller"
+	::= { ident 5 }	
+	
+------------------------------------------------------------
+-- 6302.4.1.2 System values { distribMIB 2 }
+------------------------------------------------------------
+sys OBJECT IDENTIFIER ::= { distribMIB 2 }
+
+
+------------------------------------------------------------
+-- 6302.4.1.2.1 Bay values { system 1 }
+------------------------------------------------------------
+
+bay OBJECT IDENTIFIER ::= { sys 1 }
+
+baySiteName OBJECT-TYPE
+	SYNTAX DisplayString
+	MAX-ACCESS read-write
+	STATUS current
+	DESCRIPTION "
+			User-provided, 32 characters"
+	::= { bay 1 }
+
+bayTotalCurrentOutput 	 OBJECT-TYPE
+	SYNTAX Integer32
+	MAX-ACCESS read-only
+	STATUS current
+	DESCRIPTION "
+			Total current (sum of all feeds) in mA "
+	::= { bay 2 }	
+
+bayTotalPower	 OBJECT-TYPE
+	SYNTAX Integer32
+	MAX-ACCESS read-only
+	STATUS current
+	DESCRIPTION "
+			Output power (sum of all feeds) in Watts "
+	::= { bay 3 }	
+
+bayPeakPowerLast24hrs	 OBJECT-TYPE
+	SYNTAX Integer32
+	MAX-ACCESS read-only
+	STATUS current
+	DESCRIPTION "
+			Maximum output power over the past 24 hours in Watts "
+	::= { bay 4 }
+
+bayPeakPowerLastWeek	 OBJECT-TYPE
+	SYNTAX Integer32
+	MAX-ACCESS read-only
+	STATUS current
+	DESCRIPTION "
+			Maximum output power over the past 7 days in Watts "
+	::= { bay 5 }
+		
+bayPeakPowerLastMonth	 OBJECT-TYPE
+	SYNTAX Integer32
+	MAX-ACCESS read-only
+	STATUS current
+	DESCRIPTION "
+			Maximum output power over the past 30 days in Watts "
+	::= { bay 6 }
+
+bayTotalEnergyLast24hrs	 OBJECT-TYPE
+	SYNTAX Integer32
+	MAX-ACCESS read-only
+	STATUS current
+	DESCRIPTION "
+			Total output energy over the past 24 hours in 0.001 kWh "
+	::= { bay 7 }
+
+bayTotalEnergyLastWeek	 OBJECT-TYPE
+	SYNTAX Integer32
+	MAX-ACCESS read-only
+	STATUS current
+	DESCRIPTION "
+			Total output energy over the past 7 days in 0.001 kWh "
+	::= { bay 8 }
+
+bayTotalEnergyLastMonth	 OBJECT-TYPE
+	SYNTAX Integer32
+	MAX-ACCESS read-only
+	STATUS current
+	DESCRIPTION "
+			Total output energy over the past 30 days in 0.001 kWh"
+	::= { bay 9 }
+		
+bayTotalEnergy	 OBJECT-TYPE
+	SYNTAX Integer32
+	MAX-ACCESS read-only
+	STATUS current
+	DESCRIPTION "
+			Total/cumulative output energy since last reset,
+			 stored as 0.001kWh "
+	::= { bay 10 }
+
+bayRelay1Status	 OBJECT-TYPE
+	SYNTAX RelayState
+	MAX-ACCESS read-only
+	STATUS current
+	DESCRIPTION "
+			On/Off status of relay 1.  0=off 1=on"
+	::= { bay 11 }
+	
+
+bayRelay2Status	 OBJECT-TYPE
+	SYNTAX RelayState
+	MAX-ACCESS read-only
+	STATUS current
+	DESCRIPTION "
+			On/Off status of relay 2.  0=off 1=on"
+	::= { bay 12 }
+
+
+bayRelay3Status	 OBJECT-TYPE
+	SYNTAX RelayState
+	MAX-ACCESS read-only
+	STATUS current
+	DESCRIPTION "
+			On/Off status of relay 3.  0=off 1=on"
+	::= { bay 13 }
+
+bayRelay4Status	 OBJECT-TYPE
+	SYNTAX RelayState
+	MAX-ACCESS read-only
+	STATUS current
+	DESCRIPTION "
+			On/Off status of relay 4.  0=off 1=on"
+	::= { bay 14 }
+
+bayFACBStatus	 OBJECT-TYPE
+	SYNTAX FACBState
+	MAX-ACCESS read-only
+	STATUS current
+	DESCRIPTION "
+			FA-CB for all panels in the bay. 0=ok 1=alarm"
+	::= { bay 15 }
+
+bayClearAccumulatedValues	OBJECT-TYPE
+	SYNTAX ClearDataOptions
+	MAX-ACCESS read-write
+	STATUS current
+	DESCRIPTION "
+			Used to clear values peak power and total energy, for all accumulated values in this the bay
+			Write 1 to clear values
+			"
+	::= { bay 16 }
+
+bayCurrentBreakerSize OBJECT-TYPE
+	SYNTAX Integer32
+	MAX-ACCESS read-write
+	STATUS current
+	DESCRIPTION "
+			Rated current for the bay in mA "
+	::= { bay 17 }
+
+bayHighCurrentLimit1	 OBJECT-TYPE
+	SYNTAX Integer32
+	MAX-ACCESS read-write
+	STATUS current
+	DESCRIPTION "
+			Threshold for high current alarm in 0.001 % "
+	::= { bay 18 }
+
+bayHighCurrentLimit2	 OBJECT-TYPE
+	SYNTAX Integer32
+	MAX-ACCESS read-write
+	STATUS current
+	DESCRIPTION "
+			Threshold for high-high current alarm in 0.001 % "
+	::= { bay 19 }
+
+bayPanelConfiguration	 OBJECT-TYPE
+	SYNTAX PanelPositionNum
+	MAX-ACCESS read-write
+	STATUS current
+	DESCRIPTION "
+			Number of panels positions:	0=2 1=4 2=6 3=8 "
+	::= { bay 20 }	
+
+
+-- High Current #1	Over-current alarm condition 
+-- High Current #2	Over-current alarm condition
+-- SM-DUE comm loss	Communication failure with the SM-DUE
+
+------------------------------------------------------------
+-- 6302.4.1.2.2 Panel values { sys 2 }
+------------------------------------------------------------
+
+panel OBJECT IDENTIFIER ::= { sys 2 }
+
+panelTable OBJECT-TYPE
+        SYNTAX SEQUENCE OF PanelEntry
+        MAX-ACCESS not-accessible
+        STATUS current
+        DESCRIPTION     
+                "Panel Table."
+    ::= { panel 1 }
+    
+panelEntry OBJECT-TYPE
+        SYNTAX PanelEntry
+        MAX-ACCESS not-accessible
+        STATUS current
+        DESCRIPTION
+            "Panel Table Entry."
+        INDEX { panelIndex }
+    ::= { panelTable 1 }
+
+PanelEntry ::= SEQUENCE {
+	panelIndex Integer32,
+	panelPosition PanelPositionString,
+	panelName DisplayString,
+	panelEnabled EnableState,
+	panelType PanelTypeOptions,
+	panelFeed Integer32,
+	panelClearAccumulatedValues ClearDataOptions,
+	panelDistributionMeasurementType MeasurementType,
+	panelNumberDistributionElements Integer32 }
+
+panelIndex OBJECT-TYPE
+	SYNTAX Integer32(3701..3708)
+	MAX-ACCESS read-only
+	STATUS current
+	DESCRIPTION
+		"Automatically generated index object."
+	::= { panelEntry 1 }
+
+panelPosition OBJECT-TYPE
+	SYNTAX PanelPositionString
+	MAX-ACCESS read-only
+	STATUS current
+	DESCRIPTION "
+			A through H (assigned by the controller),a(0) or b(1) 
+			or c(2) or d(3) or e(4) or f(5) or g(6)  or h(7)"
+	::= { panelEntry 2 }
+
+panelName OBJECT-TYPE
+	SYNTAX DisplayString
+	MAX-ACCESS read-write
+	STATUS current
+	DESCRIPTION "
+			User-provided, 32 characters"
+	::= { panelEntry 3 }
+
+panelEnabled OBJECT-TYPE
+	SYNTAX EnableState
+	MAX-ACCESS read-write
+	STATUS current
+	DESCRIPTION "
+			Enabled (0) or Disabled (1)"
+	::= { panelEntry 4 }
+
+panelType OBJECT-TYPE
+	SYNTAX PanelTypeOptions
+	MAX-ACCESS read-write
+	STATUS current
+	DESCRIPTION "
+			Standard (0) or Advanced (1)"
+	::= { panelEntry 5 }
+
+panelFeed OBJECT-TYPE
+	SYNTAX Integer32(1..8)
+	MAX-ACCESS read-write
+	STATUS current
+	DESCRIPTION "
+			FeedID of Panel"
+	::= { panelEntry 6 }
+
+panelClearAccumulatedValues OBJECT-TYPE
+	SYNTAX ClearDataOptions
+	MAX-ACCESS read-write
+	STATUS current
+	DESCRIPTION "
+			Used to clear accumulated values for all distribution devices in this this panel
+			Write 1 to clear values"
+	::= { panelEntry 7 }
+
+panelDistributionMeasurementType OBJECT-TYPE
+	SYNTAX MeasurementType
+	MAX-ACCESS read-write
+	STATUS current
+	DESCRIPTION "
+			Hall (0) or Shunt (1) (advanced panels only)"
+	::= { panelEntry 8 }
+
+panelNumberDistributionElements OBJECT-TYPE
+	SYNTAX Integer32(1..40)
+	MAX-ACCESS read-write
+	STATUS current
+	DESCRIPTION "
+			Number of distributions points in this panel"
+	::= { panelEntry 9 }
+
+-- FA/CB alarm	Fuse/circuit-breaker alarm condition
+-- SM-DUH2 comm loss 	Communication lost with the SM-DUH2 for this panel
+
+------------------------------------------------------------
+-- 6302.4.1.2.3 Feed values { sys 3 }
+------------------------------------------------------------
+
+feed OBJECT IDENTIFIER ::= { sys 3 }
+
+feedTable OBJECT-TYPE
+        SYNTAX SEQUENCE OF FeedEntry 
+        MAX-ACCESS not-accessible
+        STATUS current
+        DESCRIPTION     
+                "Feed Table."
+    ::= { feed 1 }
+    
+feedEntry OBJECT-TYPE
+        SYNTAX FeedEntry
+        MAX-ACCESS not-accessible
+        STATUS current
+        DESCRIPTION
+            "Feed Table Entry."
+        INDEX { feedIndex }
+    ::= { feedTable 1 }
+
+FeedEntry ::= SEQUENCE {
+  feedIndex				Integer32,
+  feedID 				Integer32,
+  feedName 				DisplayString,
+  feedOutputVoltage 		Integer32,
+  feedTotalCurrent 		Integer32,
+  feedTotalPower 		Integer32,
+  feedPeakPowerLast24hrs 	Integer32,
+  feedPeakPowerLastWeek 	Integer32,
+  feedPeakPowerLastMonth 	Integer32,
+  feedTotalEnergyLast24hrs 	Integer32,
+  feedTotalEnergyLastWeek 	Integer32,
+  feedTotalEnergyLastMonth 	Integer32,
+  feedTotalEnergy 		Integer32,
+  feedFACBStatus 		FACBState,
+  feedClearAccumulatedValues	ClearDataOptions,
+  feedOverVoltage1 		Integer32,
+  feedOverVoltage2 		Integer32,
+  feedUnderVoltage1 		Integer32,
+  feedUnderVoltage2 		Integer32,
+  feedCurrentBreakerSize 	Integer32,
+  feedCurrent1Limit 		Integer32,
+  feedCurrent2Limit 		Integer32,
+  feedShuntVoltage 		Integer32,
+  feedShuntCurrent 		Integer32
+  }
+
+feedIndex OBJECT-TYPE
+        SYNTAX		  Integer32(3711..3718)
+        MAX-ACCESS      read-only
+        STATUS          current
+        DESCRIPTION
+                "Automatically generated index object."
+    ::= { feedEntry 1 }
+
+feedID OBJECT-TYPE
+	SYNTAX Integer32(1..8)
+	MAX-ACCESS read-only
+	STATUS current
+	DESCRIPTION "
+			1 through 8 (assigned by the controller)"
+	::= { feedEntry 2 }
+
+feedName OBJECT-TYPE
+	SYNTAX DisplayString
+	MAX-ACCESS read-write
+	STATUS current
+	DESCRIPTION "
+			User-provided, 32 characters"
+	::= { feedEntry 3 }
+
+feedOutputVoltage OBJECT-TYPE
+	SYNTAX Integer32
+	MAX-ACCESS read-only
+	STATUS current
+	DESCRIPTION "
+			Output voltage in mV"
+	::= { feedEntry 4 }
+
+feedTotalCurrent OBJECT-TYPE
+	SYNTAX Integer32
+	MAX-ACCESS read-only
+	STATUS current
+	DESCRIPTION "
+			Output current in mA"
+	::= { feedEntry 5 }
+	
+feedTotalPower OBJECT-TYPE
+	SYNTAX Integer32
+	MAX-ACCESS read-only
+	STATUS current
+	DESCRIPTION "
+			Output power in Watts"
+	::= { feedEntry 6 }
+
+feedPeakPowerLast24hrs OBJECT-TYPE
+	SYNTAX Integer32
+	MAX-ACCESS read-only
+	STATUS current
+	DESCRIPTION "
+			Maximum output power over the past 24 hours in Watts"
+	::= { feedEntry 7 }
+
+feedPeakPowerLastWeek OBJECT-TYPE
+	SYNTAX Integer32
+	MAX-ACCESS read-only
+	STATUS current
+	DESCRIPTION "
+			Maximum output power over the past 7 days in Watts"
+	::= { feedEntry 8 }
+	
+feedPeakPowerLastMonth OBJECT-TYPE
+	SYNTAX Integer32
+	MAX-ACCESS read-only
+	STATUS current
+	DESCRIPTION "
+			Maximum output power over the past 30 days in Watts"
+	::= { feedEntry 9 }
+
+feedTotalEnergyLast24hrs OBJECT-TYPE
+	SYNTAX Integer32
+	MAX-ACCESS read-only
+	STATUS current
+	DESCRIPTION "
+			Total output energy over the past 24 hours in 0.001 kWh"
+	::= { feedEntry 10 }		
+	
+feedTotalEnergyLastWeek OBJECT-TYPE
+	SYNTAX Integer32
+	MAX-ACCESS read-only
+	STATUS current
+	DESCRIPTION "
+			Total output energy over the past 7 days in 0.001 kWh"
+	::= { feedEntry 11 }		
+	
+feedTotalEnergyLastMonth OBJECT-TYPE
+	SYNTAX Integer32
+	MAX-ACCESS read-only
+	STATUS current
+	DESCRIPTION "
+			Total output energy over the past 30 days in 0.001 kWh"
+	::= { feedEntry 12 }		
+	
+feedTotalEnergy OBJECT-TYPE
+	SYNTAX Integer32
+	MAX-ACCESS read-only
+	STATUS current
+	DESCRIPTION "
+			Total/cumulative output energy since last reset, stored as 0.001 kWh"
+	::= { feedEntry 13 }	
+
+feedFACBStatus OBJECT-TYPE
+	SYNTAX FACBState
+	MAX-ACCESS read-only
+	STATUS current
+	DESCRIPTION "
+			FA-CB Status 0=ok 1=alarm"
+	::= { feedEntry 14 }	
+
+feedClearAccumulatedValues OBJECT-TYPE
+	SYNTAX ClearDataOptions
+	MAX-ACCESS read-write
+	STATUS current
+	DESCRIPTION "
+			Used to clear accumulated values in the feed
+			Write 1 to clear values"
+	::= { feedEntry 15 }
+
+feedOverVoltage1 OBJECT-TYPE
+	SYNTAX Integer32
+	MAX-ACCESS read-write
+	STATUS current
+	DESCRIPTION "
+			Threshold for over-voltage alarm 1 in mV"
+	::= { feedEntry 16 }
+
+feedOverVoltage2 OBJECT-TYPE
+	SYNTAX Integer32
+	MAX-ACCESS read-write
+	STATUS current
+	DESCRIPTION "
+			Threshold for over-voltage alarm 2 in mV"
+	::= { feedEntry 17 }
+
+feedUnderVoltage1 OBJECT-TYPE
+	SYNTAX Integer32
+	MAX-ACCESS read-write
+	STATUS current
+	DESCRIPTION "
+			Threshold for the low voltage alarm 1 in mV"
+	::= { feedEntry 18 }
+
+feedUnderVoltage2 OBJECT-TYPE
+	SYNTAX Integer32
+	MAX-ACCESS read-write
+	STATUS current
+	DESCRIPTION "
+			Threshold for the low voltage alarm 2 in mV"
+	::= { feedEntry 19 }
+
+feedCurrentBreakerSize OBJECT-TYPE
+	SYNTAX Integer32
+	MAX-ACCESS read-write
+	STATUS current
+	DESCRIPTION "
+			Rating of the fuse/CB in Amps"
+	::= { feedEntry 20 }
+
+feedCurrent1Limit OBJECT-TYPE
+	SYNTAX Integer32
+	MAX-ACCESS read-write
+	STATUS current
+	DESCRIPTION "
+			Threshold for high current alarm in 0.001 %"
+	::= { feedEntry 21 }
+
+feedCurrent2Limit OBJECT-TYPE
+	SYNTAX Integer32
+	MAX-ACCESS read-write
+	STATUS current
+	DESCRIPTION "
+			Threshold for very high current alarm in 0.001 %"
+	::= { feedEntry 22 }
+
+feedShuntVoltage OBJECT-TYPE
+	SYNTAX Integer32
+	MAX-ACCESS read-write
+	STATUS current
+	DESCRIPTION "
+			Shunt voltage rating in mV"
+	::= { feedEntry 23 }
+
+feedShuntCurrent OBJECT-TYPE
+	SYNTAX Integer32
+	MAX-ACCESS read-write
+	STATUS current
+	DESCRIPTION "
+			Shunt current rating in mA"
+	::= { feedEntry 24 }
+
+-- Over Voltage #1	Over-voltage alarm condition
+-- Over Voltage #2	Over-voltage alarm condition
+-- Under Voltage #1	Under-voltage alarm condition
+-- Under Voltage #2	Under-voltage alarm condition
+-- High Current #1	Over-current alarm condition
+-- Very High Current #2	Over-current alarm condition
+
+------------------------------------------------------------
+-- 6302.4.1.2.4 Distribution devices values { sys 4 }
+------------------------------------------------------------
+
+device OBJECT IDENTIFIER ::= { sys 4 }
+
+deviceTable OBJECT-TYPE
+        SYNTAX SEQUENCE OF DeviceEntry
+        MAX-ACCESS not-accessible
+        STATUS current
+        DESCRIPTION     
+                "Device Table."
+    ::= { device 1 }
+    
+deviceEntry OBJECT-TYPE
+        SYNTAX DeviceEntry
+        MAX-ACCESS not-accessible
+        STATUS current
+        DESCRIPTION
+            "Device Table Entry."
+        INDEX { deviceIndex }
+    ::= { deviceTable 1 }
+
+DeviceEntry ::= SEQUENCE {
+  deviceIndex 				Integer32,
+  devicePanel 				PanelPositionString,
+  deviceID 				Integer32,
+  deviceName 				DisplayString,
+  deviceExists 				EnableState,
+  deviceTotalCurrent 			Integer32,
+  deviceTotalPower 			Integer32,
+  devicePeakPowerLast24hrs 		Integer32,
+  devicePeakPowerLastWeek 		Integer32,
+  devicePeakPowerLastMonth 		Integer32,
+  deviceTotalEnergyLast24hrs 	Integer32,
+  deviceTotalEnergyLastWeek 	Integer32,
+  deviceTotalEnergyLastMonth 	Integer32,
+  deviceTotalEnergy 			Integer32,
+  deviceFACBStatus 			FACBState,
+  deviceClearAccumulatedValues 	ClearDataOptions,
+  deviceCurrentBreakerSize 		Integer32,
+  deviceHighCurrentLimit1 		Integer32,
+  deviceHighCurrentLimit2 		Integer32,
+  deviceNumberofBreakerPositions DeviceNumberofBreaker
+}
+
+deviceIndex OBJECT-TYPE
+        SYNTAX		  Integer32(1..320)
+        MAX-ACCESS      read-only
+        STATUS          current
+        DESCRIPTION
+                "Automatically generated index object"
+    ::= { deviceEntry 1 }
+
+devicePanel OBJECT-TYPE
+	SYNTAX PanelPositionString
+	MAX-ACCESS read-only
+	STATUS current
+	DESCRIPTION "
+			The panel containing this device (A=1, B=2, etc.)."
+	::= { deviceEntry 2 }	
+
+
+deviceID OBJECT-TYPE
+	SYNTAX Integer32(1..40)
+	MAX-ACCESS read-only
+	STATUS current
+	DESCRIPTION "
+			The distribution device's ID/position"
+	::= { deviceEntry 3 }	
+
+deviceName OBJECT-TYPE
+	SYNTAX DisplayString
+	MAX-ACCESS read-write
+	STATUS current
+	DESCRIPTION "
+			User-provided, 32 characters"
+	::= { deviceEntry 4 }	
+
+deviceExists OBJECT-TYPE
+	SYNTAX EnableState
+	MAX-ACCESS read-write
+	STATUS current
+	DESCRIPTION "
+			Used (0) or not Used (1)"
+	::= { deviceEntry 5 }
+
+deviceTotalCurrent OBJECT-TYPE
+	SYNTAX Integer32
+	MAX-ACCESS read-only
+	STATUS current
+	DESCRIPTION "
+			Total output current in mA"
+	::= { deviceEntry 6 }
+
+deviceTotalPower OBJECT-TYPE
+	SYNTAX Integer32
+	MAX-ACCESS read-only
+	STATUS current
+	DESCRIPTION "
+			Total output power in Watts"
+	::= { deviceEntry 7 }
+
+devicePeakPowerLast24hrs OBJECT-TYPE
+	SYNTAX Integer32
+	MAX-ACCESS read-only
+	STATUS current
+	DESCRIPTION "
+			Maximum output power over the past 24 hours in Watts"
+	::= { deviceEntry 8 }
+
+devicePeakPowerLastWeek OBJECT-TYPE
+	SYNTAX Integer32
+	MAX-ACCESS read-only
+	STATUS current
+	DESCRIPTION "
+			Maximum output power over the past 7 days in Watts"
+	::= { deviceEntry 9 }
+	
+devicePeakPowerLastMonth OBJECT-TYPE
+	SYNTAX Integer32
+	MAX-ACCESS read-only
+	STATUS current
+	DESCRIPTION "
+			Maximum output power over the past 30 days in Watts"
+	::= { deviceEntry 10 }	
+
+deviceTotalEnergyLast24hrs OBJECT-TYPE
+	SYNTAX Integer32
+	MAX-ACCESS read-only
+	STATUS current
+	DESCRIPTION "
+			Total output power over the past 24 hours in 0.001 kWh"
+	::= { deviceEntry 11 }	
+	
+deviceTotalEnergyLastWeek OBJECT-TYPE
+	SYNTAX Integer32
+	MAX-ACCESS read-only
+	STATUS current
+	DESCRIPTION "
+			Total output power over the past 7 days in 0.001 kWh"
+	::= { deviceEntry 12 }	
+	
+deviceTotalEnergyLastMonth OBJECT-TYPE
+	SYNTAX Integer32
+	MAX-ACCESS read-only
+	STATUS current
+	DESCRIPTION "
+			Total output power over the past 30 days in 0.001 kWh"
+	::= { deviceEntry 13 }
+
+deviceTotalEnergy OBJECT-TYPE
+	SYNTAX Integer32
+	MAX-ACCESS read-only
+	STATUS current
+	DESCRIPTION "
+			Total/cumulative output energy since last reset, stored as 0.001 kWh"
+	::= { deviceEntry 14 }
+
+deviceFACBStatus OBJECT-TYPE
+	SYNTAX FACBState
+	MAX-ACCESS read-only
+	STATUS current
+	DESCRIPTION "
+			FA-CB Status 0=ok 1=alarm"
+	::= { deviceEntry 15 }	
+
+deviceClearAccumulatedValues OBJECT-TYPE
+	SYNTAX ClearDataOptions
+	MAX-ACCESS read-write
+	STATUS current
+	DESCRIPTION "
+			Used to clear accumulated values
+			Write 1 to clear values
+			"
+	::= { deviceEntry 16 }
+
+deviceCurrentBreakerSize OBJECT-TYPE
+	SYNTAX Integer32
+	MAX-ACCESS read-write
+	STATUS current
+	DESCRIPTION "
+			Rating of the fuse/CB in mA"
+	::= { deviceEntry 17 }
+
+deviceHighCurrentLimit1 OBJECT-TYPE
+	SYNTAX Integer32
+	MAX-ACCESS read-write
+	STATUS current
+	DESCRIPTION "
+			Threshold for high current alarm in 0.001 %"
+	::= { deviceEntry 18 }
+
+deviceHighCurrentLimit2 OBJECT-TYPE
+	SYNTAX Integer32
+	MAX-ACCESS read-write
+	STATUS current
+	DESCRIPTION "
+			Threshold for very high current alarm in 0.001 %"
+	::= { deviceEntry 19 }
+
+
+deviceNumberofBreakerPositions OBJECT-TYPE
+	SYNTAX DeviceNumberofBreaker
+	MAX-ACCESS read-write
+	STATUS current
+	DESCRIPTION "
+			Number of breaker positions (1 to 3).  The positions are contiguous.
+			Contiguous breaker positions are treated as one distribution device.
+			one=(0) or two=(1) or three=(2) or four=(3)."
+	::= { deviceEntry 20 }
+	
+-- Over-current #1	Over-current alarm condition
+-- Over-current #2	Over-current alarm condition
+-- FA/CB alarm	Fuse/circuit-breaker alarm condition
+
+------------------------------------------------------------
+-- 6302.4.1.2.5 Load values { sys 5 }
+------------------------------------------------------------
+load OBJECT IDENTIFIER ::= { sys 5 }
+
+loadTable OBJECT-TYPE
+        SYNTAX SEQUENCE OF LoadEntry
+        MAX-ACCESS not-accessible
+        STATUS current
+        DESCRIPTION     
+                "Load Table."
+    ::= { load 1 }
+    
+loadEntry OBJECT-TYPE
+        SYNTAX LoadEntry
+        MAX-ACCESS not-accessible
+        STATUS current
+        DESCRIPTION
+            "Load Table Entry."
+        INDEX { loadIndex }
+    ::= { loadTable 1 }
+
+LoadEntry ::= SEQUENCE {
+  loadIndex 				Integer32,
+  loadName 					DisplayString,
+  loadTotalCurrent 			Integer32,
+  loadTotalPower 			Integer32,
+  loadPeakPowerLast24hrs 		Integer32,
+  loadPeakPowerLastWeek 		Integer32,
+  loadPeakPowerLastMonth 		Integer32,
+  loadTotalEnergyLast24hrs 		Integer32,
+  loadTotalEnergyLastWeek 		Integer32,
+  loadTotalEnergyLastMonth 		Integer32,
+  loadTotalEnergy 			Integer32,
+  loadClearAccumulatedValues		ClearDataOptions,
+  loadMaximumCurrent 			Integer32,
+  loadHighCurrentLimit1 		Integer32,
+  loadHighCurrentLimit2 		Integer32
+}
+
+loadIndex OBJECT-TYPE
+        SYNTAX		  Integer32(1..64)
+        MAX-ACCESS      read-only
+        STATUS          current
+        DESCRIPTION
+                "Automatically generated index object."
+    ::= { loadEntry 1 }
+
+loadName OBJECT-TYPE
+	SYNTAX DisplayString
+	MAX-ACCESS read-write
+	STATUS current
+	DESCRIPTION "
+			User-provided, 32 characters"
+	::= { loadEntry 2 }	
+
+loadTotalCurrent OBJECT-TYPE
+	SYNTAX Integer32
+	MAX-ACCESS read-only
+	STATUS current
+	DESCRIPTION "
+			Total output current in mA"
+	::= { loadEntry 3 }
+
+loadTotalPower OBJECT-TYPE
+	SYNTAX Integer32
+	MAX-ACCESS read-only
+	STATUS current
+	DESCRIPTION "
+			Total output power in Watts"
+	::= { loadEntry 4 }
+
+loadPeakPowerLast24hrs OBJECT-TYPE
+	SYNTAX Integer32
+	MAX-ACCESS read-only
+	STATUS current
+	DESCRIPTION "
+			Maximum output power over the past 24 hours in Watts"
+	::= { loadEntry 5 }
+	
+loadPeakPowerLastWeek OBJECT-TYPE
+	SYNTAX Integer32
+	MAX-ACCESS read-only
+	STATUS current
+	DESCRIPTION "
+			Maximum output power over the past 7 days in Watts"
+	::= { loadEntry 6 }	
+
+loadPeakPowerLastMonth OBJECT-TYPE
+	SYNTAX Integer32
+	MAX-ACCESS read-only
+	STATUS current
+	DESCRIPTION "
+			Maximum output power over the past 30 days in Watts"
+	::= { loadEntry 7 }	
+		
+loadTotalEnergyLast24hrs OBJECT-TYPE
+	SYNTAX Integer32
+	MAX-ACCESS read-only
+	STATUS current
+	DESCRIPTION "
+			Total output power over the past 24 hours in 0.001 kWh"
+	::= { loadEntry 8 }	
+
+loadTotalEnergyLastWeek OBJECT-TYPE
+	SYNTAX Integer32
+	MAX-ACCESS read-only
+	STATUS current
+	DESCRIPTION "
+			Total output power over the past 7 days in 0.001 kWh"
+	::= { loadEntry 9 }		
+
+loadTotalEnergyLastMonth OBJECT-TYPE
+	SYNTAX Integer32
+	MAX-ACCESS read-only
+	STATUS current
+	DESCRIPTION "
+			Total output power over the past 30 days in 0.001 kWh"
+	::= { loadEntry 10 }			
+	
+loadTotalEnergy OBJECT-TYPE
+	SYNTAX Integer32
+	MAX-ACCESS read-only
+	STATUS current
+	DESCRIPTION "
+			Total/cumulative output energy since last reset in 0.001 kWh"
+	::= { loadEntry 11 }	
+
+loadClearAccumulatedValues OBJECT-TYPE
+	SYNTAX ClearDataOptions
+	MAX-ACCESS read-write
+	STATUS current
+	DESCRIPTION "
+			Used to clear accumulated values
+			Write 1 value to clear values
+			"
+	::= { loadEntry 12 }
+
+loadMaximumCurrent OBJECT-TYPE
+	SYNTAX Integer32
+	MAX-ACCESS read-write
+	STATUS current
+	DESCRIPTION "
+			Maximum current in amps for the load; the total current is never expected to exceed this value"
+	::= { loadEntry 13 }	
+
+loadHighCurrentLimit1 OBJECT-TYPE
+	SYNTAX Integer32
+	MAX-ACCESS read-write
+	STATUS current
+	DESCRIPTION "
+			Threshold for high current alarm in 0.001 %"
+	::= { loadEntry 14 }	
+
+loadHighCurrentLimit2 OBJECT-TYPE
+	SYNTAX Integer32
+	MAX-ACCESS read-write
+	STATUS current
+	DESCRIPTION "
+			Threshold for very high current alarm in 0.001 %"
+	::= { loadEntry 15 }	
+	
+-- Over-current #1	Over-current alarm condition
+-- Over-current #2	Over-current alarm condition
+
+-- ------------------------------------------------------------------------ 
+-- 1.2.15. EquipmentSignalTable
+-- ------------------------------------------------------------------------ 
+
+psEquipmentSignalTable OBJECT-TYPE
+	SYNTAX SEQUENCE OF EquipmentSignalTableEntry
+	MAX-ACCESS not-accessible
+	STATUS current
+	DESCRIPTION "
+		Table of indexed equipment signal values."
+	::= { sys 15 }
+
+equipmentSignalTableEntry OBJECT-TYPE
+	SYNTAX EquipmentSignalTableEntry
+	MAX-ACCESS not-accessible
+	STATUS current
+	DESCRIPTION "
+		An entry (conceptual row) in the psEquipment Signal Table."
+	INDEX { psEquipmentSignalTableEntryIndex }
+	::= { psEquipmentSignalTable 1 }
+
+EquipmentSignalTableEntry ::= SEQUENCE {
+	psEquipmentSignalTableEntryIndex Integer32,
+	psEquipmentSignalValue Integer32 }
+
+psEquipmentSignalTableEntryIndex OBJECT-TYPE
+	SYNTAX Integer32(1..268386303)
+	MAX-ACCESS read-only
+	STATUS current
+	DESCRIPTION "
+		The unique sequence number of this equipment signal."
+	::= { equipmentSignalTableEntry 1 }
+
+psEquipmentSignalValue OBJECT-TYPE
+	SYNTAX Integer32
+	MAX-ACCESS read-only
+	STATUS current
+	DESCRIPTION "
+		Indexed equipment signal value."
+	::= { equipmentSignalTableEntry 2 }
+
+------------------------------------------------------------
+-- Alarm trap counter { distribMIB 3 }
+------------------------------------------------------------
+
+alarmLastTrapNo OBJECT-TYPE
+	SYNTAX Counter32
+	MAX-ACCESS read-only
+	STATUS current
+	DESCRIPTION "
+		The sequence number of last submitted alarm trap,
+		also last row in alarmTrapTable."
+	::= { distribMIB 3 }
+
+------------------------------------------------------------
+-- Active Alarm table { distribMIB 4 }
+------------------------------------------------------------
+
+alarmActiveAlarmTable OBJECT-TYPE
+	SYNTAX SEQUENCE OF ActiveAlarmEntry
+	MAX-ACCESS not-accessible
+	STATUS current
+	DESCRIPTION "
+		Table holding information about the currently active alarms."
+	::= { distribMIB 4 }
+
+activeAlarmEntry OBJECT-TYPE
+	SYNTAX ActiveAlarmEntry
+	MAX-ACCESS not-accessible
+	STATUS current
+	DESCRIPTION "
+		An entry (conceptual row) in the alarmTrapTable."
+	INDEX { alarmIndex }
+	::= { alarmActiveAlarmTable 1 }
+
+ActiveAlarmEntry ::= SEQUENCE {
+	alarmIndex Counter32,
+	alarmTime DateAndTime,
+	alarmStatusChange StatusChange,
+	alarmSeverity Status,
+	alarmDescription DisplayString,
+	alarmType Integer32 }
+
+alarmIndex OBJECT-TYPE
+	SYNTAX Counter32
+	MAX-ACCESS read-only
+	STATUS current
+	DESCRIPTION "
+		The unique sequence number of this alarm trap."
+	::= { activeAlarmEntry 1 }
+
+alarmTime OBJECT-TYPE
+	SYNTAX DateAndTime
+	MAX-ACCESS read-only
+	STATUS current
+	DESCRIPTION "
+		Date and time when event occured (local time), including
+		timezone if supported by controller."
+	::= { activeAlarmEntry 2 }
+
+alarmStatusChange OBJECT-TYPE
+	SYNTAX StatusChange
+	MAX-ACCESS read-only
+	STATUS current
+	DESCRIPTION "
+		The type of alarm change. One of
+		(1) activated
+		(2) deactivated"
+	::= { activeAlarmEntry 3 }
+
+alarmSeverity OBJECT-TYPE
+	SYNTAX Status
+	MAX-ACCESS read-only
+	STATUS current
+	DESCRIPTION "
+		The severity of the alarm. One of
+		(3) warning - OA, lowest level of alarm severity
+		(4) minor - A3
+		(5) major - MA
+		(6) critical - CA, highest level of alarm severity"
+	::= { activeAlarmEntry 4 }
+
+alarmDescription OBJECT-TYPE
+	SYNTAX DisplayString
+	MAX-ACCESS read-only
+	STATUS current
+	DESCRIPTION "
+		Free-text description of alarm."
+	::= { activeAlarmEntry 5 }
+
+alarmType OBJECT-TYPE
+	SYNTAX Integer32
+	MAX-ACCESS read-only
+	STATUS current
+	DESCRIPTION "
+		Alarm type, i.e. an integer specifying the type of alarm."
+	::= { activeAlarmEntry 6 }
+
+------------------------------------------------------------
+-- Events/traps { distribMIB 5 }
+------------------------------------------------------------
+
+powerEvents OBJECT IDENTIFIER ::= { distribMIB 5 }
+
+alarmTrap NOTIFICATION-TYPE
+	OBJECTS {
+		alarmIndex,
+		alarmTime,
+		alarmStatusChange,
+		alarmSeverity,
+		alarmDescription,
+		alarmType }
+	STATUS current
+	DESCRIPTION "
+		An alarm trap is sent when an alarm occurs (activated) or
+		returns to normal state (deactivated). Alarm traps are logged
+		in alarmTrapTable. Variables in this trap:
+		* alarmIndex - The unique sequence number of this alarm trap.
+		* alarmTime - Date and time when event occured (local time),
+		      including timezone if supported by controller.
+		* alarmStatusChange - (1) activated or (2) deactivated.
+		* alarmSeverity - Integer describing the severity of the alarm.
+		* alarmDescription - Free-text description of alarm.
+		* alarmType - Integer indicating type of alarm."
+	::= { powerEvents 1 }
+
+alarmActiveTrap NOTIFICATION-TYPE
+	OBJECTS {
+		alarmTime,
+		alarmSeverity,
+		alarmDescription,
+		alarmType }
+	STATUS current
+	DESCRIPTION "
+		An alarm trap is sent when an alarm occurs (activated)
+		Variables in this trap
+		* alarmTime - Date and time when event occured (local time),
+		      including timezone if supported by controller.
+		* alarmSeverity - Integer describing the severity of the alarm.
+		* alarmDescription - Free-text description of alarm.
+		* alarmType - Integer indicating type of alarm."
+	::= { powerEvents 2 }
+
+alarmCeaseTrap NOTIFICATION-TYPE
+	OBJECTS {
+		alarmTime,
+		alarmSeverity,
+		alarmDescription,
+		alarmType }
+	STATUS current
+	DESCRIPTION "
+		An alarm trap is sent when an alarm returns to normal state (clear, deactivated). 
+                Variables in this trap:
+		* alarmTime - Date and time when event occured (local time),
+		      including timezone if supported by controller.
+		* alarmSeverity - Integer describing the severity of the alarm.
+		* alarmDescription - Free-text description of alarm.
+		* alarmType - Integer indicating type of alarm."
+	::= { powerEvents 3 }
+
+------------------------------------------------------------
+-- End of MIB definitions
+------------------------------------------------------------
+
+END

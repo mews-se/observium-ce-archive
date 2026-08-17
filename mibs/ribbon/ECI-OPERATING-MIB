@@ -1,0 +1,604 @@
+ECI-OPERATING-MIB DEFINITIONS ::= BEGIN
+
+IMPORTS
+	MODULE-IDENTITY, OBJECT-TYPE,
+	Integer32, Unsigned32, Gauge32, Counter64
+		FROM SNMPv2-SMI
+	TEXTUAL-CONVENTION, TruthValue
+		FROM SNMPv2-TC
+	entPhysicalIndex
+		FROM ENTITY-MIB
+	SnmpAdminString
+		FROM SNMP-FRAMEWORK-MIB
+	eciMibs
+		FROM ECI-SMI;
+
+eciOperatingMIB MODULE-IDENTITY
+    LAST-UPDATED    "1111280000Z"            -- 28 Nov 2011
+    ORGANIZATION    "ECI Telecom"
+    CONTACT-INFO
+	"ECI Telecom, Ltd.
+	 Postal: 30 Hasivim Street
+	         Petach Tikva 49157, Israel 
+	 Tel: +972-3-9266000
+	 Fax: +972-3-9266370
+	 email: on.support@ecitele.com"
+    DESCRIPTION
+	"This module defines ECI Operating MIB for operating entities."
+
+    ::= { eciMibs 3 } -- unassigned
+
+eciOperatingObjects              OBJECT IDENTIFIER
+     ::= { eciOperatingMIB 1 }
+
+--
+-- CPU operating table
+--
+cpuOperatingTable OBJECT-TYPE
+    SYNTAX      SEQUENCE OF CpuOperatingEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION
+	    "This table contains one row per cpu entity."
+    ::= { eciOperatingObjects 1 }
+
+cpuOperatingEntry OBJECT-TYPE
+    SYNTAX      CpuOperatingEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION
+	   "Information about a particular cpu entity.
+
+	    Entries are created in this table by the agent.  An entry
+	    for each cpu SHOULD be created at the same time as the associated
+	    entPhysicalEntry.  An entry SHOULD be destroyed if the associated
+	    entPhysicalEntry is destroyed."
+    INDEX   { entPhysicalIndex }
+    ::= { cpuOperatingTable 1 }
+
+CpuOperatingEntry ::= SEQUENCE {
+      cpuName                   SnmpAdminString,
+      cpuType                   SnmpAdminString,
+      cpuSpeed                  SnmpAdminString,
+      cpuUptime                 Unsigned32,
+      cpuUser5sec		Gauge32,
+      cpuSystem5sec             Gauge32,
+      cpuUser1min		Gauge32,
+      cpuSystem1min             Gauge32,
+      cpuUser5min		Gauge32,
+      cpuSystem5min             Gauge32,
+      cpuThreshold              Integer32,
+      freeMemory                Gauge32,
+      allocMemory               Gauge32,
+      totalMemory               Gauge32,
+      memoryThreshold           Integer32,
+      freeSwap                  Gauge32,
+      allocSwap                 Gauge32,
+      totalSwap                 Gauge32
+}
+
+cpuName OBJECT-TYPE
+    SYNTAX        SnmpAdminString
+    MAX-ACCESS    read-only
+    STATUS        current
+    DESCRIPTION
+	    "The name of the cpu, such as rcpa, rcpb, np1-a"
+    ::= { cpuOperatingEntry 1 }
+
+cpuType OBJECT-TYPE
+    SYNTAX        SnmpAdminString
+    MAX-ACCESS    read-only
+    STATUS        current
+    DESCRIPTION
+	    "The type of the cpu, such as Pentium III."
+    ::= { cpuOperatingEntry 2 }
+
+cpuSpeed OBJECT-TYPE
+    SYNTAX        SnmpAdminString
+    MAX-ACCESS    read-only
+    STATUS        current
+    DESCRIPTION
+	    "Cpu speed in MHz."
+    ::= { cpuOperatingEntry 3 }
+
+cpuUptime OBJECT-TYPE
+    SYNTAX        Unsigned32
+    MAX-ACCESS    read-only
+    STATUS        current
+    DESCRIPTION
+	    "Cpu uptime in seconds."
+    ::= { cpuOperatingEntry 4 }
+
+cpuUser5sec OBJECT-TYPE
+    SYNTAX        Gauge32 (0..10000)
+    MAX-ACCESS    read-only
+    STATUS        current
+    DESCRIPTION
+	    "Percentage of cpu used by user processes in last 5 seconds,
+	     this number has two decimal digits, so 8888 means 88.88%."
+    ::= { cpuOperatingEntry 5 }
+
+cpuSystem5sec OBJECT-TYPE
+    SYNTAX        Gauge32 (0..10000)
+    MAX-ACCESS    read-only
+    STATUS        current
+    DESCRIPTION
+	    "Percentage of cpu used by system processes in last 5 seconds,
+	     this number has two decimal digits, so 8888 means 88.88%."
+    ::= { cpuOperatingEntry 6 }
+
+cpuUser1min OBJECT-TYPE
+    SYNTAX        Gauge32 (0..10000)
+    MAX-ACCESS    read-only
+    STATUS        current
+    DESCRIPTION
+	    "Percentage of cpu used by user processes in last minute,
+	     this number has two decimal digits, so 8888 means 88.88%."
+    ::= { cpuOperatingEntry 7 }
+
+cpuSystem1min OBJECT-TYPE
+    SYNTAX        Gauge32 (0..10000)
+    MAX-ACCESS    read-only
+    STATUS        current
+    DESCRIPTION
+	    "Percentage of cpu used by system processes in last minute,
+	     this number has two decimal digits, so 8888 means 88.88%."
+    ::= { cpuOperatingEntry 8 }
+
+cpuUser5min OBJECT-TYPE
+    SYNTAX        Gauge32 (0..10000)
+    MAX-ACCESS    read-only
+    STATUS        current
+    DESCRIPTION
+	    "Percentage of cpu used by user processes in last 5 minutes,
+	     this number has two decimal digits, so 8888 means 88.88%."
+    ::= { cpuOperatingEntry 9 }
+
+cpuSystem5min OBJECT-TYPE
+    SYNTAX        Gauge32 (0..10000)
+    MAX-ACCESS    read-only
+    STATUS        current
+    DESCRIPTION
+	    "Percentage of cpu used by system processes in last 5 minutes,
+	     this number has two decimal digits, so 8888 means 88.88%."
+    ::= { cpuOperatingEntry 10 }
+
+cpuThreshold OBJECT-TYPE
+    SYNTAX        Integer32 (1..100)
+    MAX-ACCESS    read-only
+    STATUS        current
+    DESCRIPTION
+	    "Cpu utilization threshold in percentage."
+    ::= { cpuOperatingEntry 11 }
+
+freeMemory OBJECT-TYPE
+    SYNTAX        Gauge32
+    MAX-ACCESS    read-only
+    STATUS        current
+    DESCRIPTION
+	    "Free physical memory in bytes."
+    ::= { cpuOperatingEntry 12 }
+
+allocMemory OBJECT-TYPE
+    SYNTAX        Gauge32
+    MAX-ACCESS    read-only
+    STATUS        current
+    DESCRIPTION
+	    "Allocated physical memory in bytes."
+    ::= { cpuOperatingEntry 13 }
+
+totalMemory OBJECT-TYPE
+    SYNTAX        Gauge32
+    MAX-ACCESS    read-only
+    STATUS        current
+    DESCRIPTION
+	    "Total physical memory in bytes."
+    ::= { cpuOperatingEntry 14 }
+
+memoryThreshold OBJECT-TYPE
+    SYNTAX        Integer32 (1..100)
+    MAX-ACCESS    read-only
+    STATUS        current
+    DESCRIPTION
+	    "Memory utilization threshold in percentage."
+    ::= { cpuOperatingEntry 15 }
+
+freeSwap OBJECT-TYPE
+    SYNTAX        Gauge32
+    MAX-ACCESS    read-only
+    STATUS        current
+    DESCRIPTION
+	    "Free swap space in bytes."
+    ::= { cpuOperatingEntry 16 }
+
+allocSwap OBJECT-TYPE
+    SYNTAX        Gauge32
+    MAX-ACCESS    read-only
+    STATUS        current
+    DESCRIPTION
+	    "Allocated swap space in bytes."
+    ::= { cpuOperatingEntry 17 }
+
+totalSwap OBJECT-TYPE
+    SYNTAX        Gauge32
+    MAX-ACCESS    read-only
+    STATUS        current
+    DESCRIPTION
+	    "Total swap space in bytes."
+    ::= { cpuOperatingEntry 18 }
+
+--
+-- Fan operating table
+--
+FanRunningStatus ::= TEXTUAL-CONVENTION
+    STATUS       current
+    DESCRIPTION
+	    "An object using this data type represents the operational
+	     status of a physical entity.
+
+	     The value 'running(1)' indicates that the fan is running.
+
+	     The value 'stopped(2)' indicates that the fan is stopped."
+
+    SYNTAX INTEGER {
+	running(1),
+	stopped(2)
+    }
+
+FanTemperatureStatus ::= TEXTUAL-CONVENTION
+    STATUS       current
+    DESCRIPTION
+	    "An object using this data type represents the operational
+	     status of a physical entity.
+
+	     The value 'normal(1)' indicates that the fan is under normal
+	     temperature.
+
+	     The value 'over(2)' indicates that the fan is over-temperature."
+
+    SYNTAX INTEGER {
+	normal(1),
+	over(2)
+    }
+
+fanOperatingTable OBJECT-TYPE
+    SYNTAX      SEQUENCE OF FanOperatingEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION
+	    "This table contains one row per Fan operating entity."
+    ::= { eciOperatingObjects 2 }
+
+fanOperatingEntry OBJECT-TYPE
+    SYNTAX      FanOperatingEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION
+	    "Information about a particular fan operating entity.
+
+	     Entries are created in this table by the agent.  An entry
+	     for each fan SHOULD be created at the same time as the
+	     associated entPhysicalEntry.  An entry SHOULD be destroyed if
+	     the associated entPhysicalEntry is destroyed."
+    INDEX   { entPhysicalIndex }
+    ::= { fanOperatingTable 1 }
+
+FanOperatingEntry ::= SEQUENCE {
+      fanName                      SnmpAdminString,
+      fanRunningStatus             FanRunningStatus,
+      fanTemperatureStatus         FanTemperatureStatus
+}
+
+fanName OBJECT-TYPE
+    SYNTAX        SnmpAdminString
+    MAX-ACCESS    read-only
+    STATUS        current
+    DESCRIPTION
+	    "The name of the fan, such as fan0, fan1"
+    ::= { fanOperatingEntry 1 }
+
+fanRunningStatus OBJECT-TYPE
+    SYNTAX        FanRunningStatus
+    MAX-ACCESS    read-only
+    STATUS        current
+    DESCRIPTION
+	    "The running status of the fan. A fan is either running
+	     or stopped, alarm is raised in this case."
+    ::= { fanOperatingEntry 2 }
+
+fanTemperatureStatus OBJECT-TYPE
+    SYNTAX        FanTemperatureStatus
+    MAX-ACCESS    read-only
+    STATUS        current
+    DESCRIPTION
+	    "The temperature status of the fan. A fan is either under normal
+	     temperature or over temperature, alarm is raised in this case."
+    ::= { fanOperatingEntry 3 }
+
+--
+-- Power operating table
+--
+PowerVoltageStatus ::= TEXTUAL-CONVENTION
+    STATUS       current
+    DESCRIPTION
+	    "An object using this data type represents the operational
+	     status of a physical entity.
+
+	     The value 'normal(1)' indicates that the power supply is normal.
+
+	     The value 'low(2)' indicates that the power voltage is low."
+
+    SYNTAX INTEGER {
+	normal(1),
+	low(2)
+    }
+
+powerOperatingTable OBJECT-TYPE
+    SYNTAX      SEQUENCE OF PowerOperatingEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION
+	    "This table contains one row per power supply operating entity."
+    ::= { eciOperatingObjects 3 }
+
+powerOperatingEntry OBJECT-TYPE
+    SYNTAX      PowerOperatingEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION
+	    "Information about a particular power supply operating entity.
+
+	     Entries are created in this table by the agent.  An entry
+	     for each power supply SHOULD be created at the same time as the
+	     associated entPhysicalEntry.  An entry SHOULD be destroyed if
+	     the associated entPhysicalEntry is destroyed."
+    INDEX   { entPhysicalIndex }
+    ::= { powerOperatingTable 1 }
+
+PowerOperatingEntry ::= SEQUENCE {
+      powerName                      SnmpAdminString,
+      powerVoltageStatus             PowerVoltageStatus
+}
+
+powerName OBJECT-TYPE
+    SYNTAX        SnmpAdminString
+    MAX-ACCESS    read-only
+    STATUS        current
+    DESCRIPTION
+	    "The name of the power supply, such as voltage-sensor-feed-a"
+    ::= { powerOperatingEntry 1 }
+
+powerVoltageStatus OBJECT-TYPE
+    SYNTAX        PowerVoltageStatus
+    MAX-ACCESS    read-only
+    STATUS        current
+    DESCRIPTION
+	    "The voltage status of the power supply. A power supply  is either
+	     providing normal voltage or its voltage is low and alarm is
+	     raised in the low voltage case."
+    ::= { powerOperatingEntry 2 }
+
+--
+-- FIB Status
+--
+fibStatusTable OBJECT-TYPE
+    SYNTAX      SEQUENCE OF FibStatusEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION
+	    "This table contains one row per search FPGA entity."
+    ::= { eciOperatingObjects 4 }
+
+fibStatusEntry OBJECT-TYPE
+    SYNTAX      FibStatusEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION
+	   "Status of FIB memory on FCP.
+
+	    Entries are created in this table by the agent.  An entry
+	    for each search FPGA SHOULD be created at the same time
+	    as the associated entPhysicalEntry.  An entry SHOULD be
+	    destroyed if the associated entPhysicalEntry is destroyed."
+    INDEX   { entPhysicalIndex }
+    ::= { fibStatusTable 1 }
+
+FibStatusEntry ::= SEQUENCE {
+      usedEntries                   Gauge32,
+      freeEntries                   Gauge32,
+      totalEntries                  Gauge32
+}
+
+usedEntries OBJECT-TYPE
+    SYNTAX        Gauge32
+    MAX-ACCESS    read-only
+    STATUS        current
+    DESCRIPTION
+	    "The number of entries used in the FIB memory."
+    ::= { fibStatusEntry 1 }
+
+freeEntries OBJECT-TYPE
+    SYNTAX        Gauge32
+    MAX-ACCESS    read-only
+    STATUS        current
+    DESCRIPTION
+	    "The number of entries free in the FIB memory."
+    ::= { fibStatusEntry 2 }
+
+totalEntries OBJECT-TYPE
+    SYNTAX        Gauge32
+    MAX-ACCESS    read-only
+    STATUS        current
+    DESCRIPTION
+	    "The total number of entries in the FIB memory."
+    ::= { fibStatusEntry 3 }
+
+--
+-- Alarm Information
+--
+activeAlarmTable OBJECT-TYPE
+     SYNTAX       SEQUENCE OF ActiveAlarmEntry
+     MAX-ACCESS   not-accessible
+     STATUS       current
+     DESCRIPTION
+             "This table contains one row per current active Trap/Alarm."
+     ::= { eciOperatingObjects 5 }
+
+activeAlarmEntry OBJECT-TYPE
+     SYNTAX       ActiveAlarmEntry
+     MAX-ACCESS   not-accessible
+     STATUS       current
+     DESCRIPTION
+                  "Information is about a particular alarm."
+     INDEX        { entityName,
+                    trapName }
+     ::= { activeAlarmTable 1 }
+
+ActiveAlarmEntry ::= SEQUENCE {
+      entityName           SnmpAdminString,
+      trapName             SnmpAdminString,
+      probableCause        SnmpAdminString,
+      topic                SnmpAdminString,
+      timeStamp            SnmpAdminString,
+      entityType           SnmpAdminString,
+      rendId               Integer32,
+      lpsType              Integer32,
+      severity             SnmpAdminString,
+      serviceAffecting     TruthValue,
+      reference            SnmpAdminString,
+      sequenceNumber       Counter64,
+      isReported           TruthValue,
+      correctiveAction     SnmpAdminString,
+      category             SnmpAdminString,
+      alarmStatus          SnmpAdminString
+}
+
+entityName        OBJECT-TYPE
+    SYNTAX        SnmpAdminString
+    MAX-ACCESS    read-only
+    STATUS        current
+    DESCRIPTION
+                  "The name of the entity on which this alarm has occurred."
+    ::= { activeAlarmEntry 1 }
+
+trapName          OBJECT-TYPE
+    SYNTAX        SnmpAdminString
+    MAX-ACCESS    read-only 
+    STATUS        current
+    DESCRIPTION
+                  "Trap Name of the alarm."
+    ::= { activeAlarmEntry 2 }
+
+probableCause     OBJECT-TYPE
+    SYNTAX        SnmpAdminString
+    MAX-ACCESS    read-only
+    STATUS        current
+    DESCRIPTION
+                  "The Probable Cause causing the Alarm."
+    ::= { activeAlarmEntry 3 }
+
+topic             OBJECT-TYPE
+    SYNTAX        SnmpAdminString
+    MAX-ACCESS    read-only
+    STATUS        current
+    DESCRIPTION
+                  "The Topic for this Alarm."
+    ::= { activeAlarmEntry 4 }
+
+timeStamp         OBJECT-TYPE
+    SYNTAX        SnmpAdminString
+    MAX-ACCESS    read-only
+    STATUS        current
+    DESCRIPTION
+                  "The Time at which this Alarm has raised."
+    ::= { activeAlarmEntry 5 }
+
+entityType         OBJECT-TYPE
+    SYNTAX        SnmpAdminString
+    MAX-ACCESS    read-only
+    STATUS        current
+    DESCRIPTION
+                  "The managed element type of this entity."
+    ::= { activeAlarmEntry 6 }
+
+rendId            OBJECT-TYPE
+    SYNTAX        Integer32
+    MAX-ACCESS    read-only
+    STATUS        current
+    DESCRIPTION
+                  "Rendezvouser Id of the process where the Alarm has raised"
+    ::= { activeAlarmEntry 7 }
+
+lpsType           OBJECT-TYPE
+    SYNTAX        Integer32 
+    MAX-ACCESS    read-only
+    STATUS        current
+    DESCRIPTION
+                  "The LPS Device Type of this entity."
+    ::= { activeAlarmEntry 8 }
+
+severity           OBJECT-TYPE
+    SYNTAX        SnmpAdminString
+    MAX-ACCESS    read-only
+    STATUS        current
+    DESCRIPTION
+                  "Severity of this Alarm."
+    ::= { activeAlarmEntry 9 }
+
+serviceAffecting   OBJECT-TYPE
+    SYNTAX        TruthValue
+    MAX-ACCESS    read-only
+    STATUS        current
+    DESCRIPTION
+                  "Indicates if this Alarm is service affecting or not."
+    ::= { activeAlarmEntry 10 }
+
+reference         OBJECT-TYPE
+    SYNTAX         SnmpAdminString
+    MAX-ACCESS    read-only
+    STATUS        current
+    DESCRIPTION
+                  "The corresponding trap used to clear."
+    ::= { activeAlarmEntry 11 }
+
+sequenceNumber     OBJECT-TYPE
+    SYNTAX        Counter64
+    MAX-ACCESS    read-only
+    STATUS        current
+    DESCRIPTION
+                  "Alarm sequence number in NE alarm Log."
+    ::= { activeAlarmEntry 12 }
+
+isReported         OBJECT-TYPE
+    SYNTAX        TruthValue
+    MAX-ACCESS    read-only
+    STATUS        current
+    DESCRIPTION
+                  "Signifies if the alarm was reported or hidden."
+    ::= { activeAlarmEntry 13 }
+
+correctiveAction  OBJECT-TYPE
+    SYNTAX        SnmpAdminString
+    MAX-ACCESS    read-only
+    STATUS        current
+    DESCRIPTION
+                  "Provides explanation how to repair the problem."
+    ::= { activeAlarmEntry 14 }
+
+category           OBJECT-TYPE
+    SYNTAX        SnmpAdminString
+    MAX-ACCESS    read-only
+    STATUS        current
+    DESCRIPTION
+                  "Category of the Alarm."
+    ::= { activeAlarmEntry 15 }
+
+alarmStatus        OBJECT-TYPE
+    SYNTAX        SnmpAdminString
+    MAX-ACCESS    read-only
+    STATUS        current
+    DESCRIPTION
+                  "Alarm status of the faulty entity."
+    ::= { activeAlarmEntry 16 }
+
+END

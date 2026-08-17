@@ -1,0 +1,242 @@
+SSLCLOUD-MIB DEFINITIONS ::= BEGIN
+IMPORTS
+    MODULE-IDENTITY, OBJECT-TYPE,
+    Integer32, Unsigned32, Counter32, Counter64,
+    Gauge32, IpAddress
+        FROM SNMPv2-SMI
+    TEXTUAL-CONVENTION, RowStatus, DateAndTime,
+    TruthValue
+        FROM SNMPv2-TC
+    orgServices
+        FROM VERSA-MIB
+;
+
+sslcloud MODULE-IDENTITY
+    LAST-UPDATED "201909040000Z"
+    ORGANIZATION "Versa Networks"
+    CONTACT-INFO "
+        2953 Bunker Hill Lane, Suite 210
+        Santa Clara, CA - 95035 (USA)
+        Email: support@versa-networks.com"
+    DESCRIPTION "Enterprise MIB for Versa Networks'
+SSLCLOUD solution"
+    REVISION "201909040000Z"
+    DESCRIPTION "Initial revision"
+    ::= { orgServices 17 }
+
+ConfdString ::= TEXTUAL-CONVENTION
+    DISPLAY-HINT "1t"
+    STATUS      current
+    DESCRIPTION "xs: and confd: types mapped to strings"
+    SYNTAX      OCTET STRING
+
+String ::= TEXTUAL-CONVENTION
+    DISPLAY-HINT "1t"
+    STATUS      current
+    DESCRIPTION "xs:string"
+    SYNTAX      OCTET STRING
+
+sslcloudProfileTable OBJECT-TYPE
+    SYNTAX      SEQUENCE OF SslcloudProfileEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "SSLCLOUD Profile Statistics"
+    ::= { sslcloud 1 }
+
+sslcloudProfileEntry OBJECT-TYPE
+    SYNTAX      SslcloudProfileEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION ""
+    INDEX { sslcloudOrgId, sslcloudProfileID }
+        ::= { sslcloudProfileTable 1 }
+
+SslcloudProfileEntry ::=
+    SEQUENCE {
+        sslcloudOrgId Unsigned32,
+        sslcloudProfileID Unsigned32,
+        sslcloudOrgName String,
+        sslcloudProfileName String,
+        sslcldSnatReqSentCnt ConfdString,
+        sslcldSnatResolvedCnt ConfdString,
+        sslcldSnatPoolNumbertExistsCnt ConfdString,
+        sslcldSnatPortNullCnt ConfdString,
+        sslcldDnsQueryCentCnt ConfdString,
+        sslcldDnsResolvedCnt ConfdString,
+        sslcldDnsFailureCnt ConfdString,
+        sslcldStateConnectingCnt ConfdString,
+        sslcldStateConncetedCnt ConfdString,
+        sslcldSynRequestTimeoutCnt ConfdString,
+        sslcldSessionClosedCnt ConfdString,
+        sslcldSessionDropCnt ConfdString,
+        slcldTessionTimeoutCnt ConfdString,
+        sslcldSessionNumbertAvailableCnt ConfdString,
+        sslcldSessionConnectFailedCnt ConfdString,
+        sslcldCloudReqSentCnt ConfdString,
+        sslcldCloudRspRecvdCnt ConfdString,
+        sslcldCloudReqTimeoutCnt ConfdString,
+        sslcldCloudReqNullRspCnt ConfdString
+    }
+
+sslcloudOrgId OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "Organization id"
+    ::= { sslcloudProfileEntry 1 }
+
+sslcloudProfileID OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "SSLCLOUD Profile Id"
+    ::= { sslcloudProfileEntry 2 }
+
+sslcloudOrgName OBJECT-TYPE
+    SYNTAX      String
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Organization Name"
+    ::= { sslcloudProfileEntry 3 }
+
+sslcloudProfileName OBJECT-TYPE
+    SYNTAX      String
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "SSLCLOUD Profile Name"
+    ::= { sslcloudProfileEntry 4 }
+
+sslcldSnatReqSentCnt OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Number of snat request sent."
+    ::= { sslcloudProfileEntry 5 }
+
+sslcldSnatResolvedCnt OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Number of snat request resolved."
+    ::= { sslcloudProfileEntry 6 }
+
+sslcldSnatPoolNumbertExistsCnt OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Number of times snat pool not exists"
+    ::= { sslcloudProfileEntry 7 }
+
+sslcldSnatPortNullCnt OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Number of times SNAT returns, port = 0."
+    ::= { sslcloudProfileEntry 8 }
+
+sslcldDnsQueryCentCnt OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Number of DNS request sent."
+    ::= { sslcloudProfileEntry 9 }
+
+sslcldDnsResolvedCnt OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Number of DNS request resolved."
+    ::= { sslcloudProfileEntry 10 }
+
+sslcldDnsFailureCnt OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Number of DNS request failed"
+    ::= { sslcloudProfileEntry 11 }
+
+sslcldStateConnectingCnt OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Number of session in conencting state."
+    ::= { sslcloudProfileEntry 12 }
+
+sslcldStateConncetedCnt OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Number of session in conencted state."
+    ::= { sslcloudProfileEntry 13 }
+
+sslcldSynRequestTimeoutCnt OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Number of SYN request timed out."
+    ::= { sslcloudProfileEntry 14 }
+
+sslcldSessionClosedCnt OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Number of sessions closed."
+    ::= { sslcloudProfileEntry 15 }
+
+sslcldSessionDropCnt OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Number of sessions dropped."
+    ::= { sslcloudProfileEntry 16 }
+
+slcldTessionTimeoutCnt OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Number of sessions timed out."
+    ::= { sslcloudProfileEntry 17 }
+
+sslcldSessionNumbertAvailableCnt OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Number of session not available for cloud req."
+    ::= { sslcloudProfileEntry 18 }
+
+sslcldSessionConnectFailedCnt OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Number of times session failed to connect."
+    ::= { sslcloudProfileEntry 19 }
+
+sslcldCloudReqSentCnt OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Number of cloud request sent."
+    ::= { sslcloudProfileEntry 21 }
+
+sslcldCloudRspRecvdCnt OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Number of cloud response received."
+    ::= { sslcloudProfileEntry 22 }
+
+sslcldCloudReqTimeoutCnt OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Number of cloud request timed out."
+    ::= { sslcloudProfileEntry 23 }
+
+sslcldCloudReqNullRspCnt OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Number of cloud req has null response."
+    ::= { sslcloudProfileEntry 24 }
+
+END

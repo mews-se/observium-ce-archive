@@ -1,0 +1,1785 @@
+NMS-WIRELESS DEFINITIONS ::= BEGIN
+
+IMPORTS
+    MODULE-IDENTITY,
+    OBJECT-TYPE,
+    NOTIFICATION-TYPE,
+    Unsigned32,
+    Counter64,
+    IpAddress
+        FROM SNMPv2-SMI
+    MODULE-COMPLIANCE,
+    NOTIFICATION-GROUP,
+    OBJECT-GROUP
+        FROM SNMPv2-CONF
+    DisplayString,
+    MacAddress
+        FROM SNMPv2-TC
+    IANAifType                                               
+        FROM IANAifType-MIB
+    nmsWlanGroup         
+        FROM NMS-SMI;
+
+acConfig OBJECT IDENTIFIER
+    ::= { nmsWlanGroup 1 }
+
+acSysConfig OBJECT IDENTIFIER
+    ::= { acConfig 1 }
+
+acDevInfo OBJECT IDENTIFIER
+    ::= { acSysConfig 1 }
+
+sysName OBJECT-TYPE
+	SYNTAX       DisplayString(SIZE (0..64))
+	MAX-ACCESS   read-only
+	STATUS       current
+	DESCRIPTION  ""
+	::= { acDevInfo 1 }  
+
+sysDescr OBJECT-TYPE
+	SYNTAX       DisplayString(SIZE (0..128))
+	MAX-ACCESS   read-only
+	STATUS       current
+	DESCRIPTION  ""
+	::= { acDevInfo 2 }
+
+sysContact OBJECT-TYPE
+	SYNTAX       DisplayString(SIZE (0..64))
+	MAX-ACCESS   read-only
+	STATUS       current
+	DESCRIPTION  ""
+	::= { acDevInfo 3 }
+
+sysLocation OBJECT-TYPE
+	SYNTAX       DisplayString(SIZE (0..64))
+	MAX-ACCESS   read-only
+	STATUS       current
+	DESCRIPTION  ""
+	::= { acDevInfo 4 }
+
+sysManufacture OBJECT-TYPE
+	SYNTAX       DisplayString(SIZE (0..128))
+	MAX-ACCESS   read-only
+	STATUS       current
+	DESCRIPTION  ""
+	::= { acDevInfo 5 }
+
+serialNumber OBJECT-TYPE
+	SYNTAX       DisplayString(SIZE (0..32))
+	MAX-ACCESS   read-only
+	STATUS       current
+	DESCRIPTION  ""
+	::= { acDevInfo 6 }
+
+sysModel OBJECT-TYPE
+	SYNTAX       DisplayString(SIZE (0..32))
+	MAX-ACCESS   read-only
+	STATUS       current
+	DESCRIPTION  ""
+	::= { acDevInfo 7 }
+
+sysType OBJECT-TYPE
+	SYNTAX       INTEGER{
+	                     ac(0), 
+	                     fat_ap(1), 
+	                     bas(2)
+	                     }
+	MAX-ACCESS   read-only
+	STATUS       current
+	DESCRIPTION  ""
+	::= { acDevInfo 8 }
+
+sysTime OBJECT-TYPE
+	SYNTAX       DisplayString(SIZE (0..64))
+	MAX-ACCESS   read-only
+	STATUS       current
+	DESCRIPTION  ""
+	::= { acDevInfo 9 }
+
+sysUpTime OBJECT-TYPE
+	SYNTAX       TimeTicks
+	MAX-ACCESS   read-only
+	STATUS       current
+	DESCRIPTION  ""
+	::= { acDevInfo 10 }
+
+sysIPAddress OBJECT-TYPE
+	SYNTAX       IpAddress
+	MAX-ACCESS   read-only
+	STATUS       current
+	DESCRIPTION  ""
+	::= { acDevInfo 11 }
+
+sysIPNetMask OBJECT-TYPE
+	SYNTAX       IpAddress
+	MAX-ACCESS   read-only
+	STATUS       current
+	DESCRIPTION  ""
+	::= { acDevInfo 12 }
+
+sysGWAddr OBJECT-TYPE
+	SYNTAX       IpAddress
+	MAX-ACCESS   read-only
+	STATUS       current
+	DESCRIPTION  ""
+	::= { acDevInfo 13 }
+
+sysMacAddress OBJECT-TYPE
+	SYNTAX       MacAddress
+	MAX-ACCESS   read-only
+	STATUS       current
+	DESCRIPTION  ""
+	::= { acDevInfo 14 }
+
+acSwInfo OBJECT IDENTIFIER
+    ::= { acSysConfig 2 }
+
+softwareVersion OBJECT-TYPE
+	SYNTAX       DisplayString(SIZE (0..32))
+	MAX-ACCESS   read-only
+	STATUS       current
+	DESCRIPTION  ""
+	::= { acSwInfo 1 }
+
+softwareVendor OBJECT-TYPE
+	SYNTAX       DisplayString(SIZE (0..32))
+	MAX-ACCESS   read-only
+	STATUS       current
+	DESCRIPTION  ""
+	::= { acSwInfo 2 }
+
+acHwInfo OBJECT IDENTIFIER
+    ::= { acSysConfig 3 }
+
+cpuType OBJECT-TYPE
+	SYNTAX       DisplayString(SIZE (0..64))
+	MAX-ACCESS   read-only
+	STATUS       current
+	DESCRIPTION  ""
+	::= { acHwInfo 1 }
+
+memoryType OBJECT-TYPE
+	SYNTAX       DisplayString(SIZE (0..64))
+	MAX-ACCESS   read-only
+	STATUS       current
+	DESCRIPTION  ""
+	::= { acHwInfo 2 }
+
+memorySize OBJECT-TYPE
+	SYNTAX       Unsigned32
+	MAX-ACCESS   read-only
+	STATUS       current
+	DESCRIPTION  ""
+	::= { acHwInfo 3 }
+
+flashSize OBJECT-TYPE
+	SYNTAX       Unsigned32
+	MAX-ACCESS   read-only
+	STATUS       current
+	DESCRIPTION  ""
+	::= { acHwInfo 4 }
+
+firmwareVersion OBJECT-TYPE
+	SYNTAX       DisplayString(SIZE (0..64))
+	MAX-ACCESS   read-only
+	STATUS       current
+	DESCRIPTION  ""
+	::= { acHwInfo 5 }
+
+hardwareVersion OBJECT-TYPE
+	SYNTAX       DisplayString(SIZE (0..64))
+	MAX-ACCESS   read-only
+	STATUS       current
+	DESCRIPTION  ""
+	::= { acHwInfo 6 }
+
+acApInfoStat OBJECT IDENTIFIER
+    ::= { nmsWlanGroup 2 }
+
+apOnlineStat OBJECT IDENTIFIER
+    ::= { acApInfoStat 1 }
+
+onlineApNum OBJECT-TYPE
+	SYNTAX       Unsigned32
+	MAX-ACCESS   read-only
+	STATUS       current
+	DESCRIPTION  ""
+	::= { apOnlineStat 1 }
+
+apOnlineTable OBJECT-TYPE
+	SYNTAX	     SEQUENCE OF ApOnlineEntry
+	MAX-ACCESS 	 not-accessible
+	STATUS	     current
+	DESCRIPTION  ""
+    ::= { acApInfoStat 2 }
+
+apOnlineEntry OBJECT-TYPE
+	SYNTAX       ApOnlineEntry
+	MAX-ACCESS   not-accessible
+	STATUS       current
+	DESCRIPTION  ""
+	INDEX { onlineApID }
+	::= { apOnlineTable 1 }
+	
+ApOnlineEntry ::= SEQUENCE {
+        onlineApID        Unsigned32,
+        onlineApMac       MacAddress,
+        onlineApIPAddr    IpAddress
+	}
+
+onlineApID OBJECT-TYPE
+	SYNTAX       Unsigned32
+	MAX-ACCESS   read-only
+	STATUS       current
+	DESCRIPTION  ""
+	::= { apOnlineEntry 1 }
+
+onlineApMac OBJECT-TYPE
+	SYNTAX       MacAddress
+	MAX-ACCESS   read-only
+	STATUS       current
+	DESCRIPTION  ""
+	::= { apOnlineEntry 2 }
+
+onlineApIPAddr OBJECT-TYPE
+	SYNTAX       IpAddress
+	MAX-ACCESS   read-only
+	STATUS       current
+	DESCRIPTION  ""
+	::= { apOnlineEntry 3 }
+
+apOfflineStat OBJECT IDENTIFIER
+    ::= { acApInfoStat 3 }
+
+offlineApNum OBJECT-TYPE
+	SYNTAX       Unsigned32
+	MAX-ACCESS   read-only
+	STATUS       current
+	DESCRIPTION  ""
+	::= { apOfflineStat 1 }
+
+apOfflineTable OBJECT-TYPE
+    SYNTAX	     SEQUENCE OF ApOfflineEntry
+	MAX-ACCESS 	 not-accessible
+	STATUS	     current
+	DESCRIPTION  ""
+    ::= { acApInfoStat 4 }
+
+apOfflineEntry OBJECT-TYPE
+	SYNTAX       ApOfflineEntry
+	MAX-ACCESS   not-accessible
+	STATUS       current
+	DESCRIPTION  ""
+	INDEX { offlineApID }
+	::= { apOfflineTable 1 }
+	
+ApOfflineEntry ::= SEQUENCE {
+        offlineApID        Unsigned32,
+        offlineApMac       MacAddress
+	}
+
+offlineApID OBJECT-TYPE
+	SYNTAX       Unsigned32
+	MAX-ACCESS   read-only
+	STATUS       current
+	DESCRIPTION  ""
+	::= { apOfflineEntry 1 }
+
+offlineApMac OBJECT-TYPE
+	SYNTAX       MacAddress
+	MAX-ACCESS   read-only
+	STATUS       current
+	DESCRIPTION  ""
+	::= { apOfflineEntry 2 }
+
+apConfig OBJECT IDENTIFIER
+    ::= { nmsWlanGroup 3 }
+
+apSysConfig OBJECT IDENTIFIER
+    ::= { apConfig 1 }
+
+apDevInfoTable OBJECT-TYPE
+    SYNTAX	     SEQUENCE OF ApDevInfoEntry
+	MAX-ACCESS 	 not-accessible
+	STATUS	     current
+	DESCRIPTION  ""
+    ::= { apSysConfig 1 }
+
+apDevInfoEntry OBJECT-TYPE
+	SYNTAX       ApDevInfoEntry
+	MAX-ACCESS   not-accessible
+	STATUS       current
+	DESCRIPTION  ""
+	INDEX { apID }
+	::= { apDevInfoTable 1 }
+	
+ApDevInfoEntry ::= SEQUENCE {
+        apID               Unsigned32,
+        apSysName          DisplayString,
+        apSysDescr         DisplayString,
+        apSysLocation      DisplayString,
+        apSysManufacturer  DisplayString,
+        apSerialNumber     DisplayString,
+        apSysModel         DisplayString,
+        apSysTime          DisplayString,
+        apSysUpTime        TimeTicks,
+        apSysOnlineTime    TimeTicks,
+        apSysIPAddress     IpAddress,
+        apSysIPNetMask     IpAddress,
+        apSysGWAddr        IpAddress,
+        apSysMacAddress    MacAddress
+	}
+
+apID OBJECT-TYPE
+	SYNTAX       Unsigned32
+	MAX-ACCESS   read-only
+	STATUS       current
+	DESCRIPTION  ""
+	::= { apDevInfoEntry 1 }
+
+apSysName OBJECT-TYPE
+	SYNTAX       DisplayString(SIZE (0..64))
+	MAX-ACCESS   read-only
+	STATUS       current
+	DESCRIPTION  ""
+	::= { apDevInfoEntry 2 }
+
+apSysDescr OBJECT-TYPE
+	SYNTAX       DisplayString(SIZE (0..128))
+	MAX-ACCESS   read-only
+	STATUS       current
+	DESCRIPTION  ""
+	::= { apDevInfoEntry 3 }
+
+apSysLocation OBJECT-TYPE
+	SYNTAX       DisplayString(SIZE (0..64))
+	MAX-ACCESS   read-only
+	STATUS       current
+	DESCRIPTION  ""
+	::= { apDevInfoEntry 4 }
+
+apSysManufacturer OBJECT-TYPE
+	SYNTAX       DisplayString(SIZE (0..64))
+	MAX-ACCESS   read-only
+	STATUS       current
+	DESCRIPTION  ""
+	::= { apDevInfoEntry 5 }
+
+apSerialNumber OBJECT-TYPE
+	SYNTAX       DisplayString(SIZE (0..64))
+	MAX-ACCESS   read-only
+	STATUS       current
+	DESCRIPTION  ""
+	::= { apDevInfoEntry 6 }
+
+apSysModel OBJECT-TYPE
+	SYNTAX       DisplayString(SIZE (0..64))
+	MAX-ACCESS   read-only
+	STATUS       current
+	DESCRIPTION  ""
+	::= { apDevInfoEntry 7 }
+
+apSysTime OBJECT-TYPE
+	SYNTAX       DisplayString(SIZE (0..64))
+	MAX-ACCESS   read-only
+	STATUS       current
+	DESCRIPTION  ""
+	::= { apDevInfoEntry 8 }
+
+apSysUpTime OBJECT-TYPE
+	SYNTAX       TimeTicks
+	MAX-ACCESS   read-only
+	STATUS       current
+	DESCRIPTION  ""
+	::= { apDevInfoEntry 9 }
+
+apSysOnlineTime OBJECT-TYPE
+	SYNTAX       TimeTicks
+	MAX-ACCESS   read-only
+	STATUS       current
+	DESCRIPTION  ""
+	::= { apDevInfoEntry 10 }
+
+apSysIPAddress OBJECT-TYPE
+	SYNTAX       IpAddress
+	MAX-ACCESS   read-only
+	STATUS       current
+	DESCRIPTION  ""
+	::= { apDevInfoEntry 11 }
+
+apSysIPNetMask OBJECT-TYPE
+	SYNTAX       IpAddress
+	MAX-ACCESS   read-only
+	STATUS       current
+	DESCRIPTION  ""
+	::= { apDevInfoEntry 12 }
+
+apSysGWAddr OBJECT-TYPE
+	SYNTAX       IpAddress
+	MAX-ACCESS   read-only
+	STATUS       current
+	DESCRIPTION  ""
+	::= { apDevInfoEntry 13 }
+
+apSysMacAddress OBJECT-TYPE
+	SYNTAX       MacAddress
+	MAX-ACCESS   read-only
+	STATUS       current
+	DESCRIPTION  ""
+	::= { apDevInfoEntry 14 }
+
+apSwInfoTable OBJECT-TYPE
+    SYNTAX	     SEQUENCE OF ApSwInfoEntry
+	MAX-ACCESS 	 not-accessible
+	STATUS	     current
+	DESCRIPTION  ""
+    ::= { apSysConfig 2 }
+
+apSwInfoEntry OBJECT-TYPE
+	SYNTAX       ApSwInfoEntry
+	MAX-ACCESS   not-accessible
+	STATUS       current
+	DESCRIPTION  ""
+	INDEX { swApID }
+	::= { apSwInfoTable 1 }
+	
+ApSwInfoEntry ::= SEQUENCE {
+        swApID             Unsigned32,
+        apSoftwareName     DisplayString,
+        apSoftwareVersion  DisplayString,
+        apSoftwareVendor   DisplayString
+	}
+
+swApID OBJECT-TYPE
+	SYNTAX       Unsigned32
+	MAX-ACCESS   read-only
+	STATUS       current
+	DESCRIPTION  ""
+	::= { apSwInfoEntry 1 }
+
+apSoftwareName OBJECT-TYPE
+	SYNTAX       DisplayString(SIZE (0..64))
+	MAX-ACCESS   read-only
+	STATUS       current
+	DESCRIPTION  ""
+	::= { apSwInfoEntry 2 }
+
+apSoftwareVersion OBJECT-TYPE
+	SYNTAX       DisplayString(SIZE (0..64))
+	MAX-ACCESS   read-only
+	STATUS       current
+	DESCRIPTION  ""
+	::= { apSwInfoEntry 3 }
+
+apSoftwareVendor OBJECT-TYPE
+	SYNTAX       DisplayString(SIZE (0..64))
+	MAX-ACCESS   read-only
+	STATUS       current
+	DESCRIPTION  ""
+	::= { apSwInfoEntry 4 }
+
+apHwInfoTable OBJECT-TYPE
+    SYNTAX       SEQUENCE OF ApHwInfoEntry
+	MAX-ACCESS 	 not-accessible
+	STATUS	     current
+	DESCRIPTION  ""
+    ::= { apSysConfig 3 }
+
+apHwInfoEntry OBJECT-TYPE
+	SYNTAX       ApHwInfoEntry
+	MAX-ACCESS   not-accessible
+	STATUS       current
+	DESCRIPTION  ""
+	INDEX { hwApID }
+	::= { apHwInfoTable 1 }
+	
+ApHwInfoEntry ::= SEQUENCE {
+        hwApID              Unsigned32,
+        apCpuType           DisplayString,
+        apMemoryType        DisplayString,
+        apMemorySize        Unsigned32,
+        apFlashSize         Unsigned32,
+        apFirmwareVersion   DisplayString,
+        apHardwareVersion   DisplayString
+	}
+
+hwApID OBJECT-TYPE
+	SYNTAX       Unsigned32
+	MAX-ACCESS   read-only
+	STATUS       current
+	DESCRIPTION  ""
+	::= { apHwInfoEntry 1 }
+
+apCpuType OBJECT-TYPE
+	SYNTAX       DisplayString(SIZE (0..64))
+	MAX-ACCESS   read-only
+	STATUS       current
+	DESCRIPTION  ""
+	::= { apHwInfoEntry 2 }
+
+apMemoryType OBJECT-TYPE
+	SYNTAX       DisplayString(SIZE (0..64))
+	MAX-ACCESS   read-only
+	STATUS       current
+	DESCRIPTION  ""
+	::= { apHwInfoEntry 3 }
+
+apMemorySize OBJECT-TYPE
+	SYNTAX       Unsigned32
+	MAX-ACCESS   read-only
+	STATUS       current
+	DESCRIPTION  ""
+	::= { apHwInfoEntry 4 }
+
+apFlashSize OBJECT-TYPE
+	SYNTAX       Unsigned32
+	MAX-ACCESS   read-only
+	STATUS       current
+	DESCRIPTION  ""
+	::= { apHwInfoEntry 5 }
+
+apFirmwareVersion OBJECT-TYPE
+	SYNTAX       DisplayString(SIZE (0..64))
+	MAX-ACCESS   read-only
+	STATUS       current
+	DESCRIPTION  ""
+	::= { apHwInfoEntry 6 }
+
+apHardwareVersion OBJECT-TYPE
+	SYNTAX       DisplayString(SIZE (0..64))
+	MAX-ACCESS   read-only
+	STATUS       current
+	DESCRIPTION  ""
+	::= { apHwInfoEntry 7 }
+
+apIfConfig OBJECT IDENTIFIER
+    ::= { apConfig 2 }
+
+apIfInfoTable OBJECT-TYPE
+    SYNTAX       SEQUENCE OF ApIfInfoEntry
+	MAX-ACCESS 	 not-accessible
+	STATUS	     current
+	DESCRIPTION  ""
+    ::= { apIfConfig 2 }
+
+apIfInfoEntry OBJECT-TYPE
+	SYNTAX       ApIfInfoEntry
+	MAX-ACCESS   not-accessible
+	STATUS       current
+	DESCRIPTION  ""
+	INDEX { ifApID }
+	::= { apIfInfoTable 1 }
+	
+ApIfInfoEntry ::= SEQUENCE {
+        ifApID              Unsigned32,
+        apIfID              Unsigned32,
+        apIfDescr           DisplayString,
+        apIfType            IANAifType,
+        apIfMTU             Unsigned32,
+        apIfSpeed           Unsigned32,
+        apIfMacAddress      MacAddress,
+        apIfAdminStatus     Unsigned32,
+        apIfOperStatus      Unsigned32,
+        apIfLastChange      TimeTicks
+	}
+
+ifApID OBJECT-TYPE
+	SYNTAX       Unsigned32
+	MAX-ACCESS   read-only
+	STATUS       current
+	DESCRIPTION  ""
+	::= { apIfInfoEntry 1 }
+
+apIfID OBJECT-TYPE
+	SYNTAX       Unsigned32
+	MAX-ACCESS   read-only
+	STATUS       current
+	DESCRIPTION  ""
+	::= { apIfInfoEntry 2 }
+
+apIfDescr OBJECT-TYPE
+	SYNTAX       DisplayString(SIZE (0..64))
+	MAX-ACCESS   read-only
+	STATUS       current
+	DESCRIPTION  ""
+	::= { apIfInfoEntry 3 }
+
+apIfType OBJECT-TYPE
+	SYNTAX       IANAifType
+	MAX-ACCESS   read-only
+	STATUS       current
+	DESCRIPTION  ""
+	::= { apIfInfoEntry 4 }
+
+apIfMTU OBJECT-TYPE
+	SYNTAX       Unsigned32
+	MAX-ACCESS   read-only
+	STATUS       current
+	DESCRIPTION  ""
+	::= { apIfInfoEntry 5 }
+
+apIfSpeed OBJECT-TYPE
+	SYNTAX       Unsigned32
+	MAX-ACCESS   read-only
+	STATUS       current
+	DESCRIPTION  ""
+	::= { apIfInfoEntry 6 }
+
+apIfMacAddress OBJECT-TYPE
+	SYNTAX       MacAddress
+	MAX-ACCESS   read-only
+	STATUS       current
+	DESCRIPTION  ""
+	::= { apIfInfoEntry 7 }
+
+apIfAdminStatus OBJECT-TYPE
+	SYNTAX       Unsigned32
+	MAX-ACCESS   read-only
+	STATUS       current
+	DESCRIPTION  ""
+	::= { apIfInfoEntry 8 }
+
+apIfOperStatus OBJECT-TYPE
+	SYNTAX       Unsigned32
+	MAX-ACCESS   read-only
+	STATUS       current
+	DESCRIPTION  ""
+	::= { apIfInfoEntry 9 }
+
+apIfLastChange OBJECT-TYPE
+	SYNTAX       TimeTicks
+	MAX-ACCESS   read-only
+	STATUS       current
+	DESCRIPTION  ""
+	::= { apIfInfoEntry 10 }
+
+apIpAddr OBJECT IDENTIFIER
+    ::= { apConfig 4 }
+
+apIpAddrTable OBJECT-TYPE
+    SYNTAX       SEQUENCE OF ApIpAddrEntry
+	MAX-ACCESS 	 not-accessible
+	STATUS	     current
+	DESCRIPTION  ""
+    ::= { apIpAddr 1 }
+
+apIpAddrEntry OBJECT-TYPE
+	SYNTAX       ApIpAddrEntry
+	MAX-ACCESS   not-accessible
+	STATUS       current
+	DESCRIPTION  ""
+	INDEX { addrApID }
+	::= { apIpAddrTable 1 }
+	
+ApIpAddrEntry ::= SEQUENCE {
+        addrApID            Unsigned32,
+        apIpaddr            IpAddress,
+        apIfIndex           Unsigned32
+	}
+
+addrApID OBJECT-TYPE
+	SYNTAX       Unsigned32
+	MAX-ACCESS   read-only
+	STATUS       current
+	DESCRIPTION  ""
+	::= { apIpAddrEntry 1 }
+
+apIpaddr OBJECT-TYPE
+	SYNTAX       IpAddress
+	MAX-ACCESS   read-only
+	STATUS       current
+	DESCRIPTION  ""
+	::= { apIpAddrEntry 2 }
+
+apIfIndex OBJECT-TYPE
+	SYNTAX       Unsigned32
+	MAX-ACCESS   read-only
+	STATUS       current
+	DESCRIPTION  ""
+	::= { apIpAddrEntry 3 }
+
+acStationStat OBJECT IDENTIFIER
+    ::= { nmsWlanGroup 4 }
+
+acStationInfoStat OBJECT IDENTIFIER
+    ::= { acStationStat 1 }
+
+acStaNum OBJECT-TYPE
+	SYNTAX       Unsigned32
+	MAX-ACCESS   read-only
+	STATUS       current
+	DESCRIPTION  ""
+	::= { acStationInfoStat 1 }
+
+acStationInfoTable OBJECT-TYPE
+    SYNTAX       SEQUENCE OF AcStationInfoEntry
+	MAX-ACCESS 	 not-accessible
+	STATUS	     current
+	DESCRIPTION  ""
+    ::= { acStationStat 2 }
+
+acStationInfoEntry OBJECT-TYPE
+	SYNTAX       AcStationInfoEntry
+	MAX-ACCESS   not-accessible
+	STATUS       current
+	DESCRIPTION  ""
+	INDEX { acStaMacAddr }
+	::= { acStationInfoTable 1 }
+	
+AcStationInfoEntry ::= SEQUENCE {
+        acStaMacAddr       MacAddress,
+        acStaApID          Unsigned32,
+        acApBssid          DisplayString,
+        acDot11Auth        Unsigned32,
+        acAuthMode         Unsigned32,
+        acSecurity         Unsigned32,
+        acSecurityCiphers  Unsigned32,
+        acStaIPAddress     IpAddress,
+        acStaCreateTime    DisplayString,
+        acVlanId           Unsigned32,
+        acStaRadioMode     Unsigned32,
+        acStaRadioChannel  Unsigned32,
+        acStaPowerSaveMode Unsigned32,
+        acStaWmmAttr       Unsigned32,
+        acStaOnlineTime    TimeTicks,
+        acStaAssTime       DisplayString
+	}
+
+acStaMacAddr OBJECT-TYPE
+	SYNTAX       MacAddress
+	MAX-ACCESS   read-only
+	STATUS       current
+	DESCRIPTION  ""
+	::= { acStationInfoEntry 1 }
+
+acStaApID OBJECT-TYPE
+	SYNTAX       Unsigned32
+	MAX-ACCESS   read-only
+	STATUS       current
+	DESCRIPTION  ""
+	::= { acStationInfoEntry 2 }
+
+acApBssid OBJECT-TYPE
+	SYNTAX       DisplayString(SIZE (0..128))
+	MAX-ACCESS   read-only
+	STATUS       current
+	DESCRIPTION  ""
+	::= { acStationInfoEntry 3 }
+
+acDot11Auth OBJECT-TYPE
+	SYNTAX       Unsigned32{open-system(0),shared-key(1)}
+	MAX-ACCESS   read-only
+	STATUS       current
+	DESCRIPTION  ""
+	::= { acStationInfoEntry 4 }
+
+acAuthMode OBJECT-TYPE
+	SYNTAX       Unsigned32{none(0),psk(1),radius(2),wapi-cer(3)}
+	MAX-ACCESS   read-only
+	STATUS       current
+	DESCRIPTION  ""
+	::= { acStationInfoEntry 5 }
+
+acSecurity OBJECT-TYPE
+	SYNTAX       Unsigned32{none(0),wpa(1),wpa2(2),wapi(3)}
+	MAX-ACCESS   read-only
+	STATUS       current
+	DESCRIPTION  ""
+	::= { acStationInfoEntry 6 }
+
+acSecurityCiphers OBJECT-TYPE
+	SYNTAX       Unsigned32{none(0),wep40(1),wep104(2),tkip(3),aesccmp(4),wpi-SMS4api(5)}
+	MAX-ACCESS   read-only
+	STATUS       current
+	DESCRIPTION  ""
+	::= { acStationInfoEntry 7 }
+
+acStaIPAddress OBJECT-TYPE
+	SYNTAX       IpAddress
+	MAX-ACCESS   read-only
+	STATUS       current
+	DESCRIPTION  ""
+	::= { acStationInfoEntry 8 }
+
+acStaCreateTime OBJECT-TYPE
+	SYNTAX       DisplayString(SIZE (0..64))
+	MAX-ACCESS   read-only
+	STATUS       current
+	DESCRIPTION  ""
+	::= { acStationInfoEntry 9 }
+
+acVlanId OBJECT-TYPE
+	SYNTAX       Unsigned32
+	MAX-ACCESS   read-only
+	STATUS       current
+	DESCRIPTION  ""
+	::= { acStationInfoEntry 10 }
+
+acStaRadioMode OBJECT-TYPE
+	SYNTAX       Unsigned32{a(1),b(2),g(4),an(8),gn(16),b-g(6),b-g-gn(22),a-an(9),g-gn(20)}
+	MAX-ACCESS   read-only
+	STATUS       current
+	DESCRIPTION  ""
+	::= { acStationInfoEntry 11 }
+
+acStaRadioChannel OBJECT-TYPE
+	SYNTAX       Unsigned32
+	MAX-ACCESS   read-only
+	STATUS       current
+	DESCRIPTION  ""
+	::= { acStationInfoEntry 12 }
+
+acStaPowerSaveMode OBJECT-TYPE
+	SYNTAX       Unsigned32{active(0),powersave(1)}
+	MAX-ACCESS   read-only
+	STATUS       current
+	DESCRIPTION  ""
+	::= { acStationInfoEntry 13 }
+
+acStaWmmAttr OBJECT-TYPE
+	SYNTAX       Unsigned32{wmmSta(1),nonWmmSta(0)}
+	MAX-ACCESS   read-only
+	STATUS       current
+	DESCRIPTION  ""
+	::= { acStationInfoEntry 14 }
+
+acStaOnlineTime OBJECT-TYPE
+	SYNTAX       TimeTicks
+	MAX-ACCESS   read-only
+	STATUS       current
+	DESCRIPTION  ""
+	::= { acStationInfoEntry 15 }
+
+acStaAssTime OBJECT-TYPE
+	SYNTAX       DisplayString(SIZE (0..64))
+	MAX-ACCESS   read-only
+	STATUS       current
+	DESCRIPTION  ""
+	::= { acStationInfoEntry 16 }
+
+apStationStat OBJECT IDENTIFIER
+    ::= { nmsWlanGroup 5 }
+
+apStationNumStat OBJECT IDENTIFIER
+    ::= { apStationStat 1 }
+
+apStaNum OBJECT-TYPE
+	SYNTAX       Unsigned32
+	MAX-ACCESS   read-only
+	STATUS       current
+	DESCRIPTION  ""
+	::= { apStationNumStat 1 }
+
+apStationInfoTable OBJECT-TYPE
+    SYNTAX       SEQUENCE OF ApStationInfoEntry
+	MAX-ACCESS 	 not-accessible
+	STATUS	     current
+	DESCRIPTION  ""
+    ::= { apStationStat 2 }
+
+apStationInfoEntry OBJECT-TYPE
+	SYNTAX       ApStationInfoEntry
+	MAX-ACCESS   not-accessible
+	STATUS       current
+	DESCRIPTION  ""
+	INDEX { staMacAddr }
+	::= { apStationInfoTable 1 }
+	
+ApStationInfoEntry ::= SEQUENCE {
+        staMacAddr       MacAddress,
+        bssid            DisplayString,
+        dot11Auth        Unsigned32,
+        authMode         Unsigned32,
+        security         Unsigned32,
+        securityCiphers  Unsigned32,
+        staIPAddress     IpAddress,
+        staCreateTime    DisplayString,
+        vlanId           Unsigned32,
+        staRadioMode     Unsigned32,
+        staRadioChannel  Unsigned32,
+        staPowerSaveMode Unsigned32,
+        staWmmAttr       Unsigned32,
+        staOnlineTime    TimeTicks,
+        staAssTime       DisplayString
+	}
+
+staMacAddr OBJECT-TYPE
+	SYNTAX       MacAddress
+	MAX-ACCESS   read-only
+	STATUS       current
+	DESCRIPTION  ""
+	::= { apStationInfoEntry 1 }
+
+bssid OBJECT-TYPE
+	SYNTAX       DisplayString(SIZE (0..128))
+	MAX-ACCESS   read-only
+	STATUS       current
+	DESCRIPTION  ""
+	::= { apStationInfoEntry 2 }
+
+dot11Auth OBJECT-TYPE
+	SYNTAX       Unsigned32{open-system(0),shared-key(1)}
+	MAX-ACCESS   read-only
+	STATUS       current
+	DESCRIPTION  ""
+	::= { apStationInfoEntry 3 }
+
+authMode OBJECT-TYPE
+	SYNTAX       Unsigned32{none(0),psk(1),radius(2),wapi-cer(3)}
+	MAX-ACCESS   read-only
+	STATUS       current
+	DESCRIPTION  ""
+	::= { apStationInfoEntry 4 }
+
+security OBJECT-TYPE
+	SYNTAX       Unsigned32{none(0),wpa(1),wpa2(2),wapi(3)}
+	MAX-ACCESS   read-only
+	STATUS       current
+	DESCRIPTION  ""
+	::= { apStationInfoEntry 5 }
+
+securityCiphers OBJECT-TYPE
+	SYNTAX       Unsigned32{none(0),wep40(1),wep104(2),tkip(3),aesccmp(4),wpi-SMS4api(5)}
+	MAX-ACCESS   read-only
+	STATUS       current
+	DESCRIPTION  ""
+	::= { apStationInfoEntry 6 }
+
+staIPAddress OBJECT-TYPE
+	SYNTAX       IpAddress
+	MAX-ACCESS   read-only
+	STATUS       current
+	DESCRIPTION  ""
+	::= { apStationInfoEntry 7 }
+
+staCreateTime OBJECT-TYPE
+	SYNTAX       DisplayString(SIZE (0..64))
+	MAX-ACCESS   read-only
+	STATUS       current
+	DESCRIPTION  ""
+	::= { apStationInfoEntry 8 }
+
+vlanId OBJECT-TYPE
+	SYNTAX       Unsigned32
+	MAX-ACCESS   read-only
+	STATUS       current
+	DESCRIPTION  ""
+	::= { apStationInfoEntry 9 }
+
+staRadioMode OBJECT-TYPE
+	SYNTAX       Unsigned32{a(1),b(2),g(4),an(8),gn(16),b-g(6),b-g-gn(22),a-an(9),g-gn(20)}
+	MAX-ACCESS   read-only
+	STATUS       current
+	DESCRIPTION  ""
+	::= { apStationInfoEntry 10 }
+
+staRadioChannel OBJECT-TYPE
+	SYNTAX       Unsigned32
+	MAX-ACCESS   read-only
+	STATUS       current
+	DESCRIPTION  ""
+	::= { apStationInfoEntry 11 }
+
+staPowerSaveMode OBJECT-TYPE
+	SYNTAX       Unsigned32{active(0),powersave(1)}
+	MAX-ACCESS   read-only
+	STATUS       current
+	DESCRIPTION  ""
+	::= { apStationInfoEntry 12 }
+
+staWmmAttr OBJECT-TYPE
+	SYNTAX       Unsigned32{wmmSta(1),nonWmmSta(0)}
+	MAX-ACCESS   read-only
+	STATUS       current
+	DESCRIPTION  ""
+	::= { apStationInfoEntry 13 }
+
+staOnlineTime OBJECT-TYPE
+	SYNTAX       TimeTicks
+	MAX-ACCESS   read-only
+	STATUS       current
+	DESCRIPTION  ""
+	::= { apStationInfoEntry 14 }
+
+staAssTime OBJECT-TYPE
+	SYNTAX       DisplayString(SIZE (0..64))
+	MAX-ACCESS   read-only
+	STATUS       current
+	DESCRIPTION  ""
+	::= { apStationInfoEntry 15 }
+
+acAssociateStat OBJECT IDENTIFIER
+    ::= { nmsWlanGroup 6 }
+
+acSsidAssociateStatTable OBJECT-TYPE
+    SYNTAX       SEQUENCE OF AcSsidAssociateStatEntry
+	MAX-ACCESS 	 not-accessible
+	STATUS	     current
+	DESCRIPTION  ""
+    ::= { acAssociateStat 1 }
+
+acSsidAssociateStatEntry OBJECT-TYPE
+	SYNTAX       AcSsidAssociateStatEntry
+	MAX-ACCESS   not-accessible
+	STATUS       current
+	DESCRIPTION  ""
+	INDEX { ssidApID, ssidBssid }
+	::= { acSsidAssociateStatTable 1 }
+	
+AcSsidAssociateStatEntry ::= SEQUENCE {
+        ssidApID                 Unsigned32,
+        ssidBssid                DisplayString,
+        ssidAllStaAssocSum       Unsigned32,
+        ssidApStationAssocSum    Unsigned32,
+        ssidAssocTimes           Unsigned32,
+        ssidAssocFailTimes       Unsigned32,
+        ssidApRspAssocTimes      Unsigned32,
+        ssidAssocSuccTimes       Unsigned32,
+        ssidApStatsDisassociated Unsigned32
+	}
+
+ssidApID OBJECT-TYPE
+	SYNTAX       Unsigned32
+	MAX-ACCESS   read-only
+	STATUS       current
+	DESCRIPTION  ""
+	::= { acSsidAssociateStatEntry 1 }
+
+ssidBssid OBJECT-TYPE
+	SYNTAX       DisplayString(SIZE (0..128))
+	MAX-ACCESS   read-only
+	STATUS       current
+	DESCRIPTION  ""
+	::= { acSsidAssociateStatEntry 2 }
+
+ssidAllStaAssocSum OBJECT-TYPE
+	SYNTAX       Unsigned32
+	MAX-ACCESS   read-only
+	STATUS       current
+	DESCRIPTION  ""
+	::= { acSsidAssociateStatEntry 3 }
+
+ssidApStationAssocSum OBJECT-TYPE
+	SYNTAX       Unsigned32
+	MAX-ACCESS   read-only
+	STATUS       current
+	DESCRIPTION  ""
+	::= { acSsidAssociateStatEntry 4 }
+
+ssidAssocTimes OBJECT-TYPE
+	SYNTAX       Unsigned32
+	MAX-ACCESS   read-only
+	STATUS       current
+	DESCRIPTION  ""
+	::= { acSsidAssociateStatEntry 5 }
+
+ssidAssocFailTimes OBJECT-TYPE
+	SYNTAX       Unsigned32
+	MAX-ACCESS   read-only
+	STATUS       current
+	DESCRIPTION  ""
+	::= { acSsidAssociateStatEntry 6 }
+
+ssidApRspAssocTimes OBJECT-TYPE
+	SYNTAX       Unsigned32
+	MAX-ACCESS   read-only
+	STATUS       current
+	DESCRIPTION  ""
+	::= { acSsidAssociateStatEntry 7 }
+
+ssidAssocSuccTimes OBJECT-TYPE
+	SYNTAX       Unsigned32
+	MAX-ACCESS   read-only
+	STATUS       current
+	DESCRIPTION  ""
+	::= { acSsidAssociateStatEntry 8 }
+
+ssidApStatsDisassociated OBJECT-TYPE
+	SYNTAX       Unsigned32
+	MAX-ACCESS   read-only
+	STATUS       current
+	DESCRIPTION  ""
+	::= { acSsidAssociateStatEntry 9 }
+
+acAssoStatTable OBJECT-TYPE
+    SYNTAX       SEQUENCE OF AcAssociateStatEntry
+	MAX-ACCESS 	 not-accessible
+	STATUS	     current
+	DESCRIPTION  ""
+    ::= { acAssociateStat 2 }
+
+acAssociateStatEntry OBJECT-TYPE
+	SYNTAX       AcAssociateStatEntry
+	MAX-ACCESS   not-accessible
+	STATUS       current
+	DESCRIPTION  ""
+	INDEX { assoApID }
+	::= { acAssoStatTable 1 }
+	
+AcAssociateStatEntry ::= SEQUENCE {
+        assoApID                 Unsigned32,
+        assoAllStaAssocSum       Unsigned32,
+        assoAssocTimes           Unsigned32,
+        assoAssocFailTimes       Unsigned32,
+        assoReassocTimes         Unsigned32,
+        assoApRspAssocTimes      Unsigned32,
+        assoAssocSuccTimes       Unsigned32,
+        assoApStatsDisassociated Unsigned32
+	}
+
+assoApID OBJECT-TYPE
+	SYNTAX       Unsigned32
+	MAX-ACCESS   read-only
+	STATUS       current
+	DESCRIPTION  ""
+	::= { acAssociateStatEntry 1 }
+
+assoAllStaAssocSum OBJECT-TYPE
+	SYNTAX       Unsigned32
+	MAX-ACCESS   read-only
+	STATUS       current
+	DESCRIPTION  ""
+	::= { acAssociateStatEntry 2 }
+
+assoAssocTimes OBJECT-TYPE
+	SYNTAX       Unsigned32
+	MAX-ACCESS   read-only
+	STATUS       current
+	DESCRIPTION  ""
+	::= { acAssociateStatEntry 3 }
+
+assoAssocFailTimes OBJECT-TYPE
+	SYNTAX       Unsigned32
+	MAX-ACCESS   read-only
+	STATUS       current
+	DESCRIPTION  ""
+	::= { acAssociateStatEntry 4 }
+
+assoReassocTimes OBJECT-TYPE
+	SYNTAX       Unsigned32
+	MAX-ACCESS   read-only
+	STATUS       current
+	DESCRIPTION  ""
+	::= { acAssociateStatEntry 5 }
+
+assoApRspAssocTimes OBJECT-TYPE
+	SYNTAX       Unsigned32
+	MAX-ACCESS   read-only
+	STATUS       current
+	DESCRIPTION  ""
+	::= { acAssociateStatEntry 6 }
+
+assoAssocSuccTimes OBJECT-TYPE
+	SYNTAX       Unsigned32
+	MAX-ACCESS   read-only
+	STATUS       current
+	DESCRIPTION  ""
+	::= { acAssociateStatEntry 7 }
+
+assoApStatsDisassociated OBJECT-TYPE
+	SYNTAX       Unsigned32
+	MAX-ACCESS   read-only
+	STATUS       current
+	DESCRIPTION  ""
+	::= { acAssociateStatEntry 8 }
+
+apAssociateStat OBJECT IDENTIFIER
+    ::= { nmsWlanGroup 7 }
+
+apSsidAssociateStatTable OBJECT-TYPE
+    SYNTAX       SEQUENCE OF ApSsidAssociateStatEntry
+	MAX-ACCESS 	 not-accessible
+	STATUS	     current
+	DESCRIPTION  ""
+    ::= { apAssociateStat 1 }
+
+apSsidAssociateStatEntry OBJECT-TYPE
+	SYNTAX       ApSsidAssociateStatEntry
+	MAX-ACCESS   not-accessible
+	STATUS       current
+	DESCRIPTION  ""
+	INDEX { apBssid }
+	::= { apSsidAssociateStatTable 1 }
+	
+ApSsidAssociateStatEntry ::= SEQUENCE {
+        apBssid                  DisplayString,
+        apSsidAllStaAssocSum     Unsigned32,
+        apSsidStationAssocSum    Unsigned32,
+        apSsidAssocTimes         Unsigned32,
+        apSsidAssocFailTimes     Unsigned32,
+        apSsidReassocTimes       Unsigned32,
+        apSsidRspAssocTimes      Unsigned32,
+        apSsidAssocSuccTimes     Unsigned32,
+        apSsidStatsDisassociated Unsigned32
+	}
+
+apBssid OBJECT-TYPE
+	SYNTAX       DisplayString(SIZE (0..128))
+	MAX-ACCESS   read-only
+	STATUS       current
+	DESCRIPTION  ""
+	::= { apSsidAssociateStatEntry 1 }
+
+apSsidAllStaAssocSum OBJECT-TYPE
+	SYNTAX       Unsigned32
+	MAX-ACCESS   read-only
+	STATUS       current
+	DESCRIPTION  ""
+	::= { apSsidAssociateStatEntry 2 }
+
+apSsidStationAssocSum OBJECT-TYPE
+	SYNTAX       Unsigned32
+	MAX-ACCESS   read-only
+	STATUS       current
+	DESCRIPTION  ""
+	::= { apSsidAssociateStatEntry 3 }
+
+apSsidAssocTimes OBJECT-TYPE
+	SYNTAX       Unsigned32
+	MAX-ACCESS   read-only
+	STATUS       current
+	DESCRIPTION  ""
+	::= { apSsidAssociateStatEntry 4 }
+
+apSsidAssocFailTimes OBJECT-TYPE
+	SYNTAX       Unsigned32
+	MAX-ACCESS   read-only
+	STATUS       current
+	DESCRIPTION  ""
+	::= { apSsidAssociateStatEntry 5 }
+
+apSsidReassocTimes OBJECT-TYPE
+	SYNTAX       Unsigned32
+	MAX-ACCESS   read-only
+	STATUS       current
+	DESCRIPTION  ""
+	::= { apSsidAssociateStatEntry 6 }
+
+apSsidRspAssocTimes OBJECT-TYPE
+	SYNTAX       Unsigned32
+	MAX-ACCESS   read-only
+	STATUS       current
+	DESCRIPTION  ""
+	::= { apSsidAssociateStatEntry 7 }
+
+apSsidAssocSuccTimes OBJECT-TYPE
+	SYNTAX       Unsigned32
+	MAX-ACCESS   read-only
+	STATUS       current
+	DESCRIPTION  ""
+	::= { apSsidAssociateStatEntry 8 }
+
+apSsidStatsDisassociated OBJECT-TYPE
+	SYNTAX       Unsigned32
+	MAX-ACCESS   read-only
+	STATUS       current
+	DESCRIPTION  ""
+	::= { apSsidAssociateStatEntry 9 }
+
+apAssoStat OBJECT IDENTIFIER
+    ::= { apAssociateStat 2 }
+
+apAllStaAssocSum OBJECT-TYPE
+	SYNTAX       Unsigned32
+	MAX-ACCESS   read-only
+	STATUS       current
+	DESCRIPTION  ""
+	::= { apAssoStat 1 }
+
+apStationAssocSum OBJECT-TYPE
+	SYNTAX       Unsigned32
+	MAX-ACCESS   read-only
+	STATUS       current
+	DESCRIPTION  ""
+	::= { apAssoStat 2 }
+
+apAssocTimes OBJECT-TYPE
+	SYNTAX       Unsigned32
+	MAX-ACCESS   read-only
+	STATUS       current
+	DESCRIPTION  ""
+	::= { apAssoStat 3 }
+
+apAssocFailTimes OBJECT-TYPE
+	SYNTAX       Unsigned32
+	MAX-ACCESS   read-only
+	STATUS       current
+	DESCRIPTION  ""
+	::= { apAssoStat 4 }
+
+apReassocTimes OBJECT-TYPE
+	SYNTAX       Unsigned32
+	MAX-ACCESS   read-only
+	STATUS       current
+	DESCRIPTION  ""
+	::= { apAssoStat 5 }
+
+apRspAssocTimes OBJECT-TYPE
+	SYNTAX       Unsigned32
+	MAX-ACCESS   read-only
+	STATUS       current
+	DESCRIPTION  ""
+	::= { apAssoStat 6 }
+
+apAssocSuccTimes OBJECT-TYPE
+	SYNTAX       Unsigned32
+	MAX-ACCESS   read-only
+	STATUS       current
+	DESCRIPTION  ""
+	::= { apAssoStat 7 }
+
+apStatsDisassociated OBJECT-TYPE
+	SYNTAX       Unsigned32
+	MAX-ACCESS   read-only
+	STATUS       current
+	DESCRIPTION  ""
+	::= { apAssoStat 8 }
+
+fitapIfStat OBJECT IDENTIFIER
+    ::= { nmsWlanGroup 8 }
+
+fitapEthIfStatTable OBJECT-TYPE
+    SYNTAX       SEQUENCE OF FitApEthIfStatEntry
+	MAX-ACCESS 	 not-accessible
+	STATUS	     current
+	DESCRIPTION  ""
+    ::= { fitapIfStat 3 }
+
+fitapEthIfStatEntry OBJECT-TYPE
+	SYNTAX       FitApEthIfStatEntry
+	MAX-ACCESS   not-accessible
+	STATUS       current
+	DESCRIPTION  ""
+	INDEX { ethIfApID, fitapIfID }
+	::= { fitapEthIfStatTable 1 }
+	
+FitApEthIfStatEntry ::= SEQUENCE {
+        ethIfApID              Unsigned32,
+        fitapIfID              Unsigned32,
+        fitapIfInPkts          Counter64,
+        fitapIfInErrorPkts     Counter64,
+        fitapIfInOctets        Counter64,
+        fitapIfOutPkts         Counter64,
+        fitapIfOutErrorPkts    Counter64,
+        fitapIfOutOctets       Counter64,
+        fitapIfSendRate        Unsigned32,
+        fitapIfRecvRate        Unsigned32,
+        fitapIfSendAverageRate Unsigned32,
+        fitapIfRecvAverageRate Unsigned32,
+        fitapIfSendMaxRate     Unsigned32,
+        fitapIfRecvMaxRate     Unsigned32
+	}
+
+ethIfApID OBJECT-TYPE
+	SYNTAX       Unsigned32
+	MAX-ACCESS   read-only
+	STATUS       current
+	DESCRIPTION  ""
+	::= { fitapEthIfStatEntry 1 }
+
+fitapIfID OBJECT-TYPE
+	SYNTAX       Unsigned32
+	MAX-ACCESS   read-only
+	STATUS       current
+	DESCRIPTION  ""
+	::= { fitapEthIfStatEntry 2 }
+
+fitapIfInPkts OBJECT-TYPE
+	SYNTAX       Counter64
+	MAX-ACCESS   read-only
+	STATUS       current
+	DESCRIPTION  ""
+	::= { fitapEthIfStatEntry 3 }
+
+fitapIfInErrorPkts OBJECT-TYPE
+	SYNTAX       Counter64
+	MAX-ACCESS   read-only
+	STATUS       current
+	DESCRIPTION  ""
+	::= { fitapEthIfStatEntry 4 }
+
+fitapIfInOctets OBJECT-TYPE
+	SYNTAX       Counter64
+	MAX-ACCESS   read-only
+	STATUS       current
+	DESCRIPTION  ""
+	::= { fitapEthIfStatEntry 5 }
+
+fitapIfOutPkts OBJECT-TYPE
+	SYNTAX       Counter64
+	MAX-ACCESS   read-only
+	STATUS       current
+	DESCRIPTION  ""
+	::= { fitapEthIfStatEntry 6 }
+
+fitapIfOutErrorPkts OBJECT-TYPE
+	SYNTAX       Counter64
+	MAX-ACCESS   read-only
+	STATUS       current
+	DESCRIPTION  ""
+	::= { fitapEthIfStatEntry 7 }
+
+fitapIfOutOctets OBJECT-TYPE
+	SYNTAX       Counter64
+	MAX-ACCESS   read-only
+	STATUS       current
+	DESCRIPTION  ""
+	::= { fitapEthIfStatEntry 8 }
+
+fitapIfSendRate OBJECT-TYPE
+	SYNTAX       Unsigned32
+	MAX-ACCESS   read-only
+	STATUS       current
+	DESCRIPTION  ""
+	::= { fitapEthIfStatEntry 9 }
+
+fitapIfRecvRate OBJECT-TYPE
+	SYNTAX       Unsigned32
+	MAX-ACCESS   read-only
+	STATUS       current
+	DESCRIPTION  ""
+	::= { fitapEthIfStatEntry 10 }
+
+fitapIfSendAverageRate OBJECT-TYPE
+	SYNTAX       Unsigned32
+	MAX-ACCESS   read-only
+	STATUS       current
+	DESCRIPTION  ""
+	::= { fitapEthIfStatEntry 11 }
+
+fitapIfRecvAverageRate OBJECT-TYPE
+	SYNTAX       Unsigned32
+	MAX-ACCESS   read-only
+	STATUS       current
+	DESCRIPTION  ""
+	::= { fitapEthIfStatEntry 12 }
+
+fitapIfSendMaxRate OBJECT-TYPE
+	SYNTAX       Unsigned32
+	MAX-ACCESS   read-only
+	STATUS       current
+	DESCRIPTION  ""
+	::= { fitapEthIfStatEntry 13 }
+
+fitapIfRecvMaxRate OBJECT-TYPE
+	SYNTAX       Unsigned32
+	MAX-ACCESS   read-only
+	STATUS       current
+	DESCRIPTION  ""
+	::= { fitapEthIfStatEntry 14 }
+
+fitapWifiStatTable OBJECT-TYPE
+    SYNTAX       SEQUENCE OF FitApWifiStatEntry
+	MAX-ACCESS 	 not-accessible
+	STATUS	     current
+	DESCRIPTION  ""
+    ::= { fitapIfStat 4 }
+
+fitapWifiStatEntry OBJECT-TYPE
+	SYNTAX       FitApWifiStatEntry
+	MAX-ACCESS   not-accessible
+	STATUS       current
+	DESCRIPTION  ""
+	INDEX { wifiapID, fitapWifiIndex }
+	::= { fitapWifiStatTable 1 }
+	
+FitApWifiStatEntry ::= SEQUENCE {
+        wifiapID                       Unsigned32,
+        fitapWifiIndex                 Unsigned32,
+        fitapWifiResouceUsed           Counter64,
+        fitapWifiChStatsPhyErrPkts     Counter64,
+        fitapWifiChStatsMacFcsErrPkts  Counter64,
+        fitapWifiChStatsMacMicErrPkts  Counter64
+	}
+
+wifiapID OBJECT-TYPE
+	SYNTAX       Unsigned32
+	MAX-ACCESS   read-only
+	STATUS       current
+	DESCRIPTION  ""
+	::= { fitapWifiStatEntry 1 }
+
+fitapWifiIndex OBJECT-TYPE
+	SYNTAX       Unsigned32
+	MAX-ACCESS   read-only
+	STATUS       current
+	DESCRIPTION  ""
+	::= { fitapWifiStatEntry 2 }
+
+fitapWifiResouceUsed OBJECT-TYPE
+	SYNTAX       Counter64
+	MAX-ACCESS   read-only
+	STATUS       current
+	DESCRIPTION  ""
+	::= { fitapWifiStatEntry 3 }
+
+fitapWifiChStatsPhyErrPkts OBJECT-TYPE
+	SYNTAX       Counter64
+	MAX-ACCESS   read-only
+	STATUS       current
+	DESCRIPTION  ""
+	::= { fitapWifiStatEntry 4 }
+
+fitapWifiChStatsMacFcsErrPkts OBJECT-TYPE
+	SYNTAX       Counter64
+	MAX-ACCESS   read-only
+	STATUS       current
+	DESCRIPTION  ""
+	::= { fitapWifiStatEntry 5 }
+
+fitapWifiChStatsMacMicErrPkts OBJECT-TYPE
+	SYNTAX       Counter64
+	MAX-ACCESS   read-only
+	STATUS       current
+	DESCRIPTION  ""
+	::= { fitapWifiStatEntry 6 }
+
+apIfStat OBJECT IDENTIFIER
+    ::= { nmsWlanGroup 9 }
+
+apEthIfStatTable OBJECT-TYPE
+    SYNTAX       SEQUENCE OF ApEthIfStatEntry
+	MAX-ACCESS 	 not-accessible
+	STATUS	     current
+	DESCRIPTION  ""
+    ::= { apIfStat 3 }
+
+apEthIfStatEntry OBJECT-TYPE
+	SYNTAX       ApEthIfStatEntry
+	MAX-ACCESS   not-accessible
+	STATUS       current
+	DESCRIPTION  ""
+	INDEX { apIfID }
+	::= { apEthIfStatTable 1 }
+	
+ApEthIfStatEntry ::= SEQUENCE {
+        apIfID              Unsigned32,
+        apIfInPkts          Counter64,
+        apIfInErrorPkts     Counter64,
+        apIfInOctets        Counter64,
+        apIfOutPkts         Counter64,
+        apIfOutErrorPkts    Counter64,
+        apIfOutOctets       Counter64,
+        apIfSendRate        Unsigned32,
+        apIfRecvRate        Unsigned32,
+        apIfSendAverageRate Unsigned32,
+        apIfRecvAverageRate Unsigned32,
+        apIfSendMaxRate     Unsigned32,
+        apIfRecvMaxRate     Unsigned32
+	}
+
+apIfID OBJECT-TYPE
+	SYNTAX       Unsigned32
+	MAX-ACCESS   read-only
+	STATUS       current
+	DESCRIPTION  ""
+	::= { apEthIfStatEntry 1 }
+
+apIfInPkts OBJECT-TYPE
+	SYNTAX       Counter64
+	MAX-ACCESS   read-only
+	STATUS       current
+	DESCRIPTION  ""
+	::= { apEthIfStatEntry 2 }
+
+apIfInErrorPkts OBJECT-TYPE
+	SYNTAX       Counter64
+	MAX-ACCESS   read-only
+	STATUS       current
+	DESCRIPTION  ""
+	::= { apEthIfStatEntry 3 }
+
+apIfInOctets OBJECT-TYPE
+	SYNTAX       Counter64
+	MAX-ACCESS   read-only
+	STATUS       current
+	DESCRIPTION  ""
+	::= { apEthIfStatEntry 4 }
+
+apIfOutPkts OBJECT-TYPE
+	SYNTAX       Counter64
+	MAX-ACCESS   read-only
+	STATUS       current
+	DESCRIPTION  ""
+	::= { apEthIfStatEntry 5 }
+
+apIfOutErrorPkts OBJECT-TYPE
+	SYNTAX       Counter64
+	MAX-ACCESS   read-only
+	STATUS       current
+	DESCRIPTION  ""
+	::= { apEthIfStatEntry 6 }
+
+apIfOutOctets OBJECT-TYPE
+	SYNTAX       Counter64
+	MAX-ACCESS   read-only
+	STATUS       current
+	DESCRIPTION  ""
+	::= { apEthIfStatEntry 7 }
+
+apIfSendRate OBJECT-TYPE
+	SYNTAX       Unsigned32
+	MAX-ACCESS   read-only
+	STATUS       current
+	DESCRIPTION  ""
+	::= { apEthIfStatEntry 8 }
+
+apIfRecvRate OBJECT-TYPE
+	SYNTAX       Unsigned32
+	MAX-ACCESS   read-only
+	STATUS       current
+	DESCRIPTION  ""
+	::= { apEthIfStatEntry 9 }
+
+apIfSendAverageRate OBJECT-TYPE
+	SYNTAX       Unsigned32
+	MAX-ACCESS   read-only
+	STATUS       current
+	DESCRIPTION  ""
+	::= { apEthIfStatEntry 10 }
+
+apIfRecvAverageRate OBJECT-TYPE
+	SYNTAX       Unsigned32
+	MAX-ACCESS   read-only
+	STATUS       current
+	DESCRIPTION  ""
+	::= { apEthIfStatEntry 11 }
+
+apIfSendMaxRate OBJECT-TYPE
+	SYNTAX       Unsigned32
+	MAX-ACCESS   read-only
+	STATUS       current
+	DESCRIPTION  ""
+	::= { apEthIfStatEntry 12 }
+
+apIfRecvMaxRate OBJECT-TYPE
+	SYNTAX       Unsigned32
+	MAX-ACCESS   read-only
+	STATUS       current
+	DESCRIPTION  ""
+	::= { apEthIfStatEntry 13 }
+
+apWifiStatTable OBJECT-TYPE
+    SYNTAX       SEQUENCE OF ApWifiStatEntry
+	MAX-ACCESS 	 not-accessible
+	STATUS	     current
+	DESCRIPTION  ""
+    ::= { apIfStat 4 }
+
+apWifiStatEntry OBJECT-TYPE
+	SYNTAX       ApWifiStatEntry
+	MAX-ACCESS   not-accessible
+	STATUS       current
+	DESCRIPTION  ""
+	INDEX { wifiIndex }
+	::= { apWifiStatTable 1 }
+	
+ApWifiStatEntry ::= SEQUENCE {
+        wifiIndex                 Unsigned32,
+        wifiResouceUsed           Counter64,
+        wifiChStatsPhyErrPkts     Counter64,
+        wifiChStatsMacFcsErrPkts  Counter64,
+        wifiChStatsMacMicErrPkts  Counter64
+	}
+
+wifiIndex OBJECT-TYPE
+	SYNTAX       Unsigned32
+	MAX-ACCESS   read-only
+	STATUS       current
+	DESCRIPTION  ""
+	::= { apWifiStatEntry 1 }
+
+wifiResouceUsed OBJECT-TYPE
+	SYNTAX       Counter64
+	MAX-ACCESS   read-only
+	STATUS       current
+	DESCRIPTION  ""
+	::= { apWifiStatEntry 2 }
+
+wifiChStatsPhyErrPkts OBJECT-TYPE
+	SYNTAX       Counter64
+	MAX-ACCESS   read-only
+	STATUS       current
+	DESCRIPTION  ""
+	::= { apWifiStatEntry 3 }
+
+wifiChStatsMacFcsErrPkts OBJECT-TYPE
+	SYNTAX       Counter64
+	MAX-ACCESS   read-only
+	STATUS       current
+	DESCRIPTION  ""
+	::= { apWifiStatEntry 4 }
+
+wifiChStatsMacMicErrPkts OBJECT-TYPE
+	SYNTAX       Counter64
+	MAX-ACCESS   read-only
+	STATUS       current
+	DESCRIPTION  ""
+	::= { apWifiStatEntry 5 }
+
+acAlarmConfig OBJECT IDENTIFIER
+    ::= { nmsWlanGroup 10 }
+
+acAlarmThresholdConfig OBJECT IDENTIFIER
+    ::= { acAlarmConfig 1 }
+
+cpuUsageThreshhd OBJECT-TYPE
+	SYNTAX       Unsigned32(0..100)
+	MAX-ACCESS   read-write
+	STATUS       current
+	DESCRIPTION  ""
+	::= { acAlarmThresholdConfig 1 }
+
+memUsageThreshhd OBJECT-TYPE
+	SYNTAX       Unsigned32(0..100)
+	MAX-ACCESS   read-write
+	STATUS       current
+	DESCRIPTION  ""
+	::= { acAlarmThresholdConfig 2 }
+
+apAlarmConfig OBJECT IDENTIFIER
+    ::= { nmsWlanGroup 11 }
+
+apAlarmThresholdTable OBJECT-TYPE
+    SYNTAX       SEQUENCE OF ApAlarmThresholdEntry
+	MAX-ACCESS 	 not-accessible
+	STATUS	     current
+	DESCRIPTION  ""
+    ::= { apAlarmConfig 1 }
+
+apAlarmThresholdEntry OBJECT-TYPE
+	SYNTAX       ApAlarmThresholdEntry
+	MAX-ACCESS   not-accessible
+	STATUS       current
+	DESCRIPTION  ""
+	INDEX { alarmApID }
+	::= { apAlarmThresholdTable 1 }
+	
+ApAlarmThresholdEntry ::= SEQUENCE {
+        alarmApID       Unsigned32,
+        cpuLoadHigh     Unsigned32,
+        memLoadHigh     Unsigned32
+	}
+
+alarmApID OBJECT-TYPE
+	SYNTAX       Unsigned32
+	MAX-ACCESS   read-only
+	STATUS       current
+	DESCRIPTION  ""
+	::= { apAlarmThresholdEntry 1 }
+
+cpuLoadHigh OBJECT-TYPE
+	SYNTAX       Unsigned32(0..100)
+	MAX-ACCESS   read-write
+	STATUS       current
+	DESCRIPTION  ""
+	::= { apAlarmThresholdEntry 2 }
+
+memLoadHigh OBJECT-TYPE
+	SYNTAX       Unsigned32(0..100)
+	MAX-ACCESS   read-write
+	STATUS       current
+	DESCRIPTION  ""
+	::= { apAlarmThresholdEntry 3 }
+
+END

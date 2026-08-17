@@ -1,0 +1,1302 @@
+OMNITRON-G8032-MIB DEFINITIONS ::= BEGIN
+
+IMPORTS
+    MODULE-IDENTITY, OBJECT-TYPE, Unsigned32
+        FROM SNMPv2-SMI           -- RFC-2578
+    RowStatus, TruthValue, DateAndTime, TimeStamp
+        FROM SNMPv2-TC            -- RFC-2579
+    MODULE-COMPLIANCE, OBJECT-GROUP
+        FROM SNMPv2-CONF          -- RFC-2580
+    Dot1agCfmMepIdOrZero
+        FROM IEEE8021-CFM-MIB     -- IEEE 802.1ag
+    IEEE8021PriorityValue
+        FROM IEEE8021-TC-MIB      -- IEEE 802.1ap
+    omnitron, OstPortNumber, OstErpsRingStates, OstIndexIntegerNextFree,
+    OstErpsRingStatus, OstErpsPortState, OstErpsLinkState, OstProfileNameString,
+    OstErpsPortType
+        FROM OMNITRON-TC-MIB;     -- Omnitron Textual Convention MIB
+
+omnitronG8032Mib MODULE-IDENTITY
+    LAST-UPDATED "201603171200Z"     -- March 17, 2016
+    ORGANIZATION "Omnitron Systems Technology, Inc."
+    CONTACT-INFO "Omnitron Systems Technology, Inc.
+                  38 Tesla
+                  Irvine, CA 92618-4670
+                  USA
+
+             Tel: (949) 250 6510
+             Fax: (949) 250 6514
+          E-mail: info@omnitron-systems.com
+   International: +1 949 250 6510
+
+                  Technical Support and Customer Service
+             Tel: (800) 675 8410
+          E-mail: support@omnitron-systems.com
+   International: +1 949 250 6510"
+
+    DESCRIPTION
+            "Omnitron ITU-T G.8032 MIB for use with iConverter Management Modules v5.3
+             and NetOutlook.
+
+             Copyright 2016 Omnitron Systems Technology, Inc.
+             All rights reserved.
+            "
+
+    REVISION    "201603171200Z"     -- March 17, 2016
+    DESCRIPTION "Initial version of v5.3 MIB.
+                "
+    ::= { omnitron protocols(10) protocolobjects(1) 4 }
+
+
+--------------------------------------------------------------------------------
+-- Ethernet Ring Protection Switching (ERPS) Global Configuration Table
+--------------------------------------------------------------------------------
+
+ostErpsGlobalCfgTable  OBJECT IDENTIFIER ::= { omnitronG8032Mib 1 }
+
+ostErpsGlobalCfgEnable OBJECT-TYPE
+    SYNTAX      TruthValue
+    MAX-ACCESS  read-write
+    STATUS      current
+    DESCRIPTION
+       "This object specifies whether the ERPS function is enabled.
+
+        The value 'true' indicates that ERPS protocol is enabled.
+
+        The value 'false' indicates that ERPS protocol is disabled.
+       "
+    DEFVAL { false }
+    ::= { ostErpsGlobalCfgTable 1 }
+
+ostErpsGlobalCfgNextIndex OBJECT-TYPE
+    SYNTAX      OstIndexIntegerNextFree
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+       "This object contains an unused value for a ERPS instance on a module
+        that can be used to implement the ERPS protocol, or a zero to indicate
+        that none exist.
+
+        This value needs to be read in order to find an available index for
+        row-creation of a ERPS instance and then used when a row is created.
+        This value is automatically updated by the SNMP Agent after the row
+        is created.
+       "
+    DEFVAL { 1 }
+    ::= { ostErpsGlobalCfgTable 2 }
+
+
+--------------------------------------------------------------------------------
+-- Ethernet Ring Protection Switching (ERPS) Instance Configuration Table
+--------------------------------------------------------------------------------
+
+ostErpsInstanceCfgTable OBJECT-TYPE
+    SYNTAX      SEQUENCE OF OstErpsInstanceCfgEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION
+       "This table supports ERPS instance configurations."
+    ::= { omnitronG8032Mib 2 }
+
+ostErpsInstanceCfgEntry OBJECT-TYPE
+    SYNTAX      OstErpsInstanceCfgEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION
+       "This is a ERPS instance configuration table entry."
+    INDEX { ostErpsInstanceCfgIndex }
+    ::= { ostErpsInstanceCfgTable 1 }
+
+OstErpsInstanceCfgEntry ::= SEQUENCE {
+    ostErpsInstanceCfgIndex                 Unsigned32,
+    ostErpsInstanceCfgRowStatus             RowStatus,
+
+    ostErpsInstanceCfgProfileEnable         TruthValue,
+    ostErpsInstanceCfgGuardTimerEnable      TruthValue,
+    ostErpsInstanceCfgHoldOffEnable         TruthValue,
+    ostErpsInstanceCfgWaitToBlockEnable     TruthValue,
+    ostErpsInstanceCfgWaitToRestoreEnable   TruthValue,
+    ostErpsInstanceCfgRevertive             TruthValue,
+
+    ostErpsInstanceCfgProtectionName        OstProfileNameString,
+    ostErpsInstanceCfgRingType              INTEGER,
+
+    ostErpsInstanceCfgRp0PortNumber         OstPortNumber,
+    ostErpsInstanceCfgRp0PortType           INTEGER,
+    ostErpsInstanceCfgRp0MdIndex            Unsigned32,
+    ostErpsInstanceCfgRp0MaIndex            Unsigned32,
+    ostErpsInstanceCfgRp0MepId              Dot1agCfmMepIdOrZero,
+
+    ostErpsInstanceCfgRp1PortNumber         OstPortNumber,
+    ostErpsInstanceCfgRp1PortType           INTEGER,
+    ostErpsInstanceCfgRp1MdIndex            Unsigned32,
+    ostErpsInstanceCfgRp1MaIndex            Unsigned32,
+    ostErpsInstanceCfgRp1MepId              Dot1agCfmMepIdOrZero,
+    ostErpsInstanceCfgRp1VirtualDomainIndex Unsigned32,
+
+    ostErpsInstanceCfgGuardOffTime          Unsigned32,
+    ostErpsInstanceCfgHoldOffTime           Unsigned32,
+    ostErpsInstanceCfgWaitToBlockTime       Unsigned32,
+    ostErpsInstanceCfgWaitToRestoreTime     Unsigned32,
+
+    ostErpsInstanceCfgApsRate               Unsigned32,
+    ostErpsInstanceCfgApsToSend             Unsigned32,
+    ostErpsInstanceCfgApsScope              INTEGER,
+    ostErpsInstanceCfgApsMdLevel            Unsigned32,
+    ostErpsInstanceCfgApsPriority           IEEE8021PriorityValue,
+    ostErpsInstanceCfgApsEvcIndex           Unsigned32,
+
+    ostErpsInstanceCfgManualModePort        OstPortNumber,
+    ostErpsInstanceCfgManualModeCmd         INTEGER,
+    ostErpsInstanceCfgClearStatistics       TruthValue,
+    ostErpsInstanceCfgRingId                Unsigned32,
+    ostErpsInstanceCfgEvcNextIndex          OstIndexIntegerNextFree
+    }
+
+ostErpsInstanceCfgIndex
+OBJECT-TYPE
+    SYNTAX      Unsigned32(1..16)
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION
+       "An index to the ERPS Instance Configuration table which indicates
+        the specific ERPS instance for the module.
+
+        ostErpsGlobalCfgNextIndex needs to be inspected to find an
+        available index for row-creation.
+       "
+    ::= { ostErpsInstanceCfgEntry 1 }
+
+ostErpsInstanceCfgRowStatus OBJECT-TYPE
+    SYNTAX      RowStatus
+    MAX-ACCESS  read-create
+    STATUS      current
+    DESCRIPTION
+       "The status of the row.
+
+        The writable columns in a row cannot be changed if the row
+        is active. All columns must have a valid value before a row
+        can be activated.
+       "
+   ::= { ostErpsInstanceCfgEntry 2 }
+
+ostErpsInstanceCfgProfileEnable OBJECT-TYPE
+    SYNTAX      TruthValue
+    MAX-ACCESS  read-create
+    STATUS      current
+    DESCRIPTION
+       "This object specifies whether the ERPS profile is enabled for
+        the ERPS instance.
+
+        The value 'true' indicates the ERPS profile instance is enabled.
+
+        The value 'false' indicates the ERPS profile instance is disabled.
+
+        This object can be written/modified after row creation time.
+       "
+    DEFVAL { true }
+    ::= { ostErpsInstanceCfgEntry 3 }
+
+ostErpsInstanceCfgGuardTimerEnable OBJECT-TYPE
+    SYNTAX      TruthValue
+    MAX-ACCESS  read-create
+    STATUS      current
+    DESCRIPTION
+       "This object specifies whether the ERPS guard timer function is
+        enabled for the ERPS instance.
+
+        The value 'true' indicates the ERPS guard timer instance function is
+        enabled.
+
+        The value 'false' indicates the ERPS guard timer instance function is
+        disabled.
+
+        This object can be written/modified after row creation time.
+       "
+    DEFVAL { true }
+    ::= { ostErpsInstanceCfgEntry 4 }
+
+ostErpsInstanceCfgHoldOffEnable OBJECT-TYPE
+    SYNTAX      TruthValue
+    MAX-ACCESS  read-create
+    STATUS      current
+    DESCRIPTION
+       "This object specifies whether the ERPS holdoff function is
+        enabled for the ERPS instance.
+
+        The value 'true' indicates the ERPS holdoff instance function is
+        enabled.
+
+        The value 'false' indicates the ERPS holdoff instance function is
+        disabled.
+
+        This object can be written/modified after row creation time.
+       "
+    DEFVAL { true }
+    ::= { ostErpsInstanceCfgEntry 5 }
+
+ostErpsInstanceCfgWaitToBlockEnable OBJECT-TYPE
+    SYNTAX      TruthValue
+    MAX-ACCESS  read-create
+    STATUS      current
+    DESCRIPTION
+       "This object specifies whether the ERPS wait to block function is
+        enabled for the ERPS instance.
+
+        The value 'true' indicates the ERPS wait to block instance function
+        is enabled.
+
+        The value 'false' indicates the ERPS wait to block instance function
+        is disabled.
+
+        This object can be written/modified after row creation time.
+       "
+    DEFVAL { true }
+    ::= { ostErpsInstanceCfgEntry 6 }
+
+ostErpsInstanceCfgWaitToRestoreEnable OBJECT-TYPE
+    SYNTAX      TruthValue
+    MAX-ACCESS  read-create
+    STATUS      current
+    DESCRIPTION
+       "This object specifies whether the ERPS wait to restore function is
+        enabled for the ERPS instance.
+
+        The value 'true' indicates the ERPS wait to restore instance function
+        is enabled.
+
+        The value 'false' indicates the ERPS wait to restore instance function
+        is disabled.
+
+        This object can be written/modified after row creation time.
+       "
+    DEFVAL { true }
+    ::= { ostErpsInstanceCfgEntry 7 }
+
+ostErpsInstanceCfgRevertive OBJECT-TYPE
+    SYNTAX      TruthValue
+    MAX-ACCESS  read-create
+    STATUS      current
+    DESCRIPTION
+       "This object specifies whether the ERPS instance is revertive or
+        non-revertive. Revertive indicates whether the working link becomes
+        active after it is restored.
+
+        The value 'true' indicates the ERPS instance is revertive.
+
+        The value 'false' indicates the ERPS instance is non-revertive
+
+        This object can only be written at row creation time and cannot be
+        modified once it has been created.
+       "
+    DEFVAL { true }
+    ::= { ostErpsInstanceCfgEntry 8 }
+
+ostErpsInstanceCfgProtectionName OBJECT-TYPE
+    SYNTAX      OstProfileNameString
+    MAX-ACCESS  read-create
+    STATUS      current
+    DESCRIPTION
+        "ERPS instance profile name.
+
+         This object may not be modified after creation.
+        "
+    ::= { ostErpsInstanceCfgEntry 9 }
+
+ostErpsInstanceCfgRingType OBJECT-TYPE
+    SYNTAX      INTEGER {
+        open          (1),
+        closed        (2)
+    }
+    MAX-ACCESS  read-create
+    STATUS      current
+    DESCRIPTION
+       "This object selects the specific ring type.
+
+        open(1)          ERPS instance is an open ring
+        closed(2)        ERPS instance is a closed ring
+
+        This object can only be written at row creation time and cannot be
+        modified once it has been created.
+       "
+    DEFVAL { closed }
+    ::= { ostErpsInstanceCfgEntry 10 }
+
+ostErpsInstanceCfgRp0PortNumber OBJECT-TYPE
+    SYNTAX      OstPortNumber
+    MAX-ACCESS  read-create
+    STATUS      current
+    DESCRIPTION
+       "This object selects the Ring Port 0 port number for the specific ERPS
+        instance that is configured.
+
+        This object can only be written at row creation time and cannot be
+        modified once it has been created.
+       "
+    ::= { ostErpsInstanceCfgEntry 11 }
+
+ostErpsInstanceCfgRp0PortType OBJECT-TYPE
+    SYNTAX      INTEGER {
+        none                   (0),
+        ringPort               (1),
+        ringPortOwner          (2),
+        ringPortNeighbor       (3),
+        ringPortNextNeighbor   (4)
+    }
+    MAX-ACCESS  read-create
+    STATUS      current
+    DESCRIPTION
+       "This object selects the specific protection port type for Ring Port 0.
+
+        none(0)                  ERPS instance port is not configured
+        ringPort(1)              ERPS instance port is a standard ring port
+        ringPortOwner(2)         ERPS instance port is a ring port link owner
+        ringPortNeighbor(3)      ERPS instance port is a ring port link neighbor
+        ringPortNextNeighbor(4)  ERPS instance port is a ring port next neighbor
+
+        This object can only be written at row creation time and cannot be
+        modified once it has been created.
+       "
+    DEFVAL { none }
+    ::= { ostErpsInstanceCfgEntry 12 }
+
+ostErpsInstanceCfgRp0MdIndex OBJECT-TYPE
+    SYNTAX Unsigned32
+    MAX-ACCESS  read-create
+    STATUS      current
+    DESCRIPTION
+       "This object specifies the Ring Port 0 MEP ERPS instance maintenance
+        domain index. The value of the object is ignored if
+        ostErpsInstanceCfgRp0PortType is type 'none'. If not configured
+        (index value=0) fail over is by link failure only.
+
+        This object can only be written at row creation time and cannot be
+        modified once it has been created.
+       "
+    DEFVAL { 0 }
+    ::= { ostErpsInstanceCfgEntry 13 }
+
+ostErpsInstanceCfgRp0MaIndex OBJECT-TYPE
+    SYNTAX Unsigned32
+    MAX-ACCESS  read-create
+    STATUS      current
+    DESCRIPTION
+       "This object specifies the Ring Port 0 ERPS instance maintenance
+        association index. The value of the object is ignored if
+        ostErpsInstanceCfgRp0PortType is type 'none'. If not configured
+        (index value=0) fail over is by link failure only.
+
+        This object can only be written at row creation time and cannot be
+        modified once it has been created.
+       "
+    DEFVAL { 0 }
+    ::= { ostErpsInstanceCfgEntry 14 }
+
+ostErpsInstanceCfgRp0MepId OBJECT-TYPE
+    SYNTAX      Dot1agCfmMepIdOrZero
+    MAX-ACCESS  read-create
+    STATUS      current
+    DESCRIPTION
+       "This object specifies the Ring Port 0 ERPS instance local Maintenance
+        End Point Identifier (MEP). The value of the object is ignored if
+        ostErpsInstanceCfgRp0PortType is type 'none'. If not configured
+        (index value=0) fail over is by link failure only.
+
+        This object can only be written at row creation time and cannot be
+        modified once it has been created.
+       "
+    DEFVAL { 0 }
+    ::= { ostErpsInstanceCfgEntry 15 }
+
+ostErpsInstanceCfgRp1PortNumber OBJECT-TYPE
+    SYNTAX      OstPortNumber
+    MAX-ACCESS  read-create
+    STATUS      current
+    DESCRIPTION
+       "This object selects the Ring Port 1 port number for the specific ERPS
+        instance that is configured. The value is ignored if
+        ostErpsInstanceCfgRp1PortType is 'virtual port'.
+
+        This object can only be written at row creation time and cannot be
+        modified once it has been created.
+       "
+    DEFVAL { 0 }
+    ::= { ostErpsInstanceCfgEntry 16 }
+
+ostErpsInstanceCfgRp1PortType OBJECT-TYPE
+    SYNTAX      INTEGER {
+        none          (0),
+        ringPort      (1),
+        virtualPort   (2)
+    }
+    MAX-ACCESS  read-create
+    STATUS      current
+    DESCRIPTION
+       "This object selects the specific protection port type for Ring Port 1.
+
+        none(0)              ERPS instance port is not configured
+        ringPort(1)          ERPS instance port is a standard ring port
+        virtualPort(2)       ERPS instance port is a virtual channel port
+
+        This object can only be written at row creation time and cannot be
+        modified once it has been created.
+       "
+    DEFVAL { none }
+    ::= { ostErpsInstanceCfgEntry 17 }
+
+ostErpsInstanceCfgRp1MdIndex OBJECT-TYPE
+    SYNTAX Unsigned32
+    MAX-ACCESS  read-create
+    STATUS      current
+    DESCRIPTION
+       "This object specifies the Ring Port 1 MEP ERPS instance maintenance
+        domain index. The value of the object is ignored if
+        ostErpsInstanceCfgRp1PortType is type 'none'. If not configured
+        (index value=0) fail over is by link failure only.
+
+        This object can only be written at row creation time and cannot be
+        modified once it has been created.
+       "
+    DEFVAL { 0 }
+    ::= { ostErpsInstanceCfgEntry 18 }
+
+ostErpsInstanceCfgRp1MaIndex OBJECT-TYPE
+    SYNTAX Unsigned32
+    MAX-ACCESS  read-create
+    STATUS      current
+    DESCRIPTION
+       "This object specifies the Ring Port 1 ERPS instance maintenance
+        association index. The value of the object is ignored if
+        ostErpsInstanceCfgRp1PortType is type 'none'. If not configured
+        (index value=0) fail over is by link failure only.
+
+        This object can only be written at row creation time and cannot be
+        modified once it has been created.
+       "
+    DEFVAL { 0 }
+    ::= { ostErpsInstanceCfgEntry 19 }
+
+ostErpsInstanceCfgRp1MepId OBJECT-TYPE
+    SYNTAX      Dot1agCfmMepIdOrZero
+    MAX-ACCESS  read-create
+    STATUS      current
+    DESCRIPTION
+       "This object specifies the Ring Port 1 ERPS instance local Maintenance
+        End Point Identifier. The value of the object is ignored if
+        ostErpsInstanceCfgRp1PortType is type 'none'. If not configured
+        (index value=0) fail over is by link failure only.
+
+        This object can only be written at row creation time and cannot be
+        modified once it has been created.
+       "
+    DEFVAL { 0 }
+    ::= { ostErpsInstanceCfgEntry 20 }
+
+ostErpsInstanceCfgRp1VirtualDomainIndex OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  read-create
+    STATUS      current
+    DESCRIPTION
+       "This object specifies which instance number the virtual channel
+        APS frames are sent to complete the virtual ring. The APS frames
+        are set to the port numbers associated with the instance number.
+        The value of the object is only valid if ostErpsInstanceCfgRp1PortType
+        is type 'virtualPort' and is ignored otherwise.
+
+        This object can only be written at row creation time and cannot be
+        modified once it has been created.
+       "
+    DEFVAL { 0 }
+    ::= { ostErpsInstanceCfgEntry 21 }
+
+ostErpsInstanceCfgGuardOffTime OBJECT-TYPE
+    SYNTAX      Unsigned32 (0..500)
+    MAX-ACCESS  read-create
+    STATUS      current
+    DESCRIPTION
+       "This object specifies the guard time in 0.01 seconds.
+
+        A value of 0 indicates there is no guard time.
+
+        This object can be written/modified after row creation time.
+       "
+    DEFVAL { 50 }
+    ::= { ostErpsInstanceCfgEntry 22 }
+
+ostErpsInstanceCfgHoldOffTime OBJECT-TYPE
+    SYNTAX      Unsigned32 (0..100)
+    MAX-ACCESS  read-create
+    STATUS      current
+    DESCRIPTION
+       "This object specifies the hold-off time in 0.1 seconds.
+
+        A value of 0 indicates there is no hold-off time.
+
+        This object can be written/modified after row creation time.
+       "
+    DEFVAL { 0 }
+    ::= { ostErpsInstanceCfgEntry 23 }
+
+ostErpsInstanceCfgWaitToBlockTime OBJECT-TYPE
+    SYNTAX      Unsigned32 (1..12)
+    MAX-ACCESS  read-create
+    STATUS      current
+    DESCRIPTION
+       "This object specifies the wait to block time in seconds.
+
+        This object can be written/modified after row creation time.
+       "
+    DEFVAL { 5 }
+    ::= { ostErpsInstanceCfgEntry 24 }
+
+ostErpsInstanceCfgWaitToRestoreTime OBJECT-TYPE
+    SYNTAX      Unsigned32 (1..12)
+    MAX-ACCESS  read-create
+    STATUS      current
+    DESCRIPTION
+       "This object specifies the wait to restore time in minutes.
+
+        This object can be written/modified after row creation time.
+       "
+    DEFVAL { 5 }
+    ::= { ostErpsInstanceCfgEntry 25 }
+
+
+ostErpsInstanceCfgApsRate OBJECT-TYPE
+    SYNTAX      Unsigned32 (1..10)
+    MAX-ACCESS  read-create
+    STATUS      current
+    DESCRIPTION
+       "This object specifies the time between APS frames in seconds.
+
+        This object is only used when the APS frame transmission is enabled.
+
+        This object can be written/modified after row creation time.
+       "
+    DEFVAL { 5 }
+    ::= { ostErpsInstanceCfgEntry 26 }
+
+ostErpsInstanceCfgApsToSend OBJECT-TYPE
+    SYNTAX      Unsigned32 (1..10)
+    MAX-ACCESS  read-create
+    STATUS      current
+    DESCRIPTION
+       "This object specifies the number of APS frames to send that are
+        separated by a minimum delay when a protection switch occurs.
+
+        This object is only used when the APS frame transmission is enabled.
+
+        This object can be written/modified after row creation time.
+       "
+    DEFVAL { 3 }
+    ::= { ostErpsInstanceCfgEntry 27 }
+
+ostErpsInstanceCfgApsScope OBJECT-TYPE
+    SYNTAX      INTEGER {
+        port          (1),
+        evc           (2)
+    }
+    MAX-ACCESS  read-create
+    STATUS      current
+    DESCRIPTION
+       "This object selects the specific protection type for the protection
+        instance.
+
+        port(1)              ERPS instance protects the whole port
+        evc(2)               ERPS instance protects only the specified EVC
+
+        This object can only be written at row creation time and cannot be
+        modified once it has been created.
+       "
+    DEFVAL { evc }
+    ::= { ostErpsInstanceCfgEntry 28 }
+
+ostErpsInstanceCfgApsMdLevel OBJECT-TYPE
+    SYNTAX Unsigned32 (0..7)
+    MAX-ACCESS  read-create
+    STATUS      current
+    DESCRIPTION
+       "This object specifies the APS maintenance domain level.
+
+        This object can only be written at row creation time and cannot be
+        modified once it has been created.
+       "
+    DEFVAL { 0 }
+    ::= { ostErpsInstanceCfgEntry 29 }
+
+ostErpsInstanceCfgApsPriority OBJECT-TYPE
+    SYNTAX       IEEE8021PriorityValue
+    MAX-ACCESS  read-create
+    STATUS      current
+    DESCRIPTION
+       "This object specifies the ERPS instance PCP value (tag priority) on
+        the generated APS PDU.
+
+        This object can only be written at row creation time and cannot be
+        modified once it has been created.
+       "
+    DEFVAL { 0 }
+    ::= { ostErpsInstanceCfgEntry 30 }
+
+ostErpsInstanceCfgApsEvcIndex OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  read-create
+    STATUS      current
+    DESCRIPTION
+       "This object defines the APS channel EVC index for the ERPS instance.
+
+        This object can only be written at row creation time and cannot be
+        modified once it has been created.
+       "
+    DEFVAL { 0 }
+    ::= { ostErpsInstanceCfgEntry 31 }
+
+ostErpsInstanceCfgManualModePort OBJECT-TYPE
+    SYNTAX      OstPortNumber
+    MAX-ACCESS  read-create
+    STATUS      current
+    DESCRIPTION
+       "This object selects the port number that is used with the
+        ostErpsInstanceCfgManualModeCmd object. This object needs to be configured
+        correctly before the command is issued.
+
+        The port number must be a member of the ERPS instance.
+
+        This object can be written/modified after row creation time.
+       "
+    DEFVAL { 1 }
+    ::= { ostErpsInstanceCfgEntry 32 }
+
+ostErpsInstanceCfgManualModeCmd OBJECT-TYPE
+    SYNTAX      INTEGER {
+        nocommand   (0),
+        clear       (1),
+        manual      (7),
+        force       (13)
+    }
+    MAX-ACCESS  read-create
+    STATUS      current
+    DESCRIPTION
+       "This object selects the protection instance manual mode command. When
+        written the indicated manual mode is sent to the port configured
+        by the ostErpsInstanceCfgManualModePort object.
+
+        nocommand(0)   No command is indicated, read-only value only, write of
+                       this value returns an error
+        clear(1)       Clear to normal operation
+        manual(7)      In the absence of a failure or FS, the manual switch (MR)
+                       command forces a block on the ring port where the command
+                       is issued
+        force(13)      Forces a block (force switch, FS) on the ring port where
+                       the command is issued
+
+        This object can be written/modified after row creation time.
+       "
+    DEFVAL { clear }
+    ::= { ostErpsInstanceCfgEntry 33 }
+
+ostErpsInstanceCfgClearStatistics OBJECT-TYPE
+    SYNTAX      TruthValue
+    MAX-ACCESS  read-create
+    STATUS      current
+    DESCRIPTION
+       "This object when written clears the statistic counters associated with
+        a specific protection instance. When read the value always returns
+        'false'.
+
+        Writing this value does not change any items in the configuration table.
+
+        Writing this object at row creation is irrelevant and should not
+        be done.
+       "
+    DEFVAL { false }
+    ::= { ostErpsInstanceCfgEntry 34 }
+
+ostErpsInstanceCfgRingId OBJECT-TYPE
+    SYNTAX Unsigned32 (1..255)
+    MAX-ACCESS  read-create
+    STATUS      current
+    DESCRIPTION
+       "This object specifies the R-APS ring ID. In general this value will
+        always be '1'
+
+        This object can only be written at row creation time and cannot be
+        modified once it has been created.
+       "
+    DEFVAL { 1 }
+    ::= { ostErpsInstanceCfgEntry 35 }
+
+ostErpsInstanceCfgEvcNextIndex OBJECT-TYPE
+    SYNTAX      OstIndexIntegerNextFree
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+       "This object contains an unused value for a EVC index number for a
+        specific ERPS instance that can be used to add the next EVC associated
+        with a specific ERPS instance, or a zero to indicate that none exist.
+
+        This value needs to be read in order to find an available index for
+        row-creation of an ostErpsInstanceCfgEvcTable instance and then used
+        when a row is created.
+
+        This value is automatically updated by the SNMP Agent after the row
+        is created.
+       "
+    DEFVAL { 1 }
+    ::= { ostErpsInstanceCfgEntry 36 }
+
+
+--------------------------------------------------------------------------------
+-- Ethernet Ring Protection Switching (ERPS) Instance EVC Configuration Table
+--------------------------------------------------------------------------------
+
+ostErpsInstanceCfgEvcTable OBJECT-TYPE
+    SYNTAX      SEQUENCE OF OstErpsInstanceCfgEvcEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION
+       "This table supports ERPS instance EVC configuration.
+
+        If ostErpsInstanceCfgApsScope is type 'evc' this table needs to have
+        at least one entry before the ERPS instance will operate correctly.
+
+        There are two indices to the table:   ostErpsInstanceCfgIndex, the
+        instance number and ostErpsInstanceCfgEvcIndex, the EVC index
+        associated with the specifc ERPS instance.
+
+        Any row in a ERPS instance can be deleted, but the last one deleted
+        makes the ERPS instance stop functioning.
+
+        Up to 16 EVCs can be associated with a ERPS instance.
+       "
+    ::= { omnitronG8032Mib 3 }
+
+ostErpsInstanceCfgEvcEntry OBJECT-TYPE
+    SYNTAX      OstErpsInstanceCfgEvcEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION
+       "This is a ERPS instance EVC configuration table entry."
+    INDEX { ostErpsInstanceCfgIndex, ostErpsInstanceCfgEvcIndex }
+    ::= { ostErpsInstanceCfgEvcTable 1 }
+
+OstErpsInstanceCfgEvcEntry ::= SEQUENCE {
+    ostErpsInstanceCfgEvcIndex              Unsigned32,
+    ostErpsInstanceCfgEvcRowStatus          RowStatus,
+    ostErpsInstanceCfgEvcTrafficIndex       Unsigned32
+    }
+
+ostErpsInstanceCfgEvcIndex
+OBJECT-TYPE
+    SYNTAX      Unsigned32(1..16)
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION
+       "An index to the ERPS Instance EVC Configuration table which indicates
+        the specific ERPS instance EVC for the module.
+       "
+    ::= { ostErpsInstanceCfgEvcEntry 1 }
+
+ostErpsInstanceCfgEvcRowStatus OBJECT-TYPE
+    SYNTAX      RowStatus
+    MAX-ACCESS  read-create
+    STATUS      current
+    DESCRIPTION
+       "The status of the row.
+
+        The writable columns in a row cannot be changed if the row
+        is active. All columns must have a valid value before a row
+        can be activated.
+       "
+   ::= { ostErpsInstanceCfgEvcEntry 2 }
+
+ostErpsInstanceCfgEvcTrafficIndex OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  read-create
+    STATUS      current
+    DESCRIPTION
+       "This object defines the traffic channel EVC index for the ERPS instance.
+
+        This object can only be written at row creation time and cannot be
+        modified once it has been created.
+       "
+    DEFVAL { 0 }
+    ::= { ostErpsInstanceCfgEvcEntry 3 }
+
+
+--------------------------------------------------------------------------------
+-- Ethernet Ring Protection Switching (ERPS) Instance Status Table
+--------------------------------------------------------------------------------
+
+ostErpsInstanceStatusTable OBJECT-TYPE
+    SYNTAX      SEQUENCE OF OstErpsInstanceStatusEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION
+       "This table supports ERPS instance status."
+    ::= { omnitronG8032Mib 4 }
+
+ostErpsInstanceStatusEntry OBJECT-TYPE
+    SYNTAX      OstErpsInstanceStatusEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION
+       "This is a ERPS instance status table entry."
+    INDEX { ostErpsInstanceStatusIndex, ostErpsInstanceStatusPort }
+    ::= { ostErpsInstanceStatusTable 1 }
+
+OstErpsInstanceStatusEntry ::= SEQUENCE {
+    ostErpsInstanceStatusIndex               Unsigned32,
+    ostErpsInstanceStatusPort                OstErpsPortType,
+
+    ostErpsInstanceStatusLocal               OstErpsRingStates,
+    ostErpsInstanceStatusRemote              OstErpsRingStates,
+    ostErpsInstanceStatusHighestPriority     OstErpsRingStates,
+    ostErpsInstanceStatusPortState           OstErpsRingStatus,
+    ostErpsInstanceStatusForwardingState     OstErpsPortState,
+    ostErpsInstanceStatusPortLink            OstErpsLinkState
+    }
+
+ostErpsInstanceStatusIndex
+OBJECT-TYPE
+    SYNTAX      Unsigned32(1..16)
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION
+       "An index to the ERPS Instance status table which indicates
+        the specific ERPS instance for the module.
+
+        Rows are automatically created when a row in the
+        ostErpsInstanceCfgTable is created for the specific configured
+        port.
+       "
+    ::= { ostErpsInstanceStatusEntry 1 }
+
+ostErpsInstanceStatusPort OBJECT-TYPE
+    SYNTAX      OstErpsPortType
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION
+       "This object indicates the specific Ring Port that the statistics are
+        associated with.
+       "
+    ::= { ostErpsInstanceStatusEntry 2 }
+
+ostErpsInstanceStatusLocal OBJECT-TYPE
+    SYNTAX      OstErpsRingStates
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+       "This object indicates the current local status request/state
+        priority for the Ring Port for the specific ERPS instance.
+
+        The value of this object is ignored if the Ring Port is not configured.
+       "
+    ::= { ostErpsInstanceStatusEntry 3 }
+
+ostErpsInstanceStatusRemote OBJECT-TYPE
+    SYNTAX      OstErpsRingStates
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+       "This object indicates the current ring remote status request/state
+        priority for the Ring Port for the specific ERPS instance.
+
+        The value of this object is ignored if the Ring Port is not configured.
+       "
+    ::= { ostErpsInstanceStatusEntry 4 }
+
+ostErpsInstanceStatusHighestPriority OBJECT-TYPE
+    SYNTAX      OstErpsRingStates
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+       "This object indicates the current highest priority/request state
+        priority for the Ring Port for the specific ERPS instance.
+
+        The value of this object is ignored if the Ring Port is not configured.
+       "
+    ::= { ostErpsInstanceStatusEntry 5 }
+
+ostErpsInstanceStatusPortState OBJECT-TYPE
+    SYNTAX      OstErpsRingStatus
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+       "This object indicates the current Ring Port state machine state for the
+        for the specific ERPS instance.
+
+        The value of this object is ignored if the Ring Port is not configured.
+       "
+    ::= { ostErpsInstanceStatusEntry 6 }
+
+ostErpsInstanceStatusForwardingState OBJECT-TYPE
+    SYNTAX      OstErpsPortState
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+       "This object indicates the current Ring Port port forwarding state for
+        the for the specific ERPS instance.
+
+        The value of this object is ignored if the Ring Port is not configured.
+       "
+    ::= { ostErpsInstanceStatusEntry 7 }
+
+ostErpsInstanceStatusPortLink OBJECT-TYPE
+    SYNTAX      OstErpsLinkState
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+       "This object indicates the current Ring Port port link state for the
+        for the specific ERPS instance.
+
+        The value of this object is ignored if the Ring Port is not configured.
+       "
+    ::= { ostErpsInstanceStatusEntry 8 }
+
+
+--------------------------------------------------------------------------------
+-- Ethernet Ring Protection Switching (ERPS) Instance Statistic Table
+--------------------------------------------------------------------------------
+
+ostErpsInstanceStatsTable OBJECT-TYPE
+    SYNTAX      SEQUENCE OF OstErpsInstanceStatsEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION
+       "This table supports ERPS instance statistic counters."
+    ::= { omnitronG8032Mib 5 }
+
+ostErpsInstanceStatsEntry OBJECT-TYPE
+    SYNTAX      OstErpsInstanceStatsEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION
+       "This is a ERPS instance statistics table entry."
+    INDEX { ostErpsInstanceStatsIndex, ostErpsInstanceStatsPort }
+    ::= { ostErpsInstanceStatsTable 1 }
+
+OstErpsInstanceStatsEntry ::= SEQUENCE {
+    ostErpsInstanceStatsIndex                   Unsigned32,
+    ostErpsInstanceStatsPort                    OstErpsPortType,
+    ostErpsInstanceStatsTxNoRequest             Unsigned32,
+    ostErpsInstanceStatsTxManualSwitch          Unsigned32,
+    ostErpsInstanceStatsTxSignalFail            Unsigned32,
+    ostErpsInstanceStatsTxEvent                 Unsigned32,
+    ostErpsInstanceStatsTxForcedSwitch          Unsigned32,
+    ostErpsInstanceStatsTxOther                 Unsigned32,
+    ostErpsInstanceStatsRxNoRequest             Unsigned32,
+    ostErpsInstanceStatsRxManualSwitch          Unsigned32,
+    ostErpsInstanceStatsRxSignalFail            Unsigned32,
+    ostErpsInstanceStatsRxEvent                 Unsigned32,
+    ostErpsInstanceStatsRxForcedSwitch          Unsigned32,
+    ostErpsInstanceStatsRxOther                 Unsigned32,
+
+    ostErpsInstanceStatusLastSwitchTime         DateAndTime,
+    ostErpsInstanceStatusLastSwitchSysTime      TimeStamp,
+    ostErpsInstanceStatusNumberSwitches         Unsigned32
+    }
+
+ostErpsInstanceStatsIndex  OBJECT-TYPE
+    SYNTAX      Unsigned32(1..16)
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION
+       "An index to the ERPS Instance statisticss table which indicates
+        the specific ERPS instance for the module.
+
+        Rows are automatically created when a row in the
+        ostERpsInstanceCfgTable is created.
+       "
+    ::= { ostErpsInstanceStatsEntry 1 }
+
+ostErpsInstanceStatsPort OBJECT-TYPE
+    SYNTAX      OstErpsPortType
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION
+       "This object indicates the specific Ring Port that the statistics are
+        associated with.
+       "
+    ::= { ostErpsInstanceStatsEntry 2 }
+
+ostErpsInstanceStatsTxNoRequest OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+       "This attribute contains the number of R-APS frames transmitted that
+        contain the R-APS no request (NR) request/state.
+       "
+    ::= { ostErpsInstanceStatsEntry 3 }
+
+ ostErpsInstanceStatsTxManualSwitch OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+       "This attribute contains the number of R-APS frames transmitted that
+        contain the R-APS manual switch (MS) request/state.
+       "
+    ::= { ostErpsInstanceStatsEntry 4 }
+
+ ostErpsInstanceStatsTxSignalFail OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+       "This attribute contains the number of R-APS frames transmitted that
+        contain the R-APS signal fail (SF) request/state.
+       "
+    ::= { ostErpsInstanceStatsEntry 5 }
+
+ ostErpsInstanceStatsTxEvent OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+       "This attribute contains the number of R-APS frames transmitted that
+        contain the R-APS event (Event) request/state.
+       "
+    ::= { ostErpsInstanceStatsEntry 6 }
+
+ ostErpsInstanceStatsTxForcedSwitch OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+       "This attribute contains the number of R-APS frames transmitted that
+        contain the R-APS forced switch (FS) request/state.
+       "
+    ::= { ostErpsInstanceStatsEntry 7 }
+
+ ostErpsInstanceStatsTxOther OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+       "This attribute contains the number of R-APS frames transmitted that
+        contain the R-APS reserved for future standardization request/states.
+       "
+    ::= { ostErpsInstanceStatsEntry 8 }
+
+ostErpsInstanceStatsRxNoRequest OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+       "This attribute contains the number of R-APS frames received that
+        contain the R-APS no request (NR) request/state.
+       "
+    ::= { ostErpsInstanceStatsEntry 9 }
+
+ ostErpsInstanceStatsRxManualSwitch OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+       "This attribute contains the number of R-APS frames received that
+        contain the R-APS manual switch (MS) request/state.
+       "
+    ::= { ostErpsInstanceStatsEntry 10 }
+
+ ostErpsInstanceStatsRxSignalFail OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+       "This attribute contains the number of R-APS frames received that
+        contain the R-APS signal fail (SF) request/state.
+       "
+    ::= { ostErpsInstanceStatsEntry 11 }
+
+ ostErpsInstanceStatsRxEvent OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+       "This attribute contains the number of R-APS frames received that
+        contain the R-APS event (Event) request/state.
+       "
+    ::= { ostErpsInstanceStatsEntry 12 }
+
+ ostErpsInstanceStatsRxForcedSwitch OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+       "This attribute contains the number of R-APS frames received that
+        contain the R-APS forced switch (FS) request/state.
+       "
+    ::= { ostErpsInstanceStatsEntry 13 }
+
+ ostErpsInstanceStatsRxOther OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+       "This attribute contains the number of R-APS frames received that
+        contain the R-APS reserved for future standardization request/states.
+       "
+    ::= { ostErpsInstanceStatsEntry 14 }
+
+ostErpsInstanceStatusLastSwitchTime OBJECT-TYPE
+    SYNTAX      DateAndTime
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+       "The time of the last protection switch for the port.
+
+        The value is initialized to zero and is updated when a protection
+        switch occurs.
+       "
+    ::= { ostErpsInstanceStatsEntry 15 }
+
+ostErpsInstanceStatusLastSwitchSysTime OBJECT-TYPE
+    SYNTAX      TimeStamp
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+       "The system uptime of the last protection switch for the port.
+
+        The value is initialized to zero and is updated when a protection
+        switch occurs.
+       "
+    ::= { ostErpsInstanceStatsEntry 16 }
+
+ostErpsInstanceStatusNumberSwitches OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+       "The number of protection switches.
+
+        The value is initialized at zero and increments for each protection
+        switch on the port.
+       "
+    ::= { ostErpsInstanceStatsEntry 17 }
+
+
+--------------------------------------------------------------------------------
+-- Conformance Information
+--------------------------------------------------------------------------------
+
+ostG8032Compliances  OBJECT IDENTIFIER ::= { omnitronG8032Mib 6 }
+ostG8032Groups       OBJECT IDENTIFIER ::= { omnitronG8032Mib 7 }
+
+
+--------------------------------------------------------------------------------
+-- Omnitron G8032 MIB Units of conformance
+--------------------------------------------------------------------------------
+
+ostErpsCfgGroup OBJECT-GROUP
+    OBJECTS {
+        ostErpsGlobalCfgEnable,
+        ostErpsGlobalCfgNextIndex,
+
+        ostErpsInstanceCfgRowStatus,
+        ostErpsInstanceCfgProfileEnable,
+        ostErpsInstanceCfgGuardTimerEnable,
+        ostErpsInstanceCfgHoldOffEnable,
+        ostErpsInstanceCfgWaitToBlockEnable,
+        ostErpsInstanceCfgWaitToRestoreEnable,
+        ostErpsInstanceCfgRevertive,
+        ostErpsInstanceCfgProtectionName,
+        ostErpsInstanceCfgRingType,
+
+        ostErpsInstanceCfgRp0PortNumber,
+        ostErpsInstanceCfgRp0PortType,
+        ostErpsInstanceCfgRp0MdIndex,
+        ostErpsInstanceCfgRp0MaIndex,
+        ostErpsInstanceCfgRp0MepId,
+
+        ostErpsInstanceCfgRp1PortNumber,
+        ostErpsInstanceCfgRp1PortType,
+        ostErpsInstanceCfgRp1MdIndex,
+        ostErpsInstanceCfgRp1MaIndex,
+        ostErpsInstanceCfgRp1MepId,
+        ostErpsInstanceCfgRp1VirtualDomainIndex,
+
+        ostErpsInstanceCfgGuardOffTime,
+        ostErpsInstanceCfgHoldOffTime,
+        ostErpsInstanceCfgWaitToBlockTime,
+        ostErpsInstanceCfgWaitToRestoreTime,
+        ostErpsInstanceCfgApsRate,
+        ostErpsInstanceCfgApsToSend,
+
+        ostErpsInstanceCfgApsScope,
+        ostErpsInstanceCfgApsMdLevel,
+        ostErpsInstanceCfgApsPriority,
+        ostErpsInstanceCfgApsEvcIndex,
+
+        ostErpsInstanceCfgManualModePort,
+        ostErpsInstanceCfgManualModeCmd,
+        ostErpsInstanceCfgClearStatistics,
+        ostErpsInstanceCfgRingId,
+        ostErpsInstanceCfgEvcNextIndex,
+
+        ostErpsInstanceCfgEvcRowStatus,
+        ostErpsInstanceCfgEvcTrafficIndex
+    }
+    STATUS      current
+    DESCRIPTION
+       "Mandatory objects for the ERPS configuration group."
+    ::= { ostG8032Groups 1 }
+
+
+ostErpsStatusGroup OBJECT-GROUP
+    OBJECTS {
+        ostErpsInstanceStatusLocal,
+        ostErpsInstanceStatusRemote,
+        ostErpsInstanceStatusHighestPriority,
+        ostErpsInstanceStatusPortState,
+        ostErpsInstanceStatusForwardingState,
+        ostErpsInstanceStatusPortLink
+    }
+    STATUS      current
+    DESCRIPTION
+       "Mandatory objects for the ERPS status group."
+    ::= { ostG8032Groups 12 }
+
+
+ostErpsStatsGroup OBJECT-GROUP
+    OBJECTS {
+        ostErpsInstanceStatsTxNoRequest,
+        ostErpsInstanceStatsTxManualSwitch,
+        ostErpsInstanceStatsTxSignalFail,
+        ostErpsInstanceStatsTxEvent,
+        ostErpsInstanceStatsTxForcedSwitch,
+        ostErpsInstanceStatsTxOther,
+        ostErpsInstanceStatsRxNoRequest,
+        ostErpsInstanceStatsRxManualSwitch,
+        ostErpsInstanceStatsRxSignalFail,
+        ostErpsInstanceStatsRxEvent,
+        ostErpsInstanceStatsRxForcedSwitch,
+        ostErpsInstanceStatsRxOther,
+        ostErpsInstanceStatusLastSwitchTime,
+        ostErpsInstanceStatusLastSwitchSysTime,
+        ostErpsInstanceStatusNumberSwitches
+    }
+    STATUS      current
+    DESCRIPTION
+       "Mandatory objects for the ERPS statistics group."
+    ::= { ostG8032Groups 2 }
+
+
+--------------------------------------------------------------------------------
+-- Omnitron G8032 MIB Compliance statements
+-------------------------------------------------------------------------------
+ostG8032Compliance MODULE-COMPLIANCE
+    STATUS       current
+    DESCRIPTION "The compliance statement for the Omnitron Protocol MIB."
+    MODULE
+        MANDATORY-GROUPS {
+            ostErpsCfgGroup,
+            ostErpsStatusGroup,
+            ostErpsStatsGroup
+        }
+    ::= { ostG8032Compliances 1 }
+
+
+END
+

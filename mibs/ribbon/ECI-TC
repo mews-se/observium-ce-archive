@@ -1,0 +1,32 @@
+--
+-- ECI Telecom Specific MIB : TC MIB
+-- Copyright (c) 2000-2007 ECI Telecom
+-- All rights reserved.
+--
+-- The contents of this document are subject to change without notice.
+--
+
+ECI-TC DEFINITIONS ::= BEGIN
+
+    IMPORTS
+	TEXTUAL-CONVENTION FROM SNMPv2-TC
+        Counter64 FROM SNMPv2-SMI;
+
+    EciSoftwareRequestStatus ::= TEXTUAL-CONVENTION
+        STATUS          current
+        DESCRIPTION
+            "This enumeration indicated the status for a pending software add/
+             del request. The values are pending(0), success(1) or failure(2)"
+        SYNTAX        INTEGER {
+            pending(0),
+            success(1),
+            failure(2)
+        }
+
+    EciCounter48 ::= TEXTUAL-CONVENTION
+        STATUS           current
+        DESCRIPTION
+          "A 48-bit positive value in the range 0 thru 281474976710655"
+        SYNTAX Counter64 
+
+END

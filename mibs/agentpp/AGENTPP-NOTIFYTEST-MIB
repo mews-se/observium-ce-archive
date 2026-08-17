@@ -1,0 +1,99 @@
+AGENTPP-NOTIFYTEST-MIB DEFINITIONS ::= BEGIN
+
+IMPORTS
+	OBJECT-GROUP,
+	NOTIFICATION-GROUP
+FROM SNMPv2-CONF
+	agentppExpr
+FROM AGENTPP-GLOBAL-REG
+	MODULE-IDENTITY,
+	OBJECT-TYPE,
+	NOTIFICATION-TYPE
+FROM SNMPv2-SMI
+	nlmLogVariableCounter32Val,
+	nlmLogVariableCounter64Val,
+	nlmLogVariableInteger32Val,
+	nlmLogVariableIpAddressVal,
+	nlmLogVariableOctetStringVal,
+	nlmLogVariableOidVal,
+	nlmLogVariableOpaqueVal,
+	nlmLogVariableTimeTicksVal,
+	nlmLogVariableUnsigned32Val
+FROM NOTIFICATION-LOG-MIB;
+
+agentppNotifyTestMIB MODULE-IDENTITY
+	LAST-UPDATED "200106061616Z"	-- Jun 6, 2001 4:16:00 PM
+	ORGANIZATION "AGENT++"
+	CONTACT-INFO
+		"Frank Fock
+		Rotenbuehlstrasse 37
+		71397 Leutenbach
+		E-mail: fock@agentpp.com"
+	DESCRIPTION
+		"This MIB defines some objects necessary to test
+		generation, forwarding, and logging of notifications."
+	REVISION "200106061616Z"	-- Jun 6, 2001 4:16:00 PM
+	DESCRIPTION
+		"Initial version."
+ -- 1.3.6.1.4.1.4976.6.2 --  ::= { agentppExpr 2 }
+
+
+agentppNotifyTestObjects OBJECT IDENTIFIER 
+ -- 1.3.6.1.4.1.4976.6.2.1 --  ::= { agentppNotifyTestMIB 1 }
+
+agentppNotifyTest OBJECT-TYPE
+	SYNTAX INTEGER {
+			agentppNotifyTestAllTypes(1) }
+	MAX-ACCESS read-write
+	STATUS current
+	DESCRIPTION
+		"By setting this object to one of its enumerated
+		values generates a corresponding notification.
+		When reading this object it will return the value
+		corresponding to the last notification type sent."
+ -- 1.3.6.1.4.1.4976.6.2.1.1 --  ::= { agentppNotifyTestObjects 1 }
+
+
+agentppTestNotifications OBJECT IDENTIFIER 
+ -- 1.3.6.1.4.1.4976.6.2.2 --  ::= { agentppNotifyTestMIB 2 }
+
+agentNotifyTestTrapNode OBJECT IDENTIFIER 
+ -- 1.3.6.1.4.1.4976.6.2.2.0 --  ::= { agentppTestNotifications 0 }
+
+
+agentppNotifyTestAllTypes NOTIFICATION-TYPE
+	OBJECTS {
+		nlmLogVariableCounter32Val,
+		nlmLogVariableUnsigned32Val,
+		nlmLogVariableTimeTicksVal,
+		nlmLogVariableInteger32Val,
+		nlmLogVariableOctetStringVal,
+		nlmLogVariableIpAddressVal,
+		nlmLogVariableOidVal,
+		nlmLogVariableCounter64Val,
+		nlmLogVariableOpaqueVal}
+	STATUS current
+	DESCRIPTION
+		"A notification with objects of all possible SNMPv2/v3 types."
+ -- 1.3.6.1.4.1.4976.6.2.2.0.1 --  ::= { agentNotifyTestTrapNode 1 }
+
+agentppNotifyTestConformance OBJECT IDENTIFIER 
+ -- 1.3.6.1.4.1.4976.6.2.3 --  ::= { agentppNotifyTestMIB 3 }
+
+agentppNotifyTestGroup NOTIFICATION-GROUP
+	NOTIFICATIONS {
+		agentppNotifyTestAllTypes }
+	STATUS current
+	DESCRIPTION
+		"A group of basic test notifications."
+ -- 1.3.6.1.4.1.4976.6.2.3.1 --  ::= { agentppNotifyTestConformance 1 }
+
+agentppNotifyTestObjectGroup OBJECT-GROUP
+	OBJECTS {
+		agentppNotifyTest }
+	STATUS current
+	DESCRIPTION
+		"Basic objects for notification testing."
+ -- 1.3.6.1.4.1.4976.6.2.3.2 --  ::= { agentppNotifyTestConformance 2 }
+
+END

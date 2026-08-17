@@ -1,0 +1,3649 @@
+OMNITRON-EST-MIB DEFINITIONS ::= BEGIN
+
+IMPORTS
+    MODULE-IDENTITY, OBJECT-TYPE, Unsigned32, IpAddress
+        FROM SNMPv2-SMI           -- RFC-2578
+    RowStatus, TruthValue, MacAddress, DateAndTime,
+    TimeInterval
+        FROM SNMPv2-TC            -- RFC-2579
+    MODULE-COMPLIANCE, OBJECT-GROUP
+        FROM SNMPv2-CONF          -- RFC-2580
+    Dot1agCfmMepIdOrZero
+        FROM IEEE8021-CFM-MIB     -- IEEE 802.1ag
+    IEEE8021PriorityValue
+        FROM IEEE8021-TC-MIB      -- IEEE 802.1ap
+    omnitron, OstVlanId, OstPortNumber,
+    OstEvcNameString, OstCosNameString, OstFrameCount64,
+    OstFrameSizeList, OstIndexIntegerNextFree, OstProfileNameString,
+    OstTestStatusType, OstTestResultType, OstUnsigned64, OstIpAddr
+        FROM OMNITRON-TC-MIB;     -- Omnitron Textual Convention MIB
+
+omnitronEstMib MODULE-IDENTITY
+    LAST-UPDATED "201810191200Z"  -- October 19, 2018
+    ORGANIZATION "Omnitron Systems Technology, Inc."
+    CONTACT-INFO "Omnitron Systems Technology, Inc.
+                  38 Tesla
+                  Irvine, CA 92618-4670
+                  USA
+
+             Tel: (949) 250 6510
+             Fax: (949) 250 6514
+          E-mail: info@omnitron-systems.com
+   International: +1 949 250 6510
+
+                  Technical Support and Customer Service
+             Tel: (800) 675 8410
+          E-mail: support@omnitron-systems.com
+   International: +1 949 250 6510"
+
+    DESCRIPTION
+            "Omnitron Ethernet Service Test (EST) MIB for use with iConverter
+             Management Modules v5.3 and NetOutlook.
+
+             Copyright 2017, 2018 Omnitron Systems Technology, Inc.
+             All rights reserved.
+            "
+
+
+    REVISION    "201810191200Z"  -- October 19, 2018
+    DESCRIPTION "Added ostEnetStInitCfgGatewayIpAddressString
+                 Added ostEnetStInitCfgNetworkAddressLength
+                 Added ostEnetStRespCfgGatewayIpAddressString
+                 Added ostEnetStRespCfgNetworkAddressLength
+                 Modified ostEnetStInitCfgRemote to include remote protocol
+                   iploop
+                 Modified ostEnetStRespCfgRemote to include remote protocol
+                   iploop
+                "
+
+    REVISION    "201809141200Z"  -- September 14, 2018
+    DESCRIPTION "Updated ostEnetStInitCfgTwampUdpSrcPort and
+                   ostEnetStInitCfgTwampUdpDstPort to allow these objects to
+                   be set for standard L3 service for the SFP-NID
+                "
+
+    REVISION    "201806261200Z"  -- June 26, 2018
+    DESCRIPTION "Added new objects to support expanded TWAMP requirements:
+                   Added ostEnetStInitCfgTwampServerPort
+                   Added ostEnetStInitCfgTwampUdpSrcPort
+                   Added ostEnetStInitCfgTwampUdpDstPort
+                   Added ostEnetStCurrentStatsDroppedCount,
+                   Added ostEnetStCurrentStatsDuplicateCount,
+                   Added ostEnetStCurrentStatsOutOfOrderCount,
+                   Added ostEnetStCurrentStatsMinTTL,
+                   Added ostEnetStCurrentStatsMaxTTL,
+                   Added ostEnetStCurrentStatsAvgTTL,
+                   Added ostEnetStHistoryStatsDroppedCount,
+                   Added ostEnetStHistoryStatsDuplicateCount,
+                   Added ostEnetStHistoryStatsOutOfOrderCount,
+                   Added ostEnetStHistoryStatsMinTTL,
+                   Added ostEnetStHistoryStatsMaxTTL,
+                   Added ostEnetStHistoryStatsAvgTTL,
+                   Added ostEnetStRespCfgTwampServerPort,
+                   Added ostEnetStRespCfgTwampUdpSrcPort,
+                   Added ostEnetStRespCfgTwampUdpDstPort
+                   Added ostEnetStRespStatsMinTTL,
+                   Added ostEnetStRespStatsMaxTTL,
+                   Added ostEnetStRespStatsAvgTTL,
+                "
+
+    REVISION    "201707061200Z"  -- July 6, 2017
+    DESCRIPTION "Removed EXFO and Sunrise from ostEnetStInitCfgRemote
+                 Removed EXFO and Sunrise from ostEnetStRespCfgRemote
+                "
+
+    REVISION    "201704141200Z"  -- April 14, 2017
+    DESCRIPTION "Added ostEnetStInitCfgCtlIpAddressString
+                 Updated ostEnetStInitCfgRemote & ostEnetStRespCfgRemote with
+                   twamplight option
+                 Added ostEnetStRespCfgPersist
+                "
+
+    REVISION    "201702161200Z"  -- February 16, 2017
+    DESCRIPTION "Modified ostEnetStRespCfgVidRx syntax to reflect actual usage.
+                "
+
+    REVISION    "201603171200Z"  -- March 17, 2016
+    DESCRIPTION "Initial version of v5.3 MIB
+                   Added ostEnetStInitCfgDestIpAddressString
+                   Added ostEnetStInitCfgSrcIpAddressString
+                   Added ostEnetStRespCfgDestIpAddressString
+                   Added ostEnetStRespCfgSrcIpAddressString
+                   Added ostEnetStInitCfgUpPort
+                   Added ostEnetStRespCfgUpPort
+                "
+    ::= { omnitron protocols(10) protocolobjects(1) 1 }
+
+
+--------------------------------------------------------------------------------
+-- Ethernet Service Testing (EnetST) Global Configuration Table
+--------------------------------------------------------------------------------
+
+ostEnetStGlobalCfgTable  OBJECT IDENTIFIER ::= { omnitronEstMib 1 }
+
+
+ostEnetStGlobalCfgInitSessionNextIndex OBJECT-TYPE
+    SYNTAX      OstIndexIntegerNextFree
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+       "This object contains an unused value for a test initiator session number
+        on a module that can be used to implement RFC 2544, Y.1564, support for
+        a third party tester, or a zero to indicate that none exist.
+
+        This value needs to be read in order to find an available index for
+        row-creation of a test session and then used when a row is created.
+        This value is automatically updated by the SNMP Agent after the row
+        is created.
+       "
+    DEFVAL { 1 }
+    ::= { ostEnetStGlobalCfgTable 1 }
+
+ostEnetStGlobalCfgRespSessionNextIndex OBJECT-TYPE
+    SYNTAX      OstIndexIntegerNextFree
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+       "This object contains an unused value for test responder session number
+        on a module that can be used to implement RFC 2544, Y.1564, support for
+        a third party tester, or a zero to indicate that none exist.
+
+        This value needs to be read in order to find an available index for
+        row-creation of a test session and then used when a row is created.
+        This value is automatically updated by the SNMP Agent after the row
+        is created.
+       "
+    DEFVAL { 1 }
+    ::= { ostEnetStGlobalCfgTable 2 }
+
+ostEnetStGlobalCfgTestGenerator OBJECT-TYPE
+    SYNTAX      TruthValue
+    MAX-ACCESS  read-write
+    STATUS      current
+    DESCRIPTION
+       "This object specifies whether the Test Initiator function is
+        globally enabled.
+
+        The value 'true' indicates the Test Initiator function is globally
+        enabled.
+
+        The value 'false' indicates the Test Initiator function is globally
+        disabled.
+       "
+    DEFVAL { true }
+    ::= { ostEnetStGlobalCfgTable 3 }
+
+ostEnetStGlobalCfgTestMonitor OBJECT-TYPE
+    SYNTAX      TruthValue
+    MAX-ACCESS  read-write
+    STATUS      current
+    DESCRIPTION
+       "This object specifies whether the Test Monitor function is
+        globally enabled.
+
+        The value 'true' indicates the Test Monitor function is globally
+        enabled.
+
+        The value 'false' indicates the Test Monitor function is globally
+        disabled.
+       "
+    DEFVAL { true }
+    ::= { ostEnetStGlobalCfgTable 4 }
+
+ostEnetStGlobalCfgTestReflector OBJECT-TYPE
+    SYNTAX      TruthValue
+    MAX-ACCESS  read-write
+    STATUS      current
+    DESCRIPTION
+       "This object specifies whether the Test Reflector function is
+        globally enabled.
+
+        The value 'true' indicates the Test Reflector function is globally
+        enabled.
+
+        The value 'false' indicates the Test Reflector function is globally
+        disabled.
+       "
+    DEFVAL { true }
+    ::= { ostEnetStGlobalCfgTable 5 }
+
+
+--------------------------------------------------------------------------------
+-- Ethernet Service Testing (EnetST) Initiator Configuration Table
+--------------------------------------------------------------------------------
+
+ostEnetStInitCfgTable OBJECT-TYPE
+    SYNTAX      SEQUENCE OF OstEnetStInitCfgEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION
+       "This table supports the global EnetST initiator configurations."
+    ::= { omnitronEstMib 2 }
+
+ostEnetStInitCfgEntry OBJECT-TYPE
+    SYNTAX      OstEnetStInitCfgEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION
+       "This is a EnetST Initiator configuration table entry."
+    INDEX { ostEnetStInitCfgIndex }
+    ::= { ostEnetStInitCfgTable 1 }
+
+OstEnetStInitCfgEntry ::= SEQUENCE {
+    ostEnetStInitCfgIndex                   Unsigned32,
+    ostEnetStInitCfgRowStatus               RowStatus,
+    ostEnetStInitCfgProfileName             OstProfileNameString,
+    ostEnetStInitCfgTestGenerator           TruthValue,
+    ostEnetStInitCfgTestMonitor             TruthValue,
+    ostEnetStInitCfgInService               TruthValue,
+    ostEnetStInitCfgPortNum                 OstPortNumber,
+
+    ostEnetStInitCfgType                    INTEGER,
+    ostEnetStInitCfgEvc                     OstEvcNameString,
+    ostEnetStInitCfgCosBwp                  OstCosNameString,
+    ostEnetStInitCfgVid                     OstVlanId,
+    ostEnetStInitCfgPriority                IEEE8021PriorityValue,
+    ostEnetStInitCfgMdIndex                 Unsigned32,
+    ostEnetStInitCfgMaIndex                 Unsigned32,
+
+    ostEnetStInitCfgDestMacAddress          MacAddress,
+    ostEnetStInitCfgDestIsMepId             TruthValue,
+    ostEnetStInitCfgDestMepId               Dot1agCfmMepIdOrZero,
+
+    ostEnetStInitCfgFrameSize               OstFrameSizeList,
+    ostEnetStInitCfgFrameType               INTEGER,
+    ostEnetStInitCfgFramePayload            INTEGER,
+
+    ostEnetStInitCfgFrameTimeDurationType   INTEGER,
+    ostEnetStInitCfgFrameDuration           Unsigned32,
+    ostEnetStInitCfgFrameRateType           INTEGER,
+    ostEnetStInitCfgFrameRate               Unsigned32,
+
+    ostEnetStInitCfgTestType                INTEGER,
+    ostEnetStInitCfgAcceptableFrameLossType INTEGER,
+    ostEnetStInitCfgAcceptableFrameLoss     Unsigned32,
+    ostEnetStInitCfgTrialCount              Unsigned32,
+    ostEnetStInitCfgStatClear               TruthValue,
+    ostEnetStInitCfgEgressPortNum           OstPortNumber,
+    ostEnetStInitCfgTestStatus              OstTestStatusType,
+    ostEnetStInitCfgPacketSizeType          INTEGER,
+    ostEnetStInitCfgFailureDecrementSize    Unsigned32,
+    ostEnetStInitCfgSearchType              INTEGER,
+    ostEnetStInitCfgAcceptableFrameDelay    Unsigned32,
+    ostEnetStInitCfgAcceptableIfdv          Unsigned32,
+    ostEnetStInitCfgNameType                INTEGER,
+    ostEnetStInitCfgVidTx                   OstVlanId,
+    ostEnetStInitCfgRemote                  INTEGER,
+    ostEnetStInitCfgDestIpAddress           IpAddress,
+    ostEnetStInitCfgSrcIpAddress            IpAddress,
+
+    ostEnetStInitCfgDisableTimeStamp        INTEGER,
+    ostEnetStInitCfgIngressPolicers         INTEGER,
+    ostEnetStInitCfgY1564FullCir            INTEGER,
+    ostEnetStInitCfgY1564Performance        INTEGER,
+    ostEnetStInitCfgY1564UseEir             INTEGER,
+
+    ostEnetStInitCfgFrameRate64             OstUnsigned64,
+    ostEnetStInitCfgAvail                   Unsigned32,
+    ostEnetStInitCfgEthertype               Unsigned32,
+    ostEnetStInitCfgDestIpAddressString     OstIpAddr,
+    ostEnetStInitCfgSrcIpAddressString      OstIpAddr,
+    ostEnetStInitCfgUpPort                  INTEGER,
+    ostEnetStInitCfgCtlIpAddressString      OstIpAddr,
+
+    ostEnetStInitCfgTwampServerPort         Unsigned32,
+    ostEnetStInitCfgTwampUdpSrcPort         Unsigned32,
+    ostEnetStInitCfgTwampUdpDstPort         Unsigned32,
+    ostEnetStInitCfgGatewayIpAddressString  OstIpAddr,
+    ostEnetStInitCfgNetworkAddressLength    Unsigned32
+    }
+
+ostEnetStInitCfgIndex
+OBJECT-TYPE
+    SYNTAX      Unsigned32(1..16)
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION
+       "An index to the EnetST Initiator Configuration table which indicates
+        the specific test session for the module.
+
+        ostEnetStGlobalCfgInitSessionNextIndex needs to be inspected to find an
+        available index for row-creation.
+       "
+    ::= { ostEnetStInitCfgEntry 1 }
+
+ostEnetStInitCfgRowStatus OBJECT-TYPE
+    SYNTAX      RowStatus
+    MAX-ACCESS  read-create
+    STATUS      current
+    DESCRIPTION
+       "The status of the row.
+
+        The writable columns in a row cannot be changed if the row
+        is active. All columns must have a valid value before a row
+        can be activated.
+       "
+   ::= { ostEnetStInitCfgEntry 2 }
+
+ostEnetStInitCfgProfileName OBJECT-TYPE
+    SYNTAX      OstProfileNameString
+    MAX-ACCESS  read-create
+    STATUS      current
+    DESCRIPTION
+        "Test Initiator profile name.
+
+         This object may not be modified after creation.
+        "
+    ::= { ostEnetStInitCfgEntry 3 }
+
+ostEnetStInitCfgTestGenerator OBJECT-TYPE
+    SYNTAX      TruthValue
+    MAX-ACCESS  read-create
+    STATUS      current
+    DESCRIPTION
+       "This object specifies whether the Test Initiator function is
+        enabled for the test instance.
+
+        The value 'true' indicates the Test Initiator function is enabled
+        for the test instance.
+
+        The value 'false' indicates the Test Initiator function is disabled
+        for the test instance.
+
+        This object can be written/modified after row creation time.
+       "
+    DEFVAL { true }
+    ::= { ostEnetStInitCfgEntry 4 }
+
+ostEnetStInitCfgTestMonitor OBJECT-TYPE
+    SYNTAX      TruthValue
+    MAX-ACCESS  read-create
+    STATUS      current
+    DESCRIPTION
+       "This object specifies whether the Test Monitor function is
+        enabled for the test instance.
+
+        The value 'true' indicates the Test Monitor function is enabled
+        for the test instance.
+
+        The value 'false' indicates the Test Monitor function is disabled
+        for the test instance.
+
+        This object can bewritten/modified after row creation time.
+       "
+    DEFVAL { true }
+    ::= { ostEnetStInitCfgEntry 5 }
+
+ostEnetStInitCfgInService OBJECT-TYPE
+    SYNTAX      TruthValue
+    MAX-ACCESS  read-create
+    STATUS      current
+    DESCRIPTION
+       "This object specifies whether the Test In-Service function is
+        enabled for the test instance.
+
+        The value 'true' indicates the Test In-Service function is enabled
+        for the test instance. Normal customer traffic is not interrupted.
+
+        The value 'false' indicates the Test In-Service function is disabled
+        for the test instance. Normal customer traffic is interrupted.
+
+        This object can be written/modified after row creation time.
+       "
+    DEFVAL { false }
+    ::= { ostEnetStInitCfgEntry 6 }
+
+ostEnetStInitCfgPortNum OBJECT-TYPE
+    SYNTAX      OstPortNumber
+    MAX-ACCESS  read-create
+    STATUS      current
+    DESCRIPTION
+       "This object selects the initiating port number for the specific test
+        instance that is configured. The egress port the specific test
+        instance is configured via the ostEnetStInitCfgEgressPortNum object.
+
+        This object can only be written at row creation time and cannot be
+        modified once it has been created.
+       "
+    ::= { ostEnetStInitCfgEntry 7 }
+
+ostEnetStInitCfgType OBJECT-TYPE
+    SYNTAX      INTEGER {
+        port   (1),
+        evc    (2),
+        evccos (3),
+        lbm    (4),
+        tst    (5)
+    }
+    MAX-ACCESS  read-create
+    STATUS      current
+    DESCRIPTION
+       "This object selects the specific type of Test Initiator instance.
+
+        port(1)       Test instance is port based
+        evc(2)        Test instance is EVC based
+        evccos(3)     Test instance is EVC+CoS based
+        lbm(4)        Test instance is LBM MEP based (configured on a MD/MA)
+        tst(5)        Test instance is ETH-Test MEP based (direct point-to-point)
+
+        This object can only be written at row creation time and cannot be
+        modified once it has been created.
+       "
+    ::= { ostEnetStInitCfgEntry 8 }
+
+ostEnetStInitCfgEvc OBJECT-TYPE
+    SYNTAX      OstEvcNameString
+    MAX-ACCESS  read-create
+    STATUS      current
+    DESCRIPTION
+       "This object defines which EVC the test instance is associated with.
+        It must be configured if ostEnetStInitCfgType is 'evc' or 'evccos'. It
+        is ignored for other test instance types.
+
+        This object can only be written at row creation time and cannot be
+        modified once it has been created.
+       "
+    DEFVAL { "DEFAULT" }
+    ::= { ostEnetStInitCfgEntry 9 }
+
+ostEnetStInitCfgCosBwp OBJECT-TYPE
+    SYNTAX      OstCosNameString
+    MAX-ACCESS  read-create
+    STATUS      current
+    DESCRIPTION
+       "This object defines which Class of Service (CoS) or Bandwidth Profile
+        the test instance is associated with. It must be configured if
+        ostEnetStInitCfgType is 'evccos'. It is ignored for other test
+        instance types.
+
+        This object can only be written at row creation time and cannot be
+        modified once it has been created.
+       "
+    DEFVAL { "DEFAULT" }
+    ::= { ostEnetStInitCfgEntry 10 }
+
+ostEnetStInitCfgVid OBJECT-TYPE
+    SYNTAX      OstVlanId
+    MAX-ACCESS  read-create
+    STATUS      current
+    DESCRIPTION
+       "The test VID associated with this EVC on this interface. It must be
+        a member of the EVC selected by ostEnetStInitCfgEvc.
+
+        If defined, it is the value of VLAN ID that is used to generate the test
+        PDUs.
+
+        If undefined,  the test PDU will be generated with the Primary VID of
+        the EVC.
+
+        This object can only be written at row creation time and cannot be
+        modified once it has been created.
+       "
+    DEFVAL { 0 }
+    ::= { ostEnetStInitCfgEntry 11 }
+
+ostEnetStInitCfgPriority OBJECT-TYPE
+    SYNTAX       IEEE8021PriorityValue
+    MAX-ACCESS  read-create
+    STATUS      current
+    DESCRIPTION
+       "This object specifies the test instance PCP value (tag priority) on
+        the generated test PDU.
+
+        It must be configured if ostEnetStInitCfgType 'evc' or 'evccos'
+        and if the EVC is a tagged type of data.
+
+        If ostEnetStInitCfgType is 'evccos' it is the only PCP value that the
+        test instance is associated with. Other PCP values will not be
+        examined or counted.
+
+        If ostEnetStInitCfgType is 'evc', 'lbm' or 'tst' this value is only used
+        when the test instance PDU is generated, and the frame is tagged, but will
+        not be examined when the test response PDUs are received.
+
+        This object can only be written at row creation time and cannot be
+        modified once it has been created.
+       "
+    DEFVAL { 0 }
+    ::= { ostEnetStInitCfgEntry 12 }
+
+ostEnetStInitCfgMdIndex OBJECT-TYPE
+    SYNTAX Unsigned32
+    MAX-ACCESS  read-create
+    STATUS      current
+    DESCRIPTION
+       "This object specifies the test instance maintenance domain index for
+        the generated test PDU.
+
+        The value is ignored for ostEnetStInitCfgType 'port', 'evc', or 'evccos'.
+
+        Is is mandatory to be configured with a valid value if ostEnetStInitCfgType
+        is 'lbm' or 'tst'.
+
+        This object can only be written at row creation time and cannot be
+        modified once it has been created.
+       "
+    DEFVAL { 0 }
+    ::= { ostEnetStInitCfgEntry 13 }
+
+ostEnetStInitCfgMaIndex OBJECT-TYPE
+    SYNTAX Unsigned32
+    MAX-ACCESS  read-create
+    STATUS      current
+    DESCRIPTION
+       "This object specifies the test instance maintenance association index
+        for the generated test PDU.
+
+        The value is ignored for ostEnetStInitCfgType 'port', 'evc', or 'evccos'.
+
+        Is is mandatory to be configured with a valid value if ostEnetStInitCfgType
+        is 'lbm' or 'tst'.
+
+        This object can only be written at row creation time and cannot be
+        modified once it has been created.
+       "
+    DEFVAL { 0 }
+    ::= { ostEnetStInitCfgEntry 14 }
+
+ostEnetStInitCfgDestMacAddress OBJECT-TYPE
+    SYNTAX      MacAddress
+    MAX-ACCESS  read-create
+    STATUS      current
+    DESCRIPTION
+       "This object specifies the Destination MAC Address Field for
+        test instance PDUs.
+
+        If ostEnetStInitCfgType is 'port', 'evc', or 'evccos' the value
+        of the object is used as the Destination Address of the test instance
+        PDUs.
+
+        If ostEnetStInitCfgType is 'lbm' or 'tst' the value of this object is
+        only used if the value of ostEnetStInitCfgDestIsMepId is 'false'.
+
+
+        If ostEnetStInitCfgType is 'lbm' or 'tst' the value of this object is
+        ignored if the value of ostEnetStInitCfgDestIsMepId is 'true'.
+
+        This object can only be written at row creation time and cannot be
+        modified once it has been created.
+       "
+    DEFVAL { '000000000001'H  }
+    ::= { ostEnetStInitCfgEntry 15 }
+
+ostEnetStInitCfgDestIsMepId OBJECT-TYPE
+    SYNTAX      TruthValue
+    MAX-ACCESS  read-create
+    STATUS      current
+    DESCRIPTION
+       "This object indicates whether the destination MEP is identified via
+        its MEP ID or its MAC address.
+
+        If ostEnetStInitCfgType is 'port', 'evc', or 'evccos' the
+        value of this object is ignored.
+
+        If ostEnetStInitCfgType is 'lbm' or 'tst' and the value of this object
+        is 'false'the destination of the test instance PDUs is determined by
+        the ostEnetStInitCfgDestMacAddress object.
+
+        If ostEnetStInitCfgType is 'lbm' or 'tst' and the value of this object
+        is 'true'the destination of the test instance PDUs is determined by the
+        ostEnetStInitCfgDestMepId object.
+
+        This object can only be written at row creation time and cannot be
+        modified once it has been created.
+       "
+    DEFVAL { false }
+    ::= { ostEnetStInitCfgEntry 16 }
+
+ostEnetStInitCfgDestMepId OBJECT-TYPE
+    SYNTAX      Dot1agCfmMepIdOrZero
+    MAX-ACCESS  read-create
+    STATUS      current
+    DESCRIPTION
+       "The Maintenance End Point Identifier of another MEP in the same
+        Maintenance Association to which the test instance PDU is to be sent.
+
+        This MEP ID will be used if the value of the column
+        ostEnetStInitCfgDestIsMepId is 'true' and ostEnetStInitCfgType is
+        'lbm' or 'tst'.
+
+        The value of this object is ignored if ostEnetStInitCfgDestIsMepId
+        is 'false'or ostEnetStInitCfgType is not 'lbm' or 'tst'.
+
+        This object can only be written at row creation time and cannot be
+        modified once it has been created.
+       "
+    DEFVAL { 0 }
+    ::= { ostEnetStInitCfgEntry 17 }
+
+ostEnetStInitCfgFrameSize OBJECT-TYPE
+    SYNTAX      OstFrameSizeList
+    MAX-ACCESS  read-create
+    STATUS      current
+    DESCRIPTION
+       "This object defines which values of frame sizes to use during
+        a test instance.
+
+        This object can only be written at row creation time and cannot be
+        modified once it has been created.
+       "
+    DEFVAL { "64" }
+    ::= { ostEnetStInitCfgEntry 18 }
+
+
+ostEnetStInitCfgFrameType OBJECT-TYPE
+    SYNTAX      INTEGER {
+        l2     (1),
+        cfm    (2)
+    }
+    MAX-ACCESS  read-create
+    STATUS      current
+    DESCRIPTION
+       "Deprecated. The value of this object is ignored"
+    DEFVAL { l2 }
+    ::= { ostEnetStInitCfgEntry 19 }
+
+ostEnetStInitCfgFramePayload OBJECT-TYPE
+    SYNTAX      INTEGER {
+        zeros    (1),
+        ones     (2),
+        prbs     (3),
+        zerosCrc (4),
+        onesCrc  (5),
+        prbsCrc  (6)
+    }
+    MAX-ACCESS  read-create
+    STATUS      current
+    DESCRIPTION
+       "This object selects the specific type of test instance frame
+        type.
+
+        zeros(1)      Test instance frame payload is all zeros
+        ones(2)       Test instance frame payload is all ones
+        prbs(3)       Test instance frame payload is a 2^-31 PRBS data pattern
+        zerosCrc(4)   Test instance frame payload is all zeros plus CRC
+        onesCrc(5)    Test instance frame payload is all ones plus CRC
+        prbsCrc(6)    Test instance frame payload is a 2^-31 PRBS data pattern
+                        plus CRC
+
+        This object can only be written at row creation time and cannot be
+        modified once it has been created.
+       "
+    DEFVAL { zeros }
+    ::= { ostEnetStInitCfgEntry 20 }
+
+ostEnetStInitCfgFrameTimeDurationType OBJECT-TYPE
+    SYNTAX      INTEGER {
+        framecount(1),
+        timecount(2)
+    }
+    MAX-ACCESS  read-create
+    STATUS      current
+    DESCRIPTION
+       "This object selects the specific time duration that is indicated
+        by ostEnetStInitCfgFrameDuration for the test instance.
+        type.
+
+        framecount(1)      Test instance duration type specified by number of
+                           frames
+        timecount(2)       Test instance duration type specified by number of
+                           seconds
+
+        This object can only be written at row creation time and cannot be
+        modified once it has been created.
+       "
+    DEFVAL { timecount }
+    ::= { ostEnetStInitCfgEntry 21 }
+
+ostEnetStInitCfgFrameDuration OBJECT-TYPE
+    SYNTAX Unsigned32
+    MAX-ACCESS  read-create
+    STATUS      current
+    DESCRIPTION
+       "This object specifies the duration of a test instance trial.
+
+        If ostEnetStInitCfgFrameTimeDurationType is 'framecount' the value of the
+        object indicates the number of frames to transmit for a trial.
+
+
+        If ostEnetStInitCfgFrameTimeDurationType is 'timecount' the value of the
+        object indicates the number of seconds to transmit for a trial,
+
+        A value of 0 indicates the test trial runs until the test instance is
+        disabled.
+
+        This object can only be written at row creation time and cannot be
+        modified once it has been created.
+       "
+    DEFVAL { 10 }
+    ::= { ostEnetStInitCfgEntry 22 }
+
+ostEnetStInitCfgFrameRateType OBJECT-TYPE
+    SYNTAX      INTEGER {
+        bits(1),
+        frames(2),
+        gap(3),
+        interface(4),
+        serviceRate(5)
+    }
+    MAX-ACCESS  read-create
+    STATUS      current
+    DESCRIPTION
+       "This object selects the specific frame rate that is indicated
+        by ostEnetStInitCfgFrameRate for the test instance.
+
+        bits(1)            Test instance frame rate specified by bits per second
+        frames(2)          Test instance frame rate specified by frames per
+                           second
+        gap(3)             Test instance frame rate specified by gap between
+                           frames in nsec (not currently supported)
+        interface(4)       Test instance frame rate specified by percentage of
+                           interface speed in 0.001%
+        serviceRate(5)     Test instance frame rate specified by the CIR rate of
+                           test instance flow. For an EVC type it is the CIR of
+                           the EVC. For a EVC+CoS type it is the CIR of EVC+CoS.
+
+        For the 'serviceRate' selection:
+        If 'ostEnetStInitCfgType' is 'evc', 'lbm', or 'tst' it is the CIR of the EVC.
+        If 'ostEnetStInitCfgType' is 'evccos' it is the CIR of the EVC+CoS.
+        If 'ostEnetStInitCfgType' is 'port' it is the interface rate.
+
+        This object can only be written at row creation time and cannot be
+        modified once it has been created.
+       "
+    DEFVAL { bits }
+    ::= { ostEnetStInitCfgEntry 23 }
+
+ostEnetStInitCfgFrameRate OBJECT-TYPE
+    SYNTAX Unsigned32
+    MAX-ACCESS  read-create
+    STATUS      current
+    DESCRIPTION
+       "This object specifies the specific frame rate of a test instance.
+        This object is valid for the GMx family of products. It is undefined
+        for the XMx family of products.
+
+        If ostEnetStInitCfgFrameRateType is 'bits' the value of the
+        object indicates the bits rate for the test instance. It has
+        a value range of 25,000 to 1,000,000,000.
+
+        If ostEnetStInitCfgFrameRateType is 'frames' the value of the
+        object indicates the number of frames per second per test instance.
+        It has a value range of 10 to 1488095.
+
+        If ostEnetStInitCfgFrameRateType is 'gap' the value of the
+        object indicates the gap between frames in nsec for the test instance.
+
+        If ostEnetStInitCfgFrameRateType is 'interface' the value of the
+        object indicates a fraction of the interface speed in 0.001%. It
+        has a value range of 0.001 - 100.000%.
+
+        If ostEnetStInitCfgFrameRateType is 'serviceRate' the value of the
+        object is ignored.
+
+        This object can only be written at row creation time and cannot be
+        modified once it has been created.
+       "
+    DEFVAL { 1000000000 }
+    ::= { ostEnetStInitCfgEntry 24 }
+
+ostEnetStInitCfgTestType OBJECT-TYPE
+    SYNTAX      INTEGER {
+        loss(1),
+        latency(2),
+        throughput(3),
+        backToBack(4),
+        y1564Service(5)
+    }
+    MAX-ACCESS  read-create
+    STATUS      current
+    DESCRIPTION
+       "This object selects the specific type of test instance.
+
+        loss(1)            Test instance is RFC2544 Loss test
+        latency(2)         Test instance is RFC2544 Latency test
+        throughput(3)      Test instance is RFC2544 Throughput test
+        backToBack(4)      Test instance is RFC2544 Back-to-Back test
+        y1564Service(5)    Test instance is ITU-T Y.1564 Service Test
+
+        This object can only be written at row creation time and cannot be
+        modified once it has been created.
+       "
+    DEFVAL { loss }
+    ::= { ostEnetStInitCfgEntry 25 }
+
+ostEnetStInitCfgAcceptableFrameLossType OBJECT-TYPE
+    SYNTAX      INTEGER {
+        framecount(1),
+        frameratio(2)
+    }
+    MAX-ACCESS  read-create
+    STATUS      current
+    DESCRIPTION
+       "This object selects the specific type of acceptable frame loss
+        before a trial failure is declared as indicated by
+        ostEnetStInitCfgAcceptableFrameLoss for the test instance.
+
+        framecount(1)      Acceptable loss criteria based upon lost frame count
+        frameratio(2)      Acceptable loss criteria based upon percentage ratio
+                           of lost frames in 0.001%
+
+        This object can only be written at row creation time and cannot be
+        modified once it has been created.
+       "
+    DEFVAL { framecount }
+    ::= { ostEnetStInitCfgEntry 26 }
+
+ostEnetStInitCfgAcceptableFrameLoss OBJECT-TYPE
+    SYNTAX Unsigned32(1..4294967295)
+    MAX-ACCESS  read-create
+    STATUS      current
+    DESCRIPTION
+       "This object specifies the acceptable frame loss in a trial before
+        a trial failure is declared in a test instance.
+
+        If ostEnetStInitCfgAcceptableFrameLossType is 'framecount' the value of
+        the object indicates the number of lost frames in a trial before a
+        failure indication is declared.
+
+        If ostEnetStInitCfgAcceptableFrameLossType is 'frameratio' the value of
+        the object indicates the ratio of lost frames in a trial before
+        before a failure indication is declared in 0.001%.
+
+        This object can only be written at row creation time and cannot be
+        modified once it has been created.
+       "
+    DEFVAL { 10 }
+    ::= { ostEnetStInitCfgEntry 27 }
+
+ostEnetStInitCfgTrialCount OBJECT-TYPE
+    SYNTAX Unsigned32(1..100)
+    MAX-ACCESS  read-create
+    STATUS      current
+    DESCRIPTION
+       "This object specifies the number of trials to run for a specific
+        test instance for a specific iteration. An iteration is one test run
+        that runs for a specific time duration.
+
+        This object can only be written at row creation time and cannot be
+        modified once it has been created.
+       "
+    DEFVAL { 1 }
+    ::= { ostEnetStInitCfgEntry 28 }
+
+ostEnetStInitCfgStatClear OBJECT-TYPE
+    SYNTAX      TruthValue
+    MAX-ACCESS  read-create
+    STATUS      current
+    DESCRIPTION
+       "This object when written clears the statistic counters associated with
+        a specific test instance. When read the value always returns 'false'.
+
+        Writing this value does not change any items in the configuration table.
+
+        Writing this object at row creation is irrelevant and should not
+        be done.
+       "
+    DEFVAL { false }
+    ::= { ostEnetStInitCfgEntry 29 }
+
+ostEnetStInitCfgEgressPortNum OBJECT-TYPE
+    SYNTAX      OstPortNumber
+    MAX-ACCESS  read-create
+    STATUS      current
+    DESCRIPTION
+       "This object selects the egress port number for the specific test
+        instance that is configured. The initiating port for the specific test
+        instance is configured via the ostEnetStInitCfgPortNum object. A value
+        of '0' for this object indicates the egress port is the same as the
+        initiating port unless configured via ostEnetStInitCfgUpPort.
+
+        This object can only be written at row creation time and cannot be
+        modified once it has been created.
+       "
+    DEFVAL { 0 }
+    ::= { ostEnetStInitCfgEntry 30 }
+
+ostEnetStInitCfgTestStatus
+OBJECT-TYPE
+    SYNTAX      OstTestStatusType
+    MAX-ACCESS  read-write
+    STATUS      current
+    DESCRIPTION
+       "This object indicates the status of the currently indicated Test
+        Instance.
+
+        If a value of testInitializing(5) is written to the object the
+        test will be restarted, whether is has completed, is in process,
+        or stopped. A test has a status of testNotStarted(1) cannot be
+        restarted as the configuration is not yet complete.
+       "
+    ::= { ostEnetStInitCfgEntry 31 }
+
+
+ostEnetStInitCfgPacketSizeType OBJECT-TYPE
+    SYNTAX      INTEGER {
+        l1(1),
+        l2(2),
+        l3(3)
+    }
+    MAX-ACCESS  read-create
+    STATUS      current
+    DESCRIPTION
+       "This object selects the type of packet to be used for calculating the
+        time between frame starts.
+
+        l1(1)      Uses the frame size + preamble/start (8 bytes) + inter-packet
+                   gap (12 bytes) to calculate the minimum time between starts
+                   of frame transmission. This is the time most third party
+                   testers use.
+        l2(2)      Uses the frame size to calculate the minimum time between
+                   starts of frame transmission. This is the expectation if
+                   MEF standards are used.
+        l3(3)      Uses the frame size - 14 bytes (DA, SA, Etherytpe) to
+                   calculate the minimum time between starts of frame
+                   transmission. This is the expectation for Internet users.
+
+        This object can only be written at row creation time and cannot be
+        modified once it has been created.
+       "
+    DEFVAL { l1 }
+    ::= { ostEnetStInitCfgEntry 32 }
+
+ostEnetStInitCfgFailureDecrementSize OBJECT-TYPE
+    SYNTAX      Unsigned32 (1..100)
+    UNITS       "percent"
+    MAX-ACCESS  read-create
+    STATUS      current
+    DESCRIPTION
+       "This object contains the maximum resolution for ascertaining a passing
+        rate for a test.
+
+        If 'ostEnetStInitCfgSearchType' is 'fixed' and a test fails, the test
+        rate is decremented by the value of this object. If the test passes
+        the test is terminated.
+
+        If 'ostEnetStInitCfgSearchType' is 'binary' and a test fails, the
+        next rate is decreased by 1/2 of the difference between the
+        current rate and the last known pass, or 0%, if no test has passed. If
+        a test passes the rate is increased by 1/2 of the difference between
+        the current value and the last known known fail, or 100% if no test
+        has failed at rate below 100%.
+
+        If the rate of change is less than the value of this object or the next
+        rate is 0% the test terminates.
+
+        Units are in percent, where 1 indicates 1 percent.
+      "
+    DEFVAL { 10 }
+    ::= { ostEnetStInitCfgEntry 33 }
+
+ostEnetStInitCfgSearchType OBJECT-TYPE
+    SYNTAX      INTEGER {
+        fixed  (1),
+        binary (2)
+    }
+    MAX-ACCESS  read-create
+    STATUS      current
+    DESCRIPTION
+       "This object selects the specific type of Test Initiator instance.
+
+        fixed(1)       Test instance decrements based upon the value of
+                       ostEnetStInitCfgFailureDecrementSize. When a test
+                       iteration fails, the test is rerun at the current
+                       rate - the percent value of the initial test
+                       until there is a pass or a zero value is
+                       reached.
+        binary(2)      Test instance decrements by 50% of the previous decrement
+                       value and when it fails and increments by 25% of the
+                       previous decrement value. If the decrement value
+                       falls below ostEnetStInitCfgFailureDecrementSize the
+                       test stops and the last 'Pass' value is displayed.
+
+        This object can only be written at row creation time and cannot be
+        modified once it has been created.
+      "
+    DEFVAL { fixed }
+    ::= { ostEnetStInitCfgEntry 34 }
+
+ostEnetStInitCfgAcceptableFrameDelay OBJECT-TYPE
+    SYNTAX Unsigned32(1..1000000)
+    UNITS       "microseconds"
+    MAX-ACCESS  read-create
+
+    STATUS      current
+    DESCRIPTION
+       "This object specifies the acceptable frame delay in a trial before
+        a trial failure is declared in a test instance.
+
+        This object is used for Y.1564 testing only.
+
+        If the max frame delay in a test iteration is greater than the value
+        of this object the frame delay objective has not been met.
+
+        If the max frame delay in a test iteration is less than or equal to
+        the value of this object the frame delay objective for the test
+        iteration has been met.
+
+        This object can only be written at row creation time and cannot be
+        modified once it has been created.
+       "
+    DEFVAL { 100000 }
+    ::= { ostEnetStInitCfgEntry 35 }
+
+ostEnetStInitCfgAcceptableIfdv OBJECT-TYPE
+    SYNTAX Unsigned32(1..1000000)
+    UNITS       "microseconds"
+    MAX-ACCESS  read-create
+
+    STATUS      current
+    DESCRIPTION
+       "This object specifies the acceptable inter-frame delay in a trial before
+        a trial failure is declared in a test instance.
+
+        This object is used for Y.1564 testing only.
+
+        If the max inter-frame delay in a test iteration is greater than the
+        value of this object the inter-frame delay objective has not been met.
+
+        If the max inter-frame delay in a test iteration is less than or equal
+        to the value of this object the inter-frame delay objective for the test
+        iteration has been met.
+
+        This object can only be written at row creation time and cannot be
+        modified once it has been created.
+       "
+    DEFVAL { 100000 }
+    ::= { ostEnetStInitCfgEntry 36 }
+
+ostEnetStInitCfgNameType OBJECT-TYPE
+    SYNTAX      INTEGER {
+        cos(1),
+        bwp(2)
+    }
+    MAX-ACCESS  read-create
+    STATUS      current
+    DESCRIPTION
+       "This object selects the packet name type for the associated Test
+        Instance, either CoS or BWP profile name.
+
+        cos(1)     The ostEnetStInitCfgCosBwp object indicates the value
+                   references a CoS name.
+
+        bwp(2)     The ostEnetStInitCfgCosBwp object indicates the value
+                   references a BWP name.
+
+        This object can only be written at row creation time and cannot be
+        modified once it has been created.
+       "
+    DEFVAL { cos }
+    ::= { ostEnetStInitCfgEntry 37 }
+
+
+ostEnetStInitCfgVidTx OBJECT-TYPE
+    SYNTAX      OstVlanId
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+       "The VID associated with the Test PDUs for the Test Instance.
+
+        If the primary VID was selected it indicates the Primary VID used. If
+        the primary VID was not selected it indicates the VID used for Test
+        PDUs. A value of '0' indicates that Test PDUs are untagged.
+       "
+    ::= { ostEnetStInitCfgEntry 38 }
+
+ostEnetStInitCfgRemote OBJECT-TYPE
+    SYNTAX      INTEGER {
+        none       (1),
+        jdsu       (2),
+        veex       (5),
+        twamp      (6),
+        twamplight (7),
+        iploop     (8)
+    }
+    MAX-ACCESS  read-create
+    STATUS      current
+    DESCRIPTION
+       "This object selects the specific type of remote protocol for the specific
+        Test Initiator instance.
+
+        none(1)       Test instance is independent of loop up/down protocols
+        jdsu(2)       Test instance is proprietary protocol test from JDSU
+        veex(5)       Test instance is proprietary protocol test from VeEX
+        twamp(6)      Test instance is TWAMP test
+        twamplight(7) Test instance is TWAMPLIGHT test
+        iploop(8)     Test instance is IP Loopback test using the gateway (SFP-NID)
+
+        This object can only be written at row creation time and cannot be
+        modified once it has been created.
+       "
+    DEFVAL { none }
+    ::= { ostEnetStInitCfgEntry 39 }
+
+ostEnetStInitCfgDestIpAddress OBJECT-TYPE
+    SYNTAX      IpAddress
+    MAX-ACCESS  read-create
+    STATUS      current
+    DESCRIPTION
+       "This object indicates the destination IPv4 address of the specific
+        test instance for an L3 type of test.
+
+        A non-zero value for this object indicates that the Ethernet frame will
+        be a layer 3 (IP type) of frame. It is illegal to set this when the
+        ostEnetStInitCfgType object is set to 'lbm' or 'tst'.
+
+        Setting this object also impacts the ostEnetStInitCfgDestIpAddressString
+        returned value. If an IPv4 address is written to this object the
+        two objects return the same value. If ostEnetStInitCfgDestIpAddressString
+        is set with an IPv6 address then this object returns an all zeros
+        value.
+
+        This object can only be written at row creation time and cannot be
+        modified once it has been created.
+       "
+    DEFVAL { '00000000'H  }
+    ::= { ostEnetStInitCfgEntry 40 }
+
+ostEnetStInitCfgSrcIpAddress OBJECT-TYPE
+    SYNTAX      IpAddress
+    MAX-ACCESS  read-create
+    STATUS      current
+    DESCRIPTION
+       "This object indicates the source IPv4 address of the specific test
+        instance for an L3 type of test
+
+        A non-zero value for this object or ostEnetStInitCfgSrcIpAddressString
+        indicates that the Ethernet frame will be a layer 3 (IP type) of frame.
+        It is illegal to set this when the ostEnetStInitCfgType object is set
+        to 'lbm' or 'tst'
+
+        Setting this object also impacts the ostEnetStInitCfgSrcIpAddressString
+        returned value. If an IPv4 address is written to this object the
+        two objects return the same value. If ostEnetStInitCfgSrcIpAddressString
+        is set with an IPv6 address then this object returns an all zeros
+        value.
+
+        This object can only be written at row creation time and cannot be
+        modified once it has been created.
+       "
+    DEFVAL { '00000000'H  }
+    ::= { ostEnetStInitCfgEntry 41 }
+
+ostEnetStInitCfgDisableTimeStamp OBJECT-TYPE
+    SYNTAX      INTEGER {
+        noTimeStamp  (1),
+        addTimeStamp (2)
+    }
+    MAX-ACCESS  read-create
+    STATUS      current
+    DESCRIPTION
+       "This object selects whether the timestamp is added to the Data or Test
+        TLV.
+
+        noTimeStamp(1)   Test frames do not include originating timestamp
+        addTimeStamp(2)  Test frames do include originating timestamp
+
+        This object can only be written at row creation time and cannot be
+        modified once it has been created.
+       "
+    DEFVAL { addTimeStamp }
+    ::= { ostEnetStInitCfgEntry 42 }
+
+
+ostEnetStInitCfgIngressPolicers OBJECT-TYPE
+    SYNTAX      INTEGER {
+        noIngressPolicers  (1),
+        useIngressPolicers (2)
+    }
+    MAX-ACCESS  read-create
+    STATUS      current
+    DESCRIPTION
+       "This object selects whether the ingress policers are used for generation
+        of test traffic.
+
+        noIngressPolicers(1)  No ingress policers are used for traffic generation
+        useIngressPolicers(2) Ingress policers are used for traffic generation
+
+        This object can only be written at row creation time and cannot be
+        modified once it has been created.
+
+        This object has been deprecated and should not be used.
+       "
+    DEFVAL { noIngressPolicers }
+    ::= { ostEnetStInitCfgEntry 43 }
+
+ostEnetStInitCfgY1564FullCir OBJECT-TYPE
+    SYNTAX      INTEGER {
+        fullCir  (1),
+        stepCir  (2)
+    }
+    MAX-ACCESS  read-create
+    STATUS      current
+    DESCRIPTION
+       "This object selects whether the A.1 (full CIR) or A.2 (step CIR) test
+        is run. This is applicable to Y.1564 test only and is ignored for other
+        test types
+
+
+        fullCir(1)      Selects Y.1564 A.1 test, full CIR only
+        stepCir(2)      Selects Y.1564 A.2 test, step CIR: 25, 50, 75, 100%
+
+        This object can only be written at row creation time and cannot be
+        modified once it has been created.
+       "
+    DEFVAL { stepCir }
+    ::= { ostEnetStInitCfgEntry 44 }
+
+ostEnetStInitCfgY1564Performance OBJECT-TYPE
+    SYNTAX      INTEGER {
+        y1564ConfigTest      (1),
+        y1564PerformanceTest (2)
+    }
+    MAX-ACCESS  read-create
+    STATUS      current
+    DESCRIPTION
+       "This object selects whether the configuration tests A, B, and C are
+        run or whether the performance test A is run. This is applicable to
+        Y.1564 test only and is ignored for other test types.
+
+        y1564ConfigTest(1)       Runs the Service Activation Configuration test
+                                 includine Test A (CIR), B (EIR), and
+                                 C (policing)
+        y1564PerformanceTest(2)  Runs the Service Activation Performance test,
+                                 test A (CIR) only
+
+        This object can only be written at row creation time and cannot be
+        modified once it has been created.
+       "
+    DEFVAL { y1564ConfigTest }
+    ::= { ostEnetStInitCfgEntry 45 }
+
+
+ostEnetStInitCfgY1564UseEir OBJECT-TYPE
+    SYNTAX      INTEGER {
+        y1564UseCir    (1),
+        y1564UseEir    (2)
+    }
+    MAX-ACCESS  read-create
+    STATUS      current
+    DESCRIPTION
+       "This object selects whether the CIR test (Test A) uses CIR or EIR
+        when running the test. This allows the test to run and stay in
+        sync with other tests running of the bandwidth profile is EIR
+        only. If the bandwidth profile is EIR only and 'y1564UseCir' is
+        selected the A.x test is skipped.   This is applicable to
+        Y.1564 test only and is ignored for other test types.
+
+        y1564UseCir(1)  Runs the Service Activation A Test with CIR and is
+                        skipped if EIR=0
+
+        y1564UseEir(2)  Runs the Service Activation A Test with EIR and is
+                        ignored if CIR<>0
+
+        This object can only be written at row creation time and cannot be
+        modified once it has been created.
+       "
+    DEFVAL { y1564UseCir }
+    ::= { ostEnetStInitCfgEntry 46 }
+
+ostEnetStInitCfgFrameRate64 OBJECT-TYPE
+    SYNTAX OstUnsigned64
+    MAX-ACCESS  read-create
+    STATUS      current
+    DESCRIPTION
+       "This object specifies the specific frame rate of a test instance.
+
+        This object is used only for the XM5. It is undefined for the GMx
+        family of products.
+
+        If ostEnetStInitCfgFrameRateType is 'bits' the value of the
+        object indicates the bits rate for the test instance. It has
+        a value range of 25,000 to 10,000,000,000.
+
+        If ostEnetStInitCfgFrameRateType is 'frames' the value of the
+        object indicates the number of frames per second per test instance.
+        It has a value range of 10 to 14880952.
+
+        If ostEnetStInitCfgFrameRateType is 'gap' the value of the
+        object indicates the gap between frames in nsec for the test instance.
+
+        If ostEnetStInitCfgFrameRateType is 'interface' the value of the
+        object indicates a fraction of the interface speed in 0.001%. It
+        has a value range of 0.001 - 100.000%.
+
+        If ostEnetStInitCfgFrameRateType is 'serviceRate' the value of the
+        object is ignored.
+
+        This object can only be written at row creation time and cannot be
+        modified once it has been created.
+       "
+    DEFVAL { 1000000000 }
+    ::= { ostEnetStInitCfgEntry 47 }
+
+ostEnetStInitCfgAvail OBJECT-TYPE
+    SYNTAX      Unsigned32 (0..100000)
+    UNITS       "milli-percent"
+    MAX-ACCESS  read-create
+    STATUS      current
+    DESCRIPTION
+       "This object specifies the acceptable AVAIL (availability) in a trial
+        before a trial failure is declared in a test instance. If availablilty
+        drops below the configured value a trial failure will occur.
+
+        The percent value is expressed as a percent with a value of 0 (ratio
+        0.000%) through 100000 (100.000%)
+
+        Units are in milli-percent, where 1 indicates 0.001 percent.
+       "
+    DEFVAL { 0 }
+    ::= { ostEnetStInitCfgEntry 48 }
+
+ostEnetStInitCfgEthertype OBJECT-TYPE
+    SYNTAX Unsigned32
+    MAX-ACCESS  read-create
+    STATUS      current
+    DESCRIPTION
+       "This object specifies the test instance Ethertype that is used at the
+        start of the data portion of the frame at the VID TAG.
+
+        The value is ignored for ostEnetStInitCfgType 'mep', 'lbm', 'tst'.
+
+        This object can only be written at row creation time and cannot be
+        modified once it has been created.
+       "
+    DEFVAL { '9001'H }
+    ::= { ostEnetStInitCfgEntry 49 }
+
+
+ostEnetStInitCfgDestIpAddressString OBJECT-TYPE
+    SYNTAX      OstIpAddr
+    MAX-ACCESS  read-create
+    STATUS      current
+    DESCRIPTION
+       "This object indicates the destination IPv4 or IPv6 address of the
+        specific test instance for an L3 type of test.
+
+        A non-zero value for this object indicates that the Ethernet frame will
+        be a layer 3 (IP type) of frame. It is illegal to set this when the
+        ostEnetStInitCfgType object is set to 'lbm' or 'tst'
+
+        Setting this object also impacts the ostEnetStInitCfgDestIpAddress
+        returned value. If an IPv4 address is written to this object the
+        two objects return the same value. If this object is set with an IPv6
+        address then ostEnetStInitCfgDestIpAddress returns an all zeros value.
+
+        This object can only be written at row creation time and cannot be
+        modified once it has been created.
+       "
+    DEFVAL { "::"  }
+    ::= { ostEnetStInitCfgEntry 50 }
+
+ostEnetStInitCfgSrcIpAddressString OBJECT-TYPE
+    SYNTAX      OstIpAddr
+    MAX-ACCESS  read-create
+    STATUS      current
+    DESCRIPTION
+       "This object indicates the source IPv4 or IPv6 address of the
+        specific test instance for an L3 type of test
+
+        A non-zero value for this object indicates that the Ethernet frame will
+        be a layer 3 (IP type) of frame. It is illegal to set this when the
+        ostEnetStInitCfgType object is set to 'lbm' or 'tst'
+
+        Setting this object also impacts the ostEnetStInitCfgSrcIpAddress
+        returned value. If an IPv4 address is written to this object the
+        two objects return the same value. If this object is set with an IPv6
+        address then ostEnetStInitCfgSrcIpAddress returns an all zeros value.
+
+        This object can only be written at row creation time and cannot be
+        modified once it has been created.
+       "
+    DEFVAL { "::"  }
+    ::= { ostEnetStInitCfgEntry 51 }
+
+ostEnetStInitCfgUpPort OBJECT-TYPE
+    SYNTAX      INTEGER {
+        none    (1),
+        evc     (2)
+    }
+    MAX-ACCESS  read-create
+    STATUS      current
+    DESCRIPTION
+       "This object allows an egress port to be dynamically determined by
+        sending traffic out all the ports in an EVC instead of a specific
+        egress port (ostEnetStInitCfgEgressPortNum).
+
+        none(1)       Egress port is based upon ostEnetStInitCfgEgressPortNum
+        evc(2)        Egress port is determined by EVC members
+
+        This object can only be written at row creation time and cannot be
+        modified once it has been created.
+       "
+    DEFVAL { none  }
+    ::= { ostEnetStInitCfgEntry 52 }
+
+ostEnetStInitCfgCtlIpAddressString OBJECT-TYPE
+    SYNTAX      OstIpAddr
+    MAX-ACCESS  read-create
+    STATUS      current
+    DESCRIPTION
+       "This object indicates the control IPv4 or IPv6 address of the
+        specific test instance for remote protocol type of test.
+
+        It is illegal to set this when the ostEnetStInitCfgType object is set
+        to 'mep', 'lbm' or 'tst'.
+
+        This object can only be written at row creation time and cannot be
+        modified once it has been created.
+       "
+    DEFVAL { "::"  }
+    ::= { ostEnetStInitCfgEntry 53 }
+
+ostEnetStInitCfgTwampServerPort OBJECT-TYPE
+    SYNTAX      Unsigned32 (0..65535)
+    MAX-ACCESS  read-create
+    STATUS      current
+    DESCRIPTION
+       "TWAMP server TCP port
+       "
+    DEFVAL { 862  }
+    ::= { ostEnetStInitCfgEntry 54 }
+
+ostEnetStInitCfgTwampUdpSrcPort OBJECT-TYPE
+    SYNTAX      Unsigned32 (0..65535)
+    MAX-ACCESS  read-create
+    STATUS      current
+    DESCRIPTION
+       "TWAMP or SFP-NID L3 PDU data or SFP-NID IP Loopback remote protocol
+        UDP source port. When used in a standard L3 loopback the transmitted
+        frame is a UDP L4 frame.
+       "
+    ::= { ostEnetStInitCfgEntry 55 }
+
+ostEnetStInitCfgTwampUdpDstPort  OBJECT-TYPE
+    SYNTAX      Unsigned32 (0..65535)
+    MAX-ACCESS  read-create
+    STATUS      current
+    DESCRIPTION
+       "TWAMP or SFP-NID L3 PDU data or SFP-NID IP Loopback remote protocol
+        UDP destination port. When used in a standard L3 loopback the
+        transmitted frame is a UDP L4 frame.
+       "
+    ::= { ostEnetStInitCfgEntry 56 }
+
+
+ostEnetStInitCfgGatewayIpAddressString OBJECT-TYPE
+    SYNTAX      OstIpAddr
+    MAX-ACCESS  read-create
+    STATUS      current
+    DESCRIPTION
+       "This object indicates the gateway IPv4 or IPv6 address of the
+        specific test instance for remote protocol IP Loopback type of test
+        for the SFP-NID.
+
+        It is illegal to set this when the ostEnetStInitCfgType object is set
+        to 'mep', 'lbm' or 'tst'.
+
+        This object can only be written at row creation time and cannot be
+        modified once it has been created.
+       "
+    DEFVAL { "::"  }
+    ::= { ostEnetStInitCfgEntry 57 }
+
+ostEnetStInitCfgNetworkAddressLength OBJECT-TYPE
+    SYNTAX      Unsigned32 (1..128)
+    MAX-ACCESS  read-write
+    STATUS      current
+    DESCRIPTION
+       "This object configures the IPv4 subnet mask bit length (maximum size
+        of 28) or the IPv6 prefix bit length (maximum size of 128) for the
+        SFP-NID.
+
+        This object can only be written at row creation time and cannot be
+        modified once it has been created.
+       "
+    DEFVAL { 24 }
+    ::= { ostEnetStInitCfgEntry 58 }
+
+
+--------------------------------------------------------------------------------
+-- Ethernet Service Testing (EnetST) Current Statistics Table
+--------------------------------------------------------------------------------
+
+ostEnetStCurrentStatsTable OBJECT-TYPE
+    SYNTAX      SEQUENCE OF OstEnetStCurrentStatsEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION
+       "This table supports the current statistics for EnetST initiators."
+    ::= { omnitronEstMib 3 }
+
+ostEnetStCurrentStatsEntry OBJECT-TYPE
+    SYNTAX      OstEnetStCurrentStatsEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION
+       "This is a EnetST Initiator current statistics table entry."
+    INDEX { ostEnetStInitCfgIndex }
+    ::= { ostEnetStCurrentStatsTable 1 }
+
+OstEnetStCurrentStatsEntry ::= SEQUENCE {
+    ostEnetStCurrentStatsIndex                Unsigned32,
+    ostEnetStCurrentStatsStartTime            DateAndTime,
+    ostEnetStCurrentStatsElapsedTime          TimeInterval,
+    ostEnetStCurrentStatsTrial                Unsigned32,
+    ostEnetStCurrentStatsIteration            Unsigned32,
+    ostEnetStCurrentStatsFrameSize            Unsigned32,
+    ostEnetStCurrentStatsTransmitRate         Unsigned32,
+    ostEnetStCurrentStatsFramesTransmitted    OstFrameCount64,
+    ostEnetStCurrentStatsFramesReceived       OstFrameCount64,
+    ostEnetStCurrentStatsFrameDelayTwoWayMin  Unsigned32,
+    ostEnetStCurrentStatsFrameDelayTwoWayMax  Unsigned32,
+    ostEnetStCurrentStatsFrameDelayTwoWayAvg  Unsigned32,
+    ostEnetStCurrentStatsIfdvTwoWayMin        Unsigned32,
+    ostEnetStCurrentStatsIfdvTwoWayMax        Unsigned32,
+    ostEnetStCurrentStatsIfdvTwoWayAvg        Unsigned32,
+    ostEnetStCurrentStatsReceiveErrors        OstFrameCount64,
+    ostEnetStCurrentStatsTestStatus           OstTestResultType,
+    ostEnetStCurrentStatsInterfaceRate        Unsigned32,
+    ostEnetStCurrentStatsLineRate             Unsigned32,
+    ostEnetStCurrentStatsDataRate             Unsigned32,
+    ostEnetStCurrentStatsFrameRate            Unsigned32,
+
+    ostEnetStCurrentStatsTransmitRate64       OstUnsigned64,
+    ostEnetStCurrentStatsInterfaceRate64      OstUnsigned64,
+    ostEnetStCurrentStatsLineRate64           OstUnsigned64,
+    ostEnetStCurrentStatsDataRate64           OstUnsigned64,
+    ostEnetStCurrentStatsAvail                Unsigned32,
+    ostEnetStCurrentStatsUnavailCount         Unsigned32,
+
+    ostEnetStCurrentStatsDroppedCount         Unsigned32,
+    ostEnetStCurrentStatsDuplicateCount       Unsigned32,
+    ostEnetStCurrentStatsOutOfOrderCount      Unsigned32,
+    ostEnetStCurrentStatsMinTTL               Unsigned32,
+    ostEnetStCurrentStatsMaxTTL               Unsigned32,
+    ostEnetStCurrentStatsAvgTTL               Unsigned32
+    }
+
+ostEnetStCurrentStatsIndex
+OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+       "The index for the current test instance trial/iteration. This
+        value will become the value for ostEnetStHistoryStatsIndex
+        once the current trial/iteration is completed.
+
+        A specific test instance is composed of a number of Test Instance
+        Phases. A phase is a specific trial or iteration. Individual
+        iterations are run at a particular frame frame/size until a 'Pass'
+        criteria is achieved or the number of iterations is exhausted.
+        Individual trials are run at the same frame/size, irrespective
+        of the 'Pass' criteria, until the number of iterations is
+        exhausted.
+
+        Statistic indexes are assigned sequentially by the SNMP Agent.
+        The first index is assigned the value of 1. For a specific trial
+        and iteration of a test instance the index value should not be
+        reused during a sequence of test instance phases.
+       "
+    ::= { ostEnetStCurrentStatsEntry 1 }
+
+ostEnetStCurrentStatsStartTime OBJECT-TYPE
+    SYNTAX      DateAndTime
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+       "The time that the current test instance phase started.
+       "
+    ::= { ostEnetStCurrentStatsEntry 2 }
+
+ostEnetStCurrentStatsElapsedTime OBJECT-TYPE
+    SYNTAX      TimeInterval
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+       "The time that the current test instance phase has been running, in 0.01
+        seconds.
+       "
+    ::= { ostEnetStCurrentStatsEntry 3 }
+
+ostEnetStCurrentStatsTrial
+OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+       "The value of the current test instance phase trial.
+
+        A test instance phase trial value starts at 1 and increments as each
+        subsequent trial is started.
+       "
+    ::= { ostEnetStCurrentStatsEntry 4 }
+
+ostEnetStCurrentStatsIteration
+OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+       "The value of the current test instance phase iteration.
+
+        A test instance phase iteration value starts at 1 and increments as each
+        subsequent iteration is started. When ostEnetStCurrentStatsTrial
+        increments to a new value the next test instance phase
+        iteration starts at 1.
+       "
+    ::= { ostEnetStCurrentStatsEntry 5 }
+
+ostEnetStCurrentStatsFrameSize OBJECT-TYPE
+    SYNTAX      Unsigned32 (64..10240)
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+       "This object defines the value of the frame size for the current
+        test instance phase.
+
+        For the GM3, GM4, and GM4-PoE the maximum frame size is 10240 bytes.
+        For the XM5 the maximum frame size is 10056 bytes.
+       "
+    ::= { ostEnetStCurrentStatsEntry 6 }
+
+ostEnetStCurrentStatsTransmitRate OBJECT-TYPE
+    SYNTAX Unsigned32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+       "This object indicates the specific frame rate for the current
+        test instance phase.
+
+        This object is used only for the GMx family of products. It is
+        undefined for the XM5.
+
+        If ostEnetStInitCfgFrameRateType is 'bits' the value of the
+        object indicates the bits rate for the test instance.
+
+        If ostEnetStInitCfgFrameRateType is 'frames' the value of the
+        object indicates the number of frames per second per test instance.
+
+        If ostEnetStInitCfgFrameRateType is 'gaps' the value of the
+        object indicates the gap between frames in nsec for the test instance.
+
+        If ostEnetStInitCfgFrameRateType is 'interface' the value of the
+        object indicates a fraction of the interface speed in 0.001%.
+
+        A value of 0 indicates the maximum frame rate possible for the
+        interface.
+       "
+    ::= { ostEnetStCurrentStatsEntry 7 }
+
+ostEnetStCurrentStatsFramesTransmitted OBJECT-TYPE
+    SYNTAX      OstFrameCount64
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+       "This object contains the number of test frames transmitted during
+        the specific test instance phase.
+       "
+    ::= { ostEnetStCurrentStatsEntry 8 }
+
+ostEnetStCurrentStatsFramesReceived OBJECT-TYPE
+    SYNTAX      OstFrameCount64
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+       "This object contains the number of test frames received during
+        the specific test instance phase.
+       "
+    ::= { ostEnetStCurrentStatsEntry 9 }
+
+ostEnetStCurrentStatsFrameDelayTwoWayMin OBJECT-TYPE
+    SYNTAX      Unsigned32
+    UNITS       "nanoseconds"
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+       "This object contains the minimum two-way frame delay
+        calculated during the specific test instance phase.
+
+        This object value is undefined if ostEnetStInitCfgTestType is 'loss'.
+       "
+    ::= { ostEnetStCurrentStatsEntry 10 }
+
+ostEnetStCurrentStatsFrameDelayTwoWayMax OBJECT-TYPE
+    SYNTAX      Unsigned32
+    UNITS       "nanoseconds"
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+       "This object contains the maximum two-way frame delay
+        calculated during the specific test instance phase.
+
+        This object value is undefined if ostEnetStInitCfgTestType is 'loss'.
+       "
+    ::= { ostEnetStCurrentStatsEntry 11 }
+
+ostEnetStCurrentStatsFrameDelayTwoWayAvg OBJECT-TYPE
+    SYNTAX      Unsigned32
+    UNITS       "nanoseconds"
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+       "This object contains the average two-way frame delay
+        calculated during the specific test instance phase.
+
+        This object value is undefined if ostEnetStInitCfgTestType is 'loss'.
+       "
+    ::= { ostEnetStCurrentStatsEntry 12 }
+
+ostEnetStCurrentStatsIfdvTwoWayMin OBJECT-TYPE
+    SYNTAX      Unsigned32
+    UNITS       "nanoseconds"
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+       "This object contains the minimum two-way IFDV
+        calculated during the specific test instance phase.
+
+        This object value is undefined if ostEnetStInitCfgTestType is 'loss'.
+       "
+    ::= { ostEnetStCurrentStatsEntry 13 }
+
+ostEnetStCurrentStatsIfdvTwoWayMax OBJECT-TYPE
+    SYNTAX      Unsigned32
+    UNITS       "nanoseconds"
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+       "This object contains the maximum two-way IFDV
+        calculated during the specific test instance phase.
+
+        This object value is undefined if ostEnetStInitCfgTestType is 'loss'.
+       "
+    ::= { ostEnetStCurrentStatsEntry 14 }
+
+ostEnetStCurrentStatsIfdvTwoWayAvg OBJECT-TYPE
+    SYNTAX      Unsigned32
+    UNITS       "nanoseconds"
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+       "This object contains the average two-way IFDV
+        calculated during the specific test instance phase.
+
+        This object value is undefined if ostEnetStInitCfgTestType is 'loss'.
+       "
+    ::= { ostEnetStCurrentStatsEntry 15 }
+
+ostEnetStCurrentStatsReceiveErrors OBJECT-TYPE
+    SYNTAX      OstFrameCount64
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+       "This object specifies the number of test frames received during
+        the specific test instance phase that were determined to be in
+        error.
+
+        An error is counted if the frames are misordered, a frame is dropped,
+        a frame is repeated, or a frame size is incorrect.
+       "
+    ::= { ostEnetStCurrentStatsEntry 16 }
+
+ostEnetStCurrentStatsTestStatus OBJECT-TYPE
+    SYNTAX      OstTestResultType
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+       "This object indicates whether the current test instance phase meets
+        the pass/fail criteria defined during the test instance configuration.
+
+        The value 'pass' indicates the current test instance phase status
+        is 'passed'.
+
+        The value 'fail' indicates the current test instance phase status is
+        'failed'.
+
+        The value 'oversubscribe' indicates the current test instance phase
+        status is oversubscribed. A test has been defined which used more
+        resources than were available.
+       "
+    ::= { ostEnetStCurrentStatsEntry 17 }
+
+ostEnetStCurrentStatsInterfaceRate OBJECT-TYPE
+    SYNTAX Unsigned32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+       "This object specifies the specific bit rate of the physical interface for
+        the test instance. For instance a 100M physical port would have a value of
+        100,000,000.
+
+        This object is used only for the GMx family of products. It is
+        undefined for the XM5.
+       "
+    ::= { ostEnetStCurrentStatsEntry 18 }
+
+ostEnetStCurrentStatsLineRate OBJECT-TYPE
+    SYNTAX Unsigned32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+       "This object specifies the line rate of the specific test instance in bits
+        per second. It is calculated by: (Frame Rate)*(Frame Size+20)*8. It is the bit
+        rate per frame size plus the preamble/start bits (8 octets)
+        and the minimum inter-packet gap (IPG) of 96 bit times (12 bytes).
+
+        This object is used only for the GMx family of products. It is
+        undefined for the XM5.
+       "
+    ::= { ostEnetStCurrentStatsEntry 19 }
+
+ostEnetStCurrentStatsDataRate OBJECT-TYPE
+    SYNTAX Unsigned32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+       "This object specifies the date rate of the specific test instance in bits
+        per second. It is calculated by: (Frame Rate)*(Frame Size)*8.
+
+        This object is used only for the GMx family of products. It is
+        undefined for the XM5.
+       "
+    ::= { ostEnetStCurrentStatsEntry 20 }
+
+ostEnetStCurrentStatsFrameRate OBJECT-TYPE
+    SYNTAX Unsigned32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+       "This object indicates the number of frames per second for the
+        specific test instance phase.
+       "
+    ::= { ostEnetStCurrentStatsEntry 21 }
+
+ostEnetStCurrentStatsTransmitRate64 OBJECT-TYPE
+    SYNTAX OstUnsigned64
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+       "This object indicates the specific frame rate for the current
+        test instance phase.
+
+        This object is used only for the GMx family of products. It is
+        undefined for the XM5.
+
+        If ostEnetStInitCfgFrameRateType is 'bits' the value of the
+        object indicates the bits rate for the test instance.
+
+        If ostEnetStInitCfgFrameRateType is 'frames' the value of the
+        object indicates the number of frames per second per test instance.
+
+        If ostEnetStInitCfgFrameRateType is 'gaps' the value of the
+        object indicates the gap between frames in nsec for the test instance.
+
+        If ostEnetStInitCfgFrameRateType is 'interface' the value of the
+        object indicates a fraction of the interface speed in 0.001%.
+
+        A value of 0 indicates the maximum frame rate possible for the
+        interface.
+       "
+    ::= { ostEnetStCurrentStatsEntry 22 }
+
+ostEnetStCurrentStatsInterfaceRate64 OBJECT-TYPE
+    SYNTAX OstUnsigned64
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+       "This object specifies the specific bit rate of the physical interface for
+        the test instance. For instance a 100M physical port would have a value of
+        100,000,000.
+
+        This object is used only for the XM5. It is undefined for the GMx
+        family of products.
+       "
+    ::= { ostEnetStCurrentStatsEntry 23 }
+
+ostEnetStCurrentStatsLineRate64 OBJECT-TYPE
+    SYNTAX OstUnsigned64
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+       "This object specifies the line rate of the specific test instance in bits
+        per second. It is calculated by: (Frame Rate)*(Frame Size+20)*8. It is the bit
+        rate per frame size plus the preamble/start bits (8 octets)
+        and the minimum inter-packet gap (IPG) of 96 bit times (12 bytes).
+
+        This object is used only for the XM5. It is undefined for the GMx
+        family of products.
+       "
+    ::= { ostEnetStCurrentStatsEntry 24 }
+
+ostEnetStCurrentStatsDataRate64 OBJECT-TYPE
+    SYNTAX OstUnsigned64
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+       "This object specifies the date rate of the specific test instance in bits
+        per second. It is calculated by: (Frame Rate)*(Frame Size)*8.
+
+        This object is used only for the XM5. It is undefined for the GMx
+        family of products.
+       "
+    ::= { ostEnetStCurrentStatsEntry 25 }
+
+ostEnetStCurrentStatsAvail OBJECT-TYPE
+    SYNTAX      Unsigned32 (0..100000)
+    UNITS       "milli-percent"
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+       "This object specifies the availabilty of the specific test instance in
+        milli-percent, where 1 indicates 0.001 percent.
+
+        The percent value is expressed as a percent with a value of 0 (ratio
+        0.000%) through 100000 (100.000%).
+       "
+    ::= { ostEnetStCurrentStatsEntry 26 }
+
+ostEnetStCurrentStatsUnavailCount OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+       "This object specifies the count of the number of unavailable seconds
+        for the specific test instance.
+       "
+    ::= { ostEnetStCurrentStatsEntry 27 }
+
+
+ostEnetStCurrentStatsDroppedCount OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+       "This object specifies the count of the number of dropped packets
+        for the specific TWAMP test instance.
+       "
+    ::= { ostEnetStCurrentStatsEntry 28 }
+
+ostEnetStCurrentStatsDuplicateCount OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+       "This object specifies the count of the number of duplicate packets
+        for the specific TWAMP test instance.
+       "
+    ::= { ostEnetStCurrentStatsEntry 29 }
+
+ostEnetStCurrentStatsOutOfOrderCount  OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+       "This object specifies the count of the number of out-of-order packets
+        for the specific TWAMP test instance.
+       "
+    ::= { ostEnetStCurrentStatsEntry 30 }
+
+ostEnetStCurrentStatsMinTTL  OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+       "This object specifies the minimum Time-To-Live (TTL) value received
+        for the specific TWAMP test instance.
+       "
+    ::= { ostEnetStCurrentStatsEntry 31 }
+
+ostEnetStCurrentStatsMaxTTL   OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+       "This object specifies the maximum Time-To-Live (TTL) value received
+        for the specific TWAMP test instance.
+       "
+    ::= { ostEnetStCurrentStatsEntry 32 }
+
+ostEnetStCurrentStatsAvgTTL   OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+       "This object specifies the average Time-To-Live (TTL) value
+        for the specific TWAMP test instance.
+       "
+    ::= { ostEnetStCurrentStatsEntry 33 }
+
+
+--------------------------------------------------------------------------------
+-- Ethernet Service Testing (EnetST) History Statistics Table
+--------------------------------------------------------------------------------
+
+ostEnetStHistoryStatsTable OBJECT-TYPE
+    SYNTAX      SEQUENCE OF OstEnetStHistoryStatsEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION
+       "This table supports the history statistics for EnetST initiators."
+    ::= { omnitronEstMib 4 }
+
+ostEnetStHistoryStatsEntry OBJECT-TYPE
+    SYNTAX      OstEnetStHistoryStatsEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION
+       "This is a EnetST Initiator history statistics table entry."
+    INDEX { ostEnetStInitCfgIndex, ostEnetStHistoryStatsIndex }
+    ::= { ostEnetStHistoryStatsTable 1 }
+
+OstEnetStHistoryStatsEntry ::= SEQUENCE {
+    ostEnetStHistoryStatsIndex                Unsigned32,
+    ostEnetStHistoryStatsEndTime              DateAndTime,
+    ostEnetStHistoryStatsElapsedTime          TimeInterval,
+    ostEnetStHistoryStatsTrial                Unsigned32,
+    ostEnetStHistoryStatsIteration            Unsigned32,
+    ostEnetStHistoryStatsFrameSize            Unsigned32,
+    ostEnetStHistoryStatsTransmitRate         Unsigned32,
+    ostEnetStHistoryStatsFramesTransmitted    OstFrameCount64,
+    ostEnetStHistoryStatsFramesReceived       OstFrameCount64,
+    ostEnetStHistoryStatsFrameDelayTwoWayMin  Unsigned32,
+    ostEnetStHistoryStatsFrameDelayTwoWayMax  Unsigned32,
+    ostEnetStHistoryStatsFrameDelayTwoWayAvg  Unsigned32,
+    ostEnetStHistoryStatsIfdvTwoWayMin        Unsigned32,
+    ostEnetStHistoryStatsIfdvTwoWayMax        Unsigned32,
+    ostEnetStHistoryStatsIfdvTwoWayAvg        Unsigned32,
+    ostEnetStHistoryStatsReceiveErrors        OstFrameCount64,
+    ostEnetStHistoryStatsTestStatus           OstTestResultType,
+    ostEnetStHistoryStatsInterfaceRate        Unsigned32,
+    ostEnetStHistoryStatsLineRate             Unsigned32,
+    ostEnetStHistoryStatsDataRate             Unsigned32,
+    ostEnetStHistoryStatsFrameRate            Unsigned32,
+
+    ostEnetStHistoryStatsTransmitRate64       OstUnsigned64,
+    ostEnetStHistoryStatsInterfaceRate64      OstUnsigned64,
+    ostEnetStHistoryStatsLineRate64           OstUnsigned64,
+    ostEnetStHistoryStatsDataRate64           OstUnsigned64,
+    ostEnetStHistoryStatsAvail                Unsigned32,
+    ostEnetStHistoryStatsUnavailCount         Unsigned32,
+
+    ostEnetStHistoryStatsDroppedCount         Unsigned32,
+    ostEnetStHistoryStatsDuplicateCount       Unsigned32,
+    ostEnetStHistoryStatsOutOfOrderCount      Unsigned32,
+    ostEnetStHistoryStatsMinTTL               Unsigned32,
+    ostEnetStHistoryStatsMaxTTL               Unsigned32,
+    ostEnetStHistoryStatsAvgTTL               Unsigned32
+    }
+
+ostEnetStHistoryStatsIndex
+OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION
+       "The index for the history test instance trial/iteration for a completed
+        test instance phase.
+
+        A specific test instance is composed of a number of Test Instance
+        Phases, which corresponds to one row in this table.
+
+        A phase is a specific trial or iteration. Individual
+        iterations are run at a particular frame frame/size until a 'Pass'
+        criteria is achieved or the number of iterations is exhausted.
+        Individual trials are run at the same frame/size, irrespective
+        of the 'Pass' criteria, until the number of iterations is
+        exhausted.
+        "
+    ::= { ostEnetStHistoryStatsEntry 1 }
+
+ostEnetStHistoryStatsEndTime OBJECT-TYPE
+    SYNTAX      DateAndTime
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+       "The time that the test instance phase completed.
+       "
+    ::= { ostEnetStHistoryStatsEntry 2 }
+
+ostEnetStHistoryStatsElapsedTime OBJECT-TYPE
+    SYNTAX      TimeInterval
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+       "The time that the test instance phase ran for, in 0.01
+        seconds.
+       "
+    ::= { ostEnetStHistoryStatsEntry 3 }
+
+ostEnetStHistoryStatsTrial
+OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+       "The value of the test instance phase trial.
+
+        A test instance phase trial value starts at 1 and increments as each
+        subsequent trial is started.
+       "
+    ::= { ostEnetStHistoryStatsEntry 4 }
+
+ostEnetStHistoryStatsIteration
+OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+       "The value of the test instance phase iteration.
+
+        A test instance phase iteration value starts at 1 and increments as each
+        subsequent iteration is started. When ostEnetStHistoryStatsTrial
+        increments to a new value the next test instance phase
+        iteration starts at 1.
+       "
+    ::= { ostEnetStHistoryStatsEntry 5 }
+
+ostEnetStHistoryStatsFrameSize OBJECT-TYPE
+    SYNTAX      Unsigned32 (64..10240)
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+       "This object defines the value of the frame size for the
+        test instance phase.
+
+        For the GM3, GM4, and GM4-PoE the maximum frame size is 10240 bytes.
+        For the XM5 the maximum frame size is 10056 bytes.
+       "
+    ::= { ostEnetStHistoryStatsEntry 6 }
+
+ostEnetStHistoryStatsTransmitRate OBJECT-TYPE
+    SYNTAX Unsigned32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+       "This object indicates the specific frame rate for the
+        test instance phase.
+
+        This object is used only for the GMx family of products. It is
+        undefined for the XM5.
+
+        If ostEnetStInitCfgFrameRateType is 'bits' the value of the
+        object indicates the bits rate for the test instance.
+
+        If ostEnetStInitCfgFrameRateType is 'frames' the value of the
+        object indicates the number of frames per second per test instance.
+
+        If ostEnetStInitCfgFrameRateType is 'gaps' the value of the
+        object indicates the gap between frames in nsec for the test instance.
+
+        If ostEnetStInitCfgFrameRateType is 'interface' the value of the
+        object indicates a fraction of the interface speed in 0.001%.
+
+        A value of 0 indicates the maximum frame rate possible for the
+        interface.
+       "
+    ::= { ostEnetStHistoryStatsEntry 7 }
+
+ostEnetStHistoryStatsFramesTransmitted OBJECT-TYPE
+    SYNTAX      OstFrameCount64
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+       "This object contains the number of test frames transmitted during
+        the specific test instance phase.
+       "
+    ::= { ostEnetStHistoryStatsEntry 8 }
+
+ostEnetStHistoryStatsFramesReceived OBJECT-TYPE
+    SYNTAX      OstFrameCount64
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+       "This object contains the number of test frames received during
+        the specific test instance phase.
+       "
+    ::= { ostEnetStHistoryStatsEntry 9 }
+
+ostEnetStHistoryStatsFrameDelayTwoWayMin OBJECT-TYPE
+    SYNTAX      Unsigned32
+    UNITS       "nanoseconds"
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+       "This object contains the minimum two-way frame delay
+        calculated during the specific test instance phase.
+
+        This object value is undefined if ostEnetStInitCfgTestType is 'loss'.
+       "
+    ::= { ostEnetStHistoryStatsEntry 10 }
+
+ostEnetStHistoryStatsFrameDelayTwoWayMax OBJECT-TYPE
+    SYNTAX      Unsigned32
+    UNITS       "nanoseconds"
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+       "This object contains the maximum two-way frame delay
+        calculated during the specific test instance phase.
+
+        This object value is undefined if ostEnetStInitCfgTestType is 'loss'.
+       "
+    ::= { ostEnetStHistoryStatsEntry 11 }
+
+ostEnetStHistoryStatsFrameDelayTwoWayAvg OBJECT-TYPE
+    SYNTAX      Unsigned32
+    UNITS       "nanoseconds"
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+       "This object contains the average two-way frame delay
+        calculated during the specific test instance phase.
+
+        This object value is ignored if ostEnetStInitCfgTestType is 'loss'.
+       "
+    ::= { ostEnetStHistoryStatsEntry 12 }
+
+
+ostEnetStHistoryStatsIfdvTwoWayMin OBJECT-TYPE
+    SYNTAX      Unsigned32
+    UNITS       "nanoseconds"
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+       "This object contains the minimum two-way IFDV
+        calculated during the specific test instance phase.
+
+        This object value is undefined if ostEnetStInitCfgTestType is 'loss'.
+       "
+    ::= { ostEnetStHistoryStatsEntry 13 }
+
+ostEnetStHistoryStatsIfdvTwoWayMax OBJECT-TYPE
+    SYNTAX      Unsigned32
+    UNITS       "nanoseconds"
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+       "This object contains the maximum two-way IFDV
+        calculated during the specific test instance phase.
+
+        This object value is undefined if ostEnetStInitCfgTestType is 'loss'.
+       "
+    ::= { ostEnetStHistoryStatsEntry 14 }
+
+ostEnetStHistoryStatsIfdvTwoWayAvg OBJECT-TYPE
+    SYNTAX      Unsigned32
+    UNITS       "nanoseconds"
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+       "This object contains the average two-way IFDV
+        calculated during the specific test instance phase.
+
+        This object value is undefined if ostEnetStInitCfgTestType is 'loss'.
+       "
+    ::= { ostEnetStHistoryStatsEntry 15 }
+
+ostEnetStHistoryStatsReceiveErrors OBJECT-TYPE
+    SYNTAX      OstFrameCount64
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+       "This object specifies the number of test frames received during
+        the specific test instance phase that were determined to be in
+        error.
+
+        An error is counted if the frames are misordered, a frame is dropped,
+        a frame is repeated, or a frame size is incorrect.
+       "
+    ::= { ostEnetStHistoryStatsEntry 16 }
+
+ostEnetStHistoryStatsTestStatus OBJECT-TYPE
+    SYNTAX      OstTestResultType
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+       "This object indicates whether the test instance phase meets
+        the pass/fail criteria defined during the test instance configuration.
+
+        The value 'pass' indicates the test instance phase status
+        is 'passed'.
+
+        The value 'fail' indicates the test instance phase is
+        'failed'.
+
+        The value 'oversubscribe' indicates the test instance phase
+        status is oversubscribed. A test has been defined which used more
+        resources than were available.
+       "
+    ::= { ostEnetStHistoryStatsEntry 17 }
+
+ostEnetStHistoryStatsInterfaceRate OBJECT-TYPE
+    SYNTAX Unsigned32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+       "This object specifies the specific bit rate of the physical interface for
+        the test instance. For instance a 100M physical port would have a value of
+        100,000,000.
+
+        This object is used only for the GMx family of products. It is
+        undefined for the XM5.
+       "
+    ::= { ostEnetStHistoryStatsEntry 18 }
+
+ostEnetStHistoryStatsLineRate OBJECT-TYPE
+    SYNTAX Unsigned32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+       "This object specifies the line rate of the specific test instance in bits
+        per second. It is calculated by: (Frame Rate)*(Frame Size+20)*8. It is the bit
+        rate per frame size plus the preamble/start bits (8 octets)
+        and the minimum inter-packet gap (IPG) of 96 bit times (12 bytes).
+
+        This object is used only for the GMx family of products. It is
+        undefined for the XM5.
+       "
+    ::= { ostEnetStHistoryStatsEntry 19 }
+
+ostEnetStHistoryStatsDataRate OBJECT-TYPE
+    SYNTAX Unsigned32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+       "This object specifies the date rate of the specific test instance in bits
+        per second. It is calculated by: (Frame Rate)*(Frame Size)*8.
+
+        This object is used only for the GMx family of products. It is
+        undefined for the XM5.
+       "
+    ::= { ostEnetStHistoryStatsEntry 20 }
+
+ostEnetStHistoryStatsFrameRate OBJECT-TYPE
+    SYNTAX Unsigned32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+       "This object indicates the number of frames per second for the
+        specific test instance phase.
+       "
+    ::= { ostEnetStHistoryStatsEntry 21 }
+
+ostEnetStHistoryStatsTransmitRate64 OBJECT-TYPE
+    SYNTAX OstUnsigned64
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+       "This object indicates the specific frame rate for the
+        test instance phase.
+
+        This object is used only for the XM5. It is undefined for the GMx
+        family of products.
+
+        If ostEnetStInitCfgFrameRateType is 'bits' the value of the
+        object indicates the bits rate for the test instance.
+
+        If ostEnetStInitCfgFrameRateType is 'frames' the value of the
+        object indicates the number of frames per second per test instance.
+
+        If ostEnetStInitCfgFrameRateType is 'gaps' the value of the
+        object indicates the gap between frames in nsec for the test instance.
+
+        If ostEnetStInitCfgFrameRateType is 'interface' the value of the
+        object indicates a fraction of the interface speed in 0.001%.
+
+        A value of 0 indicates the maximum frame rate possible for the
+        interface.
+       "
+    ::= { ostEnetStHistoryStatsEntry 22 }
+
+ostEnetStHistoryStatsInterfaceRate64 OBJECT-TYPE
+    SYNTAX OstUnsigned64
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+       "This object specifies the specific bit rate of the physical interface for
+        the test instance. For instance a 100M physical port would have a value of
+        100,000,000.
+
+        This object is used only for the XM5. It is undefined for the GMx
+        family of products.
+       "
+    ::= { ostEnetStHistoryStatsEntry 23 }
+
+ostEnetStHistoryStatsLineRate64 OBJECT-TYPE
+    SYNTAX OstUnsigned64
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+       "This object specifies the line rate of the specific test instance in bits
+        per second. It is calculated by: (Frame Rate)*(Frame Size+20)*8. It is the bit
+        rate per frame size plus the preamble/start bits (8 octets)
+        and the minimum inter-packet gap (IPG) of 96 bit times (12 bytes).
+
+        This object is used only for the XM5. It is undefined for the GMx
+        family of products.
+       "
+    ::= { ostEnetStHistoryStatsEntry 24 }
+
+ostEnetStHistoryStatsDataRate64 OBJECT-TYPE
+    SYNTAX OstUnsigned64
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+       "This object specifies the date rate of the specific test instance in bits
+        per second. It is calculated by: (Frame Rate)*(Frame Size)*8.
+
+        This object is used only for the XM5. It is undefined for the GMx
+        family of products.
+       "
+    ::= { ostEnetStHistoryStatsEntry 25 }
+
+ostEnetStHistoryStatsAvail OBJECT-TYPE
+    SYNTAX      Unsigned32 (0..100000)
+    UNITS       "milli-percent"
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+       "This object specifies the availabilty of the specific test instance in
+        milli-percent, where 1 indicates 0.001 percent.
+
+        The percent value is expressed as a percent with a value of 0 (ratio
+        0.000%) through 100000 (100.000%).
+       "
+    ::= { ostEnetStHistoryStatsEntry 26 }
+
+ostEnetStHistoryStatsUnavailCount OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+       "This object specifies the count of the number of unavailable seconds
+        for the specific test instance.
+       "
+    ::= { ostEnetStHistoryStatsEntry 27 }
+
+ostEnetStHistoryStatsDroppedCount OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+       "This object specifies the count of the number of dropped packets
+        for the specific TWAMP test instance.
+       "
+    ::= { ostEnetStHistoryStatsEntry 28 }
+
+ostEnetStHistoryStatsDuplicateCount OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+       "This object specifies the count of the number of duplicate packets
+        for the specific TWAMP test instance.
+       "
+    ::= { ostEnetStHistoryStatsEntry 29 }
+
+ostEnetStHistoryStatsOutOfOrderCount  OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+       "This object specifies the count of the number of out-of-order packets
+        for the specific TWAMP test instance.
+       "
+    ::= { ostEnetStHistoryStatsEntry 30 }
+
+ostEnetStHistoryStatsMinTTL  OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+       "This object specifies the minimum Time-To-Live (TTL) value received
+        for the specific TWAMP test instance.
+       "
+    ::= { ostEnetStHistoryStatsEntry 31 }
+
+ostEnetStHistoryStatsMaxTTL   OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+       "This object specifies the maximum Time-To-Live (TTL) value received
+        for the specific TWAMP test instance.
+       "
+    ::= { ostEnetStHistoryStatsEntry 32 }
+
+ostEnetStHistoryStatsAvgTTL   OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+       "This object specifies the average Time-To-Live (TTL) value
+        for the specific TWAMP test instance.
+       "
+    ::= { ostEnetStHistoryStatsEntry 33 }
+
+
+--------------------------------------------------------------------------------
+-- Ethernet Service Testing (EnetST) Responder Configuration Table
+--------------------------------------------------------------------------------
+
+ostEnetStRespCfgTable OBJECT-TYPE
+    SYNTAX      SEQUENCE OF OstEnetStRespCfgEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION
+       "This table supports the global EnetST responder configurations."
+    ::= { omnitronEstMib 5 }
+
+ostEnetStRespCfgEntry OBJECT-TYPE
+    SYNTAX      OstEnetStRespCfgEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION
+       "This is a EnetST Responder configuration table entry."
+    INDEX { ostEnetStRespCfgIndex }
+    ::= { ostEnetStRespCfgTable 1 }
+
+OstEnetStRespCfgEntry ::= SEQUENCE {
+    ostEnetStRespCfgIndex                   Unsigned32,
+    ostEnetStRespCfgRowStatus               RowStatus,
+    ostEnetStRespCfgProfileName             OstProfileNameString,
+    ostEnetStRespCfgReflector               TruthValue,
+    ostEnetStRespCfgTestMonitor             TruthValue,
+    ostEnetStRespCfgInService               TruthValue,
+    ostEnetStRespCfgPortNum                 OstPortNumber,
+
+    ostEnetStRespCfgType                    INTEGER,
+    ostEnetStRespCfgEvc                     OstEvcNameString,
+    ostEnetStRespCfgCos                     OstCosNameString,
+    ostEnetStRespCfgMdIndex                 Unsigned32,
+    ostEnetStRespCfgMaIndex                 Unsigned32,
+
+    ostEnetStRespCfgSourceMacAddress        MacAddress,
+    ostEnetStRespCfgSourceIsMepId           TruthValue,
+    ostEnetStRespCfgSourceMepId             Dot1agCfmMepIdOrZero,
+
+    ostEnetStRespCfgFrameType               INTEGER,
+    ostEnetStRespCfgReplyType               INTEGER,
+    ostEnetStRespCfgStatClear               TruthValue,
+    ostEnetStRespCfgEgressPortNum           OstPortNumber,
+    ostEnetStRespCfgTestStatus              OstTestStatusType,
+    ostEnetStRespCfgVid                     OstVlanId,
+    ostEnetStRespCfgLocalMac                TruthValue,
+    ostEnetStRespCfgMulticast               TruthValue,
+    ostEnetStRespCfgVidRx                   OstVlanId,
+    ostEnetStRespCfgRemote                  INTEGER,
+    ostEnetStRespCfgDestIpAddress           IpAddress,
+    ostEnetStRespCfgSrcIpAddress            IpAddress,
+    ostEnetStRespCfgEthertype               Unsigned32,
+    ostEnetStRespCfgDestIpAddressString     OstIpAddr,
+    ostEnetStRespCfgSrcIpAddressString      OstIpAddr,
+    ostEnetStRespCfgUpPort                  INTEGER,
+    ostEnetStRespCfgPersist                 TruthValue,
+
+    ostEnetStRespCfgTwampServerPort         Unsigned32,
+    ostEnetStRespCfgTwampUdpSrcPort         Unsigned32,
+    ostEnetStRespCfgTwampUdpDstPort         Unsigned32,
+    ostEnetStRespCfgGatewayIpAddressString  OstIpAddr,
+    ostEnetStRespCfgNetworkAddressLength    Unsigned32
+    }
+
+ostEnetStRespCfgIndex
+OBJECT-TYPE
+    SYNTAX      Unsigned32(1..16)
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION
+       "An index to the EnetST Responder Configuration table which indicates
+        the specific test session for the module.
+
+        ostEnetStGlobalCfgRespSessionNextIndex needs to be inspected to find an
+        available index for row-creation.
+       "
+    ::= { ostEnetStRespCfgEntry 1 }
+
+ostEnetStRespCfgRowStatus OBJECT-TYPE
+    SYNTAX      RowStatus
+    MAX-ACCESS  read-create
+    STATUS      current
+    DESCRIPTION
+       "The status of the row.
+
+        The writable columns in a row cannot be changed if the row
+        is active. All columns must have a valid value before a row
+        can be activated.
+       "
+   ::= { ostEnetStRespCfgEntry 2 }
+
+ostEnetStRespCfgProfileName OBJECT-TYPE
+    SYNTAX      OstProfileNameString
+    MAX-ACCESS  read-create
+    STATUS      current
+    DESCRIPTION
+        "Test Responder profile name.
+
+         This object may not be modified after creation.
+        "
+    ::= { ostEnetStRespCfgEntry 3 }
+
+ostEnetStRespCfgReflector OBJECT-TYPE
+    SYNTAX      TruthValue
+    MAX-ACCESS  read-create
+    STATUS      current
+    DESCRIPTION
+       "This object specifies whether the Test Reflector function is
+        enabled for the test response.
+
+        The value 'true' indicates the Test Reflector function is enabled
+        for the test responder.
+
+        The value 'false' indicates the Test Reflector function is disabled
+        for the test responder.
+
+        This object can be written/modified after row creation time.
+       "
+    DEFVAL { true }
+    ::= { ostEnetStRespCfgEntry 4 }
+
+ostEnetStRespCfgTestMonitor OBJECT-TYPE
+    SYNTAX      TruthValue
+    MAX-ACCESS  read-create
+    STATUS      current
+    DESCRIPTION
+       "This object specifies whether the Test Monitor function is
+        enabled for the test instance.
+
+        The value 'true' indicates the Test Monitor function is enabled
+        for the test instance.
+
+        The value 'false' indicates the Test Monitor function is disabled
+        for the test instance.
+
+        This object can be written/modified after row creation time.
+       "
+    DEFVAL { true }
+    ::= { ostEnetStRespCfgEntry 5 }
+
+ostEnetStRespCfgInService OBJECT-TYPE
+    SYNTAX      TruthValue
+    MAX-ACCESS  read-create
+    STATUS      current
+    DESCRIPTION
+       "This object specifies whether the Test In-Service function is
+        enabled for the test instance.
+
+        The value 'true' indicates the Test In-Service function is enabled
+        for the test instance. Normal customer traffic is not interrupted.
+
+        The value 'false' indicates the Test In-Service function is disabled
+        for the test instance. Normal customer traffic is interrupted.
+
+        This object can be written/modified after row creation time.
+       "
+    DEFVAL { false }
+    ::= { ostEnetStRespCfgEntry 6 }
+
+ostEnetStRespCfgPortNum OBJECT-TYPE
+    SYNTAX      OstPortNumber
+    MAX-ACCESS  read-create
+    STATUS      current
+    DESCRIPTION
+       "This object selects the port number for the specific test
+        responder that is configured.
+
+        This object can only be written at row creation time and cannot be
+        modified once it has been created.
+       "
+    ::= { ostEnetStRespCfgEntry 7 }
+
+ostEnetStRespCfgType OBJECT-TYPE
+    SYNTAX      INTEGER {
+        port   (1),
+        evc    (2),
+        evccos (3),
+        lbm    (4),
+        tst    (5)
+    }
+    MAX-ACCESS  read-create
+    STATUS      current
+    DESCRIPTION
+       "This object selects the specific type of Test Responder instance.
+
+        port(1)       Test responder is port based
+        evc(2)        Test instance is EVC based
+        evccos(3)     Test instance is EVC+CoS based
+        lbm(4)        Test instance is LBM MEP based (configured on a MD/MA)
+        tst(5)        Test instance is ETH-Test MEP based (direct point-to-point)
+
+        This object can only be written at row creation time and cannot be
+        modified once it has been created.
+       "
+    ::= { ostEnetStRespCfgEntry 8 }
+
+ostEnetStRespCfgEvc OBJECT-TYPE
+    SYNTAX      OstEvcNameString
+    MAX-ACCESS  read-create
+    STATUS      current
+    DESCRIPTION
+       "This object defines which EVC the test responder is associated with.
+        It must be configured if ostEnetStRespCfgType is 'evc' or 'evccos'. It
+        is ignored for other test responder types.
+
+        This object can only be written at row creation time and cannot be
+        modified once it has been created.
+       "
+    DEFVAL { "DEFAULT" }
+    ::= { ostEnetStRespCfgEntry 9 }
+
+ostEnetStRespCfgCos OBJECT-TYPE
+    SYNTAX      OstCosNameString
+    MAX-ACCESS  read-create
+    STATUS      current
+    DESCRIPTION
+       "This object defines which Class of Service (CoS) the test responder
+        is associated with. It must be configured if ostEnetStRespCfgType is
+        'evccos'. It is ignored for other test instance types.
+
+        This object can only be written at row creation time and cannot be
+        modified once it has been created.
+       "
+    DEFVAL { "DEFAULT" }
+    ::= { ostEnetStRespCfgEntry 10 }
+
+ostEnetStRespCfgMdIndex OBJECT-TYPE
+    SYNTAX Unsigned32
+    MAX-ACCESS  read-create
+    STATUS      current
+    DESCRIPTION
+       "This object specifies the test responder maintenance domain index for
+        the generated test PDU.
+
+        The value is ignored for ostEnetStRespCfgType 'port', 'evc', or 'evccos'.
+
+        Is is mandatory to be configured with a valid value if ostEnetStRespCfgType
+        is 'lbm' or 'tst'.
+
+        This object can only be written at row creation time and cannot be
+        modified once it has been created.
+       "
+    DEFVAL { 0 }
+    ::= { ostEnetStRespCfgEntry 11 }
+
+ostEnetStRespCfgMaIndex OBJECT-TYPE
+    SYNTAX Unsigned32
+    MAX-ACCESS  read-create
+    STATUS      current
+    DESCRIPTION
+       "This object specifies the test responder maintenance association index
+        for the generated test PDU.
+
+        The value is ignored for ostEnetStRespCfgType 'port', 'evc', or 'evccos'.
+
+        Is is mandatory to be configured with a valid value if ostEnetStRespCfgType
+        is 'lbm' or 'tst'.
+
+        This object can only be written at row creation time and cannot be
+        modified once it has been created.
+       "
+    DEFVAL { 0 }
+    ::= { ostEnetStRespCfgEntry 12 }
+
+ostEnetStRespCfgSourceMacAddress OBJECT-TYPE
+    SYNTAX      MacAddress
+    MAX-ACCESS  read-create
+    STATUS      current
+    DESCRIPTION
+       "This object specifies a valid Source MAC Address Field of the received
+        test PDUs if the value is non-zero.
+
+        If ostEnetStRespCfgType is 'port', 'evc', or 'evccos' the value
+        of the object is used as a valid Source MAC Address of the test instance
+        PDU if the value is non-zero.
+
+        If ostEnetStRespCfgType is 'lbm' or 'tst' the value of this object is
+        only used if the value of ostEnetStRespCfgSourceIsMepId is 'false' and the
+        value is non-zero.
+
+        If ostEnetStRespCfgType is 'lbm' or 'tst' the value of this object is
+        ignored if the value of ostEnetStRespCfgSourceIsMepId is 'true'.
+
+        This object can only be written at row creation time and cannot be
+        modified once it has been created.
+
+        The default value of all zeros indicates that the source MAC address
+        is not used to match the received test PDU.
+       "
+    DEFVAL { '000000000000'H }
+    ::= { ostEnetStRespCfgEntry 13 }
+
+ostEnetStRespCfgSourceIsMepId OBJECT-TYPE
+    SYNTAX      TruthValue
+    MAX-ACCESS  read-create
+    STATUS      current
+    DESCRIPTION
+       "This object indicates whether the source MEP of the received test PDU
+        is identified via its MEP ID or its MAC address.
+
+        If ostEnetStRespCfgType is 'port', 'evc', or 'evccos' the
+        value of this object is ignored.
+
+        If ostEnetStRespCfgType is 'lbm' or 'tst' and the value of this object
+        is 'true' the source address of the test instance PDU is determined by the
+        ostEnetStRespCfgSourceMacAddress object.
+
+        If ostEnetStRespCfgType is 'lbm' or 'tst' and the value of this object
+        is 'false' a valid source address of the test instance PDU is determined by
+        the ostEnetStRespCfgSourceIsMepId object.
+
+        This object can only be written at row creation time and cannot be
+        modified once it has been created.
+       "
+    DEFVAL { false }
+    ::= { ostEnetStRespCfgEntry 14 }
+
+ostEnetStRespCfgSourceMepId OBJECT-TYPE
+    SYNTAX      Dot1agCfmMepIdOrZero
+    MAX-ACCESS  read-create
+    STATUS      current
+    DESCRIPTION
+       "The Maintenance End Point Identifier of another MEP in the same
+        Maintenance Association to which the test instance PDU is from.
+
+        This MEP ID will be used to validate the source MEP ID of the test
+        instance PDU if the value of the object ostEnetStRespCfgSourceIsMepId
+        is 'true' and ostEnetStRespCfgType is 'lbm' or 'tst'.
+
+        The value of this object is ignored if ostEnetStRespCfgSourceIsMepId
+        is 'false' or ostEnetStRespCfgType is not 'lbm' or 'tst'.
+
+        This object can only be written at row creation time and cannot be
+        modified once it has been created.
+       "
+    DEFVAL { 0 }
+    ::= { ostEnetStRespCfgEntry 15 }
+
+ostEnetStRespCfgFrameType OBJECT-TYPE
+    SYNTAX      INTEGER {
+        l2     (1),
+        cfm    (2)
+    }
+    MAX-ACCESS  read-create
+    STATUS      current
+    DESCRIPTION
+       "Deprecated. The value of this object is ignored"
+    DEFVAL { l2 }
+    ::= { ostEnetStRespCfgEntry 16 }
+
+ostEnetStRespCfgReplyType OBJECT-TYPE
+    SYNTAX      INTEGER {
+        loop(1),
+        macswap(2),
+        l3(3)
+    }
+    MAX-ACCESS  read-create
+    STATUS      current
+    DESCRIPTION
+       "This object selects the specific type of test response.
+
+        loop(1)            Test responder MAC DA/SA is unchanged (no swap), L1
+        macswap(2)         Test responder MAC DA/SA is swapped, L2
+        l3(3)              Test responder MAC & IP DA/SA is swapped, L3 type
+
+        The value of 'loop' (L1) indicates that the received DA/SA are used when
+        the response frame is transmitted if ostEnetStRespCfgType is
+        'port', 'evc', or 'evccos'.
+
+        The value of 'macswap' (L2) indicates that the received DA/SA are swapped
+        when the response frame is transmitted if ostEnetStRespCfgType is
+        'port', 'evc', or 'evccos'.
+
+        The value of 'l3' indicates that the received MAC DA/SA and IP source
+        destination are swapped when the response frame is transmitted if
+        ostEnetStRespCfgType is 'port', 'evc', or 'evccos'. if the frame is a
+        layer 2 only frame only the DA and SA are swapped
+
+        The object value is ignored if ostEnetStRespCfgType is 'lbm' or 'tst'.
+
+        This object can only be written at row creation time and cannot be
+        modified once it has been created.
+       "
+    DEFVAL { macswap }
+    ::= { ostEnetStRespCfgEntry 17 }
+
+ostEnetStRespCfgStatClear OBJECT-TYPE
+    SYNTAX      TruthValue
+    MAX-ACCESS  read-create
+    STATUS      current
+    DESCRIPTION
+       "This object when written clears the statistic counters associated with
+        a specific test responder. When read the value always returns 'false'.
+
+        Writing this value does not change any items in the configuration table.
+
+        Writing this object at row creation is irrelevant and should not
+        be done.
+       "
+    DEFVAL { false }
+    ::= { ostEnetStRespCfgEntry 18 }
+
+ostEnetStRespCfgEgressPortNum OBJECT-TYPE
+    SYNTAX      OstPortNumber
+    MAX-ACCESS  read-create
+    STATUS      current
+    DESCRIPTION
+       "This object selects the egress port number for the specific test
+        instance that is configured. The responding port for the specific test
+        instance is configured via the ostEnetStRespCfgPortNum object. A value
+        of '0' for this object indicates the egress port is the same as the
+        initiating port unless configured via ostEnetStRespCfgUpPort
+
+        This object can only be written at row creation time and cannot be
+        modified once it has been created.
+       "
+    DEFVAL { 0 }
+    ::= { ostEnetStRespCfgEntry 19 }
+
+ostEnetStRespCfgTestStatus
+OBJECT-TYPE
+    SYNTAX      OstTestStatusType
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+       "This object indicates the status of the currently indicated Test
+        Instance.
+       "
+    ::= { ostEnetStRespCfgEntry 20 }
+
+ostEnetStRespCfgVid OBJECT-TYPE
+    SYNTAX      OstVlanId
+    MAX-ACCESS  read-create
+    STATUS      current
+    DESCRIPTION
+       "The test VID associated with this EVC on this interface. It must be
+        a member of the EVC selected by ostEnetStRespCfgEvc.
+
+        If defined, it is the value of VLAN ID that is used to generate the
+        response test PDUs.
+
+        If undefined,  the test PDU will be generated with the Primary VID of
+        the EVC.
+
+        This object can only be written at row creation time and cannot be
+        modified once it has been created.
+       "
+    DEFVAL { 0 }
+    ::= { ostEnetStRespCfgEntry 21 }
+
+ostEnetStRespCfgLocalMac OBJECT-TYPE
+    SYNTAX      TruthValue
+    MAX-ACCESS  read-create
+    STATUS      current
+    DESCRIPTION
+       "This object indicates whether the received test instance PDU must match
+        the local port's MAC address.
+
+        The value 'true' indicates the test PDU must match the test instance's
+        local port MAC address if ostEnetStRespCfgType is equal to 'port',
+        'evc', or 'evccos'.
+
+
+        The value 'false' indicates the test PDU does not have to match the
+        test instance's local port MAC address if ostEnetStRespCfgType is equal
+        to 'port', 'evc', or 'evccos'.
+
+        The value of the object is ignored if ostEnetStRespCfgType is equal
+        to 'lbm' or 'tst'.
+
+        This object can only be written at row creation time and cannot be
+        modified once it has been created.
+       "
+    DEFVAL { false }
+    ::= { ostEnetStRespCfgEntry 22 }
+
+ostEnetStRespCfgMulticast OBJECT-TYPE
+    SYNTAX      TruthValue
+    MAX-ACCESS  read-create
+    STATUS      current
+    DESCRIPTION
+       "This object indicates that a received test PDU with a destination
+        address that is multicast or broadcast will be responded to and
+        replaced with the local test instance's MAC address if a MAC swap
+        test instance operation is selected (ostEnetStRespCfgReplyType equal
+        to 'macswap').
+
+        The value 'true' indicates that the transmitted test PDU will substitute
+        it's local port MAC address for the source MAC address of the generated
+        test PDU if a MAC swap test instance operation is selected and the
+        received test PDU is a multicast or broadcast address.
+
+        The value 'false' indicates that the transmitted test PDU will use the
+        received test PDU destination address for the transmitted test PDUs
+        MAC address if a MAC swap operation is selected. This implies
+        that a received test frame with a multicast or broadcast address will
+        be dropped.
+
+        The value of this object will be ignored if ostEnetStRespCfgLocalMac is
+        set to 'true', ostEnetStRespCfgReplyType is set to 'loop', or the
+        received test PDU has a unicast destination address.
+
+        This object can be written/modified after row creation time.
+       "
+    DEFVAL { false }
+    ::= { ostEnetStRespCfgEntry 23 }
+
+ostEnetStRespCfgVidRx OBJECT-TYPE
+    SYNTAX      OstVlanId
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+       "The VLAN ID associated with the Test PDUs for the Test Instance.
+
+        A value of '0' indicates that Test PDUs are untagged or the instance
+        is port based.
+       "
+    ::= { ostEnetStRespCfgEntry 24 }
+
+ostEnetStRespCfgRemote OBJECT-TYPE
+    SYNTAX      INTEGER {
+        none       (1),
+        jdsu       (2),
+        veex       (5),
+        twamp      (6),
+        twamplight (7),
+        iploop     (8)
+    }
+    MAX-ACCESS  read-create
+    STATUS      current
+    DESCRIPTION
+       "This object selects the specific type of remote protocol for the specific
+        Test Responder instance.
+
+        none(1)       Test response is independent of loop up/down protocols
+        jdsu(2)       Test response is proprietary protocol test from JDSU
+        veex(5)       Test response is proprietary protocol test from VeEX
+        twamp(6)      Test response is TWAMP test
+        twamplight(7) Test response is TWAMPLIGHT test
+        iploop(8)     Test response is IP Loopback test using the gateway (SFP-NID)
+
+        This object can only be written at row creation time and cannot be
+        modified once it has been created.
+       "
+    DEFVAL { none }
+    ::= { ostEnetStRespCfgEntry 25 }
+
+ostEnetStRespCfgDestIpAddress OBJECT-TYPE
+    SYNTAX      IpAddress
+    MAX-ACCESS  read-create
+    STATUS      current
+    DESCRIPTION
+       "This object indicates the destination IPv4 address of the specific test
+        instance.
+
+        A non-zero value for this object or ostEnetStRespCfgDestIpAddressString
+        indicates that the matching Ethernet frame will be a layer 3 (IP type)
+        of frame. If configured with a non-zero value only those frames that
+        are layer 3 frames will be reponded to.
+
+        Setting this object also impacts the ostEnetStRespCfgDestIpAddressString
+        returned value. If an IPv4 address is written to this object the
+        two objects return the same value. If ostEnetStRespCfgDestIpAddressString
+        is set with an IPv6 address then this object returns an all zeros
+        value.
+
+        This object can only be written at row creation time and cannot be
+        modified once it has been created.
+       "
+    DEFVAL { '00000000'H  }
+    ::= { ostEnetStRespCfgEntry 26 }
+
+ostEnetStRespCfgSrcIpAddress OBJECT-TYPE
+    SYNTAX      IpAddress
+    MAX-ACCESS  read-create
+    STATUS      current
+    DESCRIPTION
+       "This object indicates the source IPv4 address of the specific test
+        instance for an L3 type of test
+
+        A non-zero value for this object or ostEnetStRespCfgSrcIpAddressString
+        indicates that the matching Ethernet frame will be a layer 3 (IP type)
+        of frame. If configured with a non-zero value only those frames that
+        are layer 3 frames will be reponded to.
+
+        Setting this object also impacts the ostEnetStRespCfgSrcIpAddressString
+        returned value. If an IPv4 address is written to this object the
+        two objects return the same value. If ostEnetStRespCfgSrcIpAddressString
+        is set with an IPv6 address then this object returns an all zeros
+        value.
+
+        This object can only be written at row creation time and cannot be
+        modified once it has been created.
+       "
+    DEFVAL { '00000000'H  }
+    ::= { ostEnetStRespCfgEntry 27 }
+
+ostEnetStRespCfgEthertype OBJECT-TYPE
+    SYNTAX Unsigned32
+    MAX-ACCESS  read-create
+    STATUS      current
+    DESCRIPTION
+       "This object specifies the test instance Ethertype that is used at the
+        start of the data portion of the frame at the VID TAG.
+
+        The value is ignored for ostEnetStRespCfgType 'mep', 'lbm', 'tst'.
+
+        This object can only be written at row creation time and cannot be
+        modified once it has been created.
+       "
+    DEFVAL { '9001'H }
+    ::= { ostEnetStRespCfgEntry 28 }
+
+ostEnetStRespCfgDestIpAddressString OBJECT-TYPE
+    SYNTAX      OstIpAddr
+    MAX-ACCESS  read-create
+    STATUS      current
+    DESCRIPTION
+       "This object indicates the destination IPv4 or IPv6 address of the
+        specific test instance.
+
+        A non-zero value for this object indicates that the matching Ethernet
+        frame will be a layer 3 (IP type) of frame. If configured with a
+        non-zero value only those frames that are layer 3 frames will be
+        reponded to.
+
+        Setting this object also impacts the ostEnetStRespCfgDestIpAddress
+        returned value. If an IPv4 address is written to this object the
+        two objects return the same value. If an IPv6 address is written
+        to this object then ostEnetStRespCfgDestIpAddress returns an all
+        zeros value.
+
+        This object can only be written at row creation time and cannot be
+        modified once it has been created.
+       "
+    DEFVAL { "::"  }
+
+    ::= { ostEnetStRespCfgEntry 29 }
+
+ostEnetStRespCfgSrcIpAddressString OBJECT-TYPE
+    SYNTAX      OstIpAddr
+    MAX-ACCESS  read-create
+    STATUS      current
+    DESCRIPTION
+       "This object indicates the source IPv4 or IPv6 address of the
+        specific test instance for an L3 type of test
+
+        A non-zero value for this object indicates that the matching Ethernet
+        frame will be a layer 3 (IP type) of frame. If configured with a
+        non-zero value only those frames that are layer 3 frames will be
+        reponded to.
+
+        Setting this object also impacts the ostEnetStRespCfgSrcIpAddress
+        returned value. If an IPv4 address is written to this object the
+        two objects return the same value. If an IPv6 address is written
+        to this object then ostEnetStRespCfgSrcIpAddress returns an all
+        zeros value.
+
+
+        This object can only be written at row creation time and cannot be
+        modified once it has been created.
+       "
+    DEFVAL { "::"  }
+    ::= { ostEnetStRespCfgEntry 30 }
+
+ostEnetStRespCfgUpPort OBJECT-TYPE
+    SYNTAX      INTEGER {
+        none    (1),
+        evc     (2)
+    }
+    MAX-ACCESS  read-create
+    STATUS      current
+    DESCRIPTION
+       "This object allows an egress port to be dynamically determined by
+        sending traffic out all the ports in an EVC instead of a specific
+        egress port (ostEnetStRespCfgEgressPortNum).
+
+        none(1)       Egress port is based upon ostEnetStRespCfgEgressPortNum
+        evc(2)        Egress port is determined by EVC members
+
+        This object can only be written at row creation time and cannot be
+        modified once it has been created.
+       "
+    DEFVAL { none }
+    ::= { ostEnetStRespCfgEntry 31 }
+
+ostEnetStRespCfgPersist OBJECT-TYPE
+    SYNTAX      TruthValue
+    MAX-ACCESS  read-create
+    STATUS      current
+    DESCRIPTION
+       "This object specifies whether the Test Responder instance is enabled
+        to be saved (persistent) when a save command occurs.
+
+        The value 'true' indicates the Test Responder instance is enabled
+        to be saved.
+
+        The value 'false' indicates the Test Responder instance is disabled
+        to be saved.
+
+        This object can be written/modified after row creation time.
+       "
+    DEFVAL { true }
+    ::= { ostEnetStRespCfgEntry 32 }
+
+
+ostEnetStRespCfgTwampServerPort OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  read-create
+    STATUS      current
+    DESCRIPTION
+       "TWAMP server TCP port
+       "
+    DEFVAL { 862  }
+    ::= { ostEnetStRespCfgEntry 33 }
+
+ostEnetStRespCfgTwampUdpSrcPort OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  read-create
+    STATUS      current
+    DESCRIPTION
+       "TWAMP UDP source port.
+       "
+    ::= { ostEnetStRespCfgEntry 34 }
+
+ostEnetStRespCfgTwampUdpDstPort  OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  read-create
+    STATUS      current
+    DESCRIPTION
+       "TWAMP UDP destination port.
+       "
+    ::= { ostEnetStRespCfgEntry 35 }
+
+ostEnetStRespCfgGatewayIpAddressString OBJECT-TYPE
+    SYNTAX      OstIpAddr
+    MAX-ACCESS  read-create
+    STATUS      current
+    DESCRIPTION
+       "This object indicates the gateway IPv4 or IPv6 address of the
+        specific test instance for remote protocol IP Loopback type of test
+        for the SFP-NID.
+
+        It is illegal to set this when the ostEnetStInitCfgType object is set
+        to 'mep', 'lbm' or 'tst'.
+
+        This object can only be written at row creation time and cannot be
+        modified once it has been created.
+       "
+    DEFVAL { "::"  }
+    ::= { ostEnetStRespCfgEntry 36 }
+
+ostEnetStRespCfgNetworkAddressLength OBJECT-TYPE
+    SYNTAX      Unsigned32 (1..128)
+    MAX-ACCESS  read-write
+    STATUS      current
+    DESCRIPTION
+       "This object configures the IPv4 subnet mask bit length (maximum size
+        of 28) or the IPv6 prefix bit length (maximum size of 128) for the
+        SFP-NID.
+
+        This object can only be written at row creation time and cannot be
+        modified once it has been created.
+       "
+    DEFVAL { 24 }
+    ::= { ostEnetStRespCfgEntry 37 }
+
+
+--------------------------------------------------------------------------------
+-- Ethernet Service Testing (EnetST) Responder Statistics Table
+--------------------------------------------------------------------------------
+
+ostEnetStRespStatsTable OBJECT-TYPE
+    SYNTAX      SEQUENCE OF OstEnetStRespStatsEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION
+       "This table supports the statistics for EnetST responder."
+    ::= { omnitronEstMib 6 }
+
+ostEnetStRespStatsEntry OBJECT-TYPE
+    SYNTAX      OstEnetStRespStatsEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION
+       "This is a EnetST Responder statistics table entry."
+    INDEX { ostEnetStRespCfgIndex }
+    ::= { ostEnetStRespStatsTable 1 }
+
+OstEnetStRespStatsEntry ::= SEQUENCE {
+    ostEnetStRespStatsStartTime            DateAndTime,
+    ostEnetStRespStatsElapsedTime          TimeInterval,
+    ostEnetStRespStatsFramesTransmitted    OstFrameCount64,
+    ostEnetStRespStatsFramesReceived       OstFrameCount64,
+    ostEnetStRespStatsMinTTL               Unsigned32,
+    ostEnetStRespStatsMaxTTL               Unsigned32,
+    ostEnetStRespStatsAvgTTL               Unsigned32
+    }
+
+ostEnetStRespStatsStartTime OBJECT-TYPE
+    SYNTAX      DateAndTime
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+       "The time that the test responder instance started.
+       "
+    ::= { ostEnetStRespStatsEntry 1 }
+
+ostEnetStRespStatsElapsedTime OBJECT-TYPE
+    SYNTAX      TimeInterval
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+       "The time that the test responder instance has been running, in 0.01
+        seconds.
+       "
+    ::= { ostEnetStRespStatsEntry 2 }
+
+ostEnetStRespStatsFramesTransmitted OBJECT-TYPE
+    SYNTAX      OstFrameCount64
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+       "This object contains the number of test frames transmitted during
+        the specific test response instance.
+       "
+    ::= { ostEnetStRespStatsEntry 3 }
+
+ostEnetStRespStatsFramesReceived OBJECT-TYPE
+    SYNTAX      OstFrameCount64
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+       "This object contains the number of test frames received during
+        the specific test response instance.
+       "
+    ::= { ostEnetStRespStatsEntry 4 }
+
+ostEnetStRespStatsMinTTL  OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+       "This object specifies the minimum Time-To-Live (TTL) value received
+        for the specific TWAMP test instance.
+       "
+    ::= { ostEnetStRespStatsEntry 5 }
+
+ostEnetStRespStatsMaxTTL   OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+       "This object specifies the maximum Time-To-Live (TTL) value received
+        for the specific TWAMP test instance.
+       "
+    ::= { ostEnetStRespStatsEntry 6 }
+
+ostEnetStRespStatsAvgTTL   OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+       "This object specifies the average Time-To-Live (TTL) value
+        for the specific TWAMP test instance.
+       "
+    ::= {  ostEnetStRespStatsEntry 7 }
+
+
+--------------------------------------------------------------------------------
+-- Conformance Information
+--------------------------------------------------------------------------------
+
+ostEstCompliances       OBJECT IDENTIFIER ::= { omnitronEstMib 7 }
+ostEstGroups            OBJECT IDENTIFIER ::= { omnitronEstMib 8 }
+
+
+--------------------------------------------------------------------------------
+-- Omnitron EST MIB Units of conformance
+--------------------------------------------------------------------------------
+ostEnetStGlobalCfgGroup OBJECT-GROUP
+    OBJECTS {
+        ostEnetStGlobalCfgInitSessionNextIndex,
+        ostEnetStGlobalCfgRespSessionNextIndex ,
+        ostEnetStGlobalCfgTestGenerator,
+        ostEnetStGlobalCfgTestMonitor,
+        ostEnetStGlobalCfgTestReflector
+    }
+    STATUS      current
+    DESCRIPTION
+       "Mandatory objects for the EnetST Global Configuration group."
+    ::= { ostEstGroups 1 }
+
+ostEnetStInitCfgGroup OBJECT-GROUP
+    OBJECTS {
+        ostEnetStInitCfgRowStatus,
+        ostEnetStInitCfgProfileName,
+        ostEnetStInitCfgTestGenerator,
+        ostEnetStInitCfgTestMonitor,
+        ostEnetStInitCfgInService,
+        ostEnetStInitCfgPortNum,
+        ostEnetStInitCfgType,
+        ostEnetStInitCfgEvc,
+        ostEnetStInitCfgCosBwp,
+        ostEnetStInitCfgVid,
+        ostEnetStInitCfgPriority,
+        ostEnetStInitCfgMdIndex,
+        ostEnetStInitCfgMaIndex,
+        ostEnetStInitCfgDestMacAddress,
+        ostEnetStInitCfgDestIsMepId,
+        ostEnetStInitCfgDestMepId,
+        ostEnetStInitCfgFrameSize,
+        ostEnetStInitCfgFrameType,
+        ostEnetStInitCfgFramePayload,
+        ostEnetStInitCfgFrameTimeDurationType,
+        ostEnetStInitCfgFrameDuration,
+        ostEnetStInitCfgFrameRateType,
+        ostEnetStInitCfgFrameRate,
+        ostEnetStInitCfgTestType,
+        ostEnetStInitCfgAcceptableFrameLossType,
+        ostEnetStInitCfgAcceptableFrameLoss,
+        ostEnetStInitCfgTrialCount,
+        ostEnetStInitCfgStatClear,
+        ostEnetStInitCfgEgressPortNum,
+        ostEnetStInitCfgTestStatus,
+        ostEnetStInitCfgPacketSizeType,
+        ostEnetStInitCfgFailureDecrementSize,
+        ostEnetStInitCfgSearchType,
+        ostEnetStInitCfgAcceptableFrameDelay,
+        ostEnetStInitCfgAcceptableIfdv,
+        ostEnetStInitCfgNameType,
+        ostEnetStInitCfgVidTx,
+        ostEnetStInitCfgRemote,
+        ostEnetStInitCfgDestIpAddress,
+        ostEnetStInitCfgSrcIpAddress,
+        ostEnetStInitCfgDisableTimeStamp,
+        ostEnetStInitCfgIngressPolicers,
+        ostEnetStInitCfgY1564FullCir,
+        ostEnetStInitCfgY1564Performance,
+        ostEnetStInitCfgY1564UseEir,
+        ostEnetStInitCfgFrameRate64,
+        ostEnetStInitCfgAvail,
+        ostEnetStInitCfgEthertype,
+        ostEnetStInitCfgDestIpAddressString,
+        ostEnetStInitCfgSrcIpAddressString,
+        ostEnetStInitCfgUpPort,
+        ostEnetStInitCfgCtlIpAddressString,
+        ostEnetStInitCfgTwampServerPort,
+        ostEnetStInitCfgTwampUdpSrcPort,
+        ostEnetStInitCfgTwampUdpDstPort,
+        ostEnetStInitCfgGatewayIpAddressString,
+        ostEnetStInitCfgNetworkAddressLength
+    }
+    STATUS      current
+    DESCRIPTION
+       "Mandatory objects for the EnetST Initiator Configuration group."
+    ::= { ostEstGroups 2 }
+
+ostEnetStCurrentStatsGroup OBJECT-GROUP
+    OBJECTS {
+        ostEnetStCurrentStatsIndex,
+        ostEnetStCurrentStatsStartTime,
+        ostEnetStCurrentStatsElapsedTime,
+        ostEnetStCurrentStatsTrial,
+        ostEnetStCurrentStatsIteration,
+        ostEnetStCurrentStatsFrameSize,
+        ostEnetStCurrentStatsTransmitRate,
+        ostEnetStCurrentStatsFramesTransmitted,
+        ostEnetStCurrentStatsFramesReceived,
+        ostEnetStCurrentStatsFrameDelayTwoWayMin,
+        ostEnetStCurrentStatsFrameDelayTwoWayMax,
+        ostEnetStCurrentStatsFrameDelayTwoWayAvg,
+        ostEnetStCurrentStatsIfdvTwoWayMin,
+        ostEnetStCurrentStatsIfdvTwoWayMax,
+        ostEnetStCurrentStatsIfdvTwoWayAvg,
+        ostEnetStCurrentStatsReceiveErrors,
+        ostEnetStCurrentStatsTestStatus,
+        ostEnetStCurrentStatsInterfaceRate,
+        ostEnetStCurrentStatsLineRate,
+        ostEnetStCurrentStatsDataRate,
+        ostEnetStCurrentStatsFrameRate,
+        ostEnetStCurrentStatsTransmitRate64,
+        ostEnetStCurrentStatsInterfaceRate64,
+        ostEnetStCurrentStatsLineRate64,
+        ostEnetStCurrentStatsDataRate64,
+        ostEnetStCurrentStatsAvail,
+        ostEnetStCurrentStatsUnavailCount,
+        ostEnetStCurrentStatsDroppedCount,
+        ostEnetStCurrentStatsDuplicateCount,
+        ostEnetStCurrentStatsOutOfOrderCount,
+        ostEnetStCurrentStatsMinTTL,
+        ostEnetStCurrentStatsMaxTTL,
+        ostEnetStCurrentStatsAvgTTL
+    }
+    STATUS      current
+    DESCRIPTION
+       "Mandatory objects for the EnetST Current Statistics group."
+    ::= { ostEstGroups 3 }
+
+ostEnetStHistoryStatsGroup OBJECT-GROUP
+    OBJECTS {
+        ostEnetStHistoryStatsEndTime,
+        ostEnetStHistoryStatsElapsedTime,
+        ostEnetStHistoryStatsTrial,
+        ostEnetStHistoryStatsIteration,
+        ostEnetStHistoryStatsFrameSize,
+        ostEnetStHistoryStatsTransmitRate,
+        ostEnetStHistoryStatsFramesTransmitted,
+        ostEnetStHistoryStatsFramesReceived,
+        ostEnetStHistoryStatsFrameDelayTwoWayMin,
+        ostEnetStHistoryStatsFrameDelayTwoWayMax,
+        ostEnetStHistoryStatsFrameDelayTwoWayAvg,
+        ostEnetStHistoryStatsIfdvTwoWayMin,
+        ostEnetStHistoryStatsIfdvTwoWayMax,
+        ostEnetStHistoryStatsIfdvTwoWayAvg,
+        ostEnetStHistoryStatsReceiveErrors,
+        ostEnetStHistoryStatsTestStatus,
+        ostEnetStHistoryStatsInterfaceRate,
+        ostEnetStHistoryStatsLineRate,
+        ostEnetStHistoryStatsDataRate,
+        ostEnetStHistoryStatsFrameRate,
+        ostEnetStHistoryStatsTransmitRate64,
+        ostEnetStHistoryStatsInterfaceRate64,
+        ostEnetStHistoryStatsLineRate64,
+        ostEnetStHistoryStatsDataRate64,
+        ostEnetStHistoryStatsAvail,
+        ostEnetStHistoryStatsUnavailCount,
+        ostEnetStHistoryStatsDroppedCount,
+        ostEnetStHistoryStatsDuplicateCount,
+        ostEnetStHistoryStatsOutOfOrderCount,
+        ostEnetStHistoryStatsMinTTL,
+        ostEnetStHistoryStatsMaxTTL,
+        ostEnetStHistoryStatsAvgTTL
+    }
+    STATUS      current
+    DESCRIPTION
+       "Mandatory objects for the EnetST History Statistics group."
+    ::= { ostEstGroups 4 }
+
+ostEnetStRespCfgGroup OBJECT-GROUP
+    OBJECTS {
+        ostEnetStRespCfgRowStatus,
+        ostEnetStRespCfgProfileName,
+        ostEnetStRespCfgReflector,
+        ostEnetStRespCfgTestMonitor,
+        ostEnetStRespCfgInService,
+        ostEnetStRespCfgPortNum,
+        ostEnetStRespCfgType,
+        ostEnetStRespCfgEvc,
+        ostEnetStRespCfgCos,
+        ostEnetStRespCfgMdIndex,
+        ostEnetStRespCfgMaIndex,
+        ostEnetStRespCfgSourceMacAddress,
+        ostEnetStRespCfgSourceIsMepId,
+        ostEnetStRespCfgSourceMepId,
+        ostEnetStRespCfgFrameType,
+        ostEnetStRespCfgReplyType,
+        ostEnetStRespCfgStatClear,
+        ostEnetStRespCfgEgressPortNum,
+        ostEnetStRespCfgTestStatus,
+        ostEnetStRespCfgVid,
+        ostEnetStRespCfgLocalMac,
+        ostEnetStRespCfgMulticast,
+        ostEnetStRespCfgVidRx,
+        ostEnetStRespCfgRemote,
+        ostEnetStRespCfgDestIpAddress,
+        ostEnetStRespCfgSrcIpAddress,
+        ostEnetStRespCfgEthertype,
+        ostEnetStRespCfgDestIpAddressString,
+        ostEnetStRespCfgSrcIpAddressString,
+        ostEnetStRespCfgUpPort,
+        ostEnetStRespCfgPersist,
+        ostEnetStRespCfgTwampServerPort,
+        ostEnetStRespCfgTwampUdpSrcPort,
+        ostEnetStRespCfgTwampUdpDstPort,
+        ostEnetStRespCfgGatewayIpAddressString,
+        ostEnetStRespCfgNetworkAddressLength
+    }
+    STATUS      current
+    DESCRIPTION
+       "Mandatory objects for the EnetST Responder Configuration group."
+    ::= { ostEstGroups 5 }
+
+ostEnetStRespStatsGroup OBJECT-GROUP
+    OBJECTS {
+    ostEnetStRespStatsStartTime,
+    ostEnetStRespStatsElapsedTime,
+    ostEnetStRespStatsFramesTransmitted,
+    ostEnetStRespStatsFramesReceived,
+    ostEnetStRespStatsMinTTL,
+    ostEnetStRespStatsMaxTTL,
+    ostEnetStRespStatsAvgTTL
+    }
+    STATUS      current
+    DESCRIPTION
+       "Mandatory objects for the EnetST Responder Statistics group."
+    ::= { ostEstGroups 6 }
+
+
+--------------------------------------------------------------------------------
+-- Omnitron EST MIB Compliance statements
+-------------------------------------------------------------------------------
+ostEstCompliance MODULE-COMPLIANCE
+    STATUS       current
+    DESCRIPTION "The compliance statement for the Omnitron EST MIB."
+    MODULE
+        MANDATORY-GROUPS {
+            ostEnetStGlobalCfgGroup,
+            ostEnetStInitCfgGroup,
+            ostEnetStCurrentStatsGroup,
+            ostEnetStHistoryStatsGroup,
+            ostEnetStRespCfgGroup,
+            ostEnetStRespStatsGroup
+        }
+    ::= { ostEstCompliances 1 }
+
+
+END
+

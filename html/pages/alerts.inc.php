@@ -1,0 +1,69 @@
+<?php
+/**
+ * Observium
+ *
+ *   This file is part of Observium.
+ *
+ * @package    observium
+ * @subpackage web
+ * @copyright  (C) Adam Armstrong
+ *
+ */
+
+include($config['html_dir'] . '/includes/navbars/alerting.inc.php');
+
+if (!isset($vars['status'])) {
+    $vars['status'] = 'failed';
+}
+// Don't force entity_type=all into vars - let it be the default behavior
+
+$navbar['class'] = "navbar-narrow";
+$navbar['brand'] = "Alert Types";
+
+$types = dbFetchRows("SELECT DISTINCT `entity_type` FROM `alert_table` " . generate_where_clause(generate_query_permitted_ng([ 'alert' ])));
+
+$types_count = safe_count($types);
+
+$navbar['options']['all']['url']  = generate_url($vars, ['page' => 'alerts', 'entity_type' => NULL]);
+$navbar['options']['all']['text'] = escape_html(nicecase('all'));
+if (safe_empty($vars['entity_type'])) {
+    $navbar['options']['all']['class'] = "active";
+    $navbar['options']['all']['url']   = generate_url($vars, ['page' => 'alerts', 'entity_type' => NULL]);
+}
+
+foreach ($types as $thing) {
+    if ($vars['entity_type'] == $thing['entity_type']) {
+        $navbar['options'][$thing['entity_type']]['class'] = "active";
+        $navbar['options'][$thing['entity_type']]['url']   = generate_url($vars, ['page' => 'alerts', 'entity_type' => NULL]);
+    } else {
+        if ($types_count > 6) {
+            $navbar['options'][$thing['entity_type']]['class'] = "icon";
+        }
+        $navbar['options'][$thing['entity_type']]['url'] = generate_url($vars, ['page' => 'alerts', 'entity_type' => $thing['entity_type']]);
+    }
+    $navbar['options'][$thing['entity_type']]['icon'] = $config['entities'][$thing['entity_type']]['icon'];
+    $navbar['options'][$thing['entity_type']]['text'] = $config['entities'][$thing['entity_type']]['names'];
+}
+
+// Add filters to navbar
+navbar_alerts_filter($navbar, $vars);
+
+// Print out the navbar defined above
+print_navbar($navbar);
+
+// Cache the alert_tests table for use later
+$alert_rules = cache_alert_rules($vars);
+
+// Print out a table of alerts matching $vars
+if ($vars['status'] !== 'failed') {
+    $vars['pagination'] = TRUE;
+}
+
+print_alert_table($vars);
+
+register_html_title('Alerts');
+if (is_string($vars['entity_type']) && isset($config['entities'][$vars['entity_type']]['names'])) {
+    register_html_title($config['entities'][$vars['entity_type']]['names']);
+}
+
+// EOF

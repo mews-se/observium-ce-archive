@@ -1,0 +1,184 @@
+--
+-- @Description: MIB for SDWAN Traps
+-- @Date       : 2016-01-04
+--
+
+SDWAN-TRAP DEFINITIONS ::= BEGIN
+IMPORTS
+    MODULE-IDENTITY, OBJECT-TYPE, NOTIFICATION-TYPE
+        FROM SNMPv2-SMI
+    serviceNotification
+        FROM VERSA-MIB
+    alarmIndex, alarmType, alarmDevice, alarmObject,
+    alarmSpecificProblem, alarmEventType, alarmProbableCause,
+    alarmTime, alarmSeverity, alarmHasClear, alarmText,
+    tenantName, alarmClass, alarmKey
+        FROM TRAPS-COMMON;
+
+sdwantrapMIB MODULE-IDENTITY
+    LAST-UPDATED "202009020000Z"
+    ORGANIZATION "Versa Networks"
+    CONTACT-INFO "
+        2953 Bunker Hill Lane, Suite 210
+        Santa Clara, CA - 95035 (USA)
+        Email: support@versa-networks.com"
+    DESCRIPTION  "Versa Networks' Enterprise MIB for SDWAN traps"
+    ::= { serviceNotification 7 }
+
+-- Root Object
+sdwanEntities OBJECT IDENTIFIER ::= { sdwantrapMIB 1 }
+sdwanNotification OBJECT IDENTIFIER ::= { sdwantrapMIB 2 }
+
+sdwanVSNId OBJECT-TYPE
+    SYNTAX      INTEGER
+    MAX-ACCESS  accessible-for-notify
+    STATUS      current
+    DESCRIPTION "VSN id"
+        ::= { sdwanEntities 1 }
+
+sdwanLocalSiteName OBJECT-TYPE
+    SYNTAX      OCTET STRING
+    MAX-ACCESS  accessible-for-notify
+    STATUS      current
+    DESCRIPTION "Local Site Name"
+        ::= { sdwanEntities 2 }
+
+sdwanLocalAccCktName OBJECT-TYPE
+    SYNTAX      OCTET STRING
+    MAX-ACCESS  accessible-for-notify
+    STATUS      current
+    DESCRIPTION "Local Access Circuit Name"
+        ::= { sdwanEntities 3 }
+
+sdwanRemoteSiteName OBJECT-TYPE
+    SYNTAX      OCTET STRING
+    MAX-ACCESS  accessible-for-notify
+    STATUS      current
+    DESCRIPTION "Remote Site Name"
+        ::= { sdwanEntities 4 }
+
+sdwanRemoteAccCktName OBJECT-TYPE
+    SYNTAX      OCTET STRING
+    MAX-ACCESS  accessible-for-notify
+    STATUS      current
+    DESCRIPTION "Remote Access Circuit Name"
+        ::= { sdwanEntities 5 }
+
+sdwanForwardingClass OBJECT-TYPE
+    SYNTAX      OCTET STRING
+    MAX-ACCESS  accessible-for-notify
+    STATUS      current
+    DESCRIPTION "Forwarding Class"
+        ::= { sdwanEntities 6 }
+
+sdwanWanIfName OBJECT-TYPE
+    SYNTAX      OCTET STRING
+    MAX-ACCESS  accessible-for-notify
+    STATUS      current
+    DESCRIPTION "WAN Interface Name"
+        ::= { sdwanEntities 7 }
+
+sdwanWanIfOrderId OBJECT-TYPE
+    SYNTAX      OCTET STRING(SIZE(0..255))
+    MAX-ACCESS  accessible-for-notify
+    STATUS      current
+    DESCRIPTION "A string describing order id"
+    ::= { sdwanEntities 8 }
+
+sdwanRuleName OBJECT-TYPE
+    SYNTAX      OCTET STRING
+    MAX-ACCESS  accessible-for-notify
+    STATUS      current
+    DESCRIPTION "SDWAN rule name"
+    ::= { sdwanEntities 9 }
+
+sdwanNexthopName OBJECT-TYPE
+    SYNTAX      OCTET STRING
+    MAX-ACCESS  accessible-for-notify
+    STATUS      current
+    DESCRIPTION "Nexthop name"
+    ::= { sdwanEntities 10 }
+
+
+sdwanDatapathUp NOTIFICATION-TYPE
+    OBJECTS {
+        alarmType,            alarmDevice,        alarmSpecificProblem,
+        alarmClass,           alarmEventType,     alarmProbableCause,
+        alarmTime,            alarmSeverity,      alarmHasClear,
+        alarmText,            tenantName,         alarmKey,
+        sdwanVSNId,           sdwanLocalSiteName,    sdwanLocalAccCktName,
+        sdwanRemoteSiteName,  sdwanRemoteAccCktName, sdwanForwardingClass,
+        sdwanWanIfName,       sdwanWanIfOrderId
+    }
+    STATUS  current
+    DESCRIPTION "SDWAN datapath status changed to UP"
+        ::= { sdwanNotification 1 }
+
+sdwanDatapathDown NOTIFICATION-TYPE
+    OBJECTS {
+        alarmType,            alarmDevice,        alarmSpecificProblem,
+        alarmClass,           alarmEventType,     alarmProbableCause,
+        alarmTime,            alarmSeverity,      alarmHasClear,
+        alarmText,            tenantName,         alarmKey,
+        sdwanVSNId,           sdwanLocalSiteName,    sdwanLocalAccCktName,
+        sdwanRemoteSiteName,  sdwanRemoteAccCktName, sdwanForwardingClass,
+        sdwanWanIfName,       sdwanWanIfOrderId
+    }
+    STATUS  current
+    DESCRIPTION "SDWAN datapath status changed to DOWN"
+        ::= { sdwanNotification 2 }
+
+sdwanNbrDatapathUp NOTIFICATION-TYPE
+    OBJECTS {
+        alarmType,            alarmDevice,        alarmSpecificProblem,
+        alarmClass,           alarmEventType,     alarmProbableCause,
+        alarmTime,            alarmSeverity,      alarmHasClear,
+        alarmText,            tenantName,         alarmKey,
+        sdwanVSNId,           sdwanLocalSiteName, sdwanRemoteSiteName,
+        sdwanWanIfName,       sdwanWanIfOrderId
+    }
+    STATUS  current
+    DESCRIPTION "SDWAN neigbhor datapath status changed to UP"
+        ::= { sdwanNotification 3 }
+
+sdwanNbrDatapathDown NOTIFICATION-TYPE
+    OBJECTS {
+        alarmType,            alarmDevice,        alarmSpecificProblem,
+        alarmClass,           alarmEventType,     alarmProbableCause,
+        alarmTime,            alarmSeverity,      alarmHasClear,
+        alarmText,            tenantName,         alarmKey,
+        sdwanVSNId,           sdwanLocalSiteName, sdwanRemoteSiteName,
+        sdwanWanIfName,       sdwanWanIfOrderId
+    }
+    STATUS  current
+    DESCRIPTION "SDWAN neigbhor datapath status changed to DOWN"
+        ::= { sdwanNotification 4 }
+
+sdwanDatapathSlaNotMet NOTIFICATION-TYPE
+    OBJECTS {
+        alarmType,            alarmDevice,         alarmSpecificProblem,
+        alarmClass,           alarmEventType,      alarmProbableCause,
+        alarmTime,            alarmSeverity,       alarmHasClear,
+        alarmText,            tenantName,          alarmKey,
+        sdwanVSNId,           sdwanRuleName,       sdwanLocalSiteName,
+        sdwanLocalAccCktName, sdwanRemoteSiteName, sdwanRemoteAccCktName,
+        sdwanForwardingClass
+    }
+    STATUS  current
+    DESCRIPTION "SDWAN datapath SLA status has changed"
+        ::= { sdwanNotification 5 }
+
+nexthopSlaNotMet NOTIFICATION-TYPE
+    OBJECTS {
+        alarmType,            alarmDevice,         alarmSpecificProblem,
+        alarmClass,           alarmEventType,      alarmProbableCause,
+        alarmTime,            alarmSeverity,       alarmHasClear,
+        alarmText,            tenantName,          alarmKey,
+        sdwanVSNId,           sdwanRuleName,       sdwanNexthopName,
+        sdwanForwardingClass
+    }
+    STATUS  current
+    DESCRIPTION "Nexthop SLA status has changed"
+        ::= { sdwanNotification 6 }
+
+END

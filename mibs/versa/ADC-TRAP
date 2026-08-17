@@ -1,0 +1,144 @@
+--
+-- @Description: MIB for ADC Traps
+-- @Date       : 2014-06-25
+--
+
+ADC-TRAP DEFINITIONS ::= BEGIN
+IMPORTS
+    MODULE-IDENTITY, OBJECT-TYPE, NOTIFICATION-TYPE
+        FROM SNMPv2-SMI
+    serviceNotification
+        FROM VERSA-MIB
+    alarmIndex, alarmType, alarmDevice, alarmObject,
+    alarmSpecificProblem, alarmEventType, alarmProbableCause,
+    alarmTime, alarmSeverity, alarmHasClear, alarmText,
+    tenantName, alarmClass
+        FROM TRAPS-COMMON;
+
+adctrapMIB MODULE-IDENTITY
+    LAST-UPDATED "201406250000Z"
+    ORGANIZATION "Versa Networks"
+    CONTACT-INFO "
+        2953 Bunker Hill Lane, Suite 210
+        Santa Clara, CA - 95035 (USA)
+        Email: support@versa-networks.com"
+    DESCRIPTION  "Versa Networks' Entrprise MIB for ADC traps"
+    ::= { serviceNotification 1 }
+
+-- Root Object
+adcEntities OBJECT IDENTIFIER ::= { adctrapMIB 1 }
+adcNotification OBJECT IDENTIFIER ::= { adctrapMIB 2 }
+
+adcVPELName OBJECT-TYPE
+    SYNTAX      OCTET STRING
+    MAX-ACCESS  accessible-for-notify
+    STATUS      current
+    DESCRIPTION "VPEL Name"
+        ::= { adcEntities 1 }
+
+adcVPELMessage OBJECT-TYPE
+    SYNTAX      OCTET STRING
+    MAX-ACCESS  accessible-for-notify
+    STATUS      current
+    DESCRIPTION "Associated message for the trap"
+        ::= { adcEntities 2 }
+
+adcServerName OBJECT-TYPE
+    SYNTAX      OCTET STRING
+    MAX-ACCESS  accessible-for-notify
+    STATUS      current
+    DESCRIPTION "Server Name"
+        ::= { adcEntities 3 }
+
+adcServerPort OBJECT-TYPE
+    SYNTAX      INTEGER
+    MAX-ACCESS  accessible-for-notify
+    STATUS      current
+    DESCRIPTION "Server port"
+        ::= { adcEntities 4 }
+
+adcServerIp OBJECT-TYPE
+    SYNTAX      OCTET STRING
+    MAX-ACCESS  accessible-for-notify
+    STATUS      current
+    DESCRIPTION "Server ip address"
+        ::= { adcEntities 5 }
+
+adcVserviceName OBJECT-TYPE
+    SYNTAX      OCTET STRING
+    MAX-ACCESS  accessible-for-notify
+    STATUS      current
+    DESCRIPTION "Virtual Service Name"
+        ::= { adcEntities 6 }
+
+adcVservicePort OBJECT-TYPE
+    SYNTAX      INTEGER
+    MAX-ACCESS  accessible-for-notify
+    STATUS      current
+    DESCRIPTION "Virtual Service port"
+        ::= { adcEntities 7 }
+
+adcVserviceIp OBJECT-TYPE
+    SYNTAX      OCTET STRING
+    MAX-ACCESS  accessible-for-notify
+    STATUS      current
+    DESCRIPTION "Virtual Service IP address"
+        ::= { adcEntities 8 }
+
+
+adcServerDown NOTIFICATION-TYPE
+    OBJECTS {
+        alarmType, alarmDevice, alarmObject, alarmSpecificProblem,
+        alarmClass, alarmEventType, alarmProbableCause, alarmTime,
+        alarmSeverity, alarmHasClear, alarmText, tenantName,
+        adcServerName, adcServerIp, adcServerPort
+    }
+    STATUS  current
+    DESCRIPTION "Server down notification"
+        ::= { adcNotification 1 }
+
+adcServerUp NOTIFICATION-TYPE
+    OBJECTS {
+        alarmType, alarmDevice, alarmObject, alarmSpecificProblem,
+        alarmClass, alarmEventType, alarmProbableCause, alarmTime,
+        alarmSeverity, alarmHasClear, alarmText, tenantName,
+        adcServerName,  adcServerIp, adcServerPort
+    }
+    STATUS  current
+    DESCRIPTION "Server up notification"
+        ::= { adcNotification 2 }
+
+adcVpelEvent NOTIFICATION-TYPE
+    OBJECTS {
+        alarmType, alarmDevice, alarmObject, alarmSpecificProblem,
+        alarmClass, alarmEventType, alarmProbableCause, alarmTime,
+        alarmSeverity, alarmHasClear, alarmText, tenantName,
+        adcVPELName, adcVPELMessage
+    }
+    STATUS  current
+    DESCRIPTION "ADC VPEL notification"
+        ::= { adcNotification 3 }
+
+adcVserviceDown NOTIFICATION-TYPE
+    OBJECTS {
+        alarmType, alarmDevice, alarmObject, alarmSpecificProblem,
+        alarmClass, alarmEventType, alarmProbableCause, alarmTime,
+        alarmSeverity, alarmHasClear, alarmText, tenantName,
+        adcVserviceName,  adcVserviceIp, adcVservicePort
+    }
+    STATUS  current
+    DESCRIPTION "Virtual Service down notification"
+        ::= { adcNotification 4 }
+
+adcVserviceUp NOTIFICATION-TYPE
+    OBJECTS {
+        alarmType, alarmDevice, alarmObject, alarmSpecificProblem,
+        alarmClass, alarmEventType, alarmProbableCause, alarmTime,
+        alarmSeverity, alarmHasClear, alarmText, tenantName,
+        adcVserviceName,  adcVserviceIp, adcVservicePort
+    }
+    STATUS  current
+    DESCRIPTION "Virtual Service up notification"
+        ::= { adcNotification 5 }
+
+END

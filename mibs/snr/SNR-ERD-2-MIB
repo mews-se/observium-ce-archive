@@ -1,0 +1,513 @@
+SNR-ERD-2-MIB DEFINITIONS ::= BEGIN
+
+IMPORTS
+	MODULE-IDENTITY, OBJECT-TYPE, NOTIFICATION-TYPE, enterprises, IpAddress, Integer32
+		FROM SNMPv2-SMI
+	DisplayString
+		FROM SNMPv2-TC
+	MODULE-COMPLIANCE, NOTIFICATION-GROUP, OBJECT-GROUP
+		FROM SNMPv2-CONF
+	; 
+
+snrErd2 MODULE-IDENTITY
+	LAST-UPDATED	"202201141200Z"	-- January 14, 2022
+	ORGANIZATION	"NAG"
+	CONTACT-INFO	"erd@nag.ru"
+	DESCRIPTION		"The MIB module for SNR-ERD-2"
+
+	REVISION		"202201141200Z"	-- January 14, 2022
+	DESCRIPTION		"Add erd2rebootERD oid" 
+
+	REVISION		"202112151200Z"	-- December 15, 2021
+	DESCRIPTION		"Rename oids according to ERD-4 style. Add description"
+
+	REVISION		"202109281200Z"	-- September 28, 2021
+	DESCRIPTION		"Add manual mode to Smart1"
+
+	REVISION		"202102241200Z"	-- February 24, 2021
+	DESCRIPTION		"SMIv2-style rewrite" 
+
+	REVISION		"201504291200Z"	-- April 29, 2015
+	DESCRIPTION		"Initial revision" 
+	::= { snrErd 2 }
+
+snr					OBJECT IDENTIFIER	::= { enterprises 40418 }
+snrErd				OBJECT IDENTIFIER	::= { snr 2 }
+
+erd2ipConfig		OBJECT IDENTIFIER	::= { snrErd2 1 }
+erd2outputs			OBJECT IDENTIFIER	::= { snrErd2 2 }
+erd2inputs			OBJECT IDENTIFIER	::= { snrErd2 3 }
+erd2measurements	OBJECT IDENTIFIER	::= { snrErd2 4 }
+erd2common			OBJECT IDENTIFIER	::= { snrErd2 5 }
+
+erd2Traps			OBJECT IDENTIFIER	::= { snrErd2 0 }
+
+erd2Conformance		OBJECT IDENTIFIER	::= { snrErd2 100 }
+
+erd2Groups			OBJECT IDENTIFIER	::= { erd2Conformance 1 }
+erd2Compliances		OBJECT IDENTIFIER	::= { erd2Conformance 2 }
+
+
+-- Traps
+
+erd2criticalTemperature	NOTIFICATION-TYPE
+	STATUS		current
+	DESCRIPTION	"Critical temperature"		
+::= { erd2Traps 0}
+
+erd2normalTemparature	NOTIFICATION-TYPE
+	STATUS		current
+	DESCRIPTION	"Normal temperature"		
+::= { erd2Traps 1 }
+
+erd2diAalarm	NOTIFICATION-TYPE
+	STATUS		current
+	DESCRIPTION	"DIA alarm"		
+::= { erd2Traps 2 }
+
+erd2diArelease	NOTIFICATION-TYPE
+	STATUS		current
+	DESCRIPTION	"DIA release"		
+::= { erd2Traps 3 }
+
+erd2phaseSensorAlarm	NOTIFICATION-TYPE
+	STATUS		current
+	DESCRIPTION	"Phase sensor alarm"		
+::= { erd2Traps 4 }
+
+erd2phaseSensorRelease		NOTIFICATION-TYPE
+	STATUS		current
+	DESCRIPTION	"Phase sensor release"		
+::= { erd2Traps 5 }
+
+erd2di1alarm	NOTIFICATION-TYPE
+	STATUS		current
+	DESCRIPTION	"DI1 alarm"		
+::= { erd2Traps 6 }
+
+erd2di1release		NOTIFICATION-TYPE
+	STATUS		current
+	DESCRIPTION	"DI1 release"		
+::= { erd2Traps 7 }
+
+erd2di2alarm	NOTIFICATION-TYPE
+	STATUS		current
+	DESCRIPTION	"DI2 alarm"		
+::= { erd2Traps 8 }
+
+erd2di2release		NOTIFICATION-TYPE
+	STATUS		current
+	DESCRIPTION	"DI2 release"		
+::= { erd2Traps 9 }
+
+erd2di3alarm	NOTIFICATION-TYPE
+	STATUS		current
+	DESCRIPTION	"DI3 alarm"		
+::= { erd2Traps 10 }
+
+erd2di3release	NOTIFICATION-TYPE
+	STATUS		current
+	DESCRIPTION	"DI3 release"		
+::= { erd2Traps 11 }
+
+erd2criticalVoltage	NOTIFICATION-TYPE
+	STATUS		current
+	DESCRIPTION	"Voltage critical"		
+::= { erd2Traps 12 }
+
+erd2normalVoltage	NOTIFICATION-TYPE
+	STATUS		current
+	DESCRIPTION	"Voltage normal"		
+::= { erd2Traps 13 }
+
+erd2do2high		NOTIFICATION-TYPE
+	STATUS		current
+	DESCRIPTION	"DO2 high"		
+::= { erd2Traps 14 }
+
+erd2do2low	NOTIFICATION-TYPE
+	STATUS		current
+	DESCRIPTION	"DO2 low"		
+::= { erd2Traps 15 }
+
+erd2do1reset	NOTIFICATION-TYPE
+	STATUS		current
+	DESCRIPTION	"DO1 reset"		
+::= { erd2Traps 16 }
+
+-- ipAddressEntry
+
+erd2ipAddress		OBJECT-TYPE
+	SYNTAX		IpAddress
+        MAX-ACCESS	read-write
+        STATUS		current
+        DESCRIPTION	"Own IP"
+::= {erd2ipConfig 1}
+
+erd2ipGatewayAddress	OBJECT-TYPE
+	SYNTAX		IpAddress
+	MAX-ACCESS	read-write
+	STATUS		current
+	DESCRIPTION	"Gateway IP"
+::= {erd2ipConfig 2}
+
+erd2ipMonitoredHost	OBJECT-TYPE
+	SYNTAX		IpAddress
+        MAX-ACCESS	read-write 
+        STATUS		current
+        DESCRIPTION	"Monitored host IP"
+::= {erd2ipConfig 3}
+
+erd2ipForTrap		OBJECT-TYPE
+	SYNTAX		IpAddress 
+	MAX-ACCESS	read-write
+	STATUS		current
+	DESCRIPTION	"IP for trap"
+::= {erd2ipConfig 4}
+
+
+-- resetsSet
+
+erd2do1state	OBJECT-TYPE
+	SYNTAX		INTEGER  
+			{
+				manLOW	(0),
+				manHIGH	(1),
+				reset	(2)
+			}
+	MAX-ACCESS	read-write
+	STATUS		current
+	DESCRIPTION	"DO1 state"    
+::= { erd2outputs 1}
+
+erd2do1resetCounter	OBJECT-TYPE
+	SYNTAX		INTEGER {resetPositives (0)}
+	MAX-ACCESS	read-write
+	STATUS		current
+	DESCRIPTION	"DO1 resets counter"
+::= { erd2outputs 2 }
+
+
+erd2do2state	OBJECT-TYPE
+	SYNTAX		INTEGER 
+			{
+				manualLOW		(0),
+				manualHIGH		(1),
+				setManualMode	(2),
+				setTermostatMode(3),
+				switch			(4),
+				autoLOW			(5),
+				autoHIGH		(6)
+				
+			}
+	MAX-ACCESS	read-write
+	STATUS		current
+	DESCRIPTION	"DO2 states and modes. 
+	If DO2 in thermostat or gidrolock mode, then autoLOW and autoHIGH states are used"
+::= { erd2outputs 3 }
+
+
+-- sensesSet1
+
+erd2diAstate	OBJECT-TYPE
+	SYNTAX			INTEGER 
+				{
+					low			(1),
+					high		(2)
+				}
+	MAX-ACCESS		read-only
+	STATUS			current
+	DESCRIPTION		"DIA state"
+::= { erd2inputs 1}
+
+erd2diAcounter		OBJECT-TYPE
+	SYNTAX			INTEGER {resetPositives (0)}
+	MAX-ACCESS		read-write
+	STATUS			current
+	DESCRIPTION		"DIA counter"
+::= { erd2inputs 2 }
+
+erd2di1state	OBJECT-TYPE
+	SYNTAX			INTEGER 
+				{
+					low			(1),
+					high		(2)
+				}
+	MAX-ACCESS		read-only
+	STATUS			current
+	DESCRIPTION		"DI1 state"
+::= { erd2inputs 3 }
+
+erd2di2state	OBJECT-TYPE
+	SYNTAX			INTEGER 
+				{
+					low			(1),
+					high		(2)
+				}
+	MAX-ACCESS		read-only
+	STATUS			current
+	DESCRIPTION		"DI2 state"
+::= { erd2inputs 4 }
+
+erd2di3state	OBJECT-TYPE
+	SYNTAX			INTEGER 
+				{
+					low			(1),
+					high		(2)
+				}
+	MAX-ACCESS		read-only
+	STATUS			current
+	DESCRIPTION		"DI3 state"
+::= { erd2inputs 5 }
+
+erd2phaseSensorState		OBJECT-TYPE
+	SYNTAX			INTEGER 
+				{
+					low			(1),
+					high		(2)
+				}
+	MAX-ACCESS		read-only
+	STATUS			current
+	DESCRIPTION		"Phase sensor (monitor) state"
+::= { erd2inputs 6 }
+
+erd2diATrapState	OBJECT-TYPE
+	SYNTAX			INTEGER 
+				{
+					trapOFF	(0),
+					trapON		(1)
+				}
+	MAX-ACCESS		read-write
+	STATUS			current
+	DESCRIPTION		"DIA trap state"
+::= { erd2inputs 7}
+
+erd2di1TrapState	OBJECT-TYPE
+	SYNTAX			INTEGER 
+				{
+					trapOFF	(0),
+					trapON		(1)
+				}
+	MAX-ACCESS		read-write
+	STATUS			current
+	DESCRIPTION		"DI1 trap state"
+::= { erd2inputs 8 }
+
+erd2di2TrapState	OBJECT-TYPE
+	SYNTAX			INTEGER 
+				{
+					trapOFF	(0),
+					trapON		(1)
+				}
+	MAX-ACCESS		read-write
+	STATUS			current
+	DESCRIPTION		"DI2 trap state"
+::= { erd2inputs 9 }
+
+erd2di3TrapState	OBJECT-TYPE
+	SYNTAX			INTEGER 
+				{
+					trapOFF	(0),
+					trapON		(1)
+				}
+	MAX-ACCESS		read-write
+	STATUS			current
+	DESCRIPTION		"DI3 trap state"
+::= { erd2inputs 10 }
+
+erd2phaseSensorTrapState	OBJECT-TYPE
+	SYNTAX			INTEGER 
+				{
+					trapOFF	(0),
+					trapON		(1)
+				}
+	MAX-ACCESS		read-write
+	STATUS			current
+	DESCRIPTION		"Phase sensor (monitor) trap state"
+::= { erd2inputs 11 }
+
+-- sensesSet2
+
+erd2temperature		OBJECT-TYPE
+	SYNTAX			Integer32 
+	MAX-ACCESS		read-only
+	STATUS			current
+	DESCRIPTION		"Temperature"
+::= { erd2measurements 1 }
+
+erd2voltage		OBJECT-TYPE
+	SYNTAX			Integer32 
+	MAX-ACCESS		read-only
+	STATUS			current
+	DESCRIPTION		"Voltage"
+::= { erd2measurements 2 }
+
+erd2voltageCritical			OBJECT-TYPE
+	SYNTAX			Integer32 
+	MAX-ACCESS		read-write
+	STATUS			current
+	DESCRIPTION		"Critical voltage"
+::= { erd2measurements 3 }
+
+erd2humidity			OBJECT-TYPE
+	SYNTAX			Integer32 
+	MAX-ACCESS		read-only
+	STATUS			current
+	DESCRIPTION		"Humidity"
+::= { erd2measurements 4 }
+
+erd2temperatureNormal	OBJECT-TYPE
+	SYNTAX			Integer32 
+	MAX-ACCESS		read-write
+	STATUS			current
+	DESCRIPTION		"Normal temperature. 
+	IF Cooling THEN Critical > Normal; 
+	IF Warming THEN Critical < Normal"
+::= { erd2measurements 5 }
+
+erd2temperatureCritical	OBJECT-TYPE
+	SYNTAX			Integer32 
+	MAX-ACCESS		read-write
+	STATUS			current
+	DESCRIPTION		"Critical temperature. 
+	IF Cooling THEN Critical > Normal; 
+	IF Warming THEN Critical < Normal"
+::= { erd2measurements 6 }
+
+-- commS
+
+erd2communityString		OBJECT-TYPE
+	SYNTAX		DisplayString (SIZE(0..10))
+	MAX-ACCESS	read-write
+	STATUS		current
+	DESCRIPTION	"Community and password"
+::= {erd2common 1}
+
+erd2trapMode		OBJECT-TYPE
+	SYNTAX		INTEGER 
+			{
+				cyclically	(0),
+				once		(1) 
+				
+			}
+	MAX-ACCESS	read-write
+	STATUS		current
+	DESCRIPTION	"Trap mode for sensors"
+::= {erd2common 2}
+
+erd2diAname		OBJECT-TYPE
+	SYNTAX		DisplayString (SIZE(0..10))
+	MAX-ACCESS	read-write
+	STATUS		current
+	DESCRIPTION	"DIA name"
+::= {erd2common 3}
+
+erd2di1name		OBJECT-TYPE
+	SYNTAX		DisplayString (SIZE(0..10))
+	MAX-ACCESS	read-write
+	STATUS		current
+	DESCRIPTION	"DI1 name"
+::= {erd2common 5}
+
+erd2di2name		OBJECT-TYPE
+	SYNTAX		DisplayString (SIZE(0..10))
+	MAX-ACCESS	read-write
+	STATUS		current
+	DESCRIPTION	"DI2 name"
+::= {erd2common 6}
+
+erd2di3name		OBJECT-TYPE
+	SYNTAX		DisplayString (SIZE(0..10))
+	MAX-ACCESS	read-write
+	STATUS		current
+	DESCRIPTION	"DI3 name"
+::= {erd2common 7}
+
+erd2rebootERD		OBJECT-TYPE
+	SYNTAX			Integer32 
+	MAX-ACCESS		read-write
+	STATUS			current
+	DESCRIPTION		"Reboot ERD. Write 1 to reboot"
+::= { erd2common 100 }
+
+
+-- conformance
+
+erd2TrapGroup		NOTIFICATION-GROUP  
+	NOTIFICATIONS 
+	{
+		erd2criticalTemperature,
+		erd2normalTemparature,    
+		erd2diAalarm,
+		erd2diArelease,
+		erd2phaseSensorAlarm,
+		erd2phaseSensorRelease,
+		erd2di1alarm,
+		erd2di1release,
+		erd2di2alarm,
+		erd2di2release,
+		erd2di3alarm,
+		erd2di3release,
+		erd2criticalVoltage,
+		erd2normalVoltage,
+		erd2do2high,
+		erd2do2low,
+		erd2do1reset
+	}
+	STATUS current
+	DESCRIPTION	"ERD-2 traps"
+::= { erd2Groups 1 }
+
+erd2ipConfigGroup OBJECT-GROUP
+    OBJECTS {	erd2ipAddress, erd2ipGatewayAddress, erd2ipMonitoredHost, erd2ipForTrap
+			}
+    STATUS  current
+    DESCRIPTION
+            "A collection of objects providing SNR-ERD-2 network parameters"
+    ::= { erd2Groups 2 }
+	
+erd2outputsGroup OBJECT-GROUP
+    OBJECTS {	erd2do1state, erd2do1resetCounter, erd2do2state
+			}
+    STATUS  current
+    DESCRIPTION
+            "A collection of objects providing SNR-ERD-2 settings"
+    ::= { erd2Groups 3 }
+	
+erd2inputsGroup OBJECT-GROUP
+    OBJECTS {	erd2diAstate, erd2diAcounter, erd2di1state, erd2di2state, erd2di3state, erd2phaseSensorState, erd2diATrapState, erd2di1TrapState, erd2di2TrapState, erd2di3TrapState, erd2phaseSensorTrapState
+			}
+    STATUS  current
+    DESCRIPTION
+            "A collection of objects providing SNR-ERD-2 settings"
+    ::= { erd2Groups 4 }
+	
+erd2measurementsGroup OBJECT-GROUP
+    OBJECTS {	erd2temperature, erd2voltage, erd2voltageCritical, erd2humidity, erd2temperatureNormal, erd2temperatureCritical
+			}
+    STATUS  current
+    DESCRIPTION
+            "A collection of objects providing SNR-ERD-2 settings"
+    ::= { erd2Groups 5 }
+	
+erd2commonGroup OBJECT-GROUP
+    OBJECTS {	erd2communityString, erd2trapMode, erd2diAname, erd2di1name, erd2di2name, erd2di3name, erd2rebootERD
+			}
+    STATUS  current
+    DESCRIPTION
+            "A collection of objects providing SNR-ERD-2 settings"
+    ::= { erd2Groups 6 }
+	
+erd2Compliance MODULE-COMPLIANCE
+	STATUS     current
+	DESCRIPTION
+				"The compliance statement for SNR-ERD-4 that support all functions."
+	MODULE -- this module
+	MANDATORY-GROUPS { 	erd2TrapGroup, 
+						erd2ipConfigGroup,
+						erd2outputsGroup,
+						erd2inputsGroup,
+						erd2measurementsGroup,
+						erd2commonGroup}
+	::= { erd2Compliances 1 }
+END

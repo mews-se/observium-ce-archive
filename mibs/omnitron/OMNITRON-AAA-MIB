@@ -1,0 +1,651 @@
+OMNITRON-AAA-MIB DEFINITIONS ::= BEGIN
+
+IMPORTS
+    MODULE-IDENTITY, OBJECT-TYPE, Unsigned32, IpAddress
+        FROM SNMPv2-SMI           -- RFC-2578
+    TruthValue, RowStatus
+        FROM SNMPv2-TC            -- RFC-2579
+    MODULE-COMPLIANCE, OBJECT-GROUP
+        FROM SNMPv2-CONF          -- RFC-2580
+    omnitron, OstPortNumber, OstIpAddr
+        FROM OMNITRON-TC-MIB;     -- Omnitron Textual Convention MIB
+
+omnitronAaaMib MODULE-IDENTITY
+    LAST-UPDATED "201603171200Z"  -- March 17, 2016
+    ORGANIZATION "Omnitron Systems Technology, Inc."
+    CONTACT-INFO "Omnitron Systems Technology, Inc.
+                  38 Tesla
+                  Irvine, CA 92618-4670
+                  USA
+
+             Tel: (949) 250 6510
+             Fax: (949) 250 6514
+          E-mail: info@omnitron-systems.com
+   International: +1 949 250 6510
+
+                  Technical Support and Customer Service
+             Tel: (800) 675 8410
+          E-mail: support@omnitron-systems.com
+   International: +1 949 250 6510"
+
+    DESCRIPTION
+            "Omnitron Authentication, Authorization, and Accounting MIB for
+             use with iConverter Management Modules v5.3 and NetOutlook.
+
+             Copyright 2016 Omnitron Systems Technology, Inc.
+             All rights reserved.
+            "
+
+    REVISION    "201603171200Z"     -- March 17, 2016
+    DESCRIPTION "Initial version of v5.3 MIB.
+                   Added ostAaaTacacsHostCfgIpAddressString
+                   Added ostAaaRadiusHostCfgIpAddressString
+                "
+    ::= { omnitron 20 }
+
+
+--------------------------------------------------------------------------------
+-- Authentication, Authorization, and Accounting (AAA) Global Configuration Table
+--------------------------------------------------------------------------------
+
+ostAaaGlobalCfgTable  OBJECT IDENTIFIER ::= { omnitronAaaMib 1 }
+
+
+ostAaaEnable OBJECT-TYPE
+    SYNTAX      TruthValue
+    MAX-ACCESS  read-write
+    STATUS      current
+    DESCRIPTION
+       "This object enables or disables AAA mode globally in the
+        module. The default setting is disabled.
+       "
+    DEFVAL { false }
+    ::= { ostAaaGlobalCfgTable 1 }
+
+
+--------------------------------------------------------------------------------
+-- AAA Client Method Configuration Table
+--------------------------------------------------------------------------------
+
+ostAaaMethodCfgTable OBJECT-TYPE
+    SYNTAX      SEQUENCE OF OstAaaMethodCfgEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION
+       "This table supports AAA configuration of the authentication method for
+        each type of client.
+       "
+    ::= { omnitronAaaMib 2 }
+
+ostAaaMethodCfgEntry OBJECT-TYPE
+    SYNTAX      OstAaaMethodCfgEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION
+       "This is a AAA Client Method configuration table entry.
+
+        Each row in this table is created automatically based upon the number
+        of methods and clients supports in a device.
+       "
+    INDEX { ostAaaMethodCfgClientIndex }
+    ::= { ostAaaMethodCfgTable 1 }
+
+OstAaaMethodCfgEntry ::= SEQUENCE {
+    ostAaaMethodCfgClientIndex           INTEGER,
+    ostAaaMethodCfgMethodList            OCTET STRING
+    }
+
+ostAaaMethodCfgClientIndex OBJECT-TYPE
+    SYNTAX      INTEGER {
+        console   (1),
+        telnet    (2),
+        ftp       (3),
+        ssh       (4)
+    }
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION
+       "This index specifies the client to configure.
+
+        console(1)   Selects console (serial) port for AAA configuration
+        telnet(2)    Selects telnet client for AAA configuration
+        ftp(3)       Selects FTP client for AAA configuration
+        ssh(4)       Selects SSH client for AAA configuration
+       "
+    ::= { ostAaaMethodCfgEntry 1 }
+
+
+ostAaaMethodCfgMethodList OBJECT-TYPE
+    SYNTAX      OCTET STRING (SIZE(1..32))
+    MAX-ACCESS  read-write
+    STATUS      current
+    DESCRIPTION
+       "This objects specifies the order of the methods used for a specific
+        client. Up to three methods may be selected. Methods are separated
+        by commas. The first method in the list is the first one tried,
+        the second the second one tried, and the third the third one tried.
+        If the string is a null length string no methods are allowed for the
+        specific client.
+
+       The four methods possible are:
+
+        'none'       Selects no authentication for the specific method. It
+                     effectively 'skips' this particular method for the
+                     client.
+
+        'local'      Selects authentication via the local client only
+
+        'tacacs+'   Selects authentication via TACACS+
+
+        'radius'     Selects authentication via RADIUS
+
+
+       Some valid examples:
+         radius,tacacs+,local
+         radius,tacacs+
+         local
+         tacacs+,radius,local
+       "
+    DEFVAL { "local" }
+    ::= { ostAaaMethodCfgEntry 2 }
+
+
+--------------------------------------------------------------------------------
+-- Terminal Access Controller Access-Control System Plus (TACACS+)
+-- Configuration/Status Table
+--------------------------------------------------------------------------------
+
+ostAaaTacacsCfgTable  OBJECT IDENTIFIER ::= { omnitronAaaMib 4 }
+-- This table configures TACACS+ options
+
+ostAaaTacacsEnable OBJECT-TYPE
+    SYNTAX      TruthValue
+    MAX-ACCESS  read-write
+    STATUS      current
+    DESCRIPTION
+       "This object enables or disables TACACS+ protocol and mode in the
+        module. The default setting is disabled.
+       "
+    DEFVAL { false }
+    ::= { ostAaaTacacsCfgTable 1 }
+
+ostAaaTacacsTcpAuthenticationPort OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  read-write
+    STATUS      current
+    DESCRIPTION
+       "This object specifies the TACACS Authentication TCP port number.
+       "
+    DEFVAL { 49  }
+    ::= { ostAaaTacacsCfgTable 2 }
+
+ostAaaTacacsTcpAuthorizationPort OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  read-write
+    STATUS      current
+    DESCRIPTION
+       "This object specifies the TACACS Authorization TCP port number.
+       "
+    DEFVAL { 49  }
+    ::= { ostAaaTacacsCfgTable 3 }
+
+ostAaaTacacsTcpAccountingPort OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  read-write
+    STATUS      current
+    DESCRIPTION
+       "This object specifies the TACACS Accounting TCP port number.
+       "
+    DEFVAL { 49  }
+    ::= { ostAaaTacacsCfgTable 4 }
+
+ostAaaTacacsAuthenticationKey OBJECT-TYPE
+    SYNTAX      OCTET STRING (SIZE(0..64))
+    MAX-ACCESS  read-write
+    STATUS      current
+    DESCRIPTION
+       "This object specifies the TACACS Authentication server key.
+
+        When read the value returned is all asterisks.
+
+        A null value can be written to the object but a null value is not
+        a valid key for the protocol to use. A non-null value is needed for
+        the protocol to operate correctly.
+       "
+    DEFVAL { "" }
+    ::= { ostAaaTacacsCfgTable 5 }
+
+ostAaaTacacsTimeout OBJECT-TYPE
+    SYNTAX      Unsigned32  (0..65535)
+    UNITS       "seconds"
+    MAX-ACCESS  read-write
+    STATUS      current
+    DESCRIPTION
+       "This object selects the time in seconds before an error is declared
+        for a TACACS+ server that doesn't respond
+       "
+    DEFVAL { 60 }
+    ::= { ostAaaTacacsCfgTable 6 }
+
+
+
+--------------------------------------------------------------------------------
+-- TACACS+ Host List Table
+--------------------------------------------------------------------------------
+
+ostAaaTacacsHostCfgTable OBJECT-TYPE
+    SYNTAX      SEQUENCE OF OstAaaTacacsHostCfgEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION
+       "This table supports AAA configuration of IP hosts. The host indicated by
+        row 1 is accessed first. If that host is not found then the host
+        indicated by row 2 is accessed next. This continues until all rows of
+        the table have been accessed.
+       "
+    ::= { omnitronAaaMib 5 }
+
+ostAaaTacacsHostCfgEntry OBJECT-TYPE
+    SYNTAX      OstAaaTacacsHostCfgEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION
+       "This is a TACACS+ Host IP configuration table entry."
+    INDEX { ostAaaTacacsHostCfgIndex }
+    ::= { ostAaaTacacsHostCfgTable 1 }
+
+OstAaaTacacsHostCfgEntry ::= SEQUENCE {
+    ostAaaTacacsHostCfgIndex                Unsigned32,
+    ostAaaTacacsHostCfgIpAddress            IpAddress,
+    ostAaaTacacsHostCfgRowStatus            RowStatus,
+    ostAaaTacacsHostCfgIpAddressString      OstIpAddr
+    }
+
+ostAaaTacacsHostCfgIndex OBJECT-TYPE
+    SYNTAX      Unsigned32 (1..5)
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION
+       "TACACS+ Host IP instance index."
+    ::= { ostAaaTacacsHostCfgEntry 1 }
+
+ostAaaTacacsHostCfgIpAddress OBJECT-TYPE
+    SYNTAX      IpAddress
+    MAX-ACCESS  read-write
+    STATUS      current
+    DESCRIPTION
+       "This object specifies a specific TACACS+ Host IPv4 address. 
+               
+        Setting this object also impacts the ostAaaTacacsHostCfgIpAddressString
+        returned value. If an IPv4 address is written to this object the
+        two objects return the same value. If ostAaaTacacsHostCfgIpAddressString
+        is set with an IPv6 address then this object returns an all zeros
+        value.
+       "
+    DEFVAL { '00000000'H  }
+    ::= { ostAaaTacacsHostCfgEntry 2 }
+
+ostAaaTacacsHostCfgRowStatus OBJECT-TYPE
+    SYNTAX      RowStatus
+    MAX-ACCESS  read-create
+    STATUS      current
+    DESCRIPTION
+       "The status of the row.
+
+        The writable columns in a row cannot be changed if the row
+        is active. All columns must have a valid value before a row
+        can be activated.
+       "
+   ::= { ostAaaTacacsHostCfgEntry 3 }
+
+ostAaaTacacsHostCfgIpAddressString OBJECT-TYPE
+    SYNTAX      OstIpAddr
+    MAX-ACCESS  read-write
+    STATUS      current
+    DESCRIPTION
+       "This object specifies a specific TACACS+ Host IPv4 or IPv6 address.
+
+        If an IPv4 address has been set via ostAaaTacacsHostCfgIpAddress
+        then this object reflects the same value. An IPv4 address written to 
+        this object will update ostAaaTacacsHostCfgIpAddress with the address. 
+        An IPv6 address written to this object will update 
+        ostAaaTacacsHostCfgIpAddress to zeros.
+       "
+    DEFVAL { "::"  }
+    ::= { ostAaaTacacsHostCfgEntry 4 }
+    
+
+--------------------------------------------------------------------------------
+-- Remote Authentication Dial-In User Service (RADIUS) Configuration/Status Table
+--------------------------------------------------------------------------------
+
+ostAaaRadiusCfgTable  OBJECT IDENTIFIER ::= { omnitronAaaMib 6 }
+-- This table configures RADIUS options based upon RFC 2865 and RFC 2866
+
+ostAaaRadiusEnable OBJECT-TYPE
+    SYNTAX      TruthValue
+    MAX-ACCESS  read-write
+    STATUS      current
+    DESCRIPTION
+       "This object enables or disables RADIUS protocol and mode in the
+        module. The default setting is disabled.
+       "
+    DEFVAL { false }
+    ::= { ostAaaRadiusCfgTable 1 }
+
+ostAaaRadiusUdpAuthenticationPort OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  read-write
+    STATUS      current
+    DESCRIPTION
+       "This object specifies the RADIUS Authentication UDP port number.
+       "
+    DEFVAL { 1812  }
+    ::= { ostAaaRadiusCfgTable 2 }
+
+ostAaaRadiusUdpAccountingPort OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  read-write
+    STATUS      current
+    DESCRIPTION
+       "This object specifies the RADIUS Accounting UDP port number.
+       "
+    DEFVAL { 49  }
+    ::= { ostAaaRadiusCfgTable 3 }
+
+ostAaaRadiusAuthenticationKey OBJECT-TYPE
+    SYNTAX      OCTET STRING (SIZE(0..64))
+    MAX-ACCESS  read-write
+    STATUS      current
+    DESCRIPTION
+       "This object specifies the RADIUS Authentication server key.
+
+        When read the value returned is all asterisks
+
+        A null value can be written to the object but a null value is not
+        a valid key for the protocol to use. A non-null value is needed for
+        the protocol to operate correctly.
+       "
+    DEFVAL { "" }
+    ::= { ostAaaRadiusCfgTable 4 }
+
+ostAaaRadiusTimeout OBJECT-TYPE
+    SYNTAX      Unsigned32 (0..65535)
+    UNITS       "seconds"
+    MAX-ACCESS  read-write
+    STATUS      current
+    DESCRIPTION
+       "This object selects the time in seconds before an error is declared
+        for a RADIUS server that doesn't respond.
+       "
+    DEFVAL { 60 }
+    ::= { ostAaaRadiusCfgTable 5 }
+
+ostAaaRadiusRetransmitNumber OBJECT-TYPE
+    SYNTAX      Unsigned32 (0..10)
+    MAX-ACCESS  read-write
+    STATUS      current
+    DESCRIPTION
+       "This object selects the number of times a RADIUS server request is
+        retried before a server error is declared.
+       "
+    DEFVAL { 2 }
+    ::= { ostAaaRadiusCfgTable 6 }
+
+
+--------------------------------------------------------------------------------
+-- Radius Host List Table
+--------------------------------------------------------------------------------
+
+ostAaaRadiusHostCfgTable OBJECT-TYPE
+    SYNTAX      SEQUENCE OF OstAaaRadiusHostCfgEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION
+       "This table supports AAA configuration of IP hosts. The host indicated by
+        row 1 is accessed first. If that host is not found then the host
+        indicated by row 2 is accessed next. This continues until all rows of
+        the table have been accessed.
+       "
+    ::= { omnitronAaaMib 7 }
+
+ostAaaRadiusHostCfgEntry OBJECT-TYPE
+    SYNTAX      OstAaaRadiusHostCfgEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION
+       "This is a Radius Host IP configuration table entry."
+    INDEX { ostAaaRadiusHostCfgIndex }
+    ::= { ostAaaRadiusHostCfgTable 1 }
+
+OstAaaRadiusHostCfgEntry ::= SEQUENCE {
+    ostAaaRadiusHostCfgIndex                Unsigned32,
+    ostAaaRadiusHostCfgIpAddress            IpAddress,
+    ostAaaRadiusHostCfgRowStatus            RowStatus,
+    ostAaaRadiusHostCfgIpAddressString      OstIpAddr
+    }
+
+ostAaaRadiusHostCfgIndex OBJECT-TYPE
+    SYNTAX      Unsigned32 (1..5)
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION
+       "Radius Host IP instance index."
+    ::= { ostAaaRadiusHostCfgEntry 1 }
+
+ostAaaRadiusHostCfgIpAddress OBJECT-TYPE
+    SYNTAX      IpAddress
+    MAX-ACCESS  read-write
+    STATUS      current
+    DESCRIPTION
+       "This object specifies a specific Radius Host IPv4  address.
+       
+        Setting this object also impacts the ostAaaRadiusHostCfgIpAddressString
+        returned value. If an IPv4 address is written to this object the
+        two objects return the same value. If ostAaaRadisumHostCfgIpAddressString
+        is set with an IPv6 address then this object returns an all zeros
+        value.
+       "
+    DEFVAL { '00000000'H  }
+    ::= { ostAaaRadiusHostCfgEntry 2 }
+
+ostAaaRadiusHostCfgRowStatus OBJECT-TYPE
+    SYNTAX      RowStatus
+    MAX-ACCESS  read-create
+    STATUS      current
+    DESCRIPTION
+       "The status of the row.
+
+        The writable columns in a row cannot be changed if the row
+        is active. All columns must have a valid value before a row
+        can be activated.
+       "
+   ::= { ostAaaRadiusHostCfgEntry 3 }
+
+ostAaaRadiusHostCfgIpAddressString OBJECT-TYPE
+    SYNTAX      OstIpAddr
+    MAX-ACCESS  read-write
+    STATUS      current
+    DESCRIPTION
+       "This object specifies a specific RADIUS Host IPv4 or IPv6 address.
+        If the User IPv4 address has been set via ostAaaRadiusHostCfgIpAddress
+        then this object reflects the same value. An IPv4 written to this object
+        will update ostAaaRadiusHostCfgIpAddress with the address. An IPv6
+        written to this object will update ostAaaRadiusHostCfgIpAddress to zeros.        
+       "
+    DEFVAL { "::"  }
+    ::= { ostAaaRadiusHostCfgEntry 4 }
+    
+
+--------------------------------------------------------------------------------
+-- Port-Based Network Access Control (802.1X) Global Configuration/Status Table
+--------------------------------------------------------------------------------
+
+ost8021xCfg  OBJECT IDENTIFIER ::= { omnitronAaaMib 8 }
+
+
+ost8021xGlobalCfgTable  OBJECT IDENTIFIER ::= { ost8021xCfg 1 }
+
+ost8021xEnable OBJECT-TYPE
+    SYNTAX      TruthValue
+    MAX-ACCESS  read-write
+    STATUS      current
+    DESCRIPTION
+       "This object enables or disables 802.1X protocol and mode in the
+        module. The default setting is disabled.
+       "
+    DEFVAL { false }
+    ::= { ost8021xGlobalCfgTable 1 }
+
+
+--------------------------------------------------------------------------------
+-- Port-Based Network Access Control (802.1X) Port Configuration/Status Table
+--------------------------------------------------------------------------------
+
+ost8021xPortCfgTable OBJECT-TYPE
+    SYNTAX      SEQUENCE OF Ost8021xPortCfgEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION
+       "This table supports the 802.1X port configuration table."
+    ::= { ost8021xCfg 2 }
+
+ost8021xPortCfgEntry OBJECT-TYPE
+    SYNTAX      Ost8021xPortCfgEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION
+       "This is a 802.1X port configuration table entry. Each row in the table
+        indicates a specific configuration for a port in relationship to the
+        802.1X function. The
+
+        Each row in this table is created automatically based upon the number
+        of ports (interfaces) in a device.
+       "
+    INDEX { ost8021xPortCfgInterfaceIndex }
+    ::= { ost8021xPortCfgTable 1 }
+
+Ost8021xPortCfgEntry ::= SEQUENCE {
+    ost8021xPortCfgInterfaceIndex               OstPortNumber,
+    ost8021xPortCfgPortType                     INTEGER,
+    ost8021xPortCfgReauthorizeTime              Unsigned32,
+    ost8021xPortCfgRetryTime                    Unsigned32
+    }
+
+ost8021xPortCfgInterfaceIndex OBJECT-TYPE
+    SYNTAX      OstPortNumber
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION
+       "Chassis, module and port indices to which this interface belongs."
+    ::= { ost8021xPortCfgEntry 1 }
+
+ost8021xPortCfgPortType OBJECT-TYPE
+    SYNTAX      INTEGER {
+        on        (1),
+        auto      (2),
+        off       (3),
+        macbypass (4)
+    }
+    MAX-ACCESS  read-write
+    STATUS      current
+    DESCRIPTION
+       "This object indicates the type of 802.1X mode that is configured for
+        the port.
+
+        on(1)           Configures a port to always be authenticated
+        auto(2)         Configures a port to standard 802.1X authentication
+        off(3)          Configures a port to always unauthorized
+        macbypass(4)    Configures a port to 802.1X MAC bypass
+       "
+    DEFVAL { on }
+    ::= { ost8021xPortCfgEntry 2 }
+
+ost8021xPortCfgReauthorizeTime OBJECT-TYPE
+    SYNTAX      Unsigned32 (0..65535)
+    UNITS       "seconds"
+    MAX-ACCESS  read-write
+    STATUS      current
+    DESCRIPTION
+       "This object selects the time in seconds for 802.1X reauthorization.
+        A value of '0' indicates that no reauthorization time is required.
+       "
+    DEFVAL { 0 }
+    ::= { ost8021xPortCfgEntry 3 }
+
+ost8021xPortCfgRetryTime OBJECT-TYPE
+    SYNTAX      Unsigned32 (1..60)
+    UNITS       "seconds"
+    MAX-ACCESS  read-write
+    STATUS      current
+    DESCRIPTION
+       "This object selects the time in seconds for 802.1X EAP retry.
+        This is the amount of time between requests sent to a Supplicant
+        (Client).
+       "
+    DEFVAL { 30 }
+    ::= { ost8021xPortCfgEntry 4 }
+
+
+--------------------------------------------------------------------------------
+-- Conformance Information
+--------------------------------------------------------------------------------
+ostAaaCompliances       OBJECT IDENTIFIER ::= { omnitronAaaMib 9 }
+ostAaaGroups            OBJECT IDENTIFIER ::= { omnitronAaaMib 10 }
+
+
+--------------------------------------------------------------------------------
+-- Omnitron AAA MIB Units of conformance
+--------------------------------------------------------------------------------
+ostAaaGroup OBJECT-GROUP
+    OBJECTS {
+        ostAaaEnable,
+
+        ostAaaMethodCfgMethodList,
+
+        ostAaaTacacsEnable,
+        ostAaaTacacsTcpAuthenticationPort,
+        ostAaaTacacsTcpAuthorizationPort,
+        ostAaaTacacsTcpAccountingPort,
+        ostAaaTacacsAuthenticationKey,
+        ostAaaTacacsTimeout,
+        ostAaaTacacsHostCfgIpAddress,
+        ostAaaTacacsHostCfgRowStatus,
+        ostAaaTacacsHostCfgIpAddressString,
+
+        ostAaaRadiusEnable,
+        ostAaaRadiusUdpAuthenticationPort,
+        ostAaaRadiusUdpAccountingPort,
+        ostAaaRadiusAuthenticationKey,
+        ostAaaRadiusTimeout,
+        ostAaaRadiusRetransmitNumber,
+        ostAaaRadiusHostCfgIpAddress,
+        ostAaaRadiusHostCfgRowStatus,
+        ostAaaRadiusHostCfgIpAddressString,
+
+
+        ost8021xEnable,
+        ost8021xPortCfgPortType,
+        ost8021xPortCfgReauthorizeTime,
+        ost8021xPortCfgRetryTime
+    }
+    STATUS      current
+    DESCRIPTION
+       "Mandatory objects for the AAA functional group."
+    ::= { ostAaaGroups 1 }
+
+--------------------------------------------------------------------------------
+-- Omnitron AAA MIB Compliance statements
+-------------------------------------------------------------------------------
+ostAaaCompliance MODULE-COMPLIANCE
+    STATUS       current
+    DESCRIPTION "The compliance statement for the Omnitron AAA MIB."
+    MODULE
+        MANDATORY-GROUPS {
+            ostAaaGroup
+
+        }
+    ::= { ostAaaCompliances 1 }
+
+END
+

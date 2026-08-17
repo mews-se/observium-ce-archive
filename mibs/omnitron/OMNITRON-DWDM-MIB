@@ -1,0 +1,572 @@
+OMNITRON-DWDM-MIB DEFINITIONS ::= BEGIN
+
+IMPORTS
+    MODULE-IDENTITY, OBJECT-TYPE, Unsigned32
+        FROM SNMPv2-SMI           -- RFC-2578
+    MODULE-COMPLIANCE, OBJECT-GROUP
+        FROM SNMPv2-CONF          -- RFC-2580
+    omnitron, OstPortSingleIndex, OstFloatValue, OstModuleSingleIndex
+        FROM OMNITRON-TC-MIB;     -- Omnitron Textual Convention MIB        
+
+omnitronDwdmMib MODULE-IDENTITY
+    LAST-UPDATED "201603171200Z"  -- March 17, 2016
+    ORGANIZATION "Omnitron Systems Technology, Inc."
+    CONTACT-INFO "Omnitron Systems Technology, Inc.
+                  38 Tesla
+                  Irvine, CA 92618-4670
+                  USA
+
+             Tel: (949) 250 6510
+             Fax: (949) 250 6514
+          E-mail: info@omnitron-systems.com
+   International: +1 949 250 6510
+
+                  Technical Support and Customer Service
+             Tel: (800) 675 8410
+          E-mail: support@omnitron-systems.com
+   International: +1 949 250 6510"
+
+    DESCRIPTION
+            "Omnitron DWDM MIB for use with iConverter Management Modules v5.3
+             and NetOutlook.
+
+             Copyright 2016 Omnitron Systems Technology, Inc.
+             All rights reserved
+            "
+
+    REVISION    "201603171200Z"  -- March 17, 2016
+    DESCRIPTION "Initial version of v5.3 MIB.
+                "
+    ::= { omnitron 13 }
+
+
+--------------------------------------------------------------------------------
+-- Object definitions in the Omnitron DWDM MIB
+--------------------------------------------------------------------------------
+ostDwdmMibObjects       OBJECT IDENTIFIER ::= { omnitronDwdmMib 1 }
+ostDwdmConformance      OBJECT IDENTIFIER ::= { omnitronDwdmMib 2 }
+
+
+--------------------------------------------------------------------------------
+-- Omnitron DWDM Global Configuration Table
+--------------------------------------------------------------------------------
+
+ostDwdmGlobalCfgTable OBJECT-TYPE
+    SYNTAX      SEQUENCE OF OstDwdmGlobalCfgEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION
+       "This table supports global DWDM/CWDM tuneable SFPs/XFPs settings.
+
+        Rows in the table are automatically created or deleted based upon whether a
+        particular module supports tunable XFP/SFPs.
+       "
+    ::= { ostDwdmMibObjects 1 }
+
+ostDwdmGlobalCfgEntry OBJECT-TYPE
+    SYNTAX      OstDwdmGlobalCfgEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION
+       "Omnitron global DWDM configuration settings table entry."
+    INDEX { ostDwdmGlobalCfgModuleIndex }
+    ::= { ostDwdmGlobalCfgTable 1 }
+
+OstDwdmGlobalCfgEntry ::= SEQUENCE {
+        ostDwdmGlobalCfgModuleIndex                            OstModuleSingleIndex,
+        ostDwdmGlobalCfgAutoReloadWavelength                   INTEGER,
+        ostDwdmGlobalCfgAutoReloadUserVariable                 INTEGER
+    }
+
+
+ostDwdmGlobalCfgModuleIndex OBJECT-TYPE
+    SYNTAX      OstModuleSingleIndex
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION
+       "Chassis and module indice to which the XFP/SFP belongs
+       "
+    ::= { ostDwdmGlobalCfgEntry 1 }
+
+ostDwdmGlobalCfgAutoReloadWavelength OBJECT-TYPE
+    SYNTAX      INTEGER {
+        noReload(1),
+        reload(2)
+    }
+    MAX-ACCESS  read-write
+    STATUS      current
+    DESCRIPTION
+       "This object selects whether the wavelength is automatically reloaded.
+
+        noReload(1)       Wavelength is not automatically reloaded
+        reload(2)         Wavelength is automatically reloaded
+
+        This object can be read or written at any time.
+       "
+    ::= { ostDwdmGlobalCfgEntry 2 }
+
+ostDwdmGlobalCfgAutoReloadUserVariable OBJECT-TYPE
+    SYNTAX      INTEGER {
+        noReload(1),
+        reload(2)
+    }
+    MAX-ACCESS  read-write
+    STATUS      current
+    DESCRIPTION
+       "This object selects whether the user variable is automatically reloaded.
+
+        noReload(1)       Wavelength is not automatically reloaded
+        reload(2)         Wavelength is automatically reloaded
+
+        This object can be read or written at any time.
+       "
+    ::= { ostDwdmGlobalCfgEntry 3 }
+
+
+-- -------------------------------------------------------------------------------------
+-- Omnitron DWDM Configuration MIB Table
+-- -------------------------------------------------------------------------------------
+
+ostDwdmCfgTable OBJECT-TYPE
+    SYNTAX      SEQUENCE OF OstDwdmCfgEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION
+       "This table supports DWDM/CWDM tuneable SFPs/XFPs settings.
+
+        Rows in the table are automatically created or deleted based upon whether a
+        tunable XFP/SFP is installed into module that supports the functionality.
+       "
+    ::= { ostDwdmMibObjects 2 }
+
+ostDwdmCfgEntry OBJECT-TYPE
+    SYNTAX      OstDwdmCfgEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION
+       "Omnitron DWDM configuration settings table entry."
+    INDEX { ostDwdmCfgPortIndex }
+    ::= { ostDwdmCfgTable 1 }
+
+OstDwdmCfgEntry ::= SEQUENCE {
+        ostDwdmCfgPortIndex                                    OstPortSingleIndex,
+        ostDwdmCfgWavelength                                   OstFloatValue,
+        ostDwdmCfgVendorChannel                                Unsigned32,
+        ostDwdmCfgItuChannel                                   OstFloatValue,
+        ostDwdmCfgUserVariable                                 Unsigned32,
+        ostDwdmCfgTransmissionDither                           INTEGER
+    }
+
+ostDwdmCfgPortIndex OBJECT-TYPE
+    SYNTAX      OstPortSingleIndex
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION
+       "Chassis, module and port indices to which the XFP/SFP belongs
+       "
+    ::= { ostDwdmCfgEntry 1 }
+
+
+ostDwdmCfgWavelength OBJECT-TYPE
+    SYNTAX      OstFloatValue
+    MAX-ACCESS  read-write
+    STATUS      current
+    DESCRIPTION
+       "This object changes the transmission wavelength of the associated port.
+
+        Writing this object changes ostDwdmCfgChannel and ostDwdmCfgItuChannel
+        object values also.
+
+        This object can be read or written at any time.
+       "
+    ::= { ostDwdmCfgEntry 2 }
+
+ostDwdmCfgVendorChannel OBJECT-TYPE
+    SYNTAX      Unsigned32 (1..4096)
+    MAX-ACCESS  read-write
+    STATUS      current
+    DESCRIPTION
+       "This object changes the vendor transmission channel of the
+        associated port.
+
+        Writing this object changes ostDwdmCfgWavelength and ostDwdmCfgItuChannel
+        object values also.
+
+        This object can be read or written at any time.
+       "
+    ::= { ostDwdmCfgEntry 3 }
+
+ostDwdmCfgItuChannel OBJECT-TYPE
+    SYNTAX      OstFloatValue
+    MAX-ACCESS  read-write
+    STATUS      current
+    DESCRIPTION
+       "This object changes the ITU transmission channel of the
+        associated port. Value can be incremented in 0.5 units.
+
+        Writing this object changes ostDwdmCfgChannel and ostDwdmCfgItuChannel
+        object values also.
+
+        This object can be read or written at any time.
+       "
+    ::= { ostDwdmCfgEntry 4 }
+
+ostDwdmCfgUserVariable OBJECT-TYPE
+    SYNTAX      Unsigned32 (1..16)
+    MAX-ACCESS  read-write
+    STATUS      current
+    DESCRIPTION
+       "This object changes the XFP/SFP user specific object of the associated
+        port.
+
+        This object can be read or written at any time.
+       "
+    ::= { ostDwdmCfgEntry 5 }
+
+ostDwdmCfgTransmissionDither OBJECT-TYPE
+    SYNTAX      INTEGER {
+        noTxDither(1),
+        txDither(2)
+    }
+    MAX-ACCESS  read-write
+    STATUS      current
+    DESCRIPTION
+       "This object selects transmission dither configuration.
+
+        noTxDither(1)     No Transmission dithering
+        txDither(2)       Tranmission dithering enabled
+
+        This object can be read or written at any time.
+       "
+    ::= { ostDwdmCfgEntry 6 }
+
+
+-- -------------------------------------------------------------------------------------
+-- Omnitron DWDM Status MIB Table
+-- -------------------------------------------------------------------------------------
+
+ostDwdmStatusTable OBJECT-TYPE
+    SYNTAX      SEQUENCE OF OstDwdmStatusEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION
+       "This table supports DWDM/CWDM tuneable SFPs/XFPs settings.
+
+        Rows in the table are automatically created or deleted based upon whether a
+        tunable XFP/SFP is installed into module that supports the functionality.
+       "
+    ::= { ostDwdmMibObjects 3 }
+
+ostDwdmStatusEntry OBJECT-TYPE
+    SYNTAX      OstDwdmStatusEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION
+       "Omnitron DWDM status table entry."
+    INDEX { ostDwdmCfgPortIndex }
+    ::= { ostDwdmStatusTable 1 }
+
+OstDwdmStatusEntry ::= SEQUENCE {
+        ostDwdmStatusWavelengthError                   Unsigned32,
+        ostDwdmStatusFrequencyError                    Unsigned32,
+        ostDwdmStatusFirstFrequency                    OstFloatValue,
+        ostDwdmStatusLastFrequency                     OstFloatValue,
+        ostDwdmStatusFrequencySpacing                  Unsigned32,
+        ostDwdmStatusSavedWavelength                   OstFloatValue,
+        ostDwdmStatusSavedVendorChannel                Unsigned32,
+        ostDwdmStatusSavedUserVariable                 Unsigned32,
+        ostDwdmStatusSavedTransmissionDither           INTEGER,
+        ostDwdmStatusWavelengthReloadState             INTEGER,
+        ostDwdmStatusWavelengthReloadStatus            INTEGER,
+        ostDwdmStatusUserReloadState                   INTEGER,
+        ostDwdmStatusUserReloadStatus                  INTEGER,
+        ostDwdmStatusTransmissionPower                 INTEGER,
+        ostDwdmStatusItuChannelSaved                   OstFloatValue,
+        ostDwdmStatusItuChannelIncrement               OstFloatValue
+    }
+
+ostDwdmStatusWavelengthError OBJECT-TYPE
+    SYNTAX      Unsigned32 (0..65535)
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+       "This object indicates the wavelength error of the transmitted signal.
+
+        The units are 1 nm.
+       "
+    ::= { ostDwdmStatusEntry 1 }
+
+ostDwdmStatusFrequencyError OBJECT-TYPE
+    SYNTAX      Unsigned32 (0..65535)
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+       "This object indicates the frequency error of the transmitted signal.
+
+        The units are 0.1 GHz.
+       "
+    ::= { ostDwdmStatusEntry 2 }
+
+ostDwdmStatusFirstFrequency OBJECT-TYPE
+    SYNTAX      OstFloatValue
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+       "This object indicates the first supported frequency in THz.
+       "
+    ::= { ostDwdmStatusEntry 3 }
+
+ostDwdmStatusLastFrequency OBJECT-TYPE
+    SYNTAX      OstFloatValue
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+       "This object indicates the last supported frequency in THz.
+       "
+    ::= { ostDwdmStatusEntry 4 }
+
+ostDwdmStatusFrequencySpacing OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+       "This object indicates the spacing between supported frequencies.
+
+        The unts are in 0.1 Ghz.
+       "
+    ::= { ostDwdmStatusEntry 5 }
+
+ostDwdmStatusSavedWavelength OBJECT-TYPE
+    SYNTAX      OstFloatValue
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+       "This object indicates the saved transmission wavelength
+        of the associated port.
+       "
+    ::= { ostDwdmStatusEntry 6 }
+
+ostDwdmStatusSavedVendorChannel OBJECT-TYPE
+    SYNTAX      Unsigned32 (1..4096)
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+       "This object indicates the saved vendor transmission channel of the
+        associated port.
+       "
+    ::= { ostDwdmStatusEntry 7 }
+
+ostDwdmStatusSavedUserVariable OBJECT-TYPE
+    SYNTAX      Unsigned32 (1..16)
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+       "This object indicates the saved user specific object of the associated
+        port.
+       "
+    ::= { ostDwdmStatusEntry 8 }
+
+ostDwdmStatusSavedTransmissionDither OBJECT-TYPE
+    SYNTAX      INTEGER {
+        noTxDither(1),
+        txDither(2)
+    }
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+       "This object indicates the saved transmission dither state of the
+        associated port.
+
+        noTxDither(1)     No Transmission dithering
+        txDither(2)       Tranmission dithering enabled
+       "
+    ::= { ostDwdmStatusEntry 9 }
+
+ostDwdmStatusWavelengthReloadState OBJECT-TYPE
+    SYNTAX      INTEGER {
+        notApplicable(1),
+        noSavedValue(2),
+        partNumberMismatch(3),
+        reloadSavedValueFailed(4)
+    }
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+       "This object indicates wavelength reload state.
+
+        notApplicable(1)           No reload error or reload not applicable
+        noSavedValue(2),           No part number was saved to reload
+        partNumberMismatch(3),     Part number saved does not match current
+                                   part number
+        reloadSavedValueFailed(4)  Reload of wavelength failed
+       "
+    ::= { ostDwdmStatusEntry 10 }
+
+ostDwdmStatusWavelengthReloadStatus OBJECT-TYPE
+    SYNTAX      INTEGER {
+        notApplicable(1),
+        reloadOff(2),
+        reloadComplete(3),
+        reloadFailed(4),
+        reloadPending(5)
+    }
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+       "This object indicates wavelength reload status.
+
+        notApplicable(1),          Reload of wavelength not applicable
+        reloadOff(2),              Reload of wavelength is not enabled
+        reloadComplete(3),         Reload of wavelength has copmleted
+        reloadFailed(4),           Reload of wavlength failed
+        reloadPending(5)           Reload value has been saved but not applied
+       "
+    ::= { ostDwdmStatusEntry 11 }
+
+ostDwdmStatusUserReloadState OBJECT-TYPE
+    SYNTAX      INTEGER {
+        notApplicable(1),
+        noSavedValue(2),
+        partNumberMismatch(3),
+        reloadSavedValueFailed(4)
+    }
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+       "This object indicates user variable reload state.
+
+        notApplicable(1)           No reload error or reload not applicable
+        noSavedValue(2),           No user variable was saved to reload
+        partNumberMismatch(3),     Part number saved does not match current
+                                   part number
+        reloadSavedValueFailed(4)  Reload of user variable failed
+       "
+    ::= { ostDwdmStatusEntry 12 }
+
+ostDwdmStatusUserReloadStatus OBJECT-TYPE
+    SYNTAX      INTEGER {
+        notApplicable(1),
+        reloadOff(2),
+        reloadComplete(3),
+        reloadFailed(4),
+        reloadPending(5)
+    }
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+       "This object indicates user variable reload status.
+
+        notApplicable(1),          Reload of user variable not applicable
+        reloadOff(2),              Reload of wavelength is not enabled
+        reloadComplete(3),         Reload of user variable has copmleted
+        reloadFailed(4),           Reload of user variable failed
+        reloadPending(5)           Reload value has been saved but not applied
+       "
+    ::= { ostDwdmStatusEntry 13 }
+
+ostDwdmStatusTransmissionPower OBJECT-TYPE
+    SYNTAX      INTEGER {
+        zeroDb(1),
+        neg2Db(2),
+        neg4Db(3),
+        neg6Db(4),
+        neg8Db(5),
+        neg10Db(6),
+        neg12Db(7),
+        neg14Db(8)
+    }
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+       "This object indicates the transmission power of the PHY.
+
+        zeroDb(1)        0 dB transmit power
+        neg2Db(2)        -2 dB transmit power
+        neg4Db(3)        -4 dB transmit power
+        neg6Db(4)        -6 dB transmit power
+        neg8Db(5)        -8 dB transmit power
+        neg10Db(6)       -10 dB transmit power
+        neg12Db(7)       -12 dB transmit power
+        neg14Db(8)       -14 dB transmit power
+       "
+    ::= { ostDwdmStatusEntry 14 }
+
+ostDwdmStatusItuChannelSaved OBJECT-TYPE
+    SYNTAX      OstFloatValue
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+       "This object indicates the saved ITU transmission channel value of the
+        associated port. Value can be incremented in 0.5 units.
+       "
+    ::= { ostDwdmStatusEntry 15 }
+
+ostDwdmStatusItuChannelIncrement OBJECT-TYPE
+    SYNTAX      OstFloatValue
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+       "This object indicates the ITU increment channel value of the
+        associated port. Value can be incremented in 0.5 units.
+       "
+    ::= { ostDwdmStatusEntry 16 }
+
+
+--------------------------------------------------------------------------------
+-- Conformance Information
+--------------------------------------------------------------------------------
+
+ostDwdmCompliances OBJECT IDENTIFIER ::= { ostDwdmConformance 1 }
+ostDwdmGroups      OBJECT IDENTIFIER ::= { ostDwdmConformance 2 }
+
+
+--------------------------------------------------------------------------------
+-- Omnitron DWDM MIB Units of conformance
+--------------------------------------------------------------------------------
+
+ostDwdmGroup OBJECT-GROUP
+    OBJECTS {
+        ostDwdmGlobalCfgAutoReloadWavelength,
+        ostDwdmGlobalCfgAutoReloadUserVariable,
+        ostDwdmCfgWavelength,
+        ostDwdmCfgVendorChannel,
+        ostDwdmCfgItuChannel,
+        ostDwdmCfgUserVariable,
+        ostDwdmCfgTransmissionDither,
+
+        ostDwdmStatusWavelengthError,
+        ostDwdmStatusFrequencyError,
+        ostDwdmStatusFirstFrequency,
+        ostDwdmStatusLastFrequency,
+        ostDwdmStatusFrequencySpacing,
+        ostDwdmStatusSavedWavelength,
+        ostDwdmStatusSavedVendorChannel,
+        ostDwdmStatusSavedUserVariable,
+        ostDwdmStatusSavedTransmissionDither,
+        ostDwdmStatusWavelengthReloadState,
+        ostDwdmStatusWavelengthReloadStatus,
+        ostDwdmStatusUserReloadState,
+        ostDwdmStatusUserReloadStatus,
+        ostDwdmStatusTransmissionPower,
+        ostDwdmStatusItuChannelSaved,
+        ostDwdmStatusItuChannelIncrement
+    }
+    STATUS       current
+    DESCRIPTION "A collection of Omnitron DWDM objects."
+    ::= { ostDwdmGroups 1 }
+
+
+--------------------------------------------------------------------------------
+-- Omnitron DWDM MIB Compliance statements
+-------------------------------------------------------------------------------
+ostDwdmCompliance MODULE-COMPLIANCE
+    STATUS       current
+    DESCRIPTION "The compliance statement for the Omnitron DWDM MIB."
+    MODULE
+        MANDATORY-GROUPS {
+            ostDwdmGroup
+        }
+    ::= { ostDwdmCompliances 1 }
+
+END
+

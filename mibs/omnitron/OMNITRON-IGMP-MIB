@@ -1,0 +1,386 @@
+OMNITRON-IGMP-MIB DEFINITIONS ::= BEGIN
+
+IMPORTS
+    MODULE-IDENTITY, OBJECT-TYPE, Unsigned32, IpAddress
+        FROM SNMPv2-SMI           -- RFC-2578
+    TruthValue, RowStatus
+        FROM SNMPv2-TC            -- RFC-2579
+    MODULE-COMPLIANCE, OBJECT-GROUP
+        FROM SNMPv2-CONF          -- RFC-2580
+    omnitron, OstIndexIntegerNextFree, OstEvcNameString,
+    OstPortList
+        FROM OMNITRON-TC-MIB;     -- Omnitron Textual Convention MIB
+
+omnitronIgmpMib MODULE-IDENTITY
+    LAST-UPDATED "201702161200Z"  -- February 16, 2017
+    ORGANIZATION "Omnitron Systems Technology, Inc."
+    CONTACT-INFO "Omnitron Systems Technology, Inc.
+                  38 Tesla
+                  Irvine, CA 92618-4670
+                  USA
+
+             Tel: (949) 250 6510
+             Fax: (949) 250 6514
+          E-mail: info@omnitron-systems.com
+   International: +1 949 250 6510
+
+                  Technical Support and Customer Service
+             Tel: (800) 675 8410
+          E-mail: support@omnitron-systems.com
+   International: +1 949 250 6510"
+
+    DESCRIPTION
+            "Omnitron IGMP MIB for use with iConverter Management Modules v5.3
+             and NetOutlook.
+
+             Copyright 2017 Omnitron Systems Technology, Inc.
+             All rights reserved.
+            "
+
+    REVISION    "201702161200Z"  -- February 16, 2017
+    DESCRIPTION "Deleted  ostIgmpGroupCfgGroupAddressString
+                "
+                
+    REVISION    "201603171200Z"     -- March 17, 2016
+    DESCRIPTION "Initial version of v5.3 MIB.
+                   Added ostIgmpGroupCfgGroupAddressString
+                "
+    ::= { omnitron 19 }
+
+
+--------------------------------------------------------------------------------
+-- IGMP Global Configuration Table
+--------------------------------------------------------------------------------
+
+ostIgmpGlobalCfgTable  OBJECT IDENTIFIER ::= { omnitronIgmpMib 1 }
+
+
+ostIgmpSnooping OBJECT-TYPE
+    SYNTAX      TruthValue
+    MAX-ACCESS  read-write
+    STATUS      current
+    DESCRIPTION
+       "This object enables or disables IGMP snooping mode globally in the
+        module, based upon RFC 4541. The default setting is disabled.
+       "
+    DEFVAL { false }
+    ::= { ostIgmpGlobalCfgTable 1 }
+
+ostIgmpFlooding OBJECT-TYPE
+    SYNTAX      TruthValue
+    MAX-ACCESS  read-write
+    STATUS      current
+    DESCRIPTION
+       "This object enables or disables IGMP flooding of unrecognized IGMP group
+        addresses. The default setting is disabled.
+       "
+    DEFVAL { false }
+    ::= { ostIgmpGlobalCfgTable 2 }
+
+ostIgmpRouteAgingTime OBJECT-TYPE
+    SYNTAX      Unsigned32
+    UNITS       "seconds"
+    MAX-ACCESS  read-write
+    STATUS      current
+    DESCRIPTION
+       "This object selects the time in seconds that an IGMP automatically
+        learned route ages out. A route will be aged out if the timer value
+        expires and the specific IGMP group address is not seen before the
+        timer expires.
+       "
+    DEFVAL { 60 }
+    ::= { ostIgmpGlobalCfgTable 3 }
+
+ostIgmpInterfaceGroupNextIndex OBJECT-TYPE
+    SYNTAX      OstIndexIntegerNextFree
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+       "This object contains an unused value for a IGMP Interface Group index that
+        can be used to configure a IGMP Interface Group.
+
+        This value needs to be read in order to find an available index for
+        row-creation of a IGMP Interface Group and then used when a
+        row is created. This value is automatically updated by the SNMP Agent
+        after the row is created manually or automatically.
+       "
+    DEFVAL { 1 }
+    ::= { ostIgmpGlobalCfgTable 4 }
+
+ostIgmpGroupNextIndex OBJECT-TYPE
+    SYNTAX      OstIndexIntegerNextFree
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+       "This object contains an unused value for a IGMP Group route index that
+        can be used to manually configured a IGMP route.
+
+        This value needs to be read in order to find an available index for
+        row-creation of a manually configured IGMP route and then used when a
+        row is created. This value is automatically updated by the SNMP Agent
+        after the row is created manually or automatically.
+       "
+    DEFVAL { 1 }
+    ::= { ostIgmpGlobalCfgTable 5 }
+
+
+--------------------------------------------------------------------------------
+-- IGMP Interface Group Configuration Table
+--------------------------------------------------------------------------------
+
+ostIgmpInterfaceGroupCfgTable OBJECT-TYPE
+    SYNTAX      SEQUENCE OF OstIgmpInterfaceGroupCfgEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION
+       "This table supports the IGMP Interface Group configuration/status table."
+    ::= { omnitronIgmpMib 2 }
+
+ostIgmpInterfaceGroupCfgEntry OBJECT-TYPE
+    SYNTAX      OstIgmpInterfaceGroupCfgEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION
+       "This is an IGMP Interface Group configuration table entry. Each row
+        in the table indicates a specific configuration/status for a IGMP
+        Interface Group.
+
+        A row in this table is created manually before automatic learning
+        of an IGMP addresses. A row in this can be manually added by first
+        accesing the ostIgmpInterfaceGroupNextIndex and using that index
+        number to create the new row.
+       "
+    INDEX { ostIgmpInterfaceGroupCfgIndex }
+    ::= { ostIgmpInterfaceGroupCfgTable 1 }
+
+OstIgmpInterfaceGroupCfgEntry ::= SEQUENCE {
+    ostIgmpInterfaceGroupCfgIndex               Unsigned32,
+    ostIgmpInterfaceGroupCfgRowStatus           RowStatus,
+    ostIgmpInterfaceGroupCfgEvcName             OstEvcNameString
+    }
+
+ostIgmpInterfaceGroupCfgIndex OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION
+       "IGMP Interface Group index."
+    ::= { ostIgmpInterfaceGroupCfgEntry 1 }
+
+ostIgmpInterfaceGroupCfgRowStatus OBJECT-TYPE
+    SYNTAX      RowStatus
+    MAX-ACCESS  read-create
+    STATUS      current
+    DESCRIPTION
+       "The status of the row.
+
+        The writable columns in a row cannot be changed if the row
+        is active. All columns must have a valid value before a row
+        can be activated.
+       "
+   ::= { ostIgmpInterfaceGroupCfgEntry 2 }
+
+ostIgmpInterfaceGroupCfgEvcName OBJECT-TYPE
+    SYNTAX      OstEvcNameString
+    MAX-ACCESS  read-create
+    STATUS      current
+    DESCRIPTION
+       "This object indicates the EVC that the IGMP Interface Group is
+        associated with.
+       "
+    ::= { ostIgmpInterfaceGroupCfgEntry 6 }
+
+
+--------------------------------------------------------------------------------
+-- IGMP Group Address Configuration/Status Table
+--------------------------------------------------------------------------------
+
+ostIgmpGroupCfgTable OBJECT-TYPE
+    SYNTAX      SEQUENCE OF OstIgmpGroupCfgEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION
+       "This table supports the IGMP group configuration/status table."
+    ::= { omnitronIgmpMib 3 }
+
+ostIgmpGroupCfgEntry OBJECT-TYPE
+    SYNTAX      OstIgmpGroupCfgEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION
+       "This is a IGMP group configuration and status table entry. Each row
+        in the table indicates a specific configuration/status for a IGMP
+        group address.
+
+        A row in this table is created automatically based automatic learning
+        of an IGMP Group. A row in this can be manually added by first
+        accesing the ostIgmpGroupNextIndex
+
+        Rows in this table can be automatically deleted by the SNMP Agent if
+        the IGMP route times out or manually deleted by a SNMP Manager.
+       "
+    INDEX { ostIgmpGroupCfgInstanceIndex }
+    ::= { ostIgmpGroupCfgTable 1 }
+
+OstIgmpGroupCfgEntry ::= SEQUENCE {
+    ostIgmpGroupCfgInstanceIndex                Unsigned32,
+    ostIgmpGroupCfgRowStatus                    RowStatus,
+    ostIgmpGroupCfgType                         INTEGER,
+    ostIgmpGroupCfgAging                        INTEGER,
+    ostIgmpGroupCfgGroupAddress                 IpAddress,
+    ostIgmpGroupCfgEvcName                      OstEvcNameString,
+    ostIgmpGroupCfgHostPort                     OstPortList,
+    ostIgmpGroupCfgRouterPort                   OstPortList
+    }
+
+ostIgmpGroupCfgInstanceIndex OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION
+       "IGMP Group Address instance index."
+    ::= { ostIgmpGroupCfgEntry 1 }
+
+ostIgmpGroupCfgRowStatus OBJECT-TYPE
+    SYNTAX      RowStatus
+    MAX-ACCESS  read-create
+    STATUS      current
+    DESCRIPTION
+       "The status of the row.
+
+        The writable columns in a row cannot be changed if the row
+        is active. All columns must have a valid value before a row
+        can be activated.
+       "
+   ::= { ostIgmpGroupCfgEntry 2 }
+
+ostIgmpGroupCfgType OBJECT-TYPE
+    SYNTAX      INTEGER {
+        automatic (1),
+        manual    (2)
+    }
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+       "This object indicates whether the route is manually configured or
+        automatically learned. Its value is configured by the SNMP Agent.
+
+        automatic(1)    Route is automatically learned
+        manual(2)       Route is manually configured
+       "
+    ::= { ostIgmpGroupCfgEntry 3 }
+
+ostIgmpGroupCfgAging OBJECT-TYPE
+    SYNTAX      INTEGER {
+        static     (1),
+        transient  (2)
+    }
+    MAX-ACCESS  read-write
+    STATUS      current
+    DESCRIPTION
+       "This object indicates whether the route is static and won't be
+        aged out or transient and will be aged out if the ostIgmpRouteAgingTime
+        expires before the IGMP Group address has been seen.
+
+        Automatically learned routes are set to 'transient' by default.
+        Manually configured routes are set to 'static' by default
+
+        static(1)      Route is static and will not be aged out
+        transient(2)   Route is transient and can be automatically deleted.
+       "
+    DEFVAL { static }
+    ::= { ostIgmpGroupCfgEntry 4 }
+
+ostIgmpGroupCfgGroupAddress OBJECT-TYPE
+    SYNTAX      IpAddress
+    MAX-ACCESS  read-write
+    STATUS      current
+    DESCRIPTION
+       "This object specifies the IPv4 IGMP Group Multicast Address.
+       
+        IPv6 addresses are handled via the Multicast Listener Discovery (MLD).
+       "
+    ::= { ostIgmpGroupCfgEntry 5 }
+
+ostIgmpGroupCfgEvcName OBJECT-TYPE
+    SYNTAX      OstEvcNameString
+    MAX-ACCESS  read-create
+    STATUS      current
+    DESCRIPTION
+       "This object indicates the EVC that the IGMP Group Address is
+        associated with.
+       "
+    ::= { ostIgmpGroupCfgEntry 6 }
+
+ostIgmpGroupCfgHostPort OBJECT-TYPE
+    SYNTAX      OstPortList
+    MAX-ACCESS  read-create
+    STATUS      current
+    DESCRIPTION
+       "A string specifying the list of ports associated with the host IGMP
+        multicast traffic. Typically only one port is selected, but may be
+        one or more ports.
+       "
+    ::= {  ostIgmpGroupCfgEntry 7 }
+
+ostIgmpGroupCfgRouterPort OBJECT-TYPE
+    SYNTAX      OstPortList
+    MAX-ACCESS  read-create
+    STATUS      current
+    DESCRIPTION
+       "A string specifying the list of ports associated with the router IGMP
+        multicast traffic. Typically only one port is selected, but may be
+        one or more ports.
+       "
+    ::= {  ostIgmpGroupCfgEntry 8 }
+
+
+--------------------------------------------------------------------------------
+-- Conformance Information
+--------------------------------------------------------------------------------
+ostIgmpCompliances       OBJECT IDENTIFIER ::= { omnitronIgmpMib 4 }
+ostIgmpGroups            OBJECT IDENTIFIER ::= { omnitronIgmpMib 5 }
+
+
+--------------------------------------------------------------------------------
+-- Omnitron IGMP  MIB Units of conformance
+--------------------------------------------------------------------------------
+ostIgmpGroup OBJECT-GROUP
+    OBJECTS {
+        ostIgmpSnooping,
+        ostIgmpFlooding,
+        ostIgmpRouteAgingTime,
+        ostIgmpInterfaceGroupNextIndex,
+        ostIgmpGroupNextIndex,
+
+        ostIgmpInterfaceGroupCfgRowStatus,
+        ostIgmpInterfaceGroupCfgEvcName,
+
+        ostIgmpGroupCfgRowStatus,
+        ostIgmpGroupCfgType,
+        ostIgmpGroupCfgAging,
+        ostIgmpGroupCfgGroupAddress,
+        ostIgmpGroupCfgEvcName,
+        ostIgmpGroupCfgHostPort,
+        ostIgmpGroupCfgRouterPort
+    }
+    STATUS      current
+    DESCRIPTION
+       "Mandatory objects for the IGMP functional group."
+    ::= { ostIgmpGroups 1 }
+
+
+--------------------------------------------------------------------------------
+-- Omnitron IGMP MIB Compliance statements
+-------------------------------------------------------------------------------
+ostIgmpCompliance MODULE-COMPLIANCE
+    STATUS       current
+    DESCRIPTION "The compliance statement for the Omnitron IGMP MIB."
+    MODULE
+        MANDATORY-GROUPS {
+            ostIgmpGroup
+        }
+    ::= { ostIgmpCompliances 1 }
+
+END
+

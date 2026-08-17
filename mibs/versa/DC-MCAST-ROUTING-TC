@@ -1,0 +1,51 @@
+DC-MCAST-ROUTING-TC DEFINITIONS ::= BEGIN
+   IMPORTS
+       MODULE-IDENTITY
+                                       FROM SNMPv2-SMI
+       TEXTUAL-CONVENTION
+                                        FROM SNMPv2-TC;
+
+  dcMcastTc MODULE-IDENTITY
+      LAST-UPDATED "200408170000Z" -- Thu Aug 17 00:00:00 GMT 2004
+      ORGANIZATION "Data Connection Ltd."
+      CONTACT-INFO
+                   "Postal: Data Connection Ltd.
+                            100 Church Street
+                            Enfield
+                            Middlesex EN2 6BQ
+                            United Kingdom
+                    Tel:    +44 20 83661177
+                    E-mail: dcpim@dataconnection.com"
+      DESCRIPTION  "The set of common multicast Textual Conventions for use in
+                    all DCL multicast MIBs."
+
+  ::= { iso
+        member-body(2)
+        gb(826)
+-- Versa changed national from 0 to 42
+        national(42)
+        eng-ltd(1)
+        dataConnectionLtd(1578918)
+        adg(5)
+        global(41) 2}
+
+--Common Textual Conventions
+
+  MrpmType ::= TEXTUAL-CONVENTION
+    STATUS      current
+    DESCRIPTION "The type of an MRPM.  This field can take the value 0
+                 indicating that the entity represented by the row does not
+                 have an MRPM type.  This is the case if, for example, it is
+                 not an MRPM."
+    SYNTAX      INTEGER {
+                  none(0),        -- None - this is not an MRPM.
+                  pim(1),         -- Protocol Independent Multicast
+                  igmp(2),        -- Internet Group Management Test stub
+                  dvmrp(3),       -- Distance Vector Multiple Routing Protocol
+                  mospf(4),       -- Multicast OSPF
+                  cbt(5),         -- Core Based Trees
+                  bgmp(6),        -- Border Gateway Multicast Protocol
+                  igmpproxy(7),   -- IGMP/MLD Proxy
+                  igmpsnooping(8) -- IGMP/MLD Snooping
+                }
+END

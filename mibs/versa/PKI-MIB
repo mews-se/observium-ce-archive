@@ -1,0 +1,711 @@
+PKI-MIB DEFINITIONS ::= BEGIN
+IMPORTS
+    MODULE-IDENTITY, OBJECT-TYPE,
+    Integer32, Unsigned32, Counter32, Counter64,
+    Gauge32, IpAddress
+        FROM SNMPv2-SMI
+    TEXTUAL-CONVENTION, RowStatus, DateAndTime,
+    TruthValue
+        FROM SNMPv2-TC
+    orgServices
+        FROM VERSA-MIB
+;
+
+pki MODULE-IDENTITY
+    LAST-UPDATED "201604140000Z"
+    ORGANIZATION "Versa Networks"
+    CONTACT-INFO "
+        2953 Bunker Hill Lane, Suite 210
+        Santa Clara, CA - 95035 (USA)
+        Email: support@versa-networks.com"
+    DESCRIPTION "Enterprise MIB for Versa Networks'
+Crypto stats"
+    REVISION "201604140000Z"
+    DESCRIPTION "Initial revision"
+    ::= { orgServices 13 }
+
+String ::= TEXTUAL-CONVENTION
+    DISPLAY-HINT "1t"
+    STATUS      current
+    DESCRIPTION "xs:string"
+    SYNTAX      OCTET STRING
+
+certCsrTable OBJECT-TYPE
+    SYNTAX      SEQUENCE OF CertCsrEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "Display information about a cert csr stats"
+    ::= { pki 1 }
+
+certCsrEntry OBJECT-TYPE
+    SYNTAX      CertCsrEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION ""
+    INDEX { certProfileOrgId, certCsrId }
+        ::= { certCsrTable 1 }
+
+CertCsrEntry ::=
+    SEQUENCE {
+        certProfileOrgId Unsigned32,
+        certCsrId Unsigned32,
+        certProfileOrgName String,
+        certCsrName String,
+        certCsrIrCertCheckSuccess Unsigned32,
+        certCsrIrCertCheckFail Unsigned32,
+        certCsrIrIntfNotUp Unsigned32,
+        certCsrIrIntfAddrUnavail Unsigned32,
+        certCsrIrCertAuthKeyFail Unsigned32,
+        certCsrIrCertAuthCertFail Unsigned32,
+        certCsrIrCertKeyGenFail Unsigned32,
+        certCsrIrCertReqGenFail Unsigned32,
+        certCsrIrCertEnrollSent Unsigned32,
+        certCsrIrCertSwitchNsFail Unsigned32,
+        certCsrIrCertRevertNsFail Unsigned32,
+        certCsrIrCertSignSuccess Unsigned32,
+        certCsrIrCaCertSignSuccess Unsigned32,
+        certCsrIrCertSignRejected Unsigned32,
+        certCsrIrCertSignDone Unsigned32,
+        certCsrIrCertSignFailure Unsigned32,
+        certCsrKurCertCheckSuccess Unsigned32,
+        certCsrKurCertCheckFail Unsigned32,
+        certCsrKurIntfNotUp Unsigned32,
+        certCsrKurIntfAddrUnavail Unsigned32,
+        certCsrKurCertAuthKeyFail Unsigned32,
+        certCsrKurCertAuthCertFail Unsigned32,
+        certCsrKurCertKeyGenFail Unsigned32,
+        certCsrKurCertReqGenFail Unsigned32,
+        certCsrKurCertEnrollSent Unsigned32,
+        certCsrKurCertSwitchNsFail Unsigned32,
+        certCsrKurCertRevertNsFail Unsigned32,
+        certCsrKurCertSignSuccess Unsigned32,
+        certCsrKurCaCertSignSuccess Unsigned32,
+        certCsrKurCertSignRejected Unsigned32,
+        certCsrKurCertSignDone Unsigned32,
+        certCsrKurCertSignFailure Unsigned32,
+        certCsrIrRtInstUnavail Unsigned32,
+        certCsrIrRrIntfUnavail Unsigned32,
+        certCsrKurRtInstUnavail Unsigned32,
+        certCsrKurRrIntfUnavail Unsigned32
+    }
+
+certProfileOrgId OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "Organization id"
+    ::= { certCsrEntry 1 }
+
+certCsrId OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "Cert CSR id"
+    ::= { certCsrEntry 2 }
+
+certProfileOrgName OBJECT-TYPE
+    SYNTAX      String
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Organization name"
+    ::= { certCsrEntry 3 }
+
+certCsrName OBJECT-TYPE
+    SYNTAX      String
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Cert CSR name"
+    ::= { certCsrEntry 4 }
+
+certCsrIrCertCheckSuccess OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Success counters"
+    ::= { certCsrEntry 5 }
+
+certCsrIrCertCheckFail OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Failed counters"
+    ::= { certCsrEntry 6 }
+
+certCsrIrIntfNotUp OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Interface not up counters"
+    ::= { certCsrEntry 7 }
+
+certCsrIrIntfAddrUnavail OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Address unavailable counters"
+    ::= { certCsrEntry 8 }
+
+certCsrIrCertAuthKeyFail OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Auth key failed counters"
+    ::= { certCsrEntry 9 }
+
+certCsrIrCertAuthCertFail OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Auth certificate failed counters"
+    ::= { certCsrEntry 10 }
+
+certCsrIrCertKeyGenFail OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Key generation failed counter"
+    ::= { certCsrEntry 11 }
+
+certCsrIrCertReqGenFail OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Req generation failed counter"
+    ::= { certCsrEntry 12 }
+
+certCsrIrCertEnrollSent OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Certificate enroll sent counters"
+    ::= { certCsrEntry 13 }
+
+certCsrIrCertSwitchNsFail OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Certificate switch failed counters"
+    ::= { certCsrEntry 14 }
+
+certCsrIrCertRevertNsFail OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Certificate revert failed counters"
+    ::= { certCsrEntry 15 }
+
+certCsrIrCertSignSuccess OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Certificate sign success counter"
+    ::= { certCsrEntry 16 }
+
+certCsrIrCaCertSignSuccess OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "CA certificate sign success counter"
+    ::= { certCsrEntry 17 }
+
+certCsrIrCertSignRejected OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Certificate sign rejected counter"
+    ::= { certCsrEntry 18 }
+
+certCsrIrCertSignDone OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Certificate sign done counter"
+    ::= { certCsrEntry 19 }
+
+certCsrIrCertSignFailure OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Certificate sign failure counter"
+    ::= { certCsrEntry 20 }
+
+certCsrKurCertCheckSuccess OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Success counters"
+    ::= { certCsrEntry 21 }
+
+certCsrKurCertCheckFail OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Failed counters"
+    ::= { certCsrEntry 22 }
+
+certCsrKurIntfNotUp OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Interface not up counters"
+    ::= { certCsrEntry 23 }
+
+certCsrKurIntfAddrUnavail OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Address unavailable counters"
+    ::= { certCsrEntry 24 }
+
+certCsrKurCertAuthKeyFail OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Auth key failed counters"
+    ::= { certCsrEntry 25 }
+
+certCsrKurCertAuthCertFail OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Auth certificate failed counters"
+    ::= { certCsrEntry 26 }
+
+certCsrKurCertKeyGenFail OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Key generation failed counter"
+    ::= { certCsrEntry 27 }
+
+certCsrKurCertReqGenFail OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Req generation failed counter"
+    ::= { certCsrEntry 28 }
+
+certCsrKurCertEnrollSent OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Certificate enroll sent counters"
+    ::= { certCsrEntry 29 }
+
+certCsrKurCertSwitchNsFail OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Certificate switch failed counters"
+    ::= { certCsrEntry 30 }
+
+certCsrKurCertRevertNsFail OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Certificate revert failed counters"
+    ::= { certCsrEntry 31 }
+
+certCsrKurCertSignSuccess OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Certificate sign success counter"
+    ::= { certCsrEntry 32 }
+
+certCsrKurCaCertSignSuccess OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "CA certificate sign success counter"
+    ::= { certCsrEntry 33 }
+
+certCsrKurCertSignRejected OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Certificate sign rejected counter"
+    ::= { certCsrEntry 34 }
+
+certCsrKurCertSignDone OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Certificate sign done counter"
+    ::= { certCsrEntry 35 }
+
+certCsrKurCertSignFailure OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Certificate sign failure counter"
+    ::= { certCsrEntry 36 }
+
+certCsrIrRtInstUnavail OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Routing Instance unavailable counter"
+    ::= { certCsrEntry 37 }
+
+certCsrIrRrIntfUnavail OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Routing Interface unavailable counter"
+    ::= { certCsrEntry 38 }
+
+certCsrKurRtInstUnavail OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Routing Instance unavailable counter"
+    ::= { certCsrEntry 39 }
+
+certCsrKurRrIntfUnavail OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Routing Interface unavailable counter"
+    ::= { certCsrEntry 40 }
+
+certCaTable OBJECT-TYPE
+    SYNTAX      SEQUENCE OF CertCaEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "Display information about a cert ca stats"
+    ::= { pki 2 }
+
+certCaEntry OBJECT-TYPE
+    SYNTAX      CertCaEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION ""
+    INDEX { certCaOrgId, certCaCaId }
+        ::= { certCaTable 1 }
+
+CertCaEntry ::=
+    SEQUENCE {
+        certCaOrgId Unsigned32,
+        certCaCaId Unsigned32,
+        certCaOrgName String,
+        certCaCaName String,
+        certCaIrCertCheckSuccess Unsigned32,
+        certCaIrCertCheckFail Unsigned32,
+        certCaIrIntfNotUp Unsigned32,
+        certCaIrIntfAddrUnavail Unsigned32,
+        certCaIrCertAuthKeyFail Unsigned32,
+        certCaIrCertAuthCertFail Unsigned32,
+        certCaIrCertKeyGenFail Unsigned32,
+        certCaIrCertReqGenFail Unsigned32,
+        certCaIrCertEnrollSent Unsigned32,
+        certCaIrCertSwitchNsFail Unsigned32,
+        certCaIrCertRevertNsFail Unsigned32,
+        certCaIrCertSignSuccess Unsigned32,
+        certCaIrCaCertSignSuccess Unsigned32,
+        certCaIrCertSignRejected Unsigned32,
+        certCaIrCertSignDone Unsigned32,
+        certCaIrCertSignFailure Unsigned32,
+        certCaKurCertCheckSuccess Unsigned32,
+        certCaKurCertCheckFail Unsigned32,
+        certCaKurIntfNotUp Unsigned32,
+        certCaKurIntfAddrUnavail Unsigned32,
+        certCaKurCertAuthKeyFail Unsigned32,
+        certCaKurCertAuthCertFail Unsigned32,
+        certCaKurCertKeyGenFail Unsigned32,
+        certCaKurCertReqGenFail Unsigned32,
+        certCaKurCertEnrollSent Unsigned32,
+        certCaKurCertSwitchNsFail Unsigned32,
+        certCaKurCertRevertNsFail Unsigned32,
+        certCaKurCertSignSuccess Unsigned32,
+        certCaKurCaCertSignSuccess Unsigned32,
+        certCaKurCertSignRejected Unsigned32,
+        certCaKurCertSignDone Unsigned32,
+        certCaKurCertSignFailure Unsigned32,
+        certCaIrRtInstUnavail Unsigned32,
+        certCaIrRrIntfUnavail Unsigned32,
+        certCaKurRtInstUnavail Unsigned32,
+        certCaKurRrIntfUnavail Unsigned32
+    }
+
+certCaOrgId OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "Organization id"
+    ::= { certCaEntry 1 }
+
+certCaCaId OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "Cert CA id"
+    ::= { certCaEntry 2 }
+
+certCaOrgName OBJECT-TYPE
+    SYNTAX      String
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Organization name"
+    ::= { certCaEntry 3 }
+
+certCaCaName OBJECT-TYPE
+    SYNTAX      String
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Cert CA name"
+    ::= { certCaEntry 4 }
+
+certCaIrCertCheckSuccess OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Success counters"
+    ::= { certCaEntry 5 }
+
+certCaIrCertCheckFail OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Failed counters"
+    ::= { certCaEntry 6 }
+
+certCaIrIntfNotUp OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Interface not up counters"
+    ::= { certCaEntry 7 }
+
+certCaIrIntfAddrUnavail OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Address unavailable counters"
+    ::= { certCaEntry 8 }
+
+certCaIrCertAuthKeyFail OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Auth key failed counters"
+    ::= { certCaEntry 9 }
+
+certCaIrCertAuthCertFail OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Auth certificate failed counters"
+    ::= { certCaEntry 10 }
+
+certCaIrCertKeyGenFail OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Key generation failed counter"
+    ::= { certCaEntry 11 }
+
+certCaIrCertReqGenFail OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Req generation failed counter"
+    ::= { certCaEntry 12 }
+
+certCaIrCertEnrollSent OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Certificate enroll sent counters"
+    ::= { certCaEntry 13 }
+
+certCaIrCertSwitchNsFail OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Certificate switch failed counters"
+    ::= { certCaEntry 14 }
+
+certCaIrCertRevertNsFail OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Certificate revert failed counters"
+    ::= { certCaEntry 15 }
+
+certCaIrCertSignSuccess OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Certificate sign success counter"
+    ::= { certCaEntry 16 }
+
+certCaIrCaCertSignSuccess OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "CA certificate sign success counter"
+    ::= { certCaEntry 17 }
+
+certCaIrCertSignRejected OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Certificate sign rejected counter"
+    ::= { certCaEntry 18 }
+
+certCaIrCertSignDone OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Certificate sign done counter"
+    ::= { certCaEntry 19 }
+
+certCaIrCertSignFailure OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Certificate sign failure counter"
+    ::= { certCaEntry 20 }
+
+certCaKurCertCheckSuccess OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Success counters"
+    ::= { certCaEntry 21 }
+
+certCaKurCertCheckFail OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Failed counters"
+    ::= { certCaEntry 22 }
+
+certCaKurIntfNotUp OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Interface not up counters"
+    ::= { certCaEntry 23 }
+
+certCaKurIntfAddrUnavail OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Address unavailable counters"
+    ::= { certCaEntry 24 }
+
+certCaKurCertAuthKeyFail OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Auth key failed counters"
+    ::= { certCaEntry 25 }
+
+certCaKurCertAuthCertFail OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Auth certificate failed counters"
+    ::= { certCaEntry 26 }
+
+certCaKurCertKeyGenFail OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Key generation failed counter"
+    ::= { certCaEntry 27 }
+
+certCaKurCertReqGenFail OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Req generation failed counter"
+    ::= { certCaEntry 28 }
+
+certCaKurCertEnrollSent OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Certificate enroll sent counters"
+    ::= { certCaEntry 29 }
+
+certCaKurCertSwitchNsFail OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Certificate switch failed counters"
+    ::= { certCaEntry 30 }
+
+certCaKurCertRevertNsFail OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Certificate revert failed counters"
+    ::= { certCaEntry 31 }
+
+certCaKurCertSignSuccess OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Certificate sign success counter"
+    ::= { certCaEntry 32 }
+
+certCaKurCaCertSignSuccess OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "CA certificate sign success counter"
+    ::= { certCaEntry 33 }
+
+certCaKurCertSignRejected OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Certificate sign rejected counter"
+    ::= { certCaEntry 34 }
+
+certCaKurCertSignDone OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Certificate sign done counter"
+    ::= { certCaEntry 35 }
+
+certCaKurCertSignFailure OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Certificate sign failure counter"
+    ::= { certCaEntry 36 }
+
+certCaIrRtInstUnavail OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Routing Instance unavailable counter"
+    ::= { certCaEntry 37 }
+
+certCaIrRrIntfUnavail OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Routing Interface unavailable counter"
+    ::= { certCaEntry 38 }
+
+certCaKurRtInstUnavail OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Routing Instance unavailable counter"
+    ::= { certCaEntry 39 }
+
+certCaKurRrIntfUnavail OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Routing Interface unavailable counter"
+    ::= { certCaEntry 40 }
+
+END

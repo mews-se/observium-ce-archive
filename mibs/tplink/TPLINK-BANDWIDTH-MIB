@@ -1,0 +1,287 @@
+   TPLINK-BANDWIDTH-MIB DEFINITIONS ::= BEGIN
+
+         IMPORTS
+            OBJECT-TYPE,OBJECT-IDENTITY,MODULE-IDENTITY,NOTIFICATION-TYPE 
+          	  	         	FROM SNMPv2-SMI
+			DisplayString 
+      						FROM SNMPv2-TC  								
+			ifIndex
+							FROM RFC1213-MIB
+			tplinkMgmt
+							FROM TPLINK-MIB;
+						  
+	tplinkBandWidthMIB MODULE-IDENTITY
+		LAST-UPDATED    "201212130930Z"
+		ORGANIZATION    "TPLINK"
+		CONTACT-INFO    "www.tplink.com"
+		DESCRIPTION	    "Private MIB for system time configuration."
+		REVISION        "201212130930Z"
+		DESCRIPTION
+				"Initial version of this MIB module."
+		::= { tplinkMgmt 23 }
+		
+	tplinkBandWidthMIBObjects		OBJECT IDENTIFIER	::= { tplinkBandWidthMIB 1 }
+	tplinkBandWidthNotifications	OBJECT IDENTIFIER	::= { tplinkBandWidthMIB 2 }          	  	          
+	
+		tpRateLimit  				OBJECT IDENTIFIER ::= {tplinkBandWidthMIBObjects 1}
+    tpStormControl	 			OBJECT IDENTIFIER ::= {tplinkBandWidthMIBObjects 2}
+    tpStormControlRecover	OBJECT IDENTIFIER ::= { tplinkBandWidthMIBObjects 3 }          
+        -- the rate limit    
+        
+         tpRateLimitTable OBJECT-TYPE
+            SYNTAX  SEQUENCE OF TpRateLimitEntry
+            MAX-ACCESS  not-accessible
+            STATUS  current
+            DESCRIPTION
+                    "A list of rate limit entries.
+                     Here you can configure the traffic rate on each port."
+            ::= { tpRateLimit 1 }
+
+        tpRateLimitEntry OBJECT-TYPE
+            SYNTAX  TpRateLimitEntry
+            MAX-ACCESS  not-accessible
+            STATUS  current
+            DESCRIPTION
+                    "An entry contains of the information of rate limit."
+            INDEX   { ifIndex }
+            ::= { tpRateLimitTable 1 }
+    
+        TpRateLimitEntry ::=
+            SEQUENCE {
+								tpRateLimitPort
+										DisplayString, 
+								tpRateLimitIngressRate
+										INTEGER,
+								tpRateLimitEgressRate
+										INTEGER,
+								tpRateLimitPortLag
+										OCTET STRING (SIZE (1..255))	
+            }
+            
+        tpRateLimitPort OBJECT-TYPE
+            SYNTAX  DisplayString  
+            MAX-ACCESS  read-only
+            STATUS  current
+            DESCRIPTION
+                    "The port number of the Switch."
+            ::= { tpRateLimitEntry 1 }
+        
+        tpRateLimitIngressRate OBJECT-TYPE
+            SYNTAX  INTEGER(0..1000000)
+            MAX-ACCESS  read-write
+            STATUS  current
+            DESCRIPTION
+                    "Set the bandwidth for receiving packets on the port."
+            ::= { tpRateLimitEntry 2 }
+       
+       tpRateLimitEgressRate OBJECT-TYPE
+            SYNTAX  INTEGER(0..1000000)
+            MAX-ACCESS  read-write
+            STATUS  current
+            DESCRIPTION
+                    "Set the bandwidth for sending packets on the port."
+            ::= { tpRateLimitEntry 3 }
+        
+        tpRateLimitPortLag OBJECT-TYPE
+            SYNTAX  OCTET STRING (SIZE (1..255))  
+            MAX-ACCESS  read-only
+            STATUS  current
+            DESCRIPTION
+                    "The LAG number which the port belongs to."
+            ::= { tpRateLimitEntry 4 }    
+      
+       -- the storm control
+         tpStormControlTable OBJECT-TYPE
+            SYNTAX  SEQUENCE OF TpStormControlEntry
+            MAX-ACCESS  not-accessible
+            STATUS  current
+            DESCRIPTION
+                    "A list of storm control entries.
+                     Here you can configure the storm-control for forwarding packets."
+            ::= { tpStormControl 1 }			
+			
+        tpStormControlEntry OBJECT-TYPE
+            SYNTAX  TpStormControlEntry
+            MAX-ACCESS  not-accessible
+            STATUS  current
+            DESCRIPTION
+                    "An entry contains of the information of storm control."
+            INDEX   { ifIndex }
+            ::= { tpStormControlTable 1 }
+    
+        TpStormControlEntry ::=
+            SEQUENCE {
+								tpStormControlPort
+										DisplayString, 
+								tpStormControlMode
+										INTEGER,
+								tpStormControlBroadCastRate
+										INTEGER,							
+								tpStormControlMultiCastRate
+										INTEGER,								
+								tpStormControlULRate
+										INTEGER,
+								tpStormControlAction
+										INTEGER,
+								tpStormControlRecoverTime
+										INTEGER,
+								tpStormControlPortLag
+										OCTET STRING (SIZE (1..255))  			
+            }
+            
+      tpStormControlPort OBJECT-TYPE
+            SYNTAX  DisplayString  
+            MAX-ACCESS  read-only
+            STATUS  current
+            DESCRIPTION
+                    "The port number of the Switch."
+            ::= { tpStormControlEntry 1 }
+			
+			tpStormControlMode OBJECT-TYPE
+						SYNTAX INTEGER{
+							kbps(0),
+							ratio(1),
+							pps(2)
+						}
+            MAX-ACCESS  read-write
+            STATUS  current						
+            DESCRIPTION
+                    "The storm control rate mode: kbps,ratio or pps."
+            ::= { tpStormControlEntry 2 }						
+			
+      tpStormControlBroadCastRate OBJECT-TYPE
+            SYNTAX  INTEGER
+            MAX-ACCESS  read-write
+            STATUS  current
+            DESCRIPTION
+                    "Set the bandwidth for receiving broadcast packets on the port. 
+                     The packet traffic exceeding the bandwidth will be discarded. 
+					 kbps(0-1000000)	ratio(0-100)	pps(0-1488000)
+                     Set it 0 to disable the storm control function for the port."
+            ::= { tpStormControlEntry 3 }
+			
+      tpStormControlMultiCastRate OBJECT-TYPE
+            SYNTAX  INTEGER(0..1488000)
+            MAX-ACCESS  read-write
+            STATUS  current
+            DESCRIPTION
+                    "Set the bandwidth for receiving multicast packets on the port. 
+                     The packet traffic exceeding the bandwidth will be discarded. 
+					 kbps(0-1000000)	ratio(0-100)	pps(0-1488000)
+                     Set it 0 to disable the storm control function for the port."
+            ::= { tpStormControlEntry 4 }
+            
+			tpStormControlULRate OBJECT-TYPE
+            SYNTAX  INTEGER(0..1488000)
+            MAX-ACCESS  read-write
+            STATUS  current
+            DESCRIPTION
+                    "Set the bandwidth for receiving UL-Frame on the port. 
+                     The packet traffic exceeding the bandwidth will be discarded. 
+					 kbps(0-1000000)	ratio(0-100)	pps(0-1488000)
+                     Set it 0 to disable the storm control function for the port. "
+            ::= { tpStormControlEntry 5 }
+     
+			tpStormControlAction OBJECT-TYPE
+						SYNTAX INTEGER
+						{drop(0),shutdown(1)}
+						MAX-ACCESS read-write
+						STATUS current
+						DESCRIPTION
+							"Set the exceed operation of the specified port: drop packets or shutdown."
+						::= {tpStormControlEntry 6}
+
+			tpStormControlRecoverTime OBJECT-TYPE
+						SYNTAX INTEGER
+						MAX-ACCESS read-write
+						STATUS current
+						DESCRIPTION
+							"Set the auto recover time after a port is shut down."
+						::= {tpStormControlEntry 7}
+						
+			tpStormControlPortLag OBJECT-TYPE
+            SYNTAX  OCTET STRING (SIZE (1..255))  
+            MAX-ACCESS  read-only
+            STATUS  current
+            DESCRIPTION
+                    "The LAG number which the port belongs to. "
+            ::= { tpStormControlEntry 8 }
+
+			tpStormControlRecoverPort OBJECT-TYPE
+				SYNTAX OCTET STRING
+				MAX-ACCESS read-write
+				STATUS current
+				DESCRIPTION
+					"The port to be recovered."
+				::= {tpStormControlRecover 1}
+				
+			tpBroadcastRateExceed NOTIFICATION-TYPE  
+      OBJECTS 
+			{
+				tpStormControlPort,
+				tpStormControlBroadCastRate			
+			}
+
+           	STATUS          current
+    		DESCRIPTION 
+    			"An broadcastRateExceed notification is sent when the value
+        of broadcast stormControl rate set of port is exceeded.                        
+        
+        		Note that if you need this notification, the value of broadcast 
+        stormControl rate of port must be set. The transmission of 
+        stormControl notifications are throttled by the agent three sesonds 
+        every time."
+    		::= { tplinkBandWidthNotifications 1}       
+    		
+    	tpMulticastRateExceed NOTIFICATION-TYPE  
+      OBJECTS 
+			{
+				tpStormControlPort,
+				tpStormControlMultiCastRate			
+			}
+
+           	STATUS          current
+    		DESCRIPTION 
+    			"An stormControl notification is sent when the value
+        of multicast stormControl rate set of port is exceeded.                        
+        
+        		Note that if you need this notification, the value of multicast 
+        stormControl rate of port must be set. The transmission of 
+        stormControl notifications are throttled by the agent three sesonds 
+        every time."
+    		::= { tplinkBandWidthNotifications 2}
+
+    		
+      tpIngressRateExceed NOTIFICATION-TYPE 
+			OBJECTS 
+			{
+				tpRateLimitPort,
+				tpRateLimitIngressRate
+			}
+           	STATUS          current
+    		DESCRIPTION 
+    			"An ingressRateExceed notification is sent when the value
+        of ingress rate set of port is exceeded.                        
+        
+        		Note that if you need this notification, the value of ingress 
+        rate of port must be set.The transmission of ingressRateExceed 
+        notifications are throttled by the agent three sesonds every time."
+    		::= { tplinkBandWidthNotifications 3}
+
+      tpEgressRateExceed NOTIFICATION-TYPE 
+			OBJECTS 
+			{
+				tpRateLimitPort,
+				tpRateLimitEgressRate
+			}
+           	STATUS          current
+    		DESCRIPTION 
+    			"An egressRateExceed notification is sent when the value
+         of egress rate set of port is exceeded.                        
+        
+        		Note that if you need this notification, the value of egress 
+         rate of port must be set.The transmission of egressRateExceed 
+         notifications are throttled by the agent three sesonds every time."
+    		::= { tplinkBandWidthNotifications 4}      
+END
+

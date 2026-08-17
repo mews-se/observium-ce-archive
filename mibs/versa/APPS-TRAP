@@ -1,0 +1,72 @@
+--
+-- @Description: MIB for APPS Traps
+-- @Date       : 2015-01-09
+--
+
+APPS-TRAP DEFINITIONS ::= BEGIN
+IMPORTS
+    MODULE-IDENTITY, OBJECT-TYPE, NOTIFICATION-TYPE,
+    IpAddress
+        FROM SNMPv2-SMI
+    alarmClass, alarmIndex, alarmType, alarmDevice, alarmObject,
+    alarmSpecificProblem, alarmEventType, alarmProbableCause,
+    alarmTime, alarmSeverity, alarmHasClear, alarmText
+        FROM TRAPS-COMMON
+    systemNotification
+        FROM VERSA-MIB;
+
+apptrapMIB MODULE-IDENTITY
+    LAST-UPDATED "201501090000Z"
+    ORGANIZATION "Versa Networks"
+    CONTACT-INFO "
+        2953 Bunker Hill Lane, Suite 210
+        Santa Clara, CA - 95035 (USA)
+        Email: support@versa-networks.com"
+    DESCRIPTION  "Versa Networks' Enterprise MIB for
+                  Application Up/Down Traps"
+    ::= { systemNotification 4 }
+
+-- Var binds
+
+appEntities OBJECT IDENTIFIER ::= { apptrapMIB 1 }
+appNotification OBJECT IDENTIFIER ::= { apptrapMIB 2 }
+
+appHostName OBJECT-TYPE
+    SYNTAX      OCTET STRING
+    MAX-ACCESS  accessible-for-notify
+    STATUS      current
+    DESCRIPTION "VCSN Host Name"
+        ::= { appEntities 1 }
+
+appName OBJECT-TYPE
+    SYNTAX      OCTET STRING
+    MAX-ACCESS  accessible-for-notify
+    STATUS      current
+    DESCRIPTION "Versa Application Name"
+        ::= { appEntities 2 }
+
+-- Traps
+
+appRunning NOTIFICATION-TYPE
+    OBJECTS {
+        alarmType,            alarmDevice,        alarmSpecificProblem,
+        alarmClass,           alarmProbableCause, alarmTime,
+        alarmSeverity,        alarmHasClear,      alarmText,
+        appHostName,          appName
+    }
+    STATUS  deprecated
+    DESCRIPTION "An application came back up (state = Running)"
+        ::= { appNotification 1 }
+
+appStopped NOTIFICATION-TYPE
+    OBJECTS {
+        alarmType,            alarmDevice,        alarmSpecificProblem,
+        alarmClass,           alarmProbableCause, alarmTime,
+        alarmSeverity,        alarmHasClear,      alarmText,
+        appHostName,          appName
+    }
+    STATUS  current
+    DESCRIPTION "An application went down (state = Stopped)"
+        ::= { appNotification 2 }
+
+END

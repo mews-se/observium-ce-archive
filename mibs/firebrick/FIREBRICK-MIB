@@ -1,0 +1,49 @@
+FIREBRICK-MIB DEFINITIONS ::= BEGIN
+
+IMPORTS
+    MODULE-IDENTITY,
+    OBJECT-TYPE,
+    Counter32,
+    Integer32
+    enterprises
+            FROM SNMPv2-SMI
+    ;
+
+firebrick MODULE-IDENTITY
+        LAST-UPDATED    "202210081200Z"
+        ORGANIZATION    "Observium Limited"
+        CONTACT-INFO
+                "Adam Armstrong
+                Email: adama@observium.org"
+        DESCRIPTION
+                "Unofficial Firebrick MIB. For Observium use only."
+        ::= { enterprises 24693 }
+
+fbSensorObjects         OBJECT IDENTIFIER ::= { firebrick 1 }
+firebrickNewStyle       OBJECT IDENTIFIER ::= { firebrick 100 }
+
+fbSensorVoltage OBJECT-TYPE
+    SYNTAX      INTEGER
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+        "Firebrick voltage sensors. Reported in thousandths of a volt."
+    ::= { fbSensorObjects 1 }
+
+fbSensorTemperature OBJECT-TYPE
+    SYNTAX      INTEGER
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+        "Firebrick temperature sensors. Reported in thousandths of a degree celsius."
+    ::= { fbSensorObjects 2 }
+
+fbSensorFanspeed OBJECT-TYPE
+    SYNTAX      INTEGER
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+        "Firebrick fanspeed sensors. Reported in RPM."
+    ::= { fbSensorObjects 3 }
+
+END

@@ -1,0 +1,1240 @@
+DC-MASTER-TC DEFINITIONS ::= BEGIN
+   IMPORTS
+       MODULE-IDENTITY, Unsigned32,
+       Integer32                        FROM SNMPv2-SMI
+       TEXTUAL-CONVENTION               FROM SNMPv2-TC;
+
+  dcMasterTc MODULE-IDENTITY
+      LAST-UPDATED "201103180000Z" -- Fri Mar 18 00:00:00 GMT 2011
+      ORGANIZATION "Data Connection Ltd."
+      CONTACT-INFO
+                   "Postal: Data Connection Ltd.
+                            100 Church Street
+                            Enfield
+                            Middlesex EN2 6BQ
+                            United Kingdom
+                    Tel:    +44 20 83661177
+                    E-mail: info@dataconnection.com"
+      DESCRIPTION  "The set of common Textual Conventions for use in all DCL
+                    MIBs."
+
+  ::= { iso
+        member-body(2)
+        gb(826)
+        national(0)
+        eng-ltd(1)
+        dataConnectionLtd(1578918)
+        adg(5)
+        global(41) 1}
+
+-- Common Textual Conventions
+
+AdminStatus ::= TEXTUAL-CONVENTION
+    STATUS      current
+    DESCRIPTION
+       "The desired administrative state of a MIB row."
+    SYNTAX      INTEGER {
+                  adminStatusUp(1),
+                  adminStatusDown(2)
+                }
+
+OperStatus ::= TEXTUAL-CONVENTION
+    STATUS      current
+    DESCRIPTION
+            "The current operational state of a MIB row.  This set of values
+            is used by many Data Connection products written before 2006."
+    SYNTAX      INTEGER {
+                  operStatusUp(1),          -- active
+                  operStatusDown(2),        -- inactive
+                  operStatusGoingUp(3),     -- activating
+                  operStatusGoingDown(4),   -- deactivating
+                  operStatusActFailed(5)    -- activation failed
+                }
+
+BaseOperStatus ::= TEXTUAL-CONVENTION
+    STATUS      current
+    DESCRIPTION
+            "The current operational state of a MIB row.  This is a complete
+            set of values used by all Data Connection products."
+    SYNTAX      INTEGER {
+                  operStatusUp(1),          -- active
+                  operStatusDown(2),        -- inactive
+                  operStatusGoingUp(3),     -- activating
+                  operStatusGoingDown(4),   -- deactivating
+                  operStatusActFailed(5),   -- activation failed
+                  operStatusQuiescing(6),   -- quiescing, allowing row use to
+                                            --   cease
+                  operStatusNotReady(7),    -- not ready to activate
+                  operStatusFailed(8),      -- failed, will recover when
+                                            --   possible
+                  operStatusPrntFailed(9),  -- a parent or grandparent has
+                                            --   failed
+                  operStatusFailedPerm(10), -- operator intervention required
+                  operStatusFailing(11)     -- failure in progress
+                }
+
+NpgOperStatus ::= TEXTUAL-CONVENTION
+    STATUS      current
+    DESCRIPTION
+            "The current operational state of a MIB row.  This set of values
+            has been used by the Data Connection Networking Protocols Group
+            since 2006."
+    SYNTAX      INTEGER {
+                  operStatusUp(1),          -- active
+                  operStatusDown(2),        -- inactive
+                  operStatusGoingUp(3),     -- activating
+                  operStatusGoingDown(4),   -- deactivating
+                  operStatusActFailed(5),   -- activation failed
+                  operStatusFailed(8),      -- failed, will recover when
+                                            --   possible
+                  operStatusFailedPerm(10), -- operator intervention required
+                  operStatusFailing(11)     -- failure in progress
+                }
+
+Tristate ::= TEXTUAL-CONVENTION
+  STATUS       current
+  DESCRIPTION
+     "Represents a tristate value."
+  SYNTAX       INTEGER { true(1), false(2), none(3) }
+
+Unsigned32NonZero ::= TEXTUAL-CONVENTION
+  STATUS       current
+  DESCRIPTION
+     "A non-zero Unsigned32."
+  SYNTAX       Unsigned32 (1..'FFFFFFFF'h)
+
+NumericIndex ::= TEXTUAL-CONVENTION
+  STATUS      current
+  DESCRIPTION "A numeric index value or identifier."
+  SYNTAX      Integer32 (1..'7FFFFFFF'h)
+
+NumericIndexOrZero ::= TEXTUAL-CONVENTION
+  STATUS      current
+  DESCRIPTION "Either a numeric index value or identifier, or the value zero
+               with a special meaning defined by the object description.  Do
+               not use this TC for MIB table index objects.  Zero is not valid
+               for such objects."
+  SYNTAX      Integer32 (0..'7FFFFFFF'h)
+
+EntityIndex ::= TEXTUAL-CONVENTION
+  STATUS      current
+  DESCRIPTION "The HAF entity index value identifying a DC software entity.
+              This TC is deprecated.  Use NumericIndex for all indexes."
+  SYNTAX      Integer32 (1..2147483647)
+
+EntityIndexOrZero ::= TEXTUAL-CONVENTION
+  STATUS      current
+  DESCRIPTION "The HAF entity index value identifying a DC software entity, or
+               zero which is used to indicate that the entity is not present.
+               This TC is deprecated.  Use NumericIndexOrZero for all
+               references to indexes."
+  SYNTAX      Integer32 (0..2147483647)
+
+AuthUserDataString ::= TEXTUAL-CONVENTION
+  STATUS      current
+  DESCRIPTION "A string of user data that will be passed to the a0auth
+               interface."
+  SYNTAX      OCTET STRING (SIZE (0..22))
+
+-- Begin Versa change {
+AuthUserDataString512 ::= TEXTUAL-CONVENTION
+  STATUS      current
+  DESCRIPTION "A string of user data that will be passed to the a0auth
+               interface."
+   SYNTAX      OCTET STRING (SIZE (0..512))
+-- End Versa change }
+StdAccessListListIndex ::= TEXTUAL-CONVENTION
+  STATUS      current
+  DESCRIPTION "An arbitrary index value identifying a standard access
+              list."
+  SYNTAX      Integer32 (1..2147483647)
+
+StdAccessListListIndexOrZero ::= TEXTUAL-CONVENTION
+  STATUS      current
+  DESCRIPTION "An arbitrary index value identifying a standard access
+              list or zero for no access list."
+  SYNTAX      Integer32 (0..2147483647)
+
+StdAccessListRuleIndex ::= TEXTUAL-CONVENTION
+  STATUS      current
+  DESCRIPTION "An index value identifying a particular rule within a
+              standard access list.  Rules are tested in order of
+              increasing rule index."
+  SYNTAX      Unsigned32 (1..4294967295)
+
+ExtAccessListListIndex ::= TEXTUAL-CONVENTION
+  STATUS      current
+  DESCRIPTION "An arbitrary index value identifying an extended access
+              list."
+  SYNTAX      Integer32 (1..2147483647)
+
+ExtAccessListListIndexOrZero ::= TEXTUAL-CONVENTION
+  STATUS      current
+  DESCRIPTION "An arbitrary index value identifying an extended access
+              list or zero for no access list."
+  SYNTAX      Integer32 (0..2147483647)
+
+ExtAccessListRuleIndex ::= TEXTUAL-CONVENTION
+  STATUS      current
+  DESCRIPTION "An index value identifying a particular rule within an
+              extended access list.  Rules are tested in order of
+              increasing rule index."
+  SYNTAX      Unsigned32 (1..4294967295)
+
+PreAccessListListIndex ::= TEXTUAL-CONVENTION
+  STATUS      current
+  DESCRIPTION "An arbitrary index value identifying an IP prefix access
+              list."
+  SYNTAX      Integer32 (1..2147483647)
+
+PreAccessListListIndexOrZero ::= TEXTUAL-CONVENTION
+  STATUS      current
+  DESCRIPTION "An arbitrary index value identifying an IP prefix access
+              list or zero for no access list."
+  SYNTAX      Integer32 (0..2147483647)
+
+PreAccessListRuleIndex ::= TEXTUAL-CONVENTION
+  STATUS      current
+  DESCRIPTION "An index value identifying a particular rule within an
+              IP prefix access list.  Rules are tested in order of
+              increasing rule index."
+  SYNTAX      Unsigned32 (1..4294967295)
+
+RouteAction ::= TEXTUAL-CONVENTION
+  STATUS       current
+  DESCRIPTION
+       "Action to perform on receipt of a packet which matches the
+        destination for a static route.  This is one of:
+
+         -  forward the packet to the address specified as the
+            next-hop address
+
+         -  handle the packet locally
+
+         -  reject [drop and send ICMP]
+
+         -  discard [drop but do not send ICMP]
+
+         -  forward the packet using a tunnel.
+
+         -  Do a lookup in the next RTM table"
+    SYNTAX    INTEGER {
+                routeActionLocal(1),
+                routeActionForward(2),
+                routeActionReject(3),
+                routeActionDiscard(4),
+                routeActionTunnel(5)
+-- Begin Versa change {
+                ,
+                routeActionNextRtm(6)
+-- End Versa change }
+              }
+
+AdminDistance ::= TEXTUAL-CONVENTION
+  STATUS       current
+  DESCRIPTION
+       "The adminstrative distance used in prioritizing routes from
+        different sources when selecting active routes in DC-RTM.
+        The active route is chosen from those available routes which
+        have the lowest associated administrative distance."
+  SYNTAX       Integer32 (0..255)
+
+PathType ::= TEXTUAL-CONVENTION
+  STATUS       current
+  DESCRIPTION "Protocol-specific path type."
+  SYNTAX      INTEGER {
+              pathTypeNone(0),                     -- None
+              pathTypeOther(65536),                -- Other
+              pathTypeConnected(131072),           -- Connected
+              pathTypeConfiguredLocal(131073),     -- Configured Local
+              pathTypeConfiguredConnected(131074), -- Configured Connected
+              pathTypeStatic(196608),              -- Static
+              pathTypeIcmp(262144),                -- ICMP
+              pathTypeEgp(327680),                 -- Exterior Gateway Protocol
+              pathTypeGgp(393216),                 -- GGP
+              pathTypeHello(458752),               -- FuzzBall HelloSpeak
+              pathTypeRip(524288),                 -- RIP route
+              pathTypeIsisLevel1Int(589824),       -- IS-IS internal level 1
+              pathTypeIsisLevel2Int(589825),       -- IS-IS internal level 2
+              pathTypeIsisLevel1Ext(589826),       -- IS-IS external level 1
+              pathTypeIsisLevel2Ext(589827),       -- IS-IS external level 2
+              pathTypeEsis(655360),                -- ESIS route
+              pathTypeIgrp(720896),                -- IGRP route
+              pathTypeBbnspfigp(786432),           -- BBNSPFIGP route
+              pathTypeOspfIntraArea(851968),       -- OSPF Intra-area route
+              pathTypeOspfInterArea(851969),       -- OSPF Inter-area route
+              pathTypeOspfType1Ext(851970),        -- OSPF exterior type 1
+              pathTypeOspfType2Ext(851971),        -- OSPF exterior type 2
+              pathTypeBgpInt(917504),              -- BGP Internal
+              pathTypeBgpExt(917505),              -- BGP External
+              pathTypeBgpVpn(917506),              -- BGP VPN route
+              pathTypeIdpr(983040),                -- IDPR route
+              pathTypeEigrp(1048576),              -- EIGRP summary route
+              pathTypeEigrpInt(1048577),           -- EIGRP internal route
+              pathTypeEigrpExt(1048578),           -- EIGRP external route
+              pathTypeDvmrp(1114112)               -- DVMRP route
+-- Begin Versa change {
+              ,pathTypeLdp(1245184),               -- LDP route
+              pathTypeLfa(1310720),                -- LFA route
+              pathTypeSummaryAddr(1376256),        -- Summary route
+              pathTypeDhcp(1441792),               -- DHCP route
+              pathTypeSdwan(1507328),              -- SDWAN route
+              pathTypeRa(1572864),                 -- Ra route
+              pathTypeRtm  (1638400),              -- RTM route
+              pathTypeSdwanRoute(1703936)          -- SDWAN route
+
+-- End Versa change }
+              }
+
+EntityProcType ::= TEXTUAL-CONVENTION
+  STATUS       current
+  DESCRIPTION "Control plane entity component type."
+  SYNTAX      INTEGER {
+              entityRgs(52494336),               -- 0x03210000 PCT_RGS
+              entityRsvp(553779200),             -- 0x21020000 PCT_RRI
+              entityLdpSc(587268096),            -- 0x23010000 PCT_RCS
+              entityRtm(1023475712),             -- 0x3D010000 PCT_QCRT
+              entityOspfPm(1040252928),          -- 0x3E010000 PCT_QOPM
+              entityOspfNm(1040318464),          -- 0x3E020000 PCT_QONM
+              entityIsisPm(1057030144),          -- 0x3F010000 PCT_QIPM
+              entityIsisSdc(1057095680),         -- 0x3F020000 PCT_QISC
+              entityBgpRm(1090584576),           -- 0x41010000 PCT_QBRM
+              entityBgpNm(1090650112),           -- 0x41020000 PCT_QBNM
+              entityRipPm(1174470656),           -- 0x46010000 PCT_QRPM
+              entityOspfv3Pm(1241579520),        -- 0x4A010000 PCT_QOP3
+              entityOspfv3Nm(1241645056)         -- 0x4A020000 PCT_QON3
+              }
+
+InetSubAddressType ::= TEXTUAL-CONVENTION
+  STATUS      current
+  DESCRIPTION "A value that represents a subsequent type of Internet address."
+  SYNTAX      INTEGER {
+              none(0),                     -- Subsequent type is unspecified
+              unicast(1),                  -- Unicast
+              multicast(2)                 -- Multicast
+-- Begin Versa change {
+              ,
+              l3vpnUnicast(128),           -- L3VPN Unicast
+              l3vpnMulticast(129),         -- L3VPN Multicast
+              versaPrivate(248),           -- Versa Private
+              l2vpnEvpn(70)                -- l2vpn evpn
+-- End Versa change }
+              }
+
+BfdSessionStatus ::= TEXTUAL-CONVENTION
+  STATUS      current
+  DESCRIPTION "The current BFD session state of a peer."
+  SYNTAX      INTEGER {
+              bfdSessNotRequired(0),    -- not required
+              bfdSessInitial(1),        -- initial
+              bfdSessActivating(2),     -- activating
+              bfdSessActive(3),         -- active
+              bfdSessInactive(4),       -- inactive
+              bfdSessAdminDown(5),      -- admin down
+              bfdSessNoContact(6)       -- no contact
+              }
+
+IgpShortcutMetricType ::= TEXTUAL-CONVENTION
+  STATUS       current
+  DESCRIPTION
+       "Type of metric value.  This is one of:
+
+         -  Absolute, or fixed; the metric value defined is used as
+            a path cost.
+
+         -  Relative; the metric value defined is added to an existing
+            path cost to produce the total cost of a path.
+            Note that, in this case, the metric value defined may be zero,
+            positive or negative."
+    SYNTAX    INTEGER {
+                metricTypeAbsolute(1),
+                metricTypeRelative(2)
+              }
+
+IfOperStatus ::= TEXTUAL-CONVENTION
+  STATUS       current
+  DESCRIPTION
+       "The IfOperStatus as defined in RFC 2863."
+    SYNTAX  INTEGER {
+                up(1),        -- ready to pass packets
+                down(2),
+                testing(3),   -- in some test mode
+                unknown(4),   -- status can not be determined
+                              -- for some reason.
+                dormant(5),
+                notPresent(6),    -- some component is missing
+                lowerLayerDown(7) -- down due to state of
+                                  -- lower-layer interface(s)
+            }
+
+MjStatus ::= TEXTUAL-CONVENTION
+  STATUS      current
+  DESCRIPTION "The status of a Master Join."
+  SYNTAX      INTEGER {
+		mjNotJoined(1),        -- initial state of join / received AHL_MJ_ACT_JOIN_GONE callback
+		mjSentAddJoin(2),      -- sent ATG_FT_ADD_JOIN to System Manager
+		mjSentRegister(3),     -- sent registration signal to slave
+		mjJoinActive(4),       -- join is active
+		mjSentUnregister(5),   -- sent unregistration signal to slave
+		mjSentDelJoin(6),      -- sent ATG_FT_DELETE_JOIN to System Manager
+		mjFailedToAdd(7),      -- AHL_MJ_ADD_JOIN failed
+		mjFailedToRegister(8), -- slave rejected registration message
+		mjFailingOver(9),      -- slave is failing over
+		mjFailed(10),          -- slave has failed
+		mjUnavailable(11)      -- slave is unavailable.
+	      }
+
+SjStatus ::= TEXTUAL-CONVENTION
+  STATUS      current
+  DESCRIPTION "The status of a Slave Join."
+  SYNTAX      INTEGER {
+		sjNotJoined(1),        -- initial state of join / received AHL_SJ_ACT_JOIN_GONE callback
+		sjJoined(2),           -- new join callback succeeded
+		sjRcvdRegister(3),     -- received REGISTER signal from master
+		sjJoinActive(4),       -- join is active
+		sjFailingOver(5),      -- slave is failing over
+		sjFailed(6),           -- slave join has failed
+		sjRcvdUnregister(7),   -- received UNREGISTER signal from master
+		sjUnregDone(8)         -- made AHL_MJ_UNREG_DONE request and sent UNREGISTER response
+	      }
+
+InterfaceScope ::= TEXTUAL-CONVENTION
+  STATUS      current
+  DESCRIPTION "The scope of an interface or interface user.
+
+	       When components request information about interfaces, the
+	       request includes the scope of information that the component
+	       wishes to receive.  Only interfaces with matching scope are
+	       distributed to the component.
+
+	       This is an opaque structure that maps to an ATG_IF_SCOPE_ID.
+	       See the definition of ATG_IF_SCOPE_ID for details."
+  SYNTAX      OCTET STRING (SIZE (0..3))
+
+L2BridgeDomainType ::= TEXTUAL-CONVENTION
+  STATUS      current
+  DESCRIPTION "Types of Bridge Domain."
+  SYNTAX      INTEGER {
+                bridgeDomainNone(0), -- no bridge domain is defined.
+                bridgeDomainVlan(1), -- bridge domain of type VLAN.
+                bridgeDomainVpws(2), -- bridge domain of type VPWS.
+                bridgeDomainVpls(3), -- bridge domain of type VPLS.
+                bridgeDomainEvpn(4)  -- bridge domain of type EVPN.
+              }
+
+VlanSet ::= TEXTUAL-CONVENTION
+  STATUS      current
+  DESCRIPTION "Text string identifying a set of VLANs.  The format of the
+               string is
+
+                 R1[,R2][,R3][,R4]
+
+               where each Rx is either a single VLAN ID or a range of
+               VLANs in the form a-b.
+
+               For example, the following are valid strings
+
+                    10
+                    1,2,3
+                    10,9,8
+                    1,10-20,315,400-450
+                    1, 10 - 20, 315, 400 - 450
+
+               All VLAN identifiers must be in the range 0-4094, where 0
+               is used to mean untagged frames."
+  SYNTAX      OCTET STRING (SIZE (0..127))
+
+IccpRgId ::= TEXTUAL-CONVENTION
+  STATUS       current
+  DESCRIPTION "An identifier for an Inter-Chassis Communication Protocol (ICCP)
+               Redundancy Group (RG), as advertised to connect to other members
+               of the RG."
+  REFERENCE "RFC 7275 section 6.1.1"
+  SYNTAX       Unsigned32 (1..'FFFFFFFF'h)
+
+IccpRgIdOrZero ::= TEXTUAL-CONVENTION
+  STATUS       current
+  DESCRIPTION "An RG ID, or a value of zero, which indicates no RG."
+  REFERENCE "RFC 7275 section 6.1.1"
+  SYNTAX       Unsigned32 (0..'FFFFFFFF'h)
+
+IccpRoid ::= TEXTUAL-CONVENTION
+  DISPLAY-HINT "1x:"
+  STATUS       current
+  DESCRIPTION "A Redundant Object Identifier (ROID) as advertised between
+               members of an RG.
+
+               Each member of the RG must use the same ROID for each object
+               operated on by members of the RG.
+
+               It does not have to be globally unique, only unique within
+               the RG.
+
+               All zeros is not a valid value."
+  REFERENCE "RFC 7275 section 6.1.3"
+  SYNTAX       OCTET STRING (SIZE (8))
+
+IccpRoidOrZero ::= TEXTUAL-CONVENTION
+  DISPLAY-HINT "1x:"
+  STATUS       current
+  DESCRIPTION "A ROID, or a value of all zeros, which indicates no ROID."
+  REFERENCE "RFC 7275 section 6.1.3"
+  SYNTAX       OCTET STRING (SIZE (8))
+
+RgsiRgMbrId ::= TEXTUAL-CONVENTION
+  STATUS       current
+  DESCRIPTION "A proprietary identifier for an RG member.  The identifier is
+               used only by the local device, it is not advertised.  It does
+               not have to be unique on the local device, only unique within
+               the RG."
+  SYNTAX       OCTET STRING (SIZE (4))
+
+RgsiRgLocalConnectionStatus ::= TEXTUAL-CONVENTION
+  STATUS       current
+  DESCRIPTION "The local connection status of the RG, as determined by the RGSI
+               slave and reported to the RGSI master."
+  SYNTAX      INTEGER {
+                down(1),
+                up(2),
+                failed(3)
+              }
+
+IsisAdminTag ::= TEXTUAL-CONVENTION
+  STATUS      current
+  DESCRIPTION "A 32-bit administrative tag used by IS-IS.
+
+               Zero is a reserved value indicating no tag."
+  SYNTAX      Unsigned32 (0..'FFFFFFFF'h)
+
+Unsigned2 ::= TEXTUAL-CONVENTION
+  STATUS      current
+  DESCRIPTION "2-bit unsigned integer"
+  SYNTAX      Unsigned32 (0..3)
+
+Unsigned3 ::= TEXTUAL-CONVENTION
+  STATUS      current
+  DESCRIPTION "3-bit unsigned integer"
+  SYNTAX      Unsigned32 (0..7)
+
+Unsigned4 ::= TEXTUAL-CONVENTION
+  STATUS      current
+  DESCRIPTION "4-bit unsigned integer"
+  SYNTAX      Unsigned32 (0..15)
+
+Unsigned6 ::= TEXTUAL-CONVENTION
+  STATUS      current
+  DESCRIPTION "6-bit unsigned integer"
+  SYNTAX      Unsigned32 (0..63)
+
+Unsigned8 ::= TEXTUAL-CONVENTION
+  STATUS      current
+  DESCRIPTION "8-bit unsigned integer"
+  SYNTAX      Unsigned32 (0..255)
+
+Unsigned16 ::= TEXTUAL-CONVENTION
+  STATUS      current
+  DESCRIPTION "16-bit unsigned integer"
+  SYNTAX      Unsigned32 (0..65535)
+
+PowerPortClass ::= TEXTUAL-CONVENTION
+  STATUS      current
+  DESCRIPTION "This TC describes the Power over Ethernet (PoE) port class."
+  SYNTAX      INTEGER {
+                none(0),
+                pClassPSE(1),
+                pClassPD(2)
+    }
+
+PsePortPowerPairs ::= TEXTUAL-CONVENTION
+  STATUS      current
+  DESCRIPTION "The set of Medium Dependent Interface (MDI) Power Sourcing
+               Equipment (PSE) power pairs for a network interface.  This
+               corresponds to the enumerated values for pethPsePortPowerPairs
+               in RFC 3621, plus a value of zero to indicate that the device
+               is not a PSE.
+
+               The meanings of the values are as follows.
+               -  none(0): the device is not a PSE.
+               -  signal(1): the signal pairs only.
+               -  spare(2): the spare pairs only."
+  SYNTAX      INTEGER   {
+                none(0),
+                signal(1),
+                spare(2)
+     }
+
+PsePortPowerClassifications ::= TEXTUAL-CONVENTION
+  STATUS      current
+  DESCRIPTION "The set of Medium Dependent Interface (MDI) Power Sourcing
+               Equipment (PSE) power classes for a Powered Device (PD).
+               This corresponds to the enumerated values for
+               pethPsePortPowerClassifications in RFC 3621, plus a value of
+               zero to indicate that the device is not powering a PD.
+
+               The meanings of the values are as follows.  The class-to-wattage
+               mapping is defined by 802.3-2012 s33.2.6 and ANSI/TIA-1057
+               s10.2.5.4.
+               -  none(0): the device is not powering a PD.
+               -  class0(1): Class 0.  Minimum PSE output 15.4 Watts,
+                  maximum power at PD 0.44-12.95 Watts.
+               -  class1(2): Class 1.  Minimum PSE output 4.00 Watts,
+                  maximum power at PD 0.44-3.84 Watts.
+               -  class2(3): Class 2.  Minimum PSE output 7.00 Watts,
+                  maximum power at PD 3.84-6.49 Watts.
+               -  class3(4): Class 3.  Minimum PSE output 15.4 Watts,
+                  maximum power at PD 6.49-12.95 Watts.
+               -  class4(5): Class 4.  Power ranges are dependent on any
+                  additional information known (see 802.3-2012 s33.2.7)."
+  SYNTAX      INTEGER   {
+                none(0),
+                class0(1),
+                class1(2),
+                class2(3),
+                class3(4),
+                class4(5)
+     }
+
+PsePowerSource ::= TEXTUAL-CONVENTION
+  STATUS      current
+  DESCRIPTION "The set of Medium Dependent Interface (MDI) Power Sourcing
+               Equipment (PSE) power sources.  This corresponds to the power
+               source values for a PSE, defined in 802.3-2012 s79.3.2.4.
+
+               The meanings of the values are as follows.
+               -  unknown(0): the PSE's power source is unknown (or the device
+                  is not a PSE).
+               -  primary(1): the PSE is being powered by a primary power
+                  source.
+               -  backup(2): the PSE is operating on backup power."
+  SYNTAX      INTEGER   {
+                unknown(0),
+                primary(1),
+                backup(2)
+     }
+
+PdPowerSource ::= TEXTUAL-CONVENTION
+  STATUS      current
+  DESCRIPTION "The set of Medium Dependent Interface (MDI) Powered Device
+               Equipment (PD) power sources.  This corresponds to the power
+               source values for a PD, defined in 802.3-2012 s79.3.2.4 and
+               ANSI/TIA-1057 s10.2.5.2.
+
+               The meanings of the values are as follows.
+               -  unknown(0): the PD's power source is unknown (or the device
+                  is not a PD).
+               -  pse(1): the PD is being powered by a PSE only.
+               -  local(2): the PD is being powered by a local power source
+                  only.
+               -  pseAndLocal(3): the PD is being powered by by a PSE and a
+                  local power source."
+  SYNTAX      INTEGER   {
+                unknown(0),
+                pse(1),
+                local(2),
+                pseAndLocal(3)
+     }
+
+PowerPriority ::= TEXTUAL-CONVENTION
+  STATUS      current
+  DESCRIPTION "The set of Medium Dependent Interface (MDI) power priorities for
+               a Powered Device (PD).  This corresponds to the set of power
+               priorities in 802.3-2012 s79.3.2.4.
+
+               The meanings of the values are as follows.
+               -  unknown(0): the priority is unknown (or the device is not a
+                  power (non-data) entity).
+               -  critical(1): critical priority PD.
+               -  high(2): high priority PD.
+               -  low(3): low priority PD."
+  SYNTAX      INTEGER   {
+                unknown(0),
+                critical(1),
+                high(2),
+                low(3)
+     }
+
+PowerSystemType ::= TEXTUAL-CONVENTION
+  STATUS      current
+  DESCRIPTION "The set of Medium Dependent Interface (MDI) power system
+               types.  This corresponds to the set of power system types in
+               802.3-2012 s33.1.4, plus a value of zero to indicate that
+               the device is not part of a power system.
+
+               The meanings of the values are as follows.
+               -  none(0): the device is not part of a power system.
+               -  type1(1): the power system's parameters correspond to a
+                  Type 1 system.
+               -  type2(2): the power system's parameters correspond to a
+                  Type 2 system."
+  SYNTAX      INTEGER   {
+                none(0),
+                type1(1),
+                type2(2)
+     }
+
+IANAifMauTypeList ::= TEXTUAL-CONVENTION
+  STATUS       current
+  DESCRIPTION
+         "The Medium Attachment Unit (MAU) types.  This corresponds to the
+          dot3MauType object identifier defined in RFC 4836.  In addition, it
+          contains the value of zero, to represent types not listed in the RFC
+          (as per the IEEE usage of the value of zero, for example, in
+          802.1AB-2009 sF2.3).
+
+          The meanings of the values are as follows.
+          -  bOther(0): other or unknown
+          -  bAUI(1): AUI
+          -  b10base5(2): 10BASE-5
+          -  bFoirl(3): FOIRL
+          -  b10base2(4): 10BASE-2
+          -  b10baseT(5): 10BASE-T duplex mode unknown
+          -  b10baseFP(6): 10BASE-FP
+          -  b10baseFB(7): 10BASE-FB
+          -  b10baseFL(8): 10BASE-FL duplex mode unknown
+          -  b10broad36(9): 10BROAD36
+          -  b10baseTHD(10): 10BASE-T  half duplex mode
+          -  b10baseTFD(11): 10BASE-T  full duplex mode
+          -  b10baseFLHD(12): 10BASE-FL half duplex mode
+          -  b10baseFLFD(13): 10BASE-FL full duplex mode
+          -  b100baseT4(14): 100BASE-T4
+          -  b100baseTXHD(15): 100BASE-TX half duplex mode
+          -  b100baseTXFD(16): 100BASE-TX full duplex mode
+          -  b100baseFXHD(17): 100BASE-FX half duplex mode
+          -  b100baseFXFD(18): 100BASE-FX full duplex mode
+          -  b100baseT2HD(19): 100BASE-T2 half duplex mode
+          -  b100baseT2FD(20): 100BASE-T2 full duplex mode
+          -  b1000baseXHD(21): 1000BASE-X half duplex mode
+          -  b1000baseXFD(22): 1000BASE-X full duplex mode
+          -  b1000baseLXHD(23): 1000BASE-LX half duplex mode
+          -  b1000baseLXFD(24): 1000BASE-LX full duplex mode
+          -  b1000baseSXHD(25): 1000BASE-SX half duplex mode
+          -  b1000baseSXFD(26): 1000BASE-SX full duplex mode
+          -  b1000baseCXHD(27): 1000BASE-CX half duplex mode
+          -  b1000baseCXFD(28): 1000BASE-CX full duplex mode
+          -  b1000baseTHD(29): 1000BASE-T half duplex mode
+          -  b1000baseTFD(30): 1000BASE-T full duplex mode
+          -  b10GbaseX(31): 10GBASE-X
+          -  b10GbaseLX4(32): 10GBASE-LX4
+          -  b10GbaseR(33): 10GBASE-R
+          -  b10GbaseER(34): 10GBASE-ER
+          -  b10GbaseLR(35): 10GBASE-LR
+          -  b10GbaseSR(36): 10GBASE-SR
+          -  b10GbaseW(37): 10GBASE-W
+          -  b10GbaseEW(38): 10GBASE-EW
+          -  b10GbaseLW(39): 10GBASE-LW
+          -  b10GbaseSW(40): 10GBASE-SW
+          -  b10GbaseCX4(41): 10GBASE-CX4
+          -  b2BaseTL(42): 2BASE-TL
+          -  b10PassTS(43): 10PASS-TS
+          -  b100BaseBX10D(44): 100BASE-BX10D
+          -  b100BaseBX10U(45): 100BASE-BX10U
+          -  b100BaseLX10(46): 100BASE-LX10
+          -  b1000BaseBX10D(47): 1000BASE-BX10D
+          -  b1000BaseBX10U(48): 1000BASE-BX10U
+          -  b1000BaseLX10(49): 1000BASE-LX10
+          -  b1000BasePX10D(50): 1000BASE-PX10D
+          -  b1000BasePX10U(51): 1000BASE-PX10U
+          -  b1000BasePX20D(52): 1000BASE-PX20D
+          -  b1000BasePX20U(53): 1000BASE-PX20U."
+  SYNTAX       INTEGER {
+              bOther(0),
+              bAUI(1),
+              b10base5(2),
+              bFoirl(3),
+              b10base2(4),
+              b10baseT(5),
+              b10baseFP(6),
+              b10baseFB(7),
+              b10baseFL(8),
+              b10broad36(9),
+              b10baseTHD(10),
+              b10baseTFD(11),
+              b10baseFLHD(12),
+              b10baseFLFD(13),
+              b100baseT4(14),
+              b100baseTXHD(15),
+              b100baseTXFD(16),
+              b100baseFXHD(17),
+              b100baseFXFD(18),
+              b100baseT2HD(19),
+              b100baseT2FD(20),
+              b1000baseXHD(21),
+              b1000baseXFD(22),
+              b1000baseLXHD(23),
+              b1000baseLXFD(24),
+              b1000baseSXHD(25),
+              b1000baseSXFD(26),
+              b1000baseCXHD(27),
+              b1000baseCXFD(28),
+              b1000baseTHD(29),
+              b1000baseTFD(30),
+              b10GbaseX(31),
+              b10GbaseLX4(32),
+              b10GbaseR(33),
+              b10GbaseER(34),
+              b10GbaseLR(35),
+              b10GbaseSR(36),
+              b10GbaseW(37),
+              b10GbaseEW(38),
+              b10GbaseLW(39),
+              b10GbaseSW(40),
+              b10GbaseCX4(41),
+              b2BaseTL(42),
+              b10PassTS(43),
+              b100BaseBX10D(44),
+              b100BaseBX10U(45),
+              b100BaseLX10(46),
+              b1000BaseBX10D(47),
+              b1000BaseBX10U(48),
+              b1000BaseLX10(49),
+              b1000BasePX10D(50),
+              b1000BasePX10U(51),
+              b1000BasePX20D(52),
+              b1000BasePX20U(53)
+         }
+
+DhcpAltitudeType ::= TEXTUAL-CONVENTION
+  STATUS      current
+  DESCRIPTION "The set of altitude types for Coordinate-based Location
+               Information (LCI).  This corresponds to the set of Altitude Type
+               (AT) values defined in RFC 6225 s4.2 (which obsoletes RFC 3825
+               s2.1).
+
+               The meanings of the values are as follows.
+               -  unknown(0): the altitude type or floor is unknown.
+               -  meters(1): meters, and fractions of a meter.
+               -  floors(2): floors of a building, and sub-floors (for example,
+                  a mezzanine)."
+  SYNTAX      INTEGER   {
+                unknown(0),
+                meters(1),
+                floors(2)
+     }
+
+DhcpDatumType ::= TEXTUAL-CONVENTION
+  STATUS      current
+  DESCRIPTION "The set of map data for Coordinate-based Location Information
+               (LCI).  This corresponds to the set of Datum values defined in
+               RFC 6225 s2.1 (which obsoletes RFC 3825 s2.1).
+
+               The meanings of the values are as follows.
+
+               -  reserved(0): the datum type is reserved.
+
+               -  wgs84(1): (Geographical 3D) World Geodetic System 1984, CRS
+                  Code 4327, Prime Meridian Name: Greenwich.
+
+               -  nad83land(2): North American Datum 1983, CRS Code 4269, Prime
+                  Meridian Name: Greenwich; the associated vertical datum is
+                  the North American Vertical Datum of 1988 (NAVD88).  This
+                  datum pair is to be used when referencing locations on land,
+                  not near tidal water.
+
+               -  nad83water(3): North American Datum 1983, CRS Code 4269,
+                  Prime Meridian Name: Greenwich; the associated vertical datum
+                  is Mean Lower Low Water (MLLW).  This datum pair is to be
+                  used when referencing locations on water/sea/ocean."
+  SYNTAX      INTEGER   {
+                reserved(0),
+                wgs84(1),
+                nad83land(2),
+                nad83water(3)
+     }
+
+DhcpGeoLatitude ::= TEXTUAL-CONVENTION
+  STATUS      current
+  DESCRIPTION "A 34-bit fixed-point latitude value, consisting of 9 bits of
+               integer and 25 bits of fraction, as defined by RFC 6225 s2.  The
+               leading 6 pad bits are always set to zero."
+  SYNTAX      OCTET STRING (SIZE (0..5))
+
+DhcpGeoLongitude ::= TEXTUAL-CONVENTION
+  STATUS      current
+  DESCRIPTION "A 34-bit fixed-point longitude value, consisting of 9 bits of
+               integer and 25 bits of fraction, as defined by RFC 6225 s2.  The
+               leading 6 pad bits are always set to zero."
+  SYNTAX      OCTET STRING (SIZE (0..5))
+
+DhcpGeoAltitude ::= TEXTUAL-CONVENTION
+  STATUS      current
+  DESCRIPTION "A 30-bit altitude value, interpreted according to the value of
+               the AType (altitude type), as defined by RFC 6225 s2.  The
+               leading 2 pad bits are always set to zero."
+  SYNTAX      OCTET STRING (SIZE (0..4))
+
+DhcpGeoConfLatLongResolutions ::= TEXTUAL-CONVENTION
+  STATUS      current
+  DESCRIPTION "This group corresponds to the set of possible values for the
+               LaRes (latitude resolution) and LoRes (longitude resolution)
+               fields in a DHCPv4 GeoConf Option, as defined in RFC 6225
+               s2.2.1.
+
+               The conversions below indicate the range of possible
+               coordinate values that is equivalent to a particular
+               resolution, in decimal degrees and also as an approximate
+               distance at the equator.  These values are given to 2
+               significant figures.  The approximate distance conversions
+               use the World Geodetic System 1984 equatorial radius
+               measurement (6 378 137 m)."
+  SYNTAX      INTEGER   {
+                res0bit(0),   -- 0-bit resolution.  The coordinate is not
+                              -- specified.
+                res1bit(1),   -- 1-bit resolution.  Equivalent to 260 degrees,
+                              -- or approximately 28 000 km.
+                res2bit(2),   -- 2-bit resolution.  Equivalent to 130 degrees,
+                              -- or approximately 14 000 km.
+                res3bit(3),   -- 3-bit resolution.  Equivalent to 64 degrees,
+                              -- or approximately 7100 km.
+                res4bit(4),   -- 4-bit resolution.  Equivalent to 32 degrees,
+                              -- or approximately 3600 km.
+                res5bit(5),   -- 5-bit resolution.  Equivalent to 16 degrees,
+                              -- or approximately 1800 km.
+                res6bit(6),   -- 6-bit resolution.  Equivalent to 8.0 degrees,
+                              -- or approximately 890 km.
+                res7bit(7),   -- 7-bit resolution.  Equivalent to 4.0 degrees,
+                              -- or approximately 450 km.
+                res8bit(8),   -- 8-bit resolution.  Equivalent to 2.0 degrees,
+                              -- or approximately 220 km.
+                res9bit(9),   -- 9-bit resolution.  Equivalent to 1.0 degrees,
+                              -- or approximately 110 km.
+                res10bit(10), -- 10-bit resolution.  Equivalent to 0.50
+                              -- degrees, or approximately 56 km.
+                res11bit(11), -- 11-bit resolution.  Equivalent to 0.25
+                              -- degrees, or approximately 28 km.
+                res12bit(12), -- 12-bit resolution.  Equivalent to 0.13
+                              -- degrees, or approximately 14 km.
+                res13bit(13), -- 13-bit resolution.  Equivalent to 0.063
+                              -- degrees, or approximately 7.0 km.
+                res14bit(14), -- 14-bit resolution.  Equivalent to 0.031
+                              -- degrees, or approximately 3.5 km.
+                res15bit(15), -- 15-bit resolution.  Equivalent to 0.016
+                              -- degrees, or approximately 1.7 km.
+                res16bit(16), -- 16-bit resolution.  Equivalent to 0.0078
+                              -- degrees, or approximately 870 m.
+                res17bit(17), -- 17-bit resolution.  Equivalent to 0.0039
+                              -- degrees, or approximately 430 m.
+                res18bit(18), -- 18-bit resolution.  Equivalent to 0.0020
+                              -- degrees, or approximately 220 m.
+                res19bit(19), -- 19-bit resolution.  Equivalent to 0.000 98
+                              -- degrees, or approximately 110 m.
+                res20bit(20), -- 20-bit resolution.  Equivalent to 0.000 49
+                              -- degrees, or approximately 54 m.
+                res21bit(21), -- 21-bit resolution.  Equivalent to 0.000 24
+                              -- degrees, or approximately 27 m.
+                res22bit(22), -- 22-bit resolution.  Equivalent to 0.000 12
+                              -- degrees, or approximately 14 m.
+                res23bit(23), -- 23-bit resolution.  Equivalent to 0.000 061
+                              -- degrees, or approximately 6.8 m.
+                res24bit(24), -- 24-bit resolution.  Equivalent to 0.000 031
+                              -- degrees, or approximately 3.4 m.
+                res25bit(25), -- 25-bit resolution.  Equivalent to 0.000 015
+                              -- degrees, or approximately 1.7 m.
+                res26bit(26), -- 26-bit resolution.  Equivalent to 0.000 007 6
+                              -- degrees, or approximately 850 mm.
+                res27bit(27), -- 27-bit resolution.  Equivalent to 0.000 003 8
+                              -- degrees, or approximately 420 mm.
+                res28bit(28), -- 28-bit resolution.  Equivalent to 0.000 001 9
+                              -- degrees, or approximately 210 mm.
+                res29bit(29), -- 29-bit resolution.  Equivalent to 0.000 000 95
+                              -- degrees, or approximately 110 mm.
+                res30bit(30), -- 30-bit resolution.  Equivalent to 0.000 000 48
+                              -- degrees, or approximately 53 mm.
+                res31bit(31), -- 31-bit resolution.  Equivalent to 0.000 000 24
+                              -- degrees, or approximately 27 mm.
+                res32bit(32), -- 32-bit resolution.  Equivalent to 0.000 000 12
+                              -- degrees, or approximately 13 mm.
+                res33bit(33), -- 33-bit resolution.  Equivalent to
+                              -- 0.000 000 060 degrees, or approximately 6.6
+                              -- mm.
+                res34bit(34)  -- 34-bit resolution.  Equivalent to
+                              -- 0.000 000 030 degrees, or approximately 3.3
+                              -- mm.
+     }
+
+DhcpGeoConfAltitudeResolutions ::= TEXTUAL-CONVENTION
+  STATUS      current
+  DESCRIPTION "This group corresponds to the set of possible values for the
+               AltRes (altitude resolution) field in a DHCPv4 GeoConf
+               Option, as defined in RFC 6225 s2.2.1.
+
+               The conversions below to distances if the AType (altitude
+               type) field indicates 'meters' indicate the range of
+               possible coordinate values that is equivalent to a
+               particular resolution.  These values are given to 2
+               significant figures."
+  SYNTAX      INTEGER   {
+                res0bit(0),   -- 0-bit resolution.  The coordinate is not
+                              -- specified.
+                res1bit(1),   -- 1-bit resolution.  If the altitude type is
+                              -- 'meters', this is equivalent to 2100 km.
+                res2bit(2),   -- 2-bit resolution.  If the altitude type is
+                              -- 'meters', this is equivalent to 1000 km.
+                res3bit(3),   -- 3-bit resolution.  If the altitude type is
+                              -- 'meters', this is equivalent to 520 km.
+                res4bit(4),   -- 4-bit resolution.  If the altitude type is
+                              -- 'meters', this is equivalent to 260 km.
+                res5bit(5),   -- 5-bit resolution.  If the altitude type is
+                              -- 'meters', this is equivalent to 130 km.
+                res6bit(6),   -- 6-bit resolution.  If the altitude type is
+                              -- 'meters', this is equivalent to 66 km.
+                res7bit(7),   -- 7-bit resolution.  If the altitude type is
+                              -- 'meters', this is equivalent to 33 km.
+                res8bit(8),   -- 8-bit resolution.  If the altitude type is
+                              -- 'meters', this is equivalent to 16 km.
+                res9bit(9),   -- 9-bit resolution.  If the altitude type is
+                              -- 'meters', this is equivalent to 8.2 km.
+                res10bit(10), -- 10-bit resolution.  If the altitude type is
+                              -- 'meters', this is equivalent to 4.1 km.
+                res11bit(11), -- 11-bit resolution.  If the altitude type is
+                              -- 'meters', this is equivalent to 2.0 km.
+                res12bit(12), -- 12-bit resolution.  If the altitude type is
+                              -- 'meters', this is equivalent to 1.0 km.
+                res13bit(13), -- 13-bit resolution.  If the altitude type is
+                              -- 'meters', this is equivalent to 510 m.
+                res14bit(14), -- 14-bit resolution.  If the altitude type is
+                              -- 'meters', this is equivalent to 260 m.
+                res15bit(15), -- 15-bit resolution.  If the altitude type is
+                              -- 'meters', this is equivalent to 130 m.
+                res16bit(16), -- 16-bit resolution.  If the altitude type is
+                              -- 'meters', this is equivalent to 64 m.
+                res17bit(17), -- 17-bit resolution.  If the altitude type is
+                              -- 'meters', this is equivalent to 32 m.
+                res18bit(18), -- 18-bit resolution.  If the altitude type is
+                              -- 'meters', this is equivalent to 16 m.
+                res19bit(19), -- 19-bit resolution.  If the altitude type is
+                              -- 'meters', this is equivalent to 8.0 m.
+                res20bit(20), -- 20-bit resolution.  If the altitude type is
+                              -- 'meters', this is equivalent to 4.0 m.
+                res21bit(21), -- 21-bit resolution.  If the altitude type is
+                              -- 'meters', this is equivalent to 2.0 m.
+                res22bit(22), -- 22-bit resolution.  If the altitude type is
+                              -- 'meters', this is equivalent to 1.0 m.
+                res23bit(23), -- 23-bit resolution.  If the altitude type is
+                              -- 'meters', this is equivalent to 500 mm.
+                res24bit(24), -- 24-bit resolution.  If the altitude type is
+                              -- 'meters', this is equivalent to 250 mm.
+                res25bit(25), -- 25-bit resolution.  If the altitude type is
+                              -- 'meters', this is equivalent to 130 mm.
+                res26bit(26), -- 26-bit resolution.  If the altitude type is
+                              -- 'meters', this is equivalent to 63 mm.
+                res27bit(27), -- 27-bit resolution.  If the altitude type is
+                              -- 'meters', this is equivalent to 31 mm.
+                res28bit(28), -- 28-bit resolution.  If the altitude type is
+                              -- 'meters', this is equivalent to 16 mm.
+                res29bit(29), -- 29-bit resolution.  If the altitude type is
+                              -- 'meters', this is equivalent to 7.8 mm.
+                res30bit(30)  -- 30-bit resolution.  If the altitude type is
+                              -- 'meters', this is equivalent to 3.9 mm.
+     }
+
+GeoCoordinateString ::= TEXTUAL-CONVENTION
+  STATUS      current
+  DESCRIPTION "A string specifying a coordinate value in decimal degrees.  The
+               sign indicates the direction relative to the coordinate zero
+               defined by the coordinate system.
+
+               For example, '12' or '-12.34567'."
+  SYNTAX      OCTET STRING (SIZE (0..15))
+
+CivicAddrWhats ::= TEXTUAL-CONVENTION
+  STATUS      current
+  DESCRIPTION "The set of 'what' elements for Civic Address Location
+               Information (LCI).  This corresponds to the set of 'what' values
+               defined in RFC 4776 s3.1.
+
+               The meanings of the values are as follows.
+               -  dhcpServer(0): the DHCP server.
+               -  networkElement(1): the network element believed to be closest
+                  to the client.
+               -  client(2): the client."
+  SYNTAX      INTEGER   {
+                dhcpServer(0),
+                networkElement(1),
+                client(2)
+     }
+
+PortIdSubtype ::= TEXTUAL-CONVENTION
+  STATUS      current
+  DESCRIPTION "This TC describes the source of a particular type of port
+               identifier used in the LLDP MIB.
+
+               The enumeration 'interfaceAlias(1)' represents a port
+               identifier based on the ifAlias MIB object, defined in IETF
+               RFC 2863.
+
+               The enumeration 'portComponent(2)' represents a port
+               identifier based on the value of entPhysicalAlias (defined in
+               IETF RFC 4133) for a port component (i.e., entPhysicalClass
+               value of 'port(10)'), within the containing chassis.
+
+               The enumeration 'macAddress(3)' represents a port identifier
+               based on a unicast source address (encoded in network
+               byte order and IEEE 802.3 canonical bit order), which has
+               been detected by the agent and associated with a particular
+               port (IEEE Std 802).
+
+               The enumeration 'networkAddress(4)' represents a port
+               identifier based on a network address, detected by the agent
+               and associated with a particular port.
+
+               The enumeration 'interfaceName(5)' represents a port
+               identifier based on the ifName MIB object, defined in IETF
+               RFC 2863.
+
+               The enumeration 'agentCircuitId(6)' represents a port
+               identifier based on the agent-local identifier of the circuit
+               (defined in RFC 3046), detected by the agent and associated
+               with a particular port.
+
+               The enumeration 'local(7)' represents a port identifier
+               based on a value locally assigned."
+  SYNTAX  INTEGER {
+          none(0),
+          interfaceAlias(1),
+          portComponent(2),
+          macAddress(3),
+          networkAddress(4),
+          interfaceName(5),
+          agentCircuitId(6),
+          local(7)
+  }
+
+PortId ::= TEXTUAL-CONVENTION
+  DISPLAY-HINT "1x:"
+  STATUS      current
+  DESCRIPTION
+          "This TC describes the format of a port identifier string.
+          Objects of this type are always used with an associated
+          PortIdSubtype object, which identifies the format of the
+          particular PortId object instance.
+
+          If the associated PortIdSubtype object has a value of
+          'none(0)', then the octet string has length zero.
+
+          If the associated PortIdSubtype object has a value of
+          'interfaceAlias(1)', then the octet string identifies a
+          particular instance of the ifAlias object (defined in IETF
+          RFC 2863).  If the particular ifAlias object does not contain
+          any values, another port identifier type should be used.
+
+          If the associated PortIdSubtype object has a value of
+          'portComponent(2)', then the octet string identifies a
+          particular instance of the entPhysicalAlias object (defined
+          in IETF RFC 4133) for a port or backplane component.
+
+          If the associated PortIdSubtype object has a value of
+          'macAddress(3)', then this string identifies a particular
+          unicast source address (encoded in network byte order
+          and IEEE 802.3 canonical bit order) associated with the port
+          (IEEE Std 802).
+
+          If the associated PortIdSubtype object has a value of
+          'networkAddress(4)', then this string identifies a network
+          address associated with the port.  The first octet contains
+          the IANA AddressFamilyNumbers enumeration value for the
+          specific address type, and octets 2 through N contain the
+          networkAddress address value in network byte order.
+
+          If the associated PortIdSubtype object has a value of
+          'interfaceName(5)', then the octet string identifies a
+          particular instance of the ifName object (defined in IETF
+          RFC 2863).  If the particular ifName object does not contain
+          any values, another port identifier type should be used.
+
+          If the associated PortIdSubtype object has a value of
+          'agentCircuitId(6)', then this string identifies a agent-local
+          identifier of the circuit (defined in RFC 3046).
+
+          If the associated PortIdSubtype object has a value of
+          'local(7)', then this string identifies a locally
+          assigned port ID."
+  SYNTAX      OCTET STRING (SIZE (0..255))
+
+VrfName ::= TEXTUAL-CONVENTION
+   DISPLAY-HINT "31a"
+   STATUS        current
+   DESCRIPTION
+       "An identifier that is assigned to a layer 3 Virtual Routing and
+        Forwarding instance."
+   SYNTAX OCTET STRING (SIZE (0..31))
+
+ClockQuality ::= TEXTUAL-CONVENTION
+  STATUS      current
+  DESCRIPTION "The quality of a clock source."
+  SYNTAX      INTEGER {
+                clockQlNone(0),
+                clockQlPrc(1),      -- Primary Reference Clock
+                clockQlSsuA(2),     -- Type I or V slave clock
+                clockQlSsuB(3),     -- Type VI slave clock
+                clockQlSec(4),      -- SDH Equipment Clock
+                clockQlDnu(5),      -- Do not use for synchronization
+                clockQlPrs(6),      -- PRS traceable
+                clockQlStu(7),      -- Synchronized, traceability unknown
+                clockQlSt2(8),      -- Stratum 2
+                clockQlTnc(9),      -- Transit Node Clock
+                clockQlSt3E(10),    -- Stratum 3E
+                clockQlSt3(11),     -- Stratum 3
+                clockQlSmc(12),     -- SONET Clock Self Timed
+                clockQlSt4(13),     -- Stratum 4 Freerun
+                clockQlProv(14),    -- Provisionable by the network
+                                    -- operator
+                clockQlDus(15),     -- Don't use for synchronization
+                clockQlFailed(16),  -- Quality signalling has failed
+                clockQlUnc(17),     -- Internal unconnected signal
+                                    -- generator
+                clockQlNsupp(18),   -- Quality signalling is not
+                                    -- supported
+                clockQlInvalid(19), -- Invalid clock quality
+                clockQlUnknown(20)  -- Clock quality is unknown
+              }
+
+
+ClockSourceType ::= TEXTUAL-CONVENTION
+  STATUS      current
+  DESCRIPTION "The class to which a time source belongs.  Time sources are
+               identified by an unsigned 32-bit integer that is unique
+               within this class."
+  SYNTAX      INTEGER {
+                clockSourceNone(1),
+                clockSourceNetworkIntf(2),
+                clockSourceExternal(3),
+                clockSourceInternal(4)
+              }
+
+MplsGeneralizedLabelType ::= TEXTUAL-CONVENTION
+  STATUS      current
+  DESCRIPTION
+      "The label types that are defined for Generalized MPLS."
+  SYNTAX     INTEGER {
+                 mplsLabel(1),
+                 generalizedLabel(2),
+                 wavebandLabel(3),
+                 labelCtype4(4)
+             }
+
+MplsGeneralizedLabel ::= TEXTUAL-CONVENTION
+  DISPLAY-HINT "255x"
+  STATUS      current
+  DESCRIPTION
+      "This value represents a generalized MPLS Label.
+      The label contents are specific to the label being
+      represented.
+
+      Wherever an MplsGeneralizedLabel is copied to or from
+      a signaling protocol message, it is copied byte for
+      byte as is.  Therefore, if the octet string is
+      intended to represent multibyte values, it encodes
+      those values in network (big-endian) byte order.
+      This interpretation applies in particular to the
+      non-generalized MPLS labels (32 bits) used in ATM, FR
+      and generic MPLS networks."
+  SYNTAX      OCTET STRING (SIZE (0..255))
+
+  LongDisplayString ::= TEXTUAL-CONVENTION
+    DISPLAY-HINT "1024a"
+    STATUS     current
+    DESCRIPTION
+        "A longer generic string then the default DisplayString."
+    SYNTAX OCTET STRING (SIZE (0..1024))
+
+END

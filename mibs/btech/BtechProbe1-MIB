@@ -1,0 +1,555 @@
+-- MIB module for the Bridgetech probe generation 1 modules
+-- Probe v2.0 
+
+BtechProbe1-MIB DEFINITIONS ::= BEGIN
+
+IMPORTS
+   Counter, IpAddress
+      FROM RFC1155-SMI
+   OBJECT-TYPE
+      FROM RFC-1212
+   DisplayString
+      FROM RFC1213-MIB
+   mibBridgetech
+      FROM BtechBase-MIB
+   TRAP-TYPE
+     FROM RFC-1215
+   Uint32, UdpPort, RowStatus
+      FROM BtechTypes-MIB;
+
+-- Added by Observium Developers
+
+probeHardware OBJECT-TYPE
+   SYNTAX          DisplayString
+   ACCESS          read-only
+   STATUS          mandatory
+   DESCRIPTION "Probe Hardware"
+   ::= { mibBridgetech 10 }
+    
+-- Times config has been changed
+
+configChangedCount OBJECT-TYPE
+   SYNTAX          INTEGER
+   ACCESS          read-only
+   STATUS          mandatory
+   DESCRIPTION "Increments by one whenever device configuration changes. Never resets."
+   ::= { mibBridgetech 50 }
+
+-- Temperature measured by CPU
+
+cpuTemperature OBJECT-TYPE
+   SYNTAX          DisplayString
+   ACCESS          read-only
+   STATUS          mandatory
+   DESCRIPTION "Temperature measured inside CPU."
+   ::= { mibBridgetech 60 }
+
+-- Seconds since update
+
+secondsSince1mUpdate OBJECT-TYPE
+   SYNTAX      INTEGER (0..60)
+   ACCESS      read-only
+   STATUS      mandatory
+   DESCRIPTION "Used by clients to avoid reading while probe is updating its .500 parameters each 60 sec."
+   ::= { mibBridgetech 500 }
+
+-- Channel data - updated when secondsSince1mUpdate is 0
+
+channelTable      OBJECT-TYPE
+   SYNTAX         SEQUENCE OF ChannelEntry
+   ACCESS         not-accessible
+   STATUS         mandatory
+   DESCRIPTION    "This table holds channel properties for all channels"
+   ::= { mibBridgetech 510 }
+
+channelEntry      OBJECT-TYPE
+   SYNTAX         ChannelEntry
+   ACCESS         not-accessible
+   STATUS         mandatory
+   DESCRIPTION    "An entry in the channelTable."
+   INDEX          { channelTableIndex }
+   ::= { channelTable 1 }
+
+ChannelEntry ::= SEQUENCE {
+   channelTableIndex INTEGER,
+   channelName          DisplayString,
+   channelIpa           IpAddress,
+   channelPort          UdpPort,
+   channelMapping       DisplayString,
+   channelJoinedSrcAddr IpAddress,
+   channelSrcAddr       DisplayString,
+   channelSrcPort       UdpPort
+}
+
+channelTableIndex OBJECT-TYPE
+   SYNTAX         INTEGER (1..180)
+   ACCESS         read-only
+   STATUS         mandatory
+   DESCRIPTION   "Index corresponding to a specific channel."
+   ::= { channelEntry 1 }
+
+channelName       OBJECT-TYPE
+   SYNTAX         DisplayString
+   ACCESS         read-only
+   STATUS         mandatory
+   DESCRIPTION    "Name of multicast."
+   ::= { channelEntry 2 }
+
+channelIpa        OBJECT-TYPE
+   SYNTAX         IpAddress
+   ACCESS         read-only
+   STATUS         mandatory
+   DESCRIPTION    "Multicast or unicast address."
+   ::= { channelEntry 3 }
+
+channelPort       OBJECT-TYPE
+   SYNTAX         UdpPort
+   ACCESS         read-only
+   STATUS         mandatory
+   DESCRIPTION    "UDP port."
+   ::= { channelEntry 4 }
+
+channelMapping    OBJECT-TYPE
+   SYNTAX         DisplayString
+   ACCESS         read-only
+   STATUS         mandatory
+   DESCRIPTION    "Protocol mapping i.e. how payload is embedded in UDP packets."
+   ::= { channelEntry 5 }
+
+channelJoinedSrcAddr  OBJECT-TYPE
+   SYNTAX         IpAddress
+   ACCESS         read-only
+   STATUS         mandatory
+   DESCRIPTION    "Multicast or unicast source address used when joining."
+   ::= { channelEntry 6 }
+
+channelSrcPort    OBJECT-TYPE
+   SYNTAX         UdpPort
+   ACCESS         read-only
+   STATUS         mandatory
+   DESCRIPTION    "UDP source port as detected in signal."
+   ::= { channelEntry 7 }
+
+channelSrcAddr    OBJECT-TYPE
+   SYNTAX         DisplayString
+   ACCESS         read-only
+   STATUS         mandatory
+   DESCRIPTION    "Multicast or unicast source address as detected in signal. Name if defined."
+   ::= { channelEntry 8 }
+
+-- IAT - formerly MDI-DF - error seconds - updated when secondsSince1mUpdate is 0
+
+iaterrTable       OBJECT-TYPE
+   SYNTAX         SEQUENCE OF IaterrEntry
+   ACCESS         not-accessible
+   STATUS         mandatory
+   DESCRIPTION    "This table holds iaterr seconds for all channels"
+   ::= { mibBridgetech 519 }
+
+iaterrEntry       OBJECT-TYPE
+   SYNTAX         IaterrEntry
+   ACCESS         not-accessible
+   STATUS         mandatory
+   DESCRIPTION    "An entry in the iaterrTable."
+   INDEX          { iaterrTableIndex }
+   ::= { iaterrTable 1 }
+
+IaterrEntry ::= SEQUENCE {
+   iaterrTableIndex INTEGER,
+   iaterr24h        INTEGER,
+   iaterr20m        INTEGER,
+   iaterr1m         INTEGER
+}
+
+iaterrTableIndex  OBJECT-TYPE
+   SYNTAX         INTEGER (1..180)
+   ACCESS         read-only
+   STATUS         mandatory
+   DESCRIPTION    "Index corresponding to a specific channel."
+   ::= { iaterrEntry 1 }
+
+iaterr24h         OBJECT-TYPE
+   SYNTAX         INTEGER
+   ACCESS         read-only
+   STATUS         mandatory
+   DESCRIPTION    "Error-seconds last 24 hours for parameter iaterr."
+   ::= { iaterrEntry 3 }
+
+iaterr20m         OBJECT-TYPE
+   SYNTAX         INTEGER
+   ACCESS         read-only
+   STATUS         mandatory
+   DESCRIPTION    "Error-seconds last 20 minutes for parameter iaterr."
+   ::= { iaterrEntry 5 }
+
+iaterr1m          OBJECT-TYPE
+   SYNTAX         INTEGER
+   ACCESS         read-only
+   STATUS         mandatory
+   DESCRIPTION    "Error-seconds last minute for parameter iaterr."
+   ::= { iaterrEntry 7 }
+
+-- MLR - error seconds - updated when secondsSince1mUpdate is 0
+
+mlrerrTable       OBJECT-TYPE
+   SYNTAX         SEQUENCE OF MlrerrEntry
+   ACCESS         not-accessible
+   STATUS         mandatory
+   DESCRIPTION    "This table holds mlrerr seconds for all channels"
+   ::= { mibBridgetech 520 }
+
+mlrerrEntry       OBJECT-TYPE
+   SYNTAX         MlrerrEntry
+   ACCESS         not-accessible
+   STATUS         mandatory
+   DESCRIPTION    "An entry in the mlrerrTable."
+   INDEX          { mlrerrTableIndex }
+   ::= { mlrerrTable 1 }
+
+MlrerrEntry ::= SEQUENCE {
+   mlrerrTableIndex INTEGER,
+   mlrerr24h       INTEGER,
+   mlrerr20m       INTEGER,
+   mlrerr1m        INTEGER
+}
+
+mlrerrTableIndex  OBJECT-TYPE
+   SYNTAX         INTEGER (1..180)
+   ACCESS         read-only
+   STATUS         mandatory
+   DESCRIPTION    "Index corresponding to a specific channel."
+   ::= { mlrerrEntry 1 }
+
+mlrerr24h         OBJECT-TYPE
+   SYNTAX         INTEGER
+   ACCESS         read-only
+   STATUS         mandatory
+   DESCRIPTION    "Error-seconds last 24 hours for parameter mlrerr."
+   ::= { mlrerrEntry 3 }
+
+mlrerr20m         OBJECT-TYPE
+   SYNTAX         INTEGER
+   ACCESS         read-only
+   STATUS         mandatory
+   DESCRIPTION    "Error-seconds last 20 minutes for parameter mlrerr."
+   ::= { mlrerrEntry 5 }
+
+mlrerr1m          OBJECT-TYPE
+   SYNTAX         INTEGER
+   ACCESS         read-only
+   STATUS         mandatory
+   DESCRIPTION    "Error-seconds last minute for parameter mlrerr."
+   ::= { mlrerrEntry 7 }
+
+
+-- RTPdrops - error seconds - updated when secondsSince1mUpdate is 0
+
+rtpdropsTable     OBJECT-TYPE
+   SYNTAX         SEQUENCE OF RtpdropsEntry
+   ACCESS         not-accessible
+   STATUS         mandatory
+   DESCRIPTION    "This table holds rtpdrops seconds for all channels"
+   ::= { mibBridgetech 530 }
+
+rtpdropsEntry     OBJECT-TYPE
+   SYNTAX         RtpdropsEntry
+   ACCESS         not-accessible
+   STATUS         mandatory
+   DESCRIPTION    "An entry in the rtpdropsTable."
+   INDEX          { rtpdropsTableIndex }
+   ::= { rtpdropsTable 1 }
+
+RtpdropsEntry ::= SEQUENCE {
+   rtpdropsTableIndex INTEGER,
+   rtpdrops24h    INTEGER,
+   rtpdrops20m    INTEGER,
+   rtpdrops1m     INTEGER
+}
+
+rtpdropsTableIndex OBJECT-TYPE
+   SYNTAX         INTEGER (1..180)
+   ACCESS         read-only
+   STATUS         mandatory
+   DESCRIPTION    "Index corresponding to a specific channel."
+   ::= { rtpdropsEntry 1 }
+
+rtpdrops24h       OBJECT-TYPE
+   SYNTAX         INTEGER
+   ACCESS         read-only
+   STATUS         mandatory
+   DESCRIPTION    "Error-seconds last 24 hours for parameter rtpdrops."
+   ::= { rtpdropsEntry 3 }
+
+rtpdrops20m       OBJECT-TYPE
+   SYNTAX         INTEGER
+   ACCESS         read-only
+   STATUS         mandatory
+   DESCRIPTION    "Error-seconds last 20 minutes for parameter rtpdrops."
+   ::= { rtpdropsEntry 5 }
+
+rtpdrops1m        OBJECT-TYPE
+   SYNTAX         INTEGER
+   ACCESS         read-only
+   STATUS         mandatory
+   DESCRIPTION    "Error-seconds last minute for parameter rtpdrops."
+   ::= { rtpdropsEntry 7 }
+
+-- BitrOverflow - error seconds - updated when secondsSince1mUpdate is 0
+
+bitrovflTable     OBJECT-TYPE
+   SYNTAX         SEQUENCE OF BitrovflEntry
+   ACCESS         not-accessible
+   STATUS         mandatory
+   DESCRIPTION    "This table holds bitrovfl seconds for all channels"
+   ::= { mibBridgetech 540 }
+
+bitrovflEntry     OBJECT-TYPE
+   SYNTAX         BitrovflEntry
+   ACCESS         not-accessible
+   STATUS         mandatory
+   DESCRIPTION    "An entry in the bitrovflTable."
+   INDEX          { bitrovflTableIndex }
+   ::= { bitrovflTable 1 }
+
+BitrovflEntry ::= SEQUENCE {
+   bitrovflTableIndex INTEGER,
+   bitrovfl24h    INTEGER,
+   bitrovfl20m    INTEGER,
+   bitrovfl1m     INTEGER
+}
+
+bitrovflTableIndex  OBJECT-TYPE
+   SYNTAX         INTEGER (1..180)
+   ACCESS         read-only
+   STATUS         mandatory
+   DESCRIPTION    "Index corresponding to a specific channel."
+   ::= { bitrovflEntry 1 }
+
+bitrovfl24h       OBJECT-TYPE
+   SYNTAX         INTEGER
+   ACCESS         read-only
+   STATUS         mandatory
+   DESCRIPTION    "Error-seconds last 24 hours for parameter bitrovfl."
+   ::= { bitrovflEntry 3 }
+
+bitrovfl20m       OBJECT-TYPE
+   SYNTAX         INTEGER
+   ACCESS         read-only
+   STATUS         mandatory
+   DESCRIPTION    "Error-seconds last 20 minutes for parameter bitrovfl."
+   ::= { bitrovflEntry 5 }
+
+bitrovfl1m        OBJECT-TYPE
+   SYNTAX         INTEGER
+   ACCESS         read-only
+   STATUS         mandatory
+   DESCRIPTION    "Error-seconds last minute for parameter bitrovfl."
+   ::= { bitrovflEntry 7 }
+
+-- NoSignal - error seconds - updated when secondsSince1mUpdate is 0
+
+nosigTable        OBJECT-TYPE
+   SYNTAX         SEQUENCE OF NosigEntry
+   ACCESS         not-accessible
+   STATUS         mandatory
+   DESCRIPTION    "This table holds nosig seconds for all channels"
+   ::= { mibBridgetech 550 }
+
+nosigEntry        OBJECT-TYPE
+   SYNTAX         NosigEntry
+   ACCESS         not-accessible
+   STATUS         mandatory
+   DESCRIPTION    "An entry in the nosigTable."
+   INDEX          { nosigTableIndex }
+   ::= { nosigTable 1 }
+
+NosigEntry ::= SEQUENCE {
+   nosigTableIndex INTEGER,
+   nosig24h       INTEGER,
+   nosig20m       INTEGER,
+   nosig1m        INTEGER
+}
+
+nosigTableIndex   OBJECT-TYPE
+   SYNTAX         INTEGER (1..180)
+   ACCESS         read-only
+   STATUS         mandatory
+   DESCRIPTION   "Index corresponding to a specific channel."
+   ::= { nosigEntry 1 }
+
+nosig24h          OBJECT-TYPE
+   SYNTAX         INTEGER
+   ACCESS         read-only
+   STATUS         mandatory
+   DESCRIPTION    "Error-seconds last 24 hours for parameter nosig."
+   ::= { nosigEntry 3 }
+
+nosig20m          OBJECT-TYPE
+   SYNTAX         INTEGER
+   ACCESS         read-only
+   STATUS         mandatory
+   DESCRIPTION    "Error-seconds last 20 minutes for parameter nosig."
+   ::= { nosigEntry 5 }
+
+nosig1m           OBJECT-TYPE
+   SYNTAX         INTEGER
+   ACCESS         read-only
+   STATUS         mandatory
+   DESCRIPTION    "Error-seconds last minute for parameter nosig."
+   ::= { nosigEntry 7 }
+
+
+-- MdiPeak - last minute aggregate MDI per channel
+
+mdiTable          OBJECT-TYPE
+   SYNTAX         SEQUENCE OF MdiEntry
+   ACCESS         not-accessible
+   STATUS         mandatory
+   DESCRIPTION    "This table holds peak IAT and sum MRL for last minute all channels"
+   ::= { mibBridgetech 560 }
+
+mdiEntry          OBJECT-TYPE
+   SYNTAX         MdiEntry
+   ACCESS         not-accessible
+   STATUS         mandatory
+   DESCRIPTION    "An entry in the mdiTable."
+   INDEX          { mdiTableIndex }
+   ::= { mdiTable 1 }
+
+MdiEntry ::= SEQUENCE {
+   mdiTableIndex  INTEGER,
+   iatPeak24h     INTEGER,
+   mlrSum24h      INTEGER,
+   iatPeak20m     INTEGER,
+   mlrSum20m      INTEGER,
+   iatPeak1m      INTEGER,
+   mlrSum1m       INTEGER,
+   mlrSumUsr      INTEGER,
+   iatPeakUsr     INTEGER,
+   clearCounters  INTEGER
+}
+
+mdiTableIndex     OBJECT-TYPE
+   SYNTAX         INTEGER (1..180)
+   ACCESS         read-only
+   STATUS         mandatory
+   DESCRIPTION    "Index corresponding to a specific channel."
+   ::= { mdiEntry 1 }
+
+iatPeak24h         OBJECT-TYPE
+   SYNTAX         INTEGER
+   ACCESS         read-only
+   STATUS         mandatory
+   DESCRIPTION    "Peak IAT for last 24h. Updated when secondsSince1mUpdate is 0."
+   ::= { mdiEntry 4 }
+
+mlrSum24h         OBJECT-TYPE
+   SYNTAX         INTEGER
+   ACCESS         read-only
+   STATUS         mandatory
+   DESCRIPTION    "Sum MLR for the last 24h."
+   ::= { mdiEntry 5 }
+
+iatPeak20m         OBJECT-TYPE
+   SYNTAX         INTEGER
+   ACCESS         read-only
+   STATUS         mandatory
+   DESCRIPTION    "Peak IAT for last 20 minutes. Updated when secondsSince1mUpdate is 0."
+   ::= { mdiEntry 8 }
+
+mlrSum20m         OBJECT-TYPE
+   SYNTAX         INTEGER
+   ACCESS         read-only
+   STATUS         mandatory
+   DESCRIPTION    "Sum MLR for the last 20 minutes. Updated when secondsSince1mUpdate is 0."
+   ::= { mdiEntry 9 }
+
+iatPeak1m          OBJECT-TYPE
+   SYNTAX         INTEGER
+   ACCESS         read-only
+   STATUS         mandatory
+   DESCRIPTION    "Peak IAT for last minute. Updated when secondsSince1mUpdate is 0."
+   ::= { mdiEntry 12 }
+
+mlrSum1m          OBJECT-TYPE
+   SYNTAX         INTEGER
+   ACCESS         read-only
+   STATUS         mandatory
+   DESCRIPTION    "Sum MLR for the last minute. Updated when secondsSince1mUpdate is 0."
+   ::= { mdiEntry 13 }
+
+mlrSumUsr         OBJECT-TYPE
+   SYNTAX         INTEGER
+   ACCESS         read-only
+   STATUS         mandatory
+   DESCRIPTION    "Sum MLR since last clearCounters. Updated immediately."
+   ::= { mdiEntry 14 }
+
+iatPeakUsr         OBJECT-TYPE
+   SYNTAX         INTEGER
+   ACCESS         read-only
+   STATUS         mandatory
+   DESCRIPTION    "Peak IAT since last clearCounters. Updated immediately."
+   ::= { mdiEntry 15 }
+
+clearCounters     OBJECT-TYPE
+   SYNTAX         INTEGER
+   ACCESS         read-write
+   STATUS         mandatory
+   DESCRIPTION    "Write:clear counters. Read:seconds since cleared. Updated immediately."
+   ::= { mdiEntry 16 }
+
+-- Bitrate - last minute max bitrate per channel - updated when secondsSince1mUpdate is 0
+
+bitrTable         OBJECT-TYPE
+   SYNTAX         SEQUENCE OF BitrEntry
+   ACCESS         not-accessible
+   STATUS         mandatory
+   DESCRIPTION    "This table holds peak bitrate for last minut all channels (without NULL PIDs)"
+   ::= { mibBridgetech 570 }
+
+bitrEntry         OBJECT-TYPE
+   SYNTAX         BitrEntry
+   ACCESS         not-accessible
+   STATUS         mandatory
+   DESCRIPTION    "An entry in the bitrTable."
+   INDEX          { bitrTableIndex }
+   ::= { bitrTable 1 }
+
+BitrEntry ::= SEQUENCE {
+   bitrTableIndex   INTEGER,
+   bitrPeak24h      INTEGER,
+   bitrPeak20m      INTEGER,
+   bitrPeak1m       INTEGER
+}
+
+bitrTableIndex    OBJECT-TYPE
+   SYNTAX         INTEGER (1..180)
+   ACCESS         read-only
+   STATUS         mandatory
+   DESCRIPTION    "Index corresponding to a specific channel."
+   ::= { bitrEntry 1 }
+
+bitrPeak24h       OBJECT-TYPE
+   SYNTAX         INTEGER
+   ACCESS         read-only
+   STATUS         mandatory
+   DESCRIPTION    "Peak bitrate for last 24 hours (without NULL PIDs)."
+   ::= { bitrEntry 3 }
+
+bitrPeak20m       OBJECT-TYPE
+   SYNTAX         INTEGER
+   ACCESS         read-only
+   STATUS         mandatory
+   DESCRIPTION    "Peak bitrate for last 20 minutes (without NULL PIDs)."
+   ::= { bitrEntry 5 }
+
+bitrPeak1m        OBJECT-TYPE
+   SYNTAX         INTEGER
+   ACCESS         read-only
+   STATUS         mandatory
+   DESCRIPTION    "Peak bitrate for last minute (without NULL PIDs)."
+   ::= { bitrEntry 7 }
+
+END
+

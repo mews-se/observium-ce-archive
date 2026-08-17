@@ -1,0 +1,122 @@
+MIRROR-MIB DEFINITIONS ::= BEGIN
+IMPORTS
+    MODULE-IDENTITY, OBJECT-TYPE,
+    Integer32, Unsigned32, Counter32, Counter64,
+    Gauge32, IpAddress
+        FROM SNMPv2-SMI
+    TEXTUAL-CONVENTION, RowStatus, DateAndTime,
+    TruthValue
+        FROM SNMPv2-TC
+    orgServices
+        FROM VERSA-MIB
+;
+
+mirror MODULE-IDENTITY
+    LAST-UPDATED "201807050000Z"
+    ORGANIZATION "Versa Networks"
+    CONTACT-INFO "
+        2953 Bunker Hill Lane, Suite 210
+        Santa Clara, CA - 95035 (USA)
+        Email: support@versa-networks.com"
+    DESCRIPTION "Enterprise MIB for Versa Networks'
+Traffic Mirroring"
+    REVISION "201807050000Z"
+    DESCRIPTION "Initial revision"
+    ::= { orgServices 15 }
+
+ConfdString ::= TEXTUAL-CONVENTION
+    DISPLAY-HINT "1t"
+    STATUS      current
+    DESCRIPTION "xs: and confd: types mapped to strings"
+    SYNTAX      OCTET STRING
+
+String ::= TEXTUAL-CONVENTION
+    DISPLAY-HINT "1t"
+    STATUS      current
+    DESCRIPTION "xs:string"
+    SYNTAX      OCTET STRING
+
+trafficMirroringTable OBJECT-TYPE
+    SYNTAX      SEQUENCE OF TrafficMirroringEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "Display statistics of the traffic mirroring rules"
+    ::= { mirror 1 }
+
+trafficMirroringEntry OBJECT-TYPE
+    SYNTAX      TrafficMirroringEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION ""
+    INDEX { trafficMirroringOrgId, trafficMirroringPolicyId, trafficMirroringRuleOrder, trafficMirroringRuleId }
+        ::= { trafficMirroringTable 1 }
+
+TrafficMirroringEntry ::=
+    SEQUENCE {
+        trafficMirroringOrgId Unsigned32,
+        trafficMirroringPolicyId Unsigned32,
+        trafficMirroringRuleOrder Unsigned32,
+        trafficMirroringRuleId Unsigned32,
+        trafficMirroringOrgName String,
+        trafficMirroringPolicyName String,
+        trafficMirroringRuleName String,
+        trafficMirroringHitCount ConfdString
+    }
+
+trafficMirroringOrgId OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "Organization Id"
+    ::= { trafficMirroringEntry 1 }
+
+trafficMirroringPolicyId OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "Policy Id"
+    ::= { trafficMirroringEntry 2 }
+
+trafficMirroringRuleOrder OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "rule-order"
+    ::= { trafficMirroringEntry 3 }
+
+trafficMirroringRuleId OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "Policy rule id"
+    ::= { trafficMirroringEntry 4 }
+
+trafficMirroringOrgName OBJECT-TYPE
+    SYNTAX      String
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Name of the Organization"
+    ::= { trafficMirroringEntry 5 }
+
+trafficMirroringPolicyName OBJECT-TYPE
+    SYNTAX      String
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Name of the policy"
+    ::= { trafficMirroringEntry 6 }
+
+trafficMirroringRuleName OBJECT-TYPE
+    SYNTAX      String
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "rule name"
+    ::= { trafficMirroringEntry 7 }
+
+trafficMirroringHitCount OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Hit count"
+    ::= { trafficMirroringEntry 8 }
+
+END

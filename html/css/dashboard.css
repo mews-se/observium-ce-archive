@@ -1,0 +1,55 @@
+.grid-stack > .grid-stack-item > .grid-stack-item-content {
+  overflow-x: visible;
+  overflow-y: visible;
+}
+
+.grid-stack > .grid-stack-item > .grid-stack-item-content:hover {
+  overflow-x: visible;
+  overflow-y: visible;
+}
+
+.grid-stack > .grid-stack-item:hover .hover-hide {
+  display: none;
+}
+
+.grid-stack > .grid-stack-item .hover-show {
+  display: none;
+}
+
+.grid-stack > .grid-stack-item:hover .hover-show {
+  display: block;
+}
+
+.grid-stack > .grid-stack-item h4 {
+  margin: 3px 6px;
+}
+
+.grid-stack tr {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Fix Z-index breaking dropdowns inside widgets*/
+.grid-stack > .grid-stack-item > .grid-stack-item-content {
+  z-index: unset !important;
+}
+
+/*
+.box-content::-webkit-scrollbar-track {
+  background-color: #F5F5F5;
+}
+
+.box-content::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+  background-color: #c5c5c5;
+}
+
+.box-content::-webkit-scrollbar-thumb {
+  border-radius: 10px;
+  background-color: #d5d5d5;
+  border: 2px solid #F5F5F5;
+}
+*/
+

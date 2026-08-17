@@ -1,0 +1,314 @@
+VERSA-RTDS-MIB DEFINITIONS ::= BEGIN
+
+  -- PRODUCT-SHORT-NAME RTDS
+
+  IMPORTS
+    MODULE-IDENTITY,
+    OBJECT-TYPE,
+    Unsigned32
+      FROM SNMPv2-SMI
+
+    MODULE-COMPLIANCE,
+    OBJECT-GROUP
+      FROM SNMPv2-CONF
+
+    TEXTUAL-CONVENTION,
+    RowStatus
+      FROM SNMPv2-TC
+
+    MjStatus,
+    AdminStatus,
+    OperStatus,
+    BaseOperStatus
+      FROM DC-MASTER-TC;
+
+-- The Mib Identifier for the set of MIBs defined in this asn1 file.
+
+  rtdsMib MODULE-IDENTITY
+    LAST-UPDATED "201407160000Z" -- Wed Jul 16 00:00:00 GMT 2014
+    ORGANIZATION "Metaswitch Networks"
+    CONTACT-INFO
+                 "Postal: Metaswitch Networks
+                          100 Church Street
+                          Enfield
+                          EN2 6BQ
+                          United Kingdom
+                  Tel:    +44 20 8366 1177
+                  E-mail: info@metaswitch.com"
+    DESCRIPTION  "VERSA-RTDS MIB."
+    ::= { iso
+          member-body (2)
+          gb (826)
+          national (0)
+          eng-ltd(1)
+          dataConnectionLtd (1578918)
+          adg (5)
+          rtds (119) 1 }
+
+-- Top level components of this MIB module.
+
+  rtdsObjects OBJECT IDENTIFIER ::= { rtdsMib 1 } -- RTDS tables
+  rtdsConformance OBJECT IDENTIFIER ::= { rtdsMib 2 }
+
+-------------------------------------------------------------------------------
+
+--
+-- Textual conventions
+--
+
+  RtdsMjIfId ::= TEXTUAL-CONVENTION
+    STATUS      current
+    DESCRIPTION "The type of interface to which a join applies."
+    SYNTAX      INTEGER {
+                  ifAtgBfdi(1518338048),     -- Interface IF_ATG_BFDI
+                  ifAtgI3(696844288)         -- Interface IF_ATG_I3
+                }
+
+-------------------------------------------------------------------------------
+
+--
+-- VERSA-RTDS Entity Table.
+--
+-- This is the top-level MIB for VERSA-RTDS.  It controls creation and global
+-- configuration of VERSA-RTDS.
+--
+
+  rtdsEntTable OBJECT-TYPE
+  -- FAMILY-SHORT-NAME RTDS_ENT
+    SYNTAX      SEQUENCE OF RtdsEntEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "Each entry in this table represents a VERSA-RTDS entity."
+    ::= { rtdsObjects 1 }
+
+  rtdsEntEntry OBJECT-TYPE
+    SYNTAX      RtdsEntEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "Each entry represents a VERSA-RTDS entity."
+    INDEX { rtdsEntEntityIndex }
+    ::= { rtdsEntTable 1 }
+
+  RtdsEntEntry ::= SEQUENCE {
+      rtdsEntEntityIndex             Unsigned32,
+      rtdsEntRowStatus               RowStatus,
+      rtdsEntAdminStatus             AdminStatus,
+      rtdsEntOperStatus              BaseOperStatus
+    }
+
+  rtdsEntEntityIndex OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "Identifies a VERSA-RTDS entity."
+    ::= { rtdsEntEntry 1 }
+
+  rtdsEntRowStatus OBJECT-TYPE
+    SYNTAX      RowStatus
+    MAX-ACCESS  read-create
+    STATUS      current
+    DESCRIPTION "The row status for this VERSA-RTDS Entity Table entry, used to
+                 create and destroy table entries."
+    ::= { rtdsEntEntry 2 }
+
+  rtdsEntAdminStatus OBJECT-TYPE
+    SYNTAX      AdminStatus
+    MAX-ACCESS  read-create
+    STATUS      current
+    DESCRIPTION "The administrative status of this VERSA-RTDS entity, used to
+                 activate and deactivate VERSA-RTDS."
+    DEFVAL      { adminStatusUp }
+    ::= { rtdsEntEntry 3 }
+
+  rtdsEntOperStatus OBJECT-TYPE
+    SYNTAX      BaseOperStatus
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "The current operational status of this VERSA-RTDS entity."
+    ::= { rtdsEntEntry 4 }
+
+-------------------------------------------------------------------------------
+
+--
+-- VERSA-RTDS Master Join Table.
+--
+-- This table controls which entities VERSA-RTDS should join to as
+-- master.  Each join is represented by a row in this table.  The status of
+-- each join is represented by a read-only object within each row.
+--
+
+  rtdsMjTable OBJECT-TYPE
+  -- FAMILY-SHORT-NAME RTDS_MJ
+    SYNTAX      SEQUENCE OF RtdsMjEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "This table controls which entities VERSA-RTDS should join to
+                 as master.  Each join is represented by a row
+                 in this table.  The status of each join is represented
+                 by a read-only object within each row."
+    ::= { rtdsObjects 2 }
+
+  rtdsMjEntry OBJECT-TYPE
+    SYNTAX      RtdsMjEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "Represents a join for which VERSA-RTDS master."
+    INDEX { rtdsMjEntityIndex,
+            rtdsMjInterfaceId,
+            rtdsMjPartnerType,
+            rtdsMjPartnerIndex,
+            rtdsMjSubIndex }
+    ::= { rtdsMjTable 1 }
+
+  RtdsMjEntry ::= SEQUENCE {
+      rtdsMjEntityIndex              Unsigned32,
+      rtdsMjInterfaceId              RtdsMjIfId,
+      rtdsMjPartnerType              Unsigned32,
+      rtdsMjPartnerIndex             Unsigned32,
+      rtdsMjSubIndex                 Unsigned32,
+      rtdsMjRowStatus                RowStatus,
+      rtdsMjAdminStatus              AdminStatus,
+      rtdsMjOperStatus               OperStatus,
+      rtdsMjJoinStatus               MjStatus
+    }
+
+  rtdsMjEntityIndex OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "Identifies a VERSA-RTDS entity."
+    ::= { rtdsMjEntry 1 }
+
+  rtdsMjInterfaceId OBJECT-TYPE
+    SYNTAX      RtdsMjIfId
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "Identifies the interface required of this master join."
+    ::= { rtdsMjEntry 2 }
+
+  rtdsMjPartnerType OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "Identifies the type of slave entity to join to.  This
+                 can be used to distinguish between different entity types
+                 both of who can provide the same interace.  This index is used
+                 in the join user data, to enable FTI-specific code within
+                 System Manager to select a suitable slave entity."
+    ::= { rtdsMjEntry 3 }
+
+  rtdsMjPartnerIndex OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "Identifies the specific slave entity to join with.  This
+                 index is used in the join user data, to enable FTI-specific
+                 code within System Manager to select a suitable slave entity."
+    ::= { rtdsMjEntry 4 }
+
+  rtdsMjSubIndex OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "Permits multiple joins between the same pair of
+                 entities."
+    ::= { rtdsMjEntry 5 }
+
+  rtdsMjRowStatus OBJECT-TYPE
+    SYNTAX      RowStatus
+    MAX-ACCESS  read-create
+    STATUS      current
+    DESCRIPTION "The row status for this VERSA-RTDS Master Join Table
+                 entry, used to create and destroy table entries."
+    ::= { rtdsMjEntry 6 }
+
+  rtdsMjAdminStatus OBJECT-TYPE
+    SYNTAX      AdminStatus
+    MAX-ACCESS  read-create
+    STATUS      current
+    DESCRIPTION "The administrative status of this master join, used
+                 to start and stop the join."
+    DEFVAL      { adminStatusUp }
+    ::= { rtdsMjEntry 7 }
+
+  rtdsMjOperStatus OBJECT-TYPE
+    SYNTAX      OperStatus
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "The current operational status of this master join."
+    ::= { rtdsMjEntry 8 }
+
+  rtdsMjJoinStatus OBJECT-TYPE
+    SYNTAX      MjStatus
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "The status of the master join."
+    ::= { rtdsMjEntry 9 }
+
+-------------------------------------------------------------------------------
+
+------------------------------------------------------------------
+-- Module Conformance Statement
+------------------------------------------------------------------
+
+rtdsGroups
+    OBJECT IDENTIFIER ::= { rtdsConformance 1 }
+
+rtdsCompliances
+    OBJECT IDENTIFIER ::= { rtdsConformance 2 }
+
+--
+-- Full Compliance
+--
+
+rtdsModuleFullCompliance MODULE-COMPLIANCE
+    STATUS current
+    DESCRIPTION
+        "The Module is implemented with support
+        for read-create.  In other
+        words, both monitoring and configuration
+        are available when using this MODULE-COMPLIANCE."
+
+    MODULE -- this module
+        MANDATORY-GROUPS    { rtdsGeneralGroup
+                            }
+
+    ::= { rtdsCompliances 1 }
+
+--
+-- Read-Only Compliance
+--
+
+rtdsModuleReadOnlyCompliance MODULE-COMPLIANCE
+    STATUS current
+    DESCRIPTION
+        "The Module is implemented with support
+        for read-only.  In other words, only monitoring
+        is available by implementing this MODULE-COMPLIANCE."
+
+    MODULE -- this module
+        MANDATORY-GROUPS    { rtdsGeneralGroup
+                            }
+
+    ::= { rtdsCompliances 2 }
+-- units of conformance
+
+rtdsGeneralGroup OBJECT-GROUP
+    OBJECTS {
+    rtdsEntRowStatus,
+    rtdsEntAdminStatus,
+    rtdsEntOperStatus,
+    rtdsMjRowStatus,
+    rtdsMjAdminStatus,
+    rtdsMjOperStatus,
+    rtdsMjJoinStatus
+    }
+    STATUS current
+    DESCRIPTION
+        "Objects that apply to all RTDS MIB implementations."
+
+    ::= { rtdsGroups 1 }
+
+-------------------------------------------------------------------------------
+
+END

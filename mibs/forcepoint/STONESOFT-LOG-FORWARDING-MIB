@@ -1,0 +1,268 @@
+STONESOFT-LOG-FORWARDING-MIB DEFINITIONS ::= BEGIN
+
+IMPORTS
+        MODULE-IDENTITY, OBJECT-TYPE, NOTIFICATION-TYPE, OBJECT-IDENTITY,
+        Unsigned32
+                FROM SNMPv2-SMI
+        InetAddress, InetAddressType
+                FROM INET-ADDRESS-MIB
+        DisplayString, DateAndTime
+                FROM SNMPv2-TC
+        OBJECT-GROUP, NOTIFICATION-GROUP, MODULE-COMPLIANCE
+                FROM SNMPv2-CONF
+        stonesoftModules, stonesoftLogForwarding
+                FROM STONESOFT-SMI-MIB;
+
+
+stonesoftLogForwardingMibModule MODULE-IDENTITY
+        LAST-UPDATED	"201808090000Z"
+        ORGANIZATION	"Forcepoint LLC"
+        CONTACT-INFO	"email: mib.stonesoft@forcepoint.com"
+        DESCRIPTION	"MIB for forwarding log events as SNMP traps"
+        REVISION	"201808090000Z"
+        DESCRIPTION	"Company information update"
+        REVISION	"201305300900Z"
+        DESCRIPTION	"Added missing MAX-ACCESS clauses"
+        REVISION	"201304170800Z"
+        DESCRIPTION	"Added power supply failure notification"
+        REVISION	"201212201000Z"
+        DESCRIPTION	"First public revision"
+        ::= { stonesoftModules 5 }
+
+--
+-- Sub-tree registrations
+--
+logNotificationParameters OBJECT-IDENTITY
+        STATUS          current
+        DESCRIPTION     "Sub-tree for parameters in forwarded log notifications"
+        ::= { stonesoftLogForwarding 1 }
+
+logNotifications OBJECT-IDENTITY
+        STATUS          current
+        DESCRIPTION     "Sub-tree for log notifications"
+        ::=  { stonesoftLogForwarding 2 }
+
+logNotificationsV2 OBJECT-IDENTITY
+        STATUS          current
+        DESCRIPTION     "Sub-tree for log notifications for SMIv1 compatibility"
+        ::= { logNotifications 0 }
+
+logForwardingGroups OBJECT-IDENTITY
+        STATUS          current
+        DESCRIPTION     "Sub-tree for object and notification groups"
+        ::=  { stonesoftLogForwarding 3 }
+
+logForwardingCompliance OBJECT-IDENTITY
+        STATUS          current
+        DESCRIPTION     "Sub-tree for log forwarder compliance"
+        ::=  { stonesoftLogForwarding 4 }
+
+
+
+--
+-- Log notification parameters
+-- These correspond to log fields in a log entry
+--
+logOriginatorAddressType OBJECT-TYPE
+        SYNTAX          InetAddressType
+        MAX-ACCESS      accessible-for-notify
+        STATUS          current
+        DESCRIPTION     "Address type (IPv4 or IPv6) of the log originator"
+        ::= { logNotificationParameters 1 }
+
+logOriginatorAddress OBJECT-TYPE
+        SYNTAX          InetAddress
+        MAX-ACCESS      accessible-for-notify
+        STATUS          current
+        DESCRIPTION     "Address of the log originator (e.g. Security Engine)"
+        ::= { logNotificationParameters 2 }
+
+logSituationId OBJECT-TYPE
+        SYNTAX          Unsigned32
+        MAX-ACCESS      accessible-for-notify
+        STATUS          current
+        DESCRIPTION     "Situation identifier number"
+        ::= { logNotificationParameters 3 }
+
+logCreationTime OBJECT-TYPE
+        SYNTAX          DateAndTime
+        MAX-ACCESS      accessible-for-notify
+        STATUS          current
+        DESCRIPTION     "Date and time when the log entry was created"
+        ::= { logNotificationParameters 4 }
+
+logInformationMessage OBJECT-TYPE
+        SYNTAX          DisplayString
+        MAX-ACCESS      accessible-for-notify
+        STATUS          current
+        DESCRIPTION     "Information message describing the log event"
+        ::= { logNotificationParameters 5 }
+
+logInterfaceNumber OBJECT-TYPE
+        SYNTAX          Unsigned32
+        MAX-ACCESS      accessible-for-notify
+        STATUS          current
+        DESCRIPTION     "Interface number"
+        ::= { logNotificationParameters 6 }
+
+
+--
+-- Log notifications
+--
+logLinkDown NOTIFICATION-TYPE
+        OBJECTS         { logOriginatorAddressType, logOriginatorAddress,
+                          logSituationId, logCreationTime,
+                          logInformationMessage,
+                          logInterfaceNumber }
+        STATUS          current
+        DESCRIPTION     "Log event indicating network link has gone down"
+        ::= { logNotificationsV2 1 }
+
+logLinkUp NOTIFICATION-TYPE
+        OBJECTS         { logOriginatorAddressType, logOriginatorAddress,
+                          logSituationId, logCreationTime,
+                          logInformationMessage,
+                          logInterfaceNumber }
+        STATUS          current
+        DESCRIPTION     "Log event indicating network link has gone up"
+        ::= { logNotificationsV2 2 }
+
+logNodeOnline NOTIFICATION-TYPE
+        OBJECTS         { logOriginatorAddressType, logOriginatorAddress,
+                          logSituationId, logCreationTime,
+                          logInformationMessage }
+        STATUS          current
+        DESCRIPTION     "Log event indicating node has gone online"
+        ::= { logNotificationsV2 3 }
+
+logNodeOffline NOTIFICATION-TYPE
+        OBJECTS         { logOriginatorAddressType, logOriginatorAddress,
+                          logSituationId, logCreationTime,
+                          logInformationMessage }
+        STATUS          current
+        DESCRIPTION     "Log event indicating node has gone offline"
+        ::= { logNotificationsV2 4 }
+
+logUserLogin NOTIFICATION-TYPE
+        OBJECTS         { logOriginatorAddressType, logOriginatorAddress,
+                          logSituationId, logCreationTime,
+                          logInformationMessage }
+        STATUS          current
+        DESCRIPTION     "Log event indicating a user has logged in"
+        ::= { logNotificationsV2 5 }
+
+logUserLogout NOTIFICATION-TYPE
+        OBJECTS         { logOriginatorAddressType, logOriginatorAddress,
+                          logSituationId, logCreationTime,
+                          logInformationMessage }
+        STATUS          current
+        DESCRIPTION     "Log event indicating a user has logged out"
+        ::= { logNotificationsV2 6 }
+
+logPolicyInstall NOTIFICATION-TYPE
+        OBJECTS         { logOriginatorAddressType, logOriginatorAddress,
+                          logSituationId, logCreationTime,
+                          logInformationMessage }
+        STATUS          current
+        DESCRIPTION     "Log event indicating a security policy was installed"
+        ::= { logNotificationsV2 7 }
+
+logHardDriveFailure NOTIFICATION-TYPE
+        OBJECTS         { logOriginatorAddressType, logOriginatorAddress,
+                          logSituationId, logCreationTime,
+                          logInformationMessage }
+        STATUS          current
+        DESCRIPTION     "Log event indicating a hard drive has failed"
+        ::= { logNotificationsV2 8 }
+
+logBypassFailure NOTIFICATION-TYPE
+        OBJECTS         { logOriginatorAddressType, logOriginatorAddress,
+                          logSituationId, logCreationTime,
+                          logInformationMessage }
+        STATUS          current
+        DESCRIPTION     "Log event indicating a bypass interface has failed"
+        ::= { logNotificationsV2 9 }
+
+logTemperatureFailure NOTIFICATION-TYPE
+        OBJECTS         { logOriginatorAddressType, logOriginatorAddress,
+                          logSituationId, logCreationTime,
+                          logInformationMessage }
+        STATUS          current
+        DESCRIPTION     "Log event indicating a temperature failure has
+                         occurred"
+        ::= { logNotificationsV2 10 }
+
+logPolicyInstallFailure NOTIFICATION-TYPE
+        OBJECTS         { logOriginatorAddressType, logOriginatorAddress,
+                          logSituationId, logCreationTime,
+                          logInformationMessage }
+        STATUS          current
+        DESCRIPTION     "Log event indicating that installing a security
+                         policy failed"
+        ::= { logNotificationsV2 11 }
+
+logUserLoginFailure NOTIFICATION-TYPE
+        OBJECTS         { logOriginatorAddressType, logOriginatorAddress,
+                          logSituationId, logCreationTime,
+                          logInformationMessage }
+        STATUS          current
+        DESCRIPTION     "Log event indicating user login attempt failed"
+        ::= { logNotificationsV2 12 }
+
+logPowerSupplyFailure NOTIFICATION-TYPE
+        OBJECTS         { logOriginatorAddressType, logOriginatorAddress,
+                          logSituationId, logCreationTime,
+                          logInformationMessage }
+        STATUS          current
+        DESCRIPTION     "Log event indicating a power supply failure has
+                         occurred"
+        ::= { logNotificationsV2 13 }
+
+
+--
+-- Object groups
+--
+
+logParameterGroup OBJECT-GROUP
+        OBJECTS         { logOriginatorAddress, logOriginatorAddressType,
+                          logSituationId, logCreationTime,
+                          logInformationMessage,
+                          logInterfaceNumber }
+        STATUS          current
+        DESCRIPTION     "Objects used as log notification parameters"
+        ::= { logForwardingGroups 1 }
+
+logNotificationGroup NOTIFICATION-GROUP
+        NOTIFICATIONS   { logLinkDown, logLinkUp, logNodeOnline,
+                          logNodeOffline,
+                          logUserLogin, logUserLogout, logPolicyInstall,
+                          logHardDriveFailure, logBypassFailure,
+                          logTemperatureFailure,
+                          logPolicyInstallFailure, logUserLoginFailure,
+                          logPowerSupplyFailure }
+        STATUS          current
+        DESCRIPTION     "Notifications used for log forwarding"
+        ::= { logForwardingGroups 2 }
+
+
+--
+-- Compliance statements
+--
+
+logForwardingComplianceV1 MODULE-COMPLIANCE
+        STATUS          current
+        DESCRIPTION     "Compliance statement for log forwarders"
+        MODULE  --this module--
+                MANDATORY-GROUPS { logParameterGroup,
+                                   logNotificationGroup }
+        GROUP logParameterGroup
+        DESCRIPTION
+                "This is a helper object group for including information
+                 in log notifications"
+        GROUP logNotificationGroup
+        DESCRIPTION
+                "This group of notifications should be implemented by a
+                 log forwarding component"
+        ::= { logForwardingCompliance 1 }
+
+END

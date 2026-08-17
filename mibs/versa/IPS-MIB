@@ -1,0 +1,489 @@
+IPS-MIB DEFINITIONS ::= BEGIN
+IMPORTS
+    MODULE-IDENTITY, OBJECT-TYPE,
+    Integer32, Unsigned32, Counter32, Counter64,
+    Gauge32, IpAddress
+        FROM SNMPv2-SMI
+    TEXTUAL-CONVENTION, RowStatus, DateAndTime,
+    TruthValue
+        FROM SNMPv2-TC
+    ngfw
+        FROM VERSA-MIB
+;
+
+ips MODULE-IDENTITY
+    LAST-UPDATED "201511030000Z"
+    ORGANIZATION "Versa Networks"
+    CONTACT-INFO "
+        2953 Bunker Hill Lane, Suite 210
+        Santa Clara, CA - 95035 (USA)
+        Email: support@versa-networks.com"
+    DESCRIPTION "Enterprise MIB for Versa Networks'
+Intrusion prevention systems solution"
+    REVISION "201511030000Z"
+    DESCRIPTION "Initial revision"
+    ::= { ngfw 5 }
+
+UnsignedByte ::= TEXTUAL-CONVENTION
+    DISPLAY-HINT "d"
+    STATUS      current
+    DESCRIPTION "xs:unsignedByte"
+    SYNTAX      Unsigned32 (0 .. 255)
+
+ConfdString ::= TEXTUAL-CONVENTION
+    DISPLAY-HINT "1t"
+    STATUS      current
+    DESCRIPTION "xs: and confd: types mapped to strings"
+    SYNTAX      OCTET STRING
+
+String ::= TEXTUAL-CONVENTION
+    DISPLAY-HINT "1t"
+    STATUS      current
+    DESCRIPTION "xs:string"
+    SYNTAX      OCTET STRING
+
+ipsProfileTable OBJECT-TYPE
+    SYNTAX      SEQUENCE OF IpsProfileEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "IPS profile statistics"
+    ::= { ips 1 }
+
+ipsProfileEntry OBJECT-TYPE
+    SYNTAX      IpsProfileEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION ""
+    INDEX { ipsProfileOrgId, ipsProfileID }
+        ::= { ipsProfileTable 1 }
+
+IpsProfileEntry ::=
+    SEQUENCE {
+        ipsProfileOrgId Unsigned32,
+        ipsProfileID Unsigned32,
+        ipsProfileOrgName String,
+        ipsProfileName String,
+        ipsProfileSessions ConfdString,
+        ipsProfilePackets ConfdString,
+        ipsProfileStreamEvents ConfdString,
+        ipsProfilePatternMatched ConfdString,
+        ipsProfileRuleProcessed ConfdString,
+        ipsProfileRuleMatched ConfdString,
+        ipsProfilePacketCaptured ConfdString,
+        ipsProfilePacketQueued ConfdString,
+        ipsProfilePacketCaptureFailed ConfdString,
+        ipsProfileRuleLogged ConfdString
+    }
+
+ipsProfileOrgId OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "Organization id"
+    ::= { ipsProfileEntry 1 }
+
+ipsProfileID OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "IPS Profile Id"
+    ::= { ipsProfileEntry 2 }
+
+ipsProfileOrgName OBJECT-TYPE
+    SYNTAX      String
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Organization Name"
+    ::= { ipsProfileEntry 3 }
+
+ipsProfileName OBJECT-TYPE
+    SYNTAX      String
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "IPS Profile Name"
+    ::= { ipsProfileEntry 4 }
+
+ipsProfileSessions OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "No of Sessions."
+    ::= { ipsProfileEntry 5 }
+
+ipsProfilePackets OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "No of packets processed."
+    ::= { ipsProfileEntry 6 }
+
+ipsProfileStreamEvents OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "No of stream packet processed."
+    ::= { ipsProfileEntry 7 }
+
+ipsProfilePatternMatched OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "No of Pattern matched."
+    ::= { ipsProfileEntry 8 }
+
+ipsProfileRuleProcessed OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "No of rules processed."
+    ::= { ipsProfileEntry 9 }
+
+ipsProfileRuleMatched OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "No of rules matched."
+    ::= { ipsProfileEntry 10 }
+
+ipsProfilePacketCaptured OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Number of packets captured"
+    ::= { ipsProfileEntry 11 }
+
+ipsProfilePacketQueued OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Number of packets queued to capture"
+    ::= { ipsProfileEntry 12 }
+
+ipsProfilePacketCaptureFailed OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Number of packets failed to capture"
+    ::= { ipsProfileEntry 13 }
+
+ipsProfileRuleLogged OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "No of rules notified to the alert logs"
+    ::= { ipsProfileEntry 14 }
+
+ipsProfileRuleTable OBJECT-TYPE
+    SYNTAX      SEQUENCE OF IpsProfileRuleEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "IPS profile rule statistics"
+    ::= { ips 2 }
+
+ipsProfileRuleEntry OBJECT-TYPE
+    SYNTAX      IpsProfileRuleEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION ""
+    INDEX { ipsRuleOrgId, ipsRuleProfileID, ipsRuleID }
+        ::= { ipsProfileRuleTable 1 }
+
+IpsProfileRuleEntry ::=
+    SEQUENCE {
+        ipsRuleOrgId Unsigned32,
+        ipsRuleProfileID Unsigned32,
+        ipsRuleID Unsigned32,
+        ipsRuleOrgName String,
+        ipsRuleProfileName String,
+        ipsRuleName String,
+        ipsRuleSignatureHitCount ConfdString,
+        ipsRuleDropCount ConfdString,
+        ipsRuleResetCount ConfdString,
+        ipsRuleAlertCount ConfdString,
+        ipsRulePacketCaptured ConfdString,
+        ipsRulePacketCaptureFailed ConfdString
+    }
+
+ipsRuleOrgId OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "Organization id"
+    ::= { ipsProfileRuleEntry 1 }
+
+ipsRuleProfileID OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "IPS Profile Id"
+    ::= { ipsProfileRuleEntry 2 }
+
+ipsRuleID OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "IPS Profile Rule Id"
+    ::= { ipsProfileRuleEntry 3 }
+
+ipsRuleOrgName OBJECT-TYPE
+    SYNTAX      String
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Organization Name"
+    ::= { ipsProfileRuleEntry 4 }
+
+ipsRuleProfileName OBJECT-TYPE
+    SYNTAX      String
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "IPS Profile Name"
+    ::= { ipsProfileRuleEntry 5 }
+
+ipsRuleName OBJECT-TYPE
+    SYNTAX      String
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "IPS Profile Rule Name"
+    ::= { ipsProfileRuleEntry 6 }
+
+ipsRuleSignatureHitCount OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Signature hit count"
+    ::= { ipsProfileRuleEntry 7 }
+
+ipsRuleDropCount OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Number of signatures hit (with action = drop)"
+    ::= { ipsProfileRuleEntry 8 }
+
+ipsRuleResetCount OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Number of signatures hit (with action = reset)"
+    ::= { ipsProfileRuleEntry 9 }
+
+ipsRuleAlertCount OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Number of signatures hit (with action = alert)"
+    ::= { ipsProfileRuleEntry 10 }
+
+ipsRulePacketCaptured OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Number of packets captured"
+    ::= { ipsProfileRuleEntry 11 }
+
+ipsRulePacketCaptureFailed OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Number of packets failed to capture"
+    ::= { ipsProfileRuleEntry 12 }
+
+ipsThreatExceptionTable OBJECT-TYPE
+    SYNTAX      SEQUENCE OF IpsThreatExceptionEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "IPS threat exception statistics"
+    ::= { ips 3 }
+
+ipsThreatExceptionEntry OBJECT-TYPE
+    SYNTAX      IpsThreatExceptionEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION ""
+    INDEX { ipsThreatExceptionOrgId, ipsThreatExceptionProfileID, ipsThreatExceptionID }
+        ::= { ipsThreatExceptionTable 1 }
+
+IpsThreatExceptionEntry ::=
+    SEQUENCE {
+        ipsThreatExceptionOrgId Unsigned32,
+        ipsThreatExceptionProfileID Unsigned32,
+        ipsThreatExceptionID Unsigned32,
+        ipsThreatExceptionOrgName String,
+        ipsThreatExceptionProfileName String,
+        ipsThreatExceptionSignatureHitCount ConfdString,
+        ipsThreatExceptionDropCount ConfdString,
+        ipsThreatExceptionResetCount ConfdString,
+        ipsThreatExceptionAlertCount ConfdString,
+        ipsThreatExceptionPacketCaptured ConfdString,
+        ipsThreatExceptionPacketCaptureFailed ConfdString
+    }
+
+ipsThreatExceptionOrgId OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "Organization id"
+    ::= { ipsThreatExceptionEntry 1 }
+
+ipsThreatExceptionProfileID OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "IPS Profile Id"
+    ::= { ipsThreatExceptionEntry 2 }
+
+ipsThreatExceptionID OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "IPS profile threat exception id"
+    ::= { ipsThreatExceptionEntry 3 }
+
+ipsThreatExceptionOrgName OBJECT-TYPE
+    SYNTAX      String
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Organization Name"
+    ::= { ipsThreatExceptionEntry 4 }
+
+ipsThreatExceptionProfileName OBJECT-TYPE
+    SYNTAX      String
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "IPS Profile Name"
+    ::= { ipsThreatExceptionEntry 5 }
+
+ipsThreatExceptionSignatureHitCount OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Signature hit count"
+    ::= { ipsThreatExceptionEntry 7 }
+
+ipsThreatExceptionDropCount OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Number of signatures hit (with action = drop)"
+    ::= { ipsThreatExceptionEntry 8 }
+
+ipsThreatExceptionResetCount OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Number of signatures hit (with action = reset)"
+    ::= { ipsThreatExceptionEntry 9 }
+
+ipsThreatExceptionAlertCount OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Number of signatures hit (with action = alert)"
+    ::= { ipsThreatExceptionEntry 10 }
+
+ipsThreatExceptionPacketCaptured OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Number of packets captured"
+    ::= { ipsThreatExceptionEntry 11 }
+
+ipsThreatExceptionPacketCaptureFailed OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Number of packets failed to capture"
+    ::= { ipsThreatExceptionEntry 12 }
+
+ipsSessionTable OBJECT-TYPE
+    SYNTAX      SEQUENCE OF IpsSessionEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "Session counters"
+    ::= { ips 4 }
+
+ipsSessionEntry OBJECT-TYPE
+    SYNTAX      IpsSessionEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION ""
+    INDEX { ipsSessionsOrgId, ipsSessionsProtocolId }
+        ::= { ipsSessionTable 1 }
+
+IpsSessionEntry ::=
+    SEQUENCE {
+        ipsSessionsOrgId Unsigned32,
+        ipsSessionsProtocolId UnsignedByte,
+        ipsSessionsOrgName String,
+        ipsSessionsProtocolName String,
+        ipsSessionsActive ConfdString,
+        ipsSessionsCreated ConfdString,
+        ipsSessionsDropped ConfdString,
+        ipsSessionsClosed ConfdString,
+        ipsSessionsIgnored ConfdString
+    }
+
+ipsSessionsOrgId OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "Organization id"
+    ::= { ipsSessionEntry 1 }
+
+ipsSessionsProtocolId OBJECT-TYPE
+    SYNTAX      UnsignedByte
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "Protocol id"
+    ::= { ipsSessionEntry 2 }
+
+ipsSessionsOrgName OBJECT-TYPE
+    SYNTAX      String
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Organization Name"
+    ::= { ipsSessionEntry 3 }
+
+ipsSessionsProtocolName OBJECT-TYPE
+    SYNTAX      String
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Protocol Name"
+    ::= { ipsSessionEntry 4 }
+
+ipsSessionsActive OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Active sessions"
+    ::= { ipsSessionEntry 5 }
+
+ipsSessionsCreated OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Sessions created"
+    ::= { ipsSessionEntry 6 }
+
+ipsSessionsDropped OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Sessions dropped"
+    ::= { ipsSessionEntry 7 }
+
+ipsSessionsClosed OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Sessions closed"
+    ::= { ipsSessionEntry 8 }
+
+ipsSessionsIgnored OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Sessions ignored"
+    ::= { ipsSessionEntry 9 }
+
+END

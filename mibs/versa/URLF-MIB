@@ -1,0 +1,1632 @@
+URLF-MIB DEFINITIONS ::= BEGIN
+IMPORTS
+    MODULE-IDENTITY, OBJECT-TYPE,
+    Integer32, Unsigned32, Counter32, Counter64,
+    Gauge32, IpAddress
+        FROM SNMPv2-SMI
+    TEXTUAL-CONVENTION, RowStatus, DateAndTime,
+    TruthValue
+        FROM SNMPv2-TC
+    ngfw
+        FROM VERSA-MIB
+;
+
+urlf MODULE-IDENTITY
+    LAST-UPDATED "201607190000Z"
+    ORGANIZATION "Versa Networks"
+    CONTACT-INFO "
+        2953 Bunker Hill Lane, Suite 210
+        Santa Clara, CA - 95035 (USA)
+        Email: support@versa-networks.com"
+    DESCRIPTION "Enterprise MIB for Versa Networks'
+URL filtering solution"
+    REVISION "201607190000Z"
+    DESCRIPTION "Initial revision"
+    ::= { ngfw 6 }
+
+ConfdString ::= TEXTUAL-CONVENTION
+    DISPLAY-HINT "1t"
+    STATUS      current
+    DESCRIPTION "xs: and confd: types mapped to strings"
+    SYNTAX      OCTET STRING
+
+String ::= TEXTUAL-CONVENTION
+    DISPLAY-HINT "1t"
+    STATUS      current
+    DESCRIPTION "xs:string"
+    SYNTAX      OCTET STRING
+
+-- URL reputation statistics
+urlCatTable OBJECT IDENTIFIER ::= { urlf 2 }
+
+-- URL reputation statistics
+urlRepTable OBJECT IDENTIFIER ::= { urlf 3 }
+
+-- URL-filtering profile statistics
+urlFilteringProfileTable OBJECT IDENTIFIER ::= { urlf 5 }
+
+urlfGlobalTable OBJECT-TYPE
+    SYNTAX      SEQUENCE OF UrlfGlobalEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "URLF global statistics"
+    ::= { urlf 1 }
+
+urlfGlobalEntry OBJECT-TYPE
+    SYNTAX      UrlfGlobalEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION ""
+    INDEX { urlfGlobalOrgId }
+        ::= { urlfGlobalTable 1 }
+
+UrlfGlobalEntry ::=
+    SEQUENCE {
+        urlfGlobalOrgId Unsigned32,
+        urlfGlobalOrgName String,
+        urlfGlobalAppEndCnt ConfdString,
+        urlfGlobalAppStartCnt ConfdString,
+        urlfGlobalClookupItcRecvCnt ConfdString,
+        urlfGlobalClookupItcSendCnt ConfdString,
+        urlfGlobalClookupItcSendErrCnt ConfdString,
+        urlfGlobalClookupNoUrlDefsCnt ConfdString,
+        urlfGlobalClookupQuerySendCnt ConfdString,
+        urlfGlobalClookupRespRcvdCnt ConfdString,
+        urlfGlobalClookupRfmMsgAllocErrCnt ConfdString,
+        urlfGlobalClookupRfmMsgRcvdCnt ConfdString,
+        urlfGlobalClookupRfmMsgSendCnt ConfdString,
+        urlfGlobalClookupRfmMsgSendErrCnt ConfdString,
+        urlfGlobalCrespCacheUpdateCnt ConfdString,
+        urlfGlobalCrespItcRecvCnt ConfdString,
+        urlfGlobalCrespItcRecvNodeErrCnt ConfdString,
+        urlfGlobalCrespItcRecvThrErrCnt ConfdString,
+        urlfGlobalCrespNoUrlDefsCnt ConfdString,
+        urlfGlobalErrMemAllocFailCnt ConfdString,
+        urlfGlobalErrNoScnrCookieCnt ConfdString,
+        urlfGlobalErrPredefLkupFailCnt ConfdString,
+        urlfGlobalErrUserdefLkupFailCnt ConfdString,
+        urlfGlobalHttpUrlCnt ConfdString,
+        urlfGlobalHttpUrlLookupCnt ConfdString,
+        urlfGlobalHttpUrlLookupFailCnt ConfdString,
+        urlfGlobalHttpUrlRefererLookupCnt ConfdString,
+        urlfGlobalHttpsAttrRcvdAfterLkupCnt ConfdString,
+        urlfGlobalHttpsCommonNameCnt ConfdString,
+        urlfGlobalHttpsServerNameCnt ConfdString,
+        urlfGlobalHttpsSslEndCnt ConfdString,
+        urlfGlobalHttpsSubjectAltNameCnt ConfdString,
+        urlfGlobalHttpsUnknownAttrCnt ConfdString,
+        urlfGlobalHttpsUrlCnt ConfdString,
+        urlfGlobalHttpsUrlLookupCnt ConfdString,
+        urlfGlobalHttpsUrlLookupFailCnt ConfdString,
+        urlfGlobalItcProcInvalidMsgCnt ConfdString,
+        urlfGlobalItcProcInvalidMsgCtCnt ConfdString,
+        urlfGlobalItcProcInvalidMsgWtCnt ConfdString,
+        urlfGlobalItcProcMsgCtCnt ConfdString,
+        urlfGlobalItcProcMsgWtCnt ConfdString,
+        urlfGlobalItcUnexpMsgCtCnt ConfdString,
+        urlfGlobalItcUnexpMsgWtCnt ConfdString,
+        urlfGlobalPredefCatMatchCnt ConfdString,
+        urlfGlobalPredefRepMatchCnt ConfdString,
+        urlfGlobalProfileCheckCnt ConfdString,
+        urlfGlobalProfileLookupCnt ConfdString,
+        urlfGlobalUnknownAttrCnt ConfdString,
+        urlfGlobalUserDefCatMatchCnt ConfdString,
+        urlfGlobalUserDefRepMatchCnt ConfdString,
+        urlfGlobalZeroMatchCnt ConfdString
+    }
+
+urlfGlobalOrgId OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "Organization id"
+    ::= { urlfGlobalEntry 1 }
+
+urlfGlobalOrgName OBJECT-TYPE
+    SYNTAX      String
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Organization Name"
+    ::= { urlfGlobalEntry 2 }
+
+urlfGlobalAppEndCnt OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total number of app end count."
+    ::= { urlfGlobalEntry 3 }
+
+urlfGlobalAppStartCnt OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total number of app start count."
+    ::= { urlfGlobalEntry 4 }
+
+urlfGlobalClookupItcRecvCnt OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total number of clookup itc recv count."
+    ::= { urlfGlobalEntry 5 }
+
+urlfGlobalClookupItcSendCnt OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total number of clookup itc send count."
+    ::= { urlfGlobalEntry 6 }
+
+urlfGlobalClookupItcSendErrCnt OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total number of clookup itc send error count."
+    ::= { urlfGlobalEntry 7 }
+
+urlfGlobalClookupNoUrlDefsCnt OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total number of clookup no url defs count."
+    ::= { urlfGlobalEntry 8 }
+
+urlfGlobalClookupQuerySendCnt OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total number of clookup query send count."
+    ::= { urlfGlobalEntry 9 }
+
+urlfGlobalClookupRespRcvdCnt OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total number of clookup resp rcvd count."
+    ::= { urlfGlobalEntry 10 }
+
+urlfGlobalClookupRfmMsgAllocErrCnt OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total number of clookup rfm msg alloc err count."
+    ::= { urlfGlobalEntry 11 }
+
+urlfGlobalClookupRfmMsgRcvdCnt OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total number of clookup rfm msg rcvd count."
+    ::= { urlfGlobalEntry 12 }
+
+urlfGlobalClookupRfmMsgSendCnt OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total number of clookup rfm msg send count."
+    ::= { urlfGlobalEntry 13 }
+
+urlfGlobalClookupRfmMsgSendErrCnt OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total number of clookup rfm msg send err count."
+    ::= { urlfGlobalEntry 14 }
+
+urlfGlobalCrespCacheUpdateCnt OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total number of cresp cache update count."
+    ::= { urlfGlobalEntry 15 }
+
+urlfGlobalCrespItcRecvCnt OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total number of cresp itc recv count."
+    ::= { urlfGlobalEntry 16 }
+
+urlfGlobalCrespItcRecvNodeErrCnt OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total number of cresp itc recv node err count."
+    ::= { urlfGlobalEntry 17 }
+
+urlfGlobalCrespItcRecvThrErrCnt OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total number of cresp itc recv thr err count."
+    ::= { urlfGlobalEntry 18 }
+
+urlfGlobalCrespNoUrlDefsCnt OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total number of cresp no url defs count."
+    ::= { urlfGlobalEntry 19 }
+
+urlfGlobalErrMemAllocFailCnt OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total number of memory alloc failure error count."
+    ::= { urlfGlobalEntry 20 }
+
+urlfGlobalErrNoScnrCookieCnt OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total number of no scanner cookie error count."
+    ::= { urlfGlobalEntry 21 }
+
+urlfGlobalErrPredefLkupFailCnt OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total number of predef lookup fail error count."
+    ::= { urlfGlobalEntry 22 }
+
+urlfGlobalErrUserdefLkupFailCnt OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total number of userdef lookup fail error count."
+    ::= { urlfGlobalEntry 23 }
+
+urlfGlobalHttpUrlCnt OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total number of http URL count."
+    ::= { urlfGlobalEntry 24 }
+
+urlfGlobalHttpUrlLookupCnt OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total number of http URL lookup count."
+    ::= { urlfGlobalEntry 25 }
+
+urlfGlobalHttpUrlLookupFailCnt OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total number of http URL lookup fail count."
+    ::= { urlfGlobalEntry 26 }
+
+urlfGlobalHttpUrlRefererLookupCnt OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total number of http referer lookup count."
+    ::= { urlfGlobalEntry 27 }
+
+urlfGlobalHttpsAttrRcvdAfterLkupCnt OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total number of https attr rcvd after lookup count."
+    ::= { urlfGlobalEntry 28 }
+
+urlfGlobalHttpsCommonNameCnt OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total number of https common name count."
+    ::= { urlfGlobalEntry 29 }
+
+urlfGlobalHttpsServerNameCnt OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total number of https server name count."
+    ::= { urlfGlobalEntry 30 }
+
+urlfGlobalHttpsSslEndCnt OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total number of https ssl end count."
+    ::= { urlfGlobalEntry 31 }
+
+urlfGlobalHttpsSubjectAltNameCnt OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total number of https subject alt name count."
+    ::= { urlfGlobalEntry 32 }
+
+urlfGlobalHttpsUnknownAttrCnt OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total number of https unknown attribute count."
+    ::= { urlfGlobalEntry 33 }
+
+urlfGlobalHttpsUrlCnt OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total number of https url count."
+    ::= { urlfGlobalEntry 34 }
+
+urlfGlobalHttpsUrlLookupCnt OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total number of https url lookup count."
+    ::= { urlfGlobalEntry 35 }
+
+urlfGlobalHttpsUrlLookupFailCnt OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total number of https url lookup fail count."
+    ::= { urlfGlobalEntry 36 }
+
+urlfGlobalItcProcInvalidMsgCnt OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total number of itc proc invalid msg count."
+    ::= { urlfGlobalEntry 37 }
+
+urlfGlobalItcProcInvalidMsgCtCnt OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total number of itc proc invalid msg ct count."
+    ::= { urlfGlobalEntry 38 }
+
+urlfGlobalItcProcInvalidMsgWtCnt OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total number of itc proc invalid msg wt count."
+    ::= { urlfGlobalEntry 39 }
+
+urlfGlobalItcProcMsgCtCnt OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total number of itc proc msg ct count."
+    ::= { urlfGlobalEntry 40 }
+
+urlfGlobalItcProcMsgWtCnt OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total number of itc proc msg wt count."
+    ::= { urlfGlobalEntry 41 }
+
+urlfGlobalItcUnexpMsgCtCnt OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total number of itc proc unexpected msg ct count."
+    ::= { urlfGlobalEntry 42 }
+
+urlfGlobalItcUnexpMsgWtCnt OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total number of itc proc unexpected msg wt count."
+    ::= { urlfGlobalEntry 43 }
+
+urlfGlobalPredefCatMatchCnt OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total number of predef cat match count."
+    ::= { urlfGlobalEntry 44 }
+
+urlfGlobalPredefRepMatchCnt OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total number of predef rep match count."
+    ::= { urlfGlobalEntry 45 }
+
+urlfGlobalProfileCheckCnt OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total number of profile check count."
+    ::= { urlfGlobalEntry 46 }
+
+urlfGlobalProfileLookupCnt OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total number of profile lookup count."
+    ::= { urlfGlobalEntry 47 }
+
+urlfGlobalUnknownAttrCnt OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total number of unknown attr count."
+    ::= { urlfGlobalEntry 48 }
+
+urlfGlobalUserDefCatMatchCnt OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total number of user def cat match count."
+    ::= { urlfGlobalEntry 49 }
+
+urlfGlobalUserDefRepMatchCnt OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total number of user def rep match count."
+    ::= { urlfGlobalEntry 50 }
+
+urlfGlobalZeroMatchCnt OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total number of zero match count."
+    ::= { urlfGlobalEntry 51 }
+
+urlPreCatTable OBJECT-TYPE
+    SYNTAX      SEQUENCE OF UrlPreCatEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "URL Pre-defined Category Statistics"
+    ::= { urlCatTable 1 }
+
+urlPreCatEntry OBJECT-TYPE
+    SYNTAX      UrlPreCatEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION ""
+    INDEX { urlPreCatOrgId, urlPreCatID }
+        ::= { urlPreCatTable 1 }
+
+UrlPreCatEntry ::=
+    SEQUENCE {
+        urlPreCatOrgId Unsigned32,
+        urlPreCatID Unsigned32,
+        urlPreCatOrgName String,
+        urlPreCatName String,
+        urlPreCatTotalSessions ConfdString,
+        urlPreCatTotalTransactions ConfdString,
+        urlPreCatTotalPacketsForward ConfdString,
+        urlPreCatTotalBytesForward ConfdString,
+        urlPreCatTotalPacketsReverse ConfdString,
+        urlPreCatTotalBytesReverse ConfdString
+    }
+
+urlPreCatOrgId OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "Organization id"
+    ::= { urlPreCatEntry 1 }
+
+urlPreCatID OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "URL Id"
+    ::= { urlPreCatEntry 2 }
+
+urlPreCatOrgName OBJECT-TYPE
+    SYNTAX      String
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Organization Name"
+    ::= { urlPreCatEntry 3 }
+
+urlPreCatName OBJECT-TYPE
+    SYNTAX      String
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "URL Category Name"
+    ::= { urlPreCatEntry 4 }
+
+urlPreCatTotalSessions OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total number of sessions."
+    ::= { urlPreCatEntry 5 }
+
+urlPreCatTotalTransactions OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total number of transactions."
+    ::= { urlPreCatEntry 6 }
+
+urlPreCatTotalPacketsForward OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total number of packets forward."
+    ::= { urlPreCatEntry 7 }
+
+urlPreCatTotalBytesForward OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total number of bytes forward."
+    ::= { urlPreCatEntry 8 }
+
+urlPreCatTotalPacketsReverse OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total number of packets reverse."
+    ::= { urlPreCatEntry 9 }
+
+urlPreCatTotalBytesReverse OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total number of bytes reverse."
+    ::= { urlPreCatEntry 10 }
+
+urlUserCatTable OBJECT-TYPE
+    SYNTAX      SEQUENCE OF UrlUserCatEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "URL User-defined Category Statistics"
+    ::= { urlCatTable 2 }
+
+urlUserCatEntry OBJECT-TYPE
+    SYNTAX      UrlUserCatEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION ""
+    INDEX { urlUserCatOrgId, urlUserCatID }
+        ::= { urlUserCatTable 1 }
+
+UrlUserCatEntry ::=
+    SEQUENCE {
+        urlUserCatOrgId Unsigned32,
+        urlUserCatID Unsigned32,
+        urlUserCatOrgName String,
+        urlUserCatName String,
+        urlUserCatTotalSessions ConfdString,
+        urlUserCatTotalTransactions ConfdString,
+        urlUserCatTotalPacketsForward ConfdString,
+        urlUserCatTotalBytesForward ConfdString,
+        urlUserCatTotalPacketsReverse ConfdString,
+        urlUserCatTotalBytesReverse ConfdString
+    }
+
+urlUserCatOrgId OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "Organization id"
+    ::= { urlUserCatEntry 1 }
+
+urlUserCatID OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "URL Id"
+    ::= { urlUserCatEntry 2 }
+
+urlUserCatOrgName OBJECT-TYPE
+    SYNTAX      String
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Organization Name"
+    ::= { urlUserCatEntry 3 }
+
+urlUserCatName OBJECT-TYPE
+    SYNTAX      String
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "URL Category Name"
+    ::= { urlUserCatEntry 4 }
+
+urlUserCatTotalSessions OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total number of sessions."
+    ::= { urlUserCatEntry 5 }
+
+urlUserCatTotalTransactions OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total number of transactions."
+    ::= { urlUserCatEntry 6 }
+
+urlUserCatTotalPacketsForward OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total number of packets forward."
+    ::= { urlUserCatEntry 7 }
+
+urlUserCatTotalBytesForward OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total number of bytes forward."
+    ::= { urlUserCatEntry 8 }
+
+urlUserCatTotalPacketsReverse OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total number of packets reverse."
+    ::= { urlUserCatEntry 9 }
+
+urlUserCatTotalBytesReverse OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total number of bytes reverse."
+    ::= { urlUserCatEntry 10 }
+
+urlPreRepTable OBJECT-TYPE
+    SYNTAX      SEQUENCE OF UrlPreRepEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "URL Pre-defined Reputation Statistics"
+    ::= { urlRepTable 1 }
+
+urlPreRepEntry OBJECT-TYPE
+    SYNTAX      UrlPreRepEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION ""
+    INDEX { urlPreRepOrgId, urlPreRepID }
+        ::= { urlPreRepTable 1 }
+
+UrlPreRepEntry ::=
+    SEQUENCE {
+        urlPreRepOrgId Unsigned32,
+        urlPreRepID Unsigned32,
+        urlPreRepOrgName String,
+        urlPreRepName String,
+        urlPreRepTotalSessions ConfdString,
+        urlPreRepTotalTransactions ConfdString,
+        urlPreRepTotalPacketsForward ConfdString,
+        urlPreRepTotalBytesForward ConfdString,
+        urlPreRepTotalPacketsReverse ConfdString,
+        urlPreRepTotalBytesReverse ConfdString
+    }
+
+urlPreRepOrgId OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "Organization id"
+    ::= { urlPreRepEntry 1 }
+
+urlPreRepID OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "URL Id"
+    ::= { urlPreRepEntry 2 }
+
+urlPreRepOrgName OBJECT-TYPE
+    SYNTAX      String
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Organization Name"
+    ::= { urlPreRepEntry 3 }
+
+urlPreRepName OBJECT-TYPE
+    SYNTAX      String
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "URL Reputation Name"
+    ::= { urlPreRepEntry 4 }
+
+urlPreRepTotalSessions OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total number of sessions."
+    ::= { urlPreRepEntry 5 }
+
+urlPreRepTotalTransactions OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total number of transactions."
+    ::= { urlPreRepEntry 6 }
+
+urlPreRepTotalPacketsForward OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total number of packets forward."
+    ::= { urlPreRepEntry 7 }
+
+urlPreRepTotalBytesForward OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total number of bytes forward."
+    ::= { urlPreRepEntry 8 }
+
+urlPreRepTotalPacketsReverse OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total number of packets reverse."
+    ::= { urlPreRepEntry 9 }
+
+urlPreRepTotalBytesReverse OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total number of bytes reverse."
+    ::= { urlPreRepEntry 10 }
+
+urlUserRepTable OBJECT-TYPE
+    SYNTAX      SEQUENCE OF UrlUserRepEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "URL User-defined Reputation Statistics"
+    ::= { urlRepTable 2 }
+
+urlUserRepEntry OBJECT-TYPE
+    SYNTAX      UrlUserRepEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION ""
+    INDEX { urlUserRepOrgId, urlUserRepID }
+        ::= { urlUserRepTable 1 }
+
+UrlUserRepEntry ::=
+    SEQUENCE {
+        urlUserRepOrgId Unsigned32,
+        urlUserRepID Unsigned32,
+        urlUserRepOrgName String,
+        urlUserRepName String,
+        urlUserRepTotalSessions ConfdString,
+        urlUserRepTotalTransactions ConfdString,
+        urlUserRepTotalPacketsForward ConfdString,
+        urlUserRepTotalBytesForward ConfdString,
+        urlUserRepTotalPacketsReverse ConfdString,
+        urlUserRepTotalBytesReverse ConfdString
+    }
+
+urlUserRepOrgId OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "Organization id"
+    ::= { urlUserRepEntry 1 }
+
+urlUserRepID OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "URL Id"
+    ::= { urlUserRepEntry 2 }
+
+urlUserRepOrgName OBJECT-TYPE
+    SYNTAX      String
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Organization Name"
+    ::= { urlUserRepEntry 3 }
+
+urlUserRepName OBJECT-TYPE
+    SYNTAX      String
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "URL Reputation Name"
+    ::= { urlUserRepEntry 4 }
+
+urlUserRepTotalSessions OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total number of sessions."
+    ::= { urlUserRepEntry 5 }
+
+urlUserRepTotalTransactions OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total number of transactions."
+    ::= { urlUserRepEntry 6 }
+
+urlUserRepTotalPacketsForward OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total number of packets forward."
+    ::= { urlUserRepEntry 7 }
+
+urlUserRepTotalBytesForward OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total number of bytes forward."
+    ::= { urlUserRepEntry 8 }
+
+urlUserRepTotalPacketsReverse OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total number of packets reverse."
+    ::= { urlUserRepEntry 9 }
+
+urlUserRepTotalBytesReverse OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total number of bytes reverse."
+    ::= { urlUserRepEntry 10 }
+
+urlfPredefProfileTable OBJECT-TYPE
+    SYNTAX      SEQUENCE OF UrlfPredefProfileEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "Predefined URLF profile statistics"
+    ::= { urlFilteringProfileTable 1 }
+
+urlfPredefProfileEntry OBJECT-TYPE
+    SYNTAX      UrlfPredefProfileEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION ""
+    INDEX { urlfPredefProfileOrgId, urlfPredefProfileID }
+        ::= { urlfPredefProfileTable 1 }
+
+UrlfPredefProfileEntry ::=
+    SEQUENCE {
+        urlfPredefProfileOrgId Unsigned32,
+        urlfPredefProfileID Unsigned32,
+        urlfPredefProfileOrgName String,
+        urlfPredefProfileName String,
+        urlfPredefProfileTotalHits ConfdString,
+        urlfPredefProfileTotalUrlStringMatches ConfdString,
+        urlfPredefProfileTotalUrlRegexMatches ConfdString,
+        urlfPredefProfileTotalDefaultActions ConfdString,
+        urlfPredefProfileTotalWhitelistActions ConfdString,
+        urlfPredefProfileTotalBlacklistActions ConfdString,
+        urlfPredefProfileTotalCategoryActions ConfdString,
+        urlfPredefProfileTotalUserDefCategoryActions ConfdString,
+        urlfPredefProfileTotalPreDefCategoryActions ConfdString,
+        urlfPredefProfileTotalReputationActions ConfdString,
+        urlfPredefProfileTotalUserDefReputationActions ConfdString,
+        urlfPredefProfileTotalPreDefReputationActions ConfdString,
+        urlfPredefProfileTotalCloudLookups ConfdString,
+        urlfPredefProfileTotalInformActions ConfdString,
+        urlfPredefProfileTotalWarnActions ConfdString,
+        urlfPredefProfileTotalAskActions ConfdString,
+        urlfPredefProfileTotalJustifyActions ConfdString,
+        urlfPredefProfileTotalOverrideActions ConfdString,
+        urlfPredefProfileTotalCPHttpsAllowActions ConfdString,
+        urlfPredefProfileTotalCPHttpsResetActions ConfdString,
+        urlfPredefProfileTotalCPnotReturned ConfdString,
+        urlfPredefProfileTotalAllowActions ConfdString,
+        urlfPredefProfileTotalBlockActions ConfdString,
+        urlfPredefProfileTotalDropActions ConfdString,
+        urlfPredefProfileTotalResetClientServerActions ConfdString,
+        urlfPredefProfileTotalSplitFailure ConfdString,
+        urlfPredefProfileTotalWhitelistReferrerActions ConfdString,
+        urlfPredefProfileTotalBlacklistReferrerActions ConfdString
+    }
+
+urlfPredefProfileOrgId OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "Organization id"
+    ::= { urlfPredefProfileEntry 1 }
+
+urlfPredefProfileID OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "URLF Profile Id"
+    ::= { urlfPredefProfileEntry 2 }
+
+urlfPredefProfileOrgName OBJECT-TYPE
+    SYNTAX      String
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Organization Name"
+    ::= { urlfPredefProfileEntry 3 }
+
+urlfPredefProfileName OBJECT-TYPE
+    SYNTAX      String
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "URLF Profile Name"
+    ::= { urlfPredefProfileEntry 4 }
+
+urlfPredefProfileTotalHits OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total number of hits."
+    ::= { urlfPredefProfileEntry 5 }
+
+urlfPredefProfileTotalUrlStringMatches OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total number of URL string matches."
+    ::= { urlfPredefProfileEntry 6 }
+
+urlfPredefProfileTotalUrlRegexMatches OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total number of URL regex matches."
+    ::= { urlfPredefProfileEntry 7 }
+
+urlfPredefProfileTotalDefaultActions OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total number of default actions."
+    ::= { urlfPredefProfileEntry 8 }
+
+urlfPredefProfileTotalWhitelistActions OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total number of whitelist actions."
+    ::= { urlfPredefProfileEntry 9 }
+
+urlfPredefProfileTotalBlacklistActions OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total number of blacklist actions."
+    ::= { urlfPredefProfileEntry 10 }
+
+urlfPredefProfileTotalCategoryActions OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total number of category actions."
+    ::= { urlfPredefProfileEntry 11 }
+
+urlfPredefProfileTotalUserDefCategoryActions OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total number of user-defined category actions."
+    ::= { urlfPredefProfileEntry 12 }
+
+urlfPredefProfileTotalPreDefCategoryActions OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total number of predefined category actions."
+    ::= { urlfPredefProfileEntry 13 }
+
+urlfPredefProfileTotalReputationActions OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total number of reputation actions."
+    ::= { urlfPredefProfileEntry 14 }
+
+urlfPredefProfileTotalUserDefReputationActions OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total number of user-defined reputation actions."
+    ::= { urlfPredefProfileEntry 15 }
+
+urlfPredefProfileTotalPreDefReputationActions OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total number of predefined reputation actions."
+    ::= { urlfPredefProfileEntry 16 }
+
+urlfPredefProfileTotalCloudLookups OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total number of cloud lookups."
+    ::= { urlfPredefProfileEntry 17 }
+
+urlfPredefProfileTotalInformActions OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total number of inform actions."
+    ::= { urlfPredefProfileEntry 18 }
+
+urlfPredefProfileTotalWarnActions OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total number of warning actions."
+    ::= { urlfPredefProfileEntry 19 }
+
+urlfPredefProfileTotalAskActions OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total number of ask actions."
+    ::= { urlfPredefProfileEntry 20 }
+
+urlfPredefProfileTotalJustifyActions OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total number of justify actions."
+    ::= { urlfPredefProfileEntry 21 }
+
+urlfPredefProfileTotalOverrideActions OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total number of Override actions."
+    ::= { urlfPredefProfileEntry 22 }
+
+urlfPredefProfileTotalCPHttpsAllowActions OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total number of captive portal https allow actions."
+    ::= { urlfPredefProfileEntry 23 }
+
+urlfPredefProfileTotalCPHttpsResetActions OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total number of captive portal https reset actions."
+    ::= { urlfPredefProfileEntry 24 }
+
+urlfPredefProfileTotalCPnotReturned OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total number of captive portal not returned."
+    ::= { urlfPredefProfileEntry 25 }
+
+urlfPredefProfileTotalAllowActions OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total number of allow actions."
+    ::= { urlfPredefProfileEntry 26 }
+
+urlfPredefProfileTotalBlockActions OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total number of block actions."
+    ::= { urlfPredefProfileEntry 27 }
+
+urlfPredefProfileTotalDropActions OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total number of drop actions."
+    ::= { urlfPredefProfileEntry 28 }
+
+urlfPredefProfileTotalResetClientServerActions OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total number of reset-client-server actions."
+    ::= { urlfPredefProfileEntry 29 }
+
+urlfPredefProfileTotalSplitFailure OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total number of split conn failure."
+    ::= { urlfPredefProfileEntry 30 }
+
+urlfPredefProfileTotalWhitelistReferrerActions OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total number of whitelist referrer actions."
+    ::= { urlfPredefProfileEntry 31 }
+
+urlfPredefProfileTotalBlacklistReferrerActions OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total number of blacklist referrer actions."
+    ::= { urlfPredefProfileEntry 32 }
+
+urlfUserdefProfileTable OBJECT-TYPE
+    SYNTAX      SEQUENCE OF UrlfUserdefProfileEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "User-defined URLF profile statistics"
+    ::= { urlFilteringProfileTable 2 }
+
+urlfUserdefProfileEntry OBJECT-TYPE
+    SYNTAX      UrlfUserdefProfileEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION ""
+    INDEX { urlfUserdefProfileOrgId, urlfUserdefProfileID }
+        ::= { urlfUserdefProfileTable 1 }
+
+UrlfUserdefProfileEntry ::=
+    SEQUENCE {
+        urlfUserdefProfileOrgId Unsigned32,
+        urlfUserdefProfileID Unsigned32,
+        urlfUserdefProfileOrgName String,
+        urlfUserdefProfileName String,
+        urlfUserdefProfileTotalHits ConfdString,
+        urlfUserdefProfileTotalUrlStringMatches ConfdString,
+        urlfUserdefProfileTotalUrlRegexMatches ConfdString,
+        urlfUserdefProfileTotalDefaultActions ConfdString,
+        urlfUserdefProfileTotalWhitelistActions ConfdString,
+        urlfUserdefProfileTotalBlacklistActions ConfdString,
+        urlfUserdefProfileTotalCategoryActions ConfdString,
+        urlfUserdefProfileTotalUserDefCategoryActions ConfdString,
+        urlfUserdefProfileTotalPreDefCategoryActions ConfdString,
+        urlfUserdefProfileTotalReputationActions ConfdString,
+        urlfUserdefProfileTotalUserDefReputationActions ConfdString,
+        urlfUserdefProfileTotalPreDefReputationActions ConfdString,
+        urlfUserdefProfileTotalCloudLookups ConfdString,
+        urlfUserdefProfileTotalInformActions ConfdString,
+        urlfUserdefProfileTotalWarnActions ConfdString,
+        urlfUserdefProfileTotalAskActions ConfdString,
+        urlfUserdefProfileTotalJustifyActions ConfdString,
+        urlfUserdefProfileTotalOverrideActions ConfdString,
+        urlfUserdefProfileTotalCPHttpsAllowActions ConfdString,
+        urlfUserdefProfileTotalCPHttpsResetActions ConfdString,
+        urlfUserdefProfileTotalCPnotReturned ConfdString,
+        urlfUserdefProfileTotalAllowActions ConfdString,
+        urlfUserdefProfileTotalBlockActions ConfdString,
+        urlfUserdefProfileTotalDropActions ConfdString,
+        urlfUserdefProfileTotalResetClientServerActions ConfdString,
+        urlfUserdefProfileTotalSplitFailure ConfdString,
+        urlfUserdefProfileTotalWhitelistReferrerActions ConfdString,
+        urlfUserdefProfileTotalBlacklistReferrerActions ConfdString
+    }
+
+urlfUserdefProfileOrgId OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "Organization id"
+    ::= { urlfUserdefProfileEntry 1 }
+
+urlfUserdefProfileID OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "URLF Profile Id"
+    ::= { urlfUserdefProfileEntry 2 }
+
+urlfUserdefProfileOrgName OBJECT-TYPE
+    SYNTAX      String
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Organization Name"
+    ::= { urlfUserdefProfileEntry 3 }
+
+urlfUserdefProfileName OBJECT-TYPE
+    SYNTAX      String
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "URLF Profile Name"
+    ::= { urlfUserdefProfileEntry 4 }
+
+urlfUserdefProfileTotalHits OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total number of hits."
+    ::= { urlfUserdefProfileEntry 5 }
+
+urlfUserdefProfileTotalUrlStringMatches OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total number of URL string matches."
+    ::= { urlfUserdefProfileEntry 6 }
+
+urlfUserdefProfileTotalUrlRegexMatches OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total number of URL regex matches."
+    ::= { urlfUserdefProfileEntry 7 }
+
+urlfUserdefProfileTotalDefaultActions OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total number of default actions."
+    ::= { urlfUserdefProfileEntry 8 }
+
+urlfUserdefProfileTotalWhitelistActions OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total number of whitelist actions."
+    ::= { urlfUserdefProfileEntry 9 }
+
+urlfUserdefProfileTotalBlacklistActions OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total number of blacklist actions."
+    ::= { urlfUserdefProfileEntry 10 }
+
+urlfUserdefProfileTotalCategoryActions OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total number of category actions."
+    ::= { urlfUserdefProfileEntry 11 }
+
+urlfUserdefProfileTotalUserDefCategoryActions OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total number of user-defined category actions."
+    ::= { urlfUserdefProfileEntry 12 }
+
+urlfUserdefProfileTotalPreDefCategoryActions OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total number of predefined category actions."
+    ::= { urlfUserdefProfileEntry 13 }
+
+urlfUserdefProfileTotalReputationActions OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total number of reputation actions."
+    ::= { urlfUserdefProfileEntry 14 }
+
+urlfUserdefProfileTotalUserDefReputationActions OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total number of user-defined reputation actions."
+    ::= { urlfUserdefProfileEntry 15 }
+
+urlfUserdefProfileTotalPreDefReputationActions OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total number of predefined reputation actions."
+    ::= { urlfUserdefProfileEntry 16 }
+
+urlfUserdefProfileTotalCloudLookups OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total number of cloud lookups."
+    ::= { urlfUserdefProfileEntry 17 }
+
+urlfUserdefProfileTotalInformActions OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total number of inform actions."
+    ::= { urlfUserdefProfileEntry 18 }
+
+urlfUserdefProfileTotalWarnActions OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total number of warning actions."
+    ::= { urlfUserdefProfileEntry 19 }
+
+urlfUserdefProfileTotalAskActions OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total number of ask actions."
+    ::= { urlfUserdefProfileEntry 20 }
+
+urlfUserdefProfileTotalJustifyActions OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total number of justify actions."
+    ::= { urlfUserdefProfileEntry 21 }
+
+urlfUserdefProfileTotalOverrideActions OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total number of Override actions."
+    ::= { urlfUserdefProfileEntry 22 }
+
+urlfUserdefProfileTotalCPHttpsAllowActions OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total number of captive portal https allow actions."
+    ::= { urlfUserdefProfileEntry 23 }
+
+urlfUserdefProfileTotalCPHttpsResetActions OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total number of captive portal https reset actions."
+    ::= { urlfUserdefProfileEntry 24 }
+
+urlfUserdefProfileTotalCPnotReturned OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total number of captive portal not returned."
+    ::= { urlfUserdefProfileEntry 25 }
+
+urlfUserdefProfileTotalAllowActions OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total number of allow actions."
+    ::= { urlfUserdefProfileEntry 26 }
+
+urlfUserdefProfileTotalBlockActions OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total number of block actions."
+    ::= { urlfUserdefProfileEntry 27 }
+
+urlfUserdefProfileTotalDropActions OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total number of drop actions."
+    ::= { urlfUserdefProfileEntry 28 }
+
+urlfUserdefProfileTotalResetClientServerActions OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total number of reset-client-server actions."
+    ::= { urlfUserdefProfileEntry 29 }
+
+urlfUserdefProfileTotalSplitFailure OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total number of split conn failure."
+    ::= { urlfUserdefProfileEntry 30 }
+
+urlfUserdefProfileTotalWhitelistReferrerActions OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total number of whitelist referrer actions."
+    ::= { urlfUserdefProfileEntry 31 }
+
+urlfUserdefProfileTotalBlacklistReferrerActions OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total number of blacklist referrer actions."
+    ::= { urlfUserdefProfileEntry 32 }
+
+urlfClookupTable OBJECT-TYPE
+    SYNTAX      SEQUENCE OF UrlfClookupEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "URLF global statistics"
+    ::= { urlf 6 }
+
+urlfClookupEntry OBJECT-TYPE
+    SYNTAX      UrlfClookupEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION ""
+    INDEX { urlfClookupOrgId }
+        ::= { urlfClookupTable 1 }
+
+UrlfClookupEntry ::=
+    SEQUENCE {
+        urlfClookupOrgId Unsigned32,
+        urlfClookupOrgName String,
+        urlfClookupHits ConfdString,
+        urlfSyncHits ConfdString,
+        urlfAsyncHits ConfdString,
+        urlfInvalidCloudProfile ConfdString,
+        urlfSyncRequest ConfdString,
+        urlfSyncRequestSend ConfdString,
+        urlfSyncRequestFailure ConfdString,
+        urlfSyncPartialResponse ConfdString,
+        urlfSyncCompleteResponse ConfdString,
+        urlfSyncResponseTimeout ConfdString,
+        urlfSyncInvalidResponse ConfdString,
+        urlfSyncSessionMissResponse ConfdString,
+        urlfAsyncRequest ConfdString,
+        urlfAsyncRequestSend ConfdString,
+        urlfAsyncRequestFailure ConfdString,
+        urlfAsyncPartialResponse ConfdString,
+        urlfAsyncCompleteResponse ConfdString,
+        urlfAsyncResponseTimeout ConfdString,
+        urlfAsyncInvalidResponse ConfdString,
+        urlfCacheUpdate ConfdString,
+        urlfSessionHold ConfdString,
+        urlfSessionRelease ConfdString
+    }
+
+urlfClookupOrgId OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "Organization id"
+    ::= { urlfClookupEntry 1 }
+
+urlfClookupOrgName OBJECT-TYPE
+    SYNTAX      String
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Organization Name"
+    ::= { urlfClookupEntry 2 }
+
+urlfClookupHits OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total URL cloud lookup hits"
+    ::= { urlfClookupEntry 3 }
+
+urlfSyncHits OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total synchronous URL cloud lookup hits"
+    ::= { urlfClookupEntry 4 }
+
+urlfAsyncHits OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total asynchronous URL cloud lookup hits"
+    ::= { urlfClookupEntry 5 }
+
+urlfInvalidCloudProfile OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total invalid cloud profile hits"
+    ::= { urlfClookupEntry 6 }
+
+urlfSyncRequest OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total synchronous URL cloud lookup requests"
+    ::= { urlfClookupEntry 7 }
+
+urlfSyncRequestSend OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total synchronous URL cloud lookup requests send"
+    ::= { urlfClookupEntry 8 }
+
+urlfSyncRequestFailure OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total synchronous URL cloud lookup requests failure"
+    ::= { urlfClookupEntry 9 }
+
+urlfSyncPartialResponse OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total synchronous URL cloud lookup partial response"
+    ::= { urlfClookupEntry 10 }
+
+urlfSyncCompleteResponse OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total synchronous URL cloud lookup complete response"
+    ::= { urlfClookupEntry 11 }
+
+urlfSyncResponseTimeout OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total asynchronous URL cloud lookup response timeout"
+    ::= { urlfClookupEntry 12 }
+
+urlfSyncInvalidResponse OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total synchronous URL cloud lookup invalid response"
+    ::= { urlfClookupEntry 13 }
+
+urlfSyncSessionMissResponse OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total asynchronous URL cloud lookup session miss response"
+    ::= { urlfClookupEntry 14 }
+
+urlfAsyncRequest OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total asynchronous URL cloud lookup requests"
+    ::= { urlfClookupEntry 15 }
+
+urlfAsyncRequestSend OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total asynchronous URL cloud lookup requests send"
+    ::= { urlfClookupEntry 16 }
+
+urlfAsyncRequestFailure OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total asynchronous URL cloud lookup requests failure"
+    ::= { urlfClookupEntry 17 }
+
+urlfAsyncPartialResponse OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total asynchronous URL cloud lookup partial response"
+    ::= { urlfClookupEntry 18 }
+
+urlfAsyncCompleteResponse OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total asynchronous URL cloud lookup complete response"
+    ::= { urlfClookupEntry 19 }
+
+urlfAsyncResponseTimeout OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total asynchronous URL cloud lookup response timeout"
+    ::= { urlfClookupEntry 20 }
+
+urlfAsyncInvalidResponse OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total asynchronous URL cloud lookup invalid response"
+    ::= { urlfClookupEntry 21 }
+
+urlfCacheUpdate OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total URL cloud lookup cache update"
+    ::= { urlfClookupEntry 22 }
+
+urlfSessionHold OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total URL cloud lookup session hold"
+    ::= { urlfClookupEntry 23 }
+
+urlfSessionRelease OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total URL cloud lookup session release"
+    ::= { urlfClookupEntry 24 }
+
+END

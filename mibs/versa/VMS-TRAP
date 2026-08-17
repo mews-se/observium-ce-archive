@@ -1,0 +1,71 @@
+--
+-- @Description: MIB for VMS
+-- @Date       : 2020-05-27
+--
+
+VMS-TRAP DEFINITIONS ::= BEGIN
+IMPORTS
+    MODULE-IDENTITY, OBJECT-TYPE, NOTIFICATION-TYPE
+        FROM SNMPv2-SMI
+    systemNotification
+        FROM VERSA-MIB
+    alarmIndex, alarmType, alarmDevice, alarmObject,
+    alarmSpecificProblem, alarmEventType, alarmProbableCause,
+    alarmTime, alarmSeverity, alarmHasClear, alarmText,
+    tenantName, alarmClass
+        FROM TRAPS-COMMON;
+
+vmsTrapMIB MODULE-IDENTITY
+    LAST-UPDATED "201706060000Z"
+    ORGANIZATION "Versa Networks"
+    CONTACT-INFO "
+        2953 Bunker Hill Lane, Suite 210
+        Santa Clara, CA - 95035 (USA)
+        Email: support@versa-networks.com"
+    DESCRIPTION  "Versa Networks' Entrprise MIB for VMS"
+    ::= { systemNotification 9 }
+
+-- Root Object
+vmsNotification OBJECT IDENTIFIER ::= { vmsTrapMIB 1 }
+
+vmsDownloadSuccess NOTIFICATION-TYPE
+    OBJECTS {
+        alarmType, alarmDevice, alarmObject, alarmSpecificProblem,
+        alarmClass, alarmEventType, alarmProbableCause, alarmTime,
+        alarmSeverity, alarmHasClear, alarmText, tenantName
+    }
+    STATUS  current
+    DESCRIPTION "Vms download success notification"
+        ::= { vmsNotification 1 }
+
+vmsDownloadFailure NOTIFICATION-TYPE
+    OBJECTS {
+        alarmType, alarmDevice, alarmObject, alarmSpecificProblem,
+        alarmClass, alarmEventType, alarmProbableCause, alarmTime,
+        alarmSeverity, alarmHasClear, alarmText, tenantName
+    }
+    STATUS  current
+    DESCRIPTION "Vms download failure notification"
+        ::= { vmsNotification 2 }
+
+vmsInstallationSuccess NOTIFICATION-TYPE
+    OBJECTS {
+        alarmType, alarmDevice, alarmObject, alarmSpecificProblem,
+        alarmClass, alarmEventType, alarmProbableCause, alarmTime,
+        alarmSeverity, alarmHasClear, alarmText, tenantName
+    }
+    STATUS  current
+    DESCRIPTION "Vms install success notification"
+        ::= { vmsNotification 3 }
+
+vmsInstallationFailure NOTIFICATION-TYPE
+    OBJECTS {
+        alarmType, alarmDevice, alarmObject, alarmSpecificProblem,
+        alarmClass, alarmEventType, alarmProbableCause, alarmTime,
+        alarmSeverity, alarmHasClear, alarmText, tenantName
+    }
+    STATUS  current
+    DESCRIPTION "Vms install failure notification"
+        ::= { vmsNotification 4 }
+
+END

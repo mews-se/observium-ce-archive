@@ -1,0 +1,401 @@
+INCA-TS-MIB DEFINITIONS ::= BEGIN
+
+IMPORTS
+    MODULE-IDENTITY, OBJECT-TYPE, Counter32, Gauge32, Unsigned32
+            FROM SNMPv2-SMI
+    TEXTUAL-CONVENTION, DateAndTime
+            FROM SNMPv2-TC
+    OBJECT-GROUP
+            FROM SNMPv2-CONF
+    SnmpAdminString
+            FROM SNMP-FRAMEWORK-MIB
+    incaVideo
+            FROM INCA-MIB;
+
+incaTransportStreamMIB  MODULE-IDENTITY
+    LAST-UPDATED "201611030000Z"  -- Nov 3rd, 2016
+    ORGANIZATION    "Inca Networks Inc."
+    CONTACT-INFO   
+        "Mike Bradley
+         Postal: Inca Networks
+                 112-19055 Airport Way
+                 Pitt Meadows BC  V3Y 0G4
+                 Canada
+         Phone:  +1 604 998 4665
+         E-mail: support@incanetworks.com
+         "
+    DESCRIPTION
+        "This MIB manages inbound and outbound MPEG transport streams."
+    REVISION     "201611030000Z"  -- Nov 3rd, 2016
+    DESCRIPTION  "Updated contact info"
+    REVISION     "201205250000Z"  -- May 25th, 2012
+    DESCRIPTION  "Initial version"
+
+        ::= { incaVideo 1 }
+
+    incaTransportStreamObjects OBJECT IDENTIFIER ::= { incaTransportStreamMIB 1 }
+    incaIPTVStreamObjects OBJECT IDENTIFIER ::= { incaTransportStreamMIB 2 }
+
+    incaTSMIBConformance OBJECT IDENTIFIER ::= { incaTransportStreamMIB 3 }
+    incaTSMIBCompliances OBJECT IDENTIFIER ::= { incaTSMIBConformance 1 }
+    incaTSMIBGroups      OBJECT IDENTIFIER ::= { incaTSMIBConformance 2 }
+
+    IncaStreamDirection ::= TEXTUAL-CONVENTION
+        STATUS    current
+        DESCRIPTION
+            "A type definition for for the direction of a stream"
+        SYNTAX    INTEGER {
+                            inbound(1),
+                            outbound(2)
+                           }
+
+    IncaTSPID ::= TEXTUAL-CONVENTION
+        STATUS    current
+        DESCRIPTION
+            "A type definition for MPEG PIDs"
+        SYNTAX    INTEGER ( 0..8192 )
+
+    incaTransportStreamTable OBJECT-TYPE
+        SYNTAX     SEQUENCE OF IncaTransportStreamEntry
+        MAX-ACCESS not-accessible
+        STATUS     current
+        DESCRIPTION
+                "This table stores information about all transport streams in the
+                 system, both inbound and outbound."
+        ::= { incaTransportStreamObjects 1 }
+
+        incaTransportStreamEntry OBJECT-TYPE
+            SYNTAX     IncaTransportStreamEntry
+            MAX-ACCESS not-accessible
+            STATUS     current
+            DESCRIPTION
+                    "An entry in the transport stream table."
+            INDEX { incaTSDirectionIndex, incaTSStreamIndex}
+            ::= { incaTransportStreamTable 1 }
+
+            IncaTransportStreamEntry ::= SEQUENCE {
+                incaTSDirectionIndex           IncaStreamDirection,
+                incaTSStreamIndex              Unsigned32,
+                incaTSDescr                    SnmpAdminString,
+                incaTSID                       Unsigned32,
+                incaTSProgramCount             Gauge32,
+                incaTSBitrate                  Gauge32,
+                incaTSPeakBitrate              Gauge32,
+                incaTSContinuityErrors         Counter32,
+                incaTSFrames                   Counter32,
+                incaTSOctets                   Counter32,
+                incaTSPatVersion               Unsigned32,
+                incaTSPatTimeCreated           DateAndTime,
+                incaTSPatTimeActive            Unsigned32,
+                incaTSPatPrevTimeCreated       DateAndTime
+                }
+
+            incaTSDirectionIndex   OBJECT-TYPE
+                SYNTAX      IncaStreamDirection
+                MAX-ACCESS  read-only
+                STATUS      current
+                DESCRIPTION
+                    "The direction of this Transport Stream."
+                ::= { incaTransportStreamEntry 1 }
+
+            incaTSStreamIndex   OBJECT-TYPE
+                SYNTAX      Unsigned32
+                MAX-ACCESS  read-only
+                STATUS      current
+                DESCRIPTION
+                    "The unique index that identifies the Transport Stream
+                     within the system."
+                ::= { incaTransportStreamEntry 2 }
+
+            incaTSDescr   OBJECT-TYPE
+                SYNTAX      SnmpAdminString (SIZE(0..128))
+                MAX-ACCESS  read-only
+                STATUS      current
+                DESCRIPTION
+                    "A user-supplied description of the transport stream"
+                ::= { incaTransportStreamEntry 3 }
+
+            incaTSID   OBJECT-TYPE
+                SYNTAX      Unsigned32
+                MAX-ACCESS  read-only
+                STATUS      current
+                DESCRIPTION
+                    "The MPEG transport_stream_id"
+                ::= { incaTransportStreamEntry 4 }
+
+            incaTSProgramCount   OBJECT-TYPE
+                SYNTAX      Gauge32
+                MAX-ACCESS  read-only
+                STATUS      current
+                DESCRIPTION
+                    "The  number of programs currently in this stream"
+                ::= { incaTransportStreamEntry 5 }
+
+            incaTSBitrate   OBJECT-TYPE
+                SYNTAX      Gauge32
+                MAX-ACCESS  read-only
+                STATUS      current
+                DESCRIPTION
+                    "The average bitrate of this transport stream"
+                ::= { incaTransportStreamEntry 6 }
+
+            incaTSPeakBitrate   OBJECT-TYPE
+                SYNTAX      Gauge32
+                MAX-ACCESS  read-only
+                STATUS      current
+                DESCRIPTION
+                    "The peak bitrate of this transport stream"
+                ::= { incaTransportStreamEntry 7 }
+
+            incaTSContinuityErrors   OBJECT-TYPE
+                SYNTAX      Counter32
+                MAX-ACCESS  read-only
+                STATUS      current
+                DESCRIPTION
+                    "The continuity error count across all PIDs"
+                ::= { incaTransportStreamEntry 8 }
+
+            incaTSFrames   OBJECT-TYPE
+                SYNTAX      Counter32
+                MAX-ACCESS  read-only
+                STATUS      current
+                DESCRIPTION
+                    "The MPEG TS frame count"
+                ::= { incaTransportStreamEntry 9 }
+
+            incaTSOctets   OBJECT-TYPE
+                SYNTAX      Counter32
+                MAX-ACCESS  read-only
+                STATUS      current
+                DESCRIPTION
+                    "The total number of octets transmitted or received
+                    in this transport stream"
+                ::= { incaTransportStreamEntry 10 }
+
+            incaTSPatVersion   OBJECT-TYPE
+                SYNTAX      Unsigned32
+                MAX-ACCESS  read-only
+                STATUS      current
+                DESCRIPTION
+                    "The current PAT version number"
+                ::= { incaTransportStreamEntry 11 }
+
+            incaTSPatTimeCreated  OBJECT-TYPE
+                SYNTAX      DateAndTime
+                MAX-ACCESS  read-only
+                STATUS      current
+                DESCRIPTION
+                    "The value of sysUpTime when the current PAT was created,
+                     or zero if unknown."
+                ::= { incaTransportStreamEntry 12 }
+
+            incaTSPatTimeActive OBJECT-TYPE
+                SYNTAX          Unsigned32
+                UNITS           "seconds"
+                MAX-ACCESS      read-only
+                STATUS          current
+                DESCRIPTION    "The total time the current PAT has been active."
+                ::= { incaTransportStreamEntry 13 }
+
+            incaTSPatPrevTimeCreated  OBJECT-TYPE
+                SYNTAX      DateAndTime
+                MAX-ACCESS  read-only
+                STATUS      current
+                DESCRIPTION
+                    "The value of sysUpTime when the previous version of the PAT
+                     PAT was created, or zero if unknown."
+                ::= { incaTransportStreamEntry 14 }
+
+
+    incaTransportStreamProgramTable OBJECT-TYPE
+        SYNTAX     SEQUENCE OF IncaTransportStreamProgramEntry
+        MAX-ACCESS not-accessible
+        STATUS     current
+        DESCRIPTION
+                "This table stores information relating to each program detected in 
+                 each transport stream."
+        ::= { incaTransportStreamObjects 2 }
+
+        incaTransportStreamProgramEntry OBJECT-TYPE
+            SYNTAX     IncaTransportStreamProgramEntry
+            MAX-ACCESS not-accessible
+            STATUS     current
+            DESCRIPTION
+                    "An entry in the transport stream programs table."
+            INDEX { incaTSProgTSDirectionIndex, incaTSProgTSStreamIndex, incaTSProgIndex}
+            ::= { incaTransportStreamProgramTable 1 }
+
+            IncaTransportStreamProgramEntry ::= SEQUENCE {
+                incaTSProgTSDirectionIndex     IncaStreamDirection,
+                incaTSProgTSStreamIndex        Unsigned32,
+                incaTSProgIndex                Unsigned32,
+                incaTSProgPmtPid               IncaTSPID,
+                incaTSProgPcrPid               IncaTSPID,
+                incaTSProgEsCount              Gauge32,
+                incaTSProgDescCount            Gauge32,
+                incaTSProgBitrate              Unsigned32,
+                incaTSProgPeakBitrate          Unsigned32,
+                incaTSProgPmtVersion           Unsigned32,
+                incaTSProgPmtTimeCreated       DateAndTime,
+                incaTSProgPmtTimeActive        Unsigned32,
+                incaTSProgPmtPrevTimeCreated   DateAndTime
+                }
+
+            incaTSProgTSDirectionIndex   OBJECT-TYPE
+                SYNTAX      IncaStreamDirection
+                MAX-ACCESS  read-only
+                STATUS      current
+                DESCRIPTION
+                    "The direction of this stream."
+                ::= { incaTransportStreamProgramEntry 1 }
+
+            incaTSProgTSStreamIndex   OBJECT-TYPE
+                SYNTAX      Unsigned32
+                MAX-ACCESS  read-only
+                STATUS      current
+                DESCRIPTION
+                    "The unique index that identifies the Transport Stream
+                     containing this Program."
+                ::= { incaTransportStreamProgramEntry 2 }
+
+            incaTSProgIndex   OBJECT-TYPE
+                SYNTAX      Unsigned32
+                MAX-ACCESS  read-only
+                STATUS      current
+                DESCRIPTION
+                    "The Program Number for this program within the associated
+                     Transport Stream."
+                ::= { incaTransportStreamProgramEntry 3 }
+
+            incaTSProgPmtPid   OBJECT-TYPE
+                SYNTAX      IncaTSPID
+                MAX-ACCESS  read-only
+                STATUS      current
+                DESCRIPTION
+                    "The MPEG PID used for the PMT Table for this Program."
+                ::= { incaTransportStreamProgramEntry 4 }
+
+            incaTSProgPcrPid   OBJECT-TYPE
+                SYNTAX      IncaTSPID
+                MAX-ACCESS  read-only
+                STATUS      current
+                DESCRIPTION
+                    "The MPEG PID used to for the PCR for this Program."
+                ::= { incaTransportStreamProgramEntry 5 }
+
+            incaTSProgEsCount   OBJECT-TYPE
+                SYNTAX      Gauge32
+                MAX-ACCESS  read-only
+                STATUS      current
+                DESCRIPTION
+                    "The  number of Elementary Streams currently in this
+                     Program."
+                ::= { incaTransportStreamProgramEntry 6 }
+
+            incaTSProgDescCount   OBJECT-TYPE
+                SYNTAX      Gauge32
+                MAX-ACCESS  read-only
+                STATUS      current
+                DESCRIPTION
+                    "The  number of Descriptors in the PMT 'first_loop' for this
+                     Program."
+                ::= { incaTransportStreamProgramEntry 7 }
+
+            incaTSProgBitrate    OBJECT-TYPE
+                SYNTAX      Unsigned32
+                MAX-ACCESS  read-only
+                STATUS      current
+                DESCRIPTION
+                    "The average bitate in bps, of this program, or 0 if unknown."
+                ::= { incaTransportStreamProgramEntry 8 }
+
+            incaTSProgPeakBitrate    OBJECT-TYPE
+                SYNTAX      Unsigned32
+                MAX-ACCESS  read-only
+                STATUS      current
+                DESCRIPTION
+                    "The peak bitate in bps, of this program over a 30 second interval, or 0 if unknown."
+                ::= { incaTransportStreamProgramEntry 9 }
+
+            incaTSProgPmtVersion   OBJECT-TYPE
+                SYNTAX      Unsigned32
+                MAX-ACCESS  read-only
+                STATUS      current
+                DESCRIPTION
+                    "The version number of the current PMT Table for this
+                     Program."
+                ::= { incaTransportStreamProgramEntry 10 }
+
+            incaTSProgPmtTimeCreated  OBJECT-TYPE
+                SYNTAX      DateAndTime
+                MAX-ACCESS  read-only
+                STATUS      current
+                DESCRIPTION
+                    "The value of sysUpTime when the current PMT was created.
+                           Zero if not-applicable."
+                ::= { incaTransportStreamProgramEntry 11 }
+
+            incaTSProgPmtTimeActive OBJECT-TYPE
+                SYNTAX          Unsigned32
+                UNITS           "seconds"
+                MAX-ACCESS      read-only
+                STATUS          current
+                DESCRIPTION    "The total time the current PMT has been active."
+                ::= { incaTransportStreamProgramEntry 12 }
+
+            incaTSProgPmtPrevTimeCreated  OBJECT-TYPE
+                SYNTAX      DateAndTime
+                MAX-ACCESS  read-only
+                STATUS      current
+                DESCRIPTION
+                    "The value of sysUpTime when the predecessor of this PMT was
+                     created.  Zero if not-known."
+                ::= { incaTransportStreamProgramEntry 13 }
+
+
+
+    incaTSObjectGroup OBJECT-GROUP
+        OBJECTS {
+                incaTSDirectionIndex,
+                incaTSStreamIndex,
+                incaTSDescr,
+                incaTSID,
+                incaTSProgramCount,
+                incaTSBitrate,
+                incaTSPeakBitrate,
+                incaTSContinuityErrors,
+                incaTSFrames,
+                incaTSOctets,
+                incaTSPatVersion,
+                incaTSPatTimeCreated,
+                incaTSPatTimeActive,
+                incaTSPatPrevTimeCreated       
+        }
+        STATUS current
+        DESCRIPTION
+                "TS objects."
+        ::= { incaTSMIBGroups 1 }
+
+
+    incaTSProgObjectGroup OBJECT-GROUP
+        OBJECTS {
+                incaTSProgTSDirectionIndex,
+                incaTSProgTSStreamIndex,
+                incaTSProgIndex,
+                incaTSProgPmtPid,
+                incaTSProgPcrPid,
+                incaTSProgEsCount,
+                incaTSProgDescCount,
+                incaTSProgBitrate,
+                incaTSProgPeakBitrate,
+                incaTSProgPmtVersion,
+                incaTSProgPmtTimeCreated,
+                incaTSProgPmtTimeActive,
+                incaTSProgPmtPrevTimeCreated
+        }
+        STATUS current
+        DESCRIPTION
+                "TS program objects."
+        ::= { incaTSMIBGroups 2 }
+
+END

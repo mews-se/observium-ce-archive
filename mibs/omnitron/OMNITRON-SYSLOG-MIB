@@ -1,0 +1,325 @@
+OMNITRON-SYSLOG-MIB DEFINITIONS ::= BEGIN
+
+IMPORTS
+    MODULE-IDENTITY, OBJECT-TYPE, Unsigned32
+        FROM SNMPv2-SMI           -- RFC-2578
+    TruthValue, TEXTUAL-CONVENTION, DateAndTime
+        FROM SNMPv2-TC            -- RFC-2579
+    MODULE-COMPLIANCE, OBJECT-GROUP
+        FROM SNMPv2-CONF          -- RFC-2580
+    omnitron, OstIpAddr
+        FROM OMNITRON-TC-MIB;     -- Omnitron Textual Convention MIB        
+
+omnitronSyslogMib MODULE-IDENTITY
+    LAST-UPDATED "201603171200Z"  -- March 17, 2016
+    ORGANIZATION "Omnitron Systems Technology, Inc."
+    CONTACT-INFO "Omnitron Systems Technology, Inc.
+                  38 Tesla
+                  Irvine, CA 92618-4670
+                  USA
+
+             Tel: (949) 250 6510
+             Fax: (949) 250 6514
+          E-mail: info@omnitron-systems.com
+   International: +1 949 250 6510
+
+                  Technical Support and Customer Service
+             Tel: (800) 675 8410
+          E-mail: support@omnitron-systems.com
+   International: +1 949 250 6510"
+
+    DESCRIPTION
+            "Omnitron Syslog MIB for use with iConverter
+             Management Modules v5.3 and NetOutlook.
+
+             Copyright 2016 Omnitron Systems Technology, Inc.
+             All rights reserved.
+            "
+
+    REVISION    "201603171200Z"  -- March 17, 2016
+    DESCRIPTION "Initial version of the v5.3 MIB.
+                   Added 
+                "
+    ::= { omnitron 17 }
+
+
+-- -----------------------------------------------------------------------------
+-- Textual Conventions (TC)
+-- -----------------------------------------------------------------------------
+
+OstSeverityLevelType ::= TEXTUAL-CONVENTION
+    STATUS      current
+    DESCRIPTION
+        "Severity Level type enumeration.
+
+         severityEmergency(0)         Emergency: system is unusable
+         severityAlert(1)             Alert: action must be taken immediately
+         severityCritical(2)          Critical: critical conditions
+         severityError(3)             Error: error conditions
+         severityWarning(4)           Warning: warning conditions
+         severityNotice(5)            Notice: normal but significant condition
+         severityInformational(6)     Informational: informational messages
+         severityDebug(7)             Debug: debug-level messages
+
+         Syslog entries that are derived from SNMP notifications are mapped from
+         the SNMP trap severity level to the Syslog severy level according to
+         following
+
+         SNMP trap severity           Syslog severity
+         ------------------           ---------------
+         info                 =>      informational
+         warning              =>      warning
+         minor                =>      error
+         major                =>      critical
+         critical             =>      alert
+        "
+    SYNTAX      INTEGER {
+                  severityEmergency      (0),
+                  severityAlert          (1),
+                  severityCritical       (2),
+                  severityError          (3),
+                  severityWarning        (4),
+                  severityNotice         (5),
+                  severityInformational  (6),
+                  severityDebug          (7)
+                }
+
+
+--------------------------------------------------------------------------------
+-- System Log (Syslog) Global Configuration Table
+--------------------------------------------------------------------------------
+
+ostSyslogGlobalCfgTable  OBJECT IDENTIFIER ::= { omnitronSyslogMib 1 }
+
+ostSyslogGlobalCfgEnable OBJECT-TYPE
+    SYNTAX      TruthValue
+    MAX-ACCESS  read-write
+    STATUS      current
+    DESCRIPTION
+       "This object specifies whether the Syslog function is enabled.
+
+        The value 'true' indicates that Syslog is enabled.
+
+        The value 'false' indicates that Syslog is disabled.
+       "
+    DEFVAL { true }
+    ::= { ostSyslogGlobalCfgTable 1 }
+
+ostSyslogGlobalCfgLevel OBJECT-TYPE
+    SYNTAX      OstSeverityLevelType
+    MAX-ACCESS  read-write
+    STATUS      current
+    DESCRIPTION
+       "This object indicates the minimum severity level of the entries that are
+        added to the Syslog
+       "
+    DEFVAL { severityInformational }
+    ::= { ostSyslogGlobalCfgTable 2 }
+
+ostSyslogGlobalCfgErase OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  read-write
+    STATUS      current
+    DESCRIPTION
+       "Writing any value to this object erases (clears) the contents of the
+        Syslog table.
+       "
+    DEFVAL {0}
+    ::= { ostSyslogGlobalCfgTable 3 }
+
+ostSyslogGlobalCfgMaxSize OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+       "This object contains the maximum number of Syslog messages that may
+        be held in the syslogMessageTable. This value is device
+        dependent and indicates how many entries may be available to be
+        read by a SNMP Manager.
+       "
+    DEFVAL {1000}
+    ::= { ostSyslogGlobalCfgTable 4 }
+
+ostSyslogGlobalCfgEntryNumberIndex OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+       "This object contains the largest index value currently used in the
+        ostSyslogMessageTable. It can be used to indicate when an entry has
+        been written to the syslog table.  It is incremented by one
+        every time that an entry is written to the table by SNMP Agent.
+
+        The index is a monotonically increasing number used to identify
+        entries in the syslogMessageTable.  When
+        ostSyslogGlobalCfgEntryNumberIndex reaches the maximum value
+        (4294967295), the value wraps back to 1.
+
+
+        A value of 0 indicates that there are no entries in the syslog
+        table. A non-zero values indicates that there are entries in
+        the ostSyslogMessageTable table.
+
+        When the ostSyslogMessageTable is erased by a write to the
+        ostSyslogGlobalCfgErase object this object is set to 0.
+       "
+    DEFVAL {0}
+    ::= { ostSyslogGlobalCfgTable 5 }
+
+ostSyslogGlobalCfgServerIp1 OBJECT-TYPE
+    SYNTAX      OstIpAddr
+    MAX-ACCESS  read-write
+    STATUS      current
+    DESCRIPTION
+       "This object contains the IPv4 or IPv6 address of the Syslog server.
+        It is the address used to write Syslog entries to the Syslog server.
+       "
+    DEFVAL { "::" }
+    ::= { ostSyslogGlobalCfgTable 6 }
+
+ostSyslogGlobalFacility OBJECT-TYPE
+    SYNTAX      Unsigned32  (0..23)
+    MAX-ACCESS  read-write
+    STATUS      current
+    DESCRIPTION
+       "This object selects the facility code for entries that are added to
+        the Syslog.
+       "
+    DEFVAL { 0 }
+    ::= {  ostSyslogGlobalCfgTable 7 }
+    
+
+--------------------------------------------------------------------------------
+-- Syslog Message Table
+--------------------------------------------------------------------------------
+
+ostSyslogMessageTable OBJECT-TYPE
+    SYNTAX      SEQUENCE OF OstSyslogMessageEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION
+       "This table supports the Syslog generated messages."
+    ::= { omnitronSyslogMib 2 }
+
+ostSyslogMessageEntry OBJECT-TYPE
+    SYNTAX      OstSyslogMessageEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION
+       "This is a Syslog message table entry. Each row in the table
+        indicates a specific Syslog message that was generated by the
+        module.
+
+        A new Syslog message when generated by the SNMP Agent first increments
+        the ostSyslogGlobalCfgEntryNumberIndex by one and writes the
+        new entry at the updated index value.
+
+        The entries in this table must be persistent upon reboot or
+        restart of a device. The device is only required to indicate
+        the last 1000 entries that were received. Entries older than
+        the last 1000 can be erased (removed).
+       "
+    INDEX { ostSyslogMessageIndex }
+    ::= { ostSyslogMessageTable 1 }
+
+OstSyslogMessageEntry ::= SEQUENCE {
+    ostSyslogMessageIndex                       Unsigned32,
+    ostSyslogMessageSeverity                    OstSeverityLevelType,
+    ostSyslogMessageDateAndTime                 DateAndTime,
+    ostSyslogMessageDescription                 OCTET STRING,
+    ostSyslogMessageFacility                    Unsigned32
+    }
+
+ostSyslogMessageIndex OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION
+       "An index that is used to identify a specific Syslog entry. It is
+        also known as the Syslog message ID."
+    ::= { ostSyslogMessageEntry 1 }
+
+ostSyslogMessageSeverity OBJECT-TYPE
+    SYNTAX      OstSeverityLevelType
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+       "An object that indicates the severity level of the Syslog message.
+       "
+    ::= { ostSyslogMessageEntry 2 }
+
+ostSyslogMessageDateAndTime OBJECT-TYPE
+    SYNTAX      DateAndTime
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+       "An object that indicates the date and time when the entry was added
+        to the ostSyslogMessageTable.
+       "
+    ::= { ostSyslogMessageEntry 3 }
+
+ostSyslogMessageDescription OBJECT-TYPE
+    SYNTAX      OCTET STRING (SIZE(0..127))
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+       "An object that indicates the message portion of the Syslog message.
+       "
+    ::= { ostSyslogMessageEntry 4 }
+
+ostSyslogMessageFacility OBJECT-TYPE
+    SYNTAX      Unsigned32  (0..23)
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+       "An object that indicates the facility code of the Syslog message.
+       "
+    ::= {  ostSyslogMessageEntry 5 }
+
+
+--------------------------------------------------------------------------------
+-- Conformance Information
+--------------------------------------------------------------------------------
+ostSyslogCompliances       OBJECT IDENTIFIER ::= { omnitronSyslogMib 3 }
+ostSyslogGroups            OBJECT IDENTIFIER ::= { omnitronSyslogMib 4 }
+
+
+--------------------------------------------------------------------------------
+-- Omnitron Syslog MIB Units of conformance
+--------------------------------------------------------------------------------
+ostSyslogGroup OBJECT-GROUP
+    OBJECTS {
+        ostSyslogGlobalCfgEnable,
+        ostSyslogGlobalCfgLevel,
+        ostSyslogGlobalCfgErase,
+        ostSyslogGlobalCfgMaxSize,
+        ostSyslogGlobalCfgEntryNumberIndex,
+        ostSyslogGlobalCfgServerIp1,
+        ostSyslogGlobalFacility,
+
+        ostSyslogMessageSeverity,
+        ostSyslogMessageDateAndTime,
+        ostSyslogMessageDescription,
+        ostSyslogMessageFacility
+    }
+    STATUS      current
+    DESCRIPTION
+       "Mandatory objects for the Syslog functional group."
+    ::= { ostSyslogGroups 1 }
+
+
+--------------------------------------------------------------------------------
+-- Omnitron Syslog MIB Compliance statements
+-------------------------------------------------------------------------------
+ostSyslogCompliance MODULE-COMPLIANCE
+    STATUS       current
+    DESCRIPTION "The compliance statement for the Omnitron Syslog MIB."
+    MODULE
+        MANDATORY-GROUPS {
+            ostSyslogGroup
+        }
+    ::= { ostSyslogCompliances 2 }
+
+
+END
+

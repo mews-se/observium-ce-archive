@@ -1,0 +1,744 @@
+OMNITRON-DS1-MIB DEFINITIONS ::= BEGIN
+
+IMPORTS
+    MODULE-IDENTITY, OBJECT-TYPE, Unsigned32, Integer32
+        FROM SNMPv2-SMI           -- RFC-2578
+    TruthValue, DisplayString
+        FROM SNMPv2-TC            -- RFC-2579
+    MODULE-COMPLIANCE, OBJECT-GROUP
+        FROM SNMPv2-CONF          -- RFC-2580
+    PerfCurrentCount, PerfIntervalCount, PerfTotalCount
+        FROM PerfHist-TC-MIB      -- RFC-3593
+    dsx1CurrentIndex, dsx1IntervalIndex, dsx1IntervalNumber, dsx1TotalIndex
+        FROM DS1-MIB              -- RFC-4805
+    omnitron, OstClockFreq, OstModuleSingleIndex, OstPortSingleIndex,
+    OstPortClockType
+        FROM OMNITRON-TC-MIB;     -- Omnitron Textual Convention MIB        
+
+omnitronDs1MIB MODULE-IDENTITY
+    LAST-UPDATED "201603171200Z"  -- March 17, 2016
+    ORGANIZATION "Omnitron Systems Technology, Inc."
+    CONTACT-INFO "Omnitron Systems Technology, Inc.
+                  38 Tesla
+                  Irvine, CA 92618-4670
+                  USA
+
+             Tel: (949) 250 6510
+             Fax: (949) 250 6514
+          E-mail: info@omnitron-systems.com
+   International: +1 949 250 6510
+
+                  Technical Support and Customer Service
+             Tel: (800) 675 8410
+          E-mail: support@omnitron-systems.com
+   International: +1 949 250 6510"
+
+    DESCRIPTION
+            "Omnitron DS1 MIB for use with iConverter Management Modules v5.3
+             and NetOutlook.
+
+             Copyright 2016 Omnitron Systems Technology, Inc.
+             All rights reserved
+            "
+
+    REVISION    "201603171200Z"  -- March 17, 2016
+    DESCRIPTION "Initial version of v5.3 MIB.
+                "
+    ::= { omnitron 9 }
+
+ostDs1MibObjects    OBJECT IDENTIFIER ::= { omnitronDs1MIB 1 }
+ostDs1Conformance   OBJECT IDENTIFIER ::= { omnitronDs1MIB 2 }
+
+
+-- -----------------------------------------------------------------------------------------
+-- Groups in the OST DS1 MIB
+-- -----------------------------------------------------------------------------------------
+
+ostDs1MibSelection      OBJECT IDENTIFIER ::= { ostDs1MibObjects 1 }
+ostDs1ModuleSettings    OBJECT IDENTIFIER ::= { ostDs1MibObjects 2 }
+ostDs1ModuleStatus      OBJECT IDENTIFIER ::= { ostDs1MibObjects 3 }
+ostDs1PortStatus        OBJECT IDENTIFIER ::= { ostDs1MibObjects 4 }
+ostDs1Ext               OBJECT IDENTIFIER ::= { ostDs1MibObjects 5 }
+
+-- -----------------------------------------------------------------------------------------
+-- DS1 MIB Port Selection
+-- -----------------------------------------------------------------------------------------
+--   Selects the port accessed by the standard DS1 MIB, [RFC 4805] and the
+--   ostdsx1FarEndCurrentTable, ostdsx1FarEndIntervalTable, and ostdsx1FarEndTotalTable MIB
+--   table objects below.  Port selection includes specifying the chassis, module and port.
+--
+--   A management entity should use the following steps to make the DS1 PM data available
+--   for a selected port:
+--
+--      1) Send an SNMP GET PDU for the following:
+--           snmpSetSerialNo and ostDs1MibAvail
+--      2) If ostDs1MibAvail is false repeat step 1.
+--      3) Send an SNMP SET PDU with the following:
+--
+--           varbind          | value
+--           --------------------------------------------------------
+--           snmpSetSerialNo  | snmpSetSerialNo value read in step 1
+--           ostDs1MibAvail   | false
+--
+--         snmpSetSerialNo must be the first varbind to ensure no other cooperating
+--         management entity will use this resource. A failure to set snmpSetSerialNo due to
+--         another management entity having set it, requires a return to step 1.
+--      4) Set ostDs1MibPortSel to select the module data available from the DS1 MIB data.
+--      5) Set ostDs1MibGetPm to true to trigger the retrieval of the DS1 PM data for the port
+--         selected by ostDs1MibPortSel.
+--      6) Read ostDs1MibPmReady until it becomes TRUE, indicating the requested data is ready.
+--      7) The DS1 PM MIB tables are ready for access.
+--      8) To retrieve PM data for a different module/port, go to step 4.
+--      9) To update the PM data for the currently selected module, go to step 5.
+--     10) Set ostDs1MibAvail to true to allow other management entities to use this resource.
+--
+--   A management entity can use steps 1 through 4 to select data for the dsx1ConfigTable, and
+--   step 10 to release the resource.  Setting ostDs1MibPortSel makes the dsx1ConfigTable data
+--   immediately available.
+
+ostDs1MibAvail OBJECT-TYPE
+    SYNTAX      TruthValue
+    MAX-ACCESS  read-write
+    STATUS      current
+    DESCRIPTION
+        "This object indicates the availability of the DS1 MIB objects for cooperating
+         mangement entities.  A value of true indicates the MIB objects are available.
+         See the description above for use of this object."
+    ::= { ostDs1MibSelection 1 }
+
+ostDs1MibPortSel OBJECT-TYPE
+    SYNTAX      Unsigned32 (0..999999)
+    MAX-ACCESS  read-write
+    STATUS      current
+    DESCRIPTION
+        "Selects the chassis, module and port accessed by all the DS1 MIB tables, see RFC 4805,
+         and the ostdsx1FarEndCurrentTable, ostdsx1FarEndIntervalTable, and ostdsx1FarEndTotalTable
+         MIB tables.
+         Format: CCMMPP where CC is the chassis, MM is the module and PP is the port.
+                Each value being a 2 digit decimal value.
+         Example: 010203 selects chassis 1, module 2, port 3.
+         See the description above for use of this object."
+    ::= { ostDs1MibSelection 2 }
+
+ostDs1MibPmReady OBJECT-TYPE
+    SYNTAX      TruthValue
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+        "This object indicates the requested DS1 PM MIB table data is ready.
+         See the description above for use of this object."
+    ::= { ostDs1MibSelection 3 }
+
+ostDs1MibGetPm OBJECT-TYPE
+    SYNTAX      TruthValue
+    MAX-ACCESS  read-write
+    STATUS      current
+    DESCRIPTION
+        "Set this object to true to trigger the retrieval of DS1 PM MIB table data for
+         the port selected by ostDs1MibPortSel.  When read this object returns true
+         when a retrieval is in process, otherwise it returns false.
+         See the description above for use of this object."
+    ::= { ostDs1MibSelection 4 }
+
+-- -------------------------------------------------------------------------------------
+-- OST DS1 Module Settings MIB Table
+-- -------------------------------------------------------------------------------------
+
+ostDs1ModuleSettingsTable OBJECT-TYPE
+    SYNTAX      SEQUENCE OF OstDs1ModuleSettingsEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION
+       "This supports OST DS1 module settings."
+    ::= { ostDs1ModuleSettings 1 }
+
+ostDs1ModuleSettingsEntry OBJECT-TYPE
+    SYNTAX      OstDs1ModuleSettingsEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION
+       "OST DS1 module settings table entry."
+    INDEX { ostDs1ModuleIndex }
+    ::= { ostDs1ModuleSettingsTable 1 }
+
+OstDs1ModuleSettingsEntry ::= SEQUENCE {
+        ostDs1ModuleIndex                                      OstModuleSingleIndex,
+        ostDs1ModuleInbandLoopbackActivationCode               INTEGER,
+        ostDs1ModuleInbandLoopbackActivationUserDefinedCode    DisplayString,
+        ostDs1ModuleInbandLoopbackDeactivationCode             INTEGER,
+        ostDs1ModuleInbandLoopbackDeactivationUserDefinedCode  DisplayString,
+        ostDs1ModuleOutbandLoopbackActivationCode              INTEGER,
+        ostDs1ModuleOutbandLoopbackActivationUserDefinedCode   DisplayString,
+        ostDs1ModuleOutbandLoopbackDeactivationCode            INTEGER,
+        ostDs1ModuleOutbandLoopbackDeactivationUserDefinedCode DisplayString,
+        ostDs1ModuleClockMode                                  INTEGER,
+        ostDs1ModuleLoopbackTimeout                            Unsigned32,
+        ostDs1ModuleOneClockMode                               INTEGER,
+        ostDs1ModuleAisGeneration                              INTEGER,
+        ostDs1ModuleAisDetectionTime                           Unsigned32,
+        ostDs1ModuleAisGenerationTime                          Unsigned32
+    }
+
+ostDs1ModuleIndex OBJECT-TYPE
+    SYNTAX      OstModuleSingleIndex
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION
+       "The module chassis and slot numbers.
+        Base 10 Format: CCSS where
+            CC is the chassis index, 1 to 99
+            SS is the slot index, 1 to 99"
+    ::= { ostDs1ModuleSettingsEntry 1 }
+
+ostDs1ModuleInbandLoopbackActivationCode OBJECT-TYPE
+    SYNTAX      INTEGER {
+        fac1(1),
+        fac2(2),
+        fac3(3),
+        userdefined(4),
+        disabled(5)
+    }
+    MAX-ACCESS  read-write
+    STATUS      current
+    DESCRIPTION
+       "Set the inband loopback activation code.
+            fac1(1)        = FAC1 (1100)
+            fac2(2)        = FAC2 (11000)
+            fac3(3)        = FAC3 (10000)
+            userdefined(4) = xxxxxxxx
+            disabled(5)    = disabled"
+    ::= { ostDs1ModuleSettingsEntry 2 }
+
+ostDs1ModuleInbandLoopbackActivationUserDefinedCode OBJECT-TYPE
+    SYNTAX      DisplayString (SIZE(3..8))
+    MAX-ACCESS  read-write
+    STATUS      current
+    DESCRIPTION
+       "Set the user defined inband loopback activation code.
+        The format of the value of this object is a text string of '0' and '1' ASCII characters from 3 to 8 characters long.
+        This object is used when ostDs1ModuleInbandLoopbackDeactivation is set to userdefined(4)."
+    ::= { ostDs1ModuleSettingsEntry 3 }
+
+ostDs1ModuleInbandLoopbackDeactivationCode OBJECT-TYPE
+    SYNTAX      INTEGER {
+        fac1(1),
+        fac2(2),
+        fac3(3),
+        userdefined(4),
+        disabled(5)
+    }
+    MAX-ACCESS  read-write
+    STATUS      current
+    DESCRIPTION
+       "Set the inband loopback deactivation code.
+            fac1(1)        = FAC1 (1110)
+            fac2(2)        = FAC2 (11100)
+            fac3(3)        = FAC3 (100)
+            userdefined(4) = xxxxxxxx
+            disabled(5)    = disabled"
+    ::= { ostDs1ModuleSettingsEntry 4 }
+
+ostDs1ModuleInbandLoopbackDeactivationUserDefinedCode OBJECT-TYPE
+    SYNTAX      DisplayString (SIZE(3..8))
+    MAX-ACCESS  read-write
+    STATUS      current
+    DESCRIPTION
+       "Set the user defined inband loopback deactivation code.
+        The format of the value of this object is a text string of '0' and '1' ASCII characters from 3 to 8 characters long.
+        This object is used when ostDs1ModuleInbandLoopbackDeactivation is set to userdefined(4)."
+    ::= { ostDs1ModuleSettingsEntry 5 }
+
+ostDs1ModuleOutbandLoopbackActivationCode OBJECT-TYPE
+    SYNTAX      INTEGER {
+        payload(1),
+        userdefined(2),
+        disabled(3)
+    }
+    MAX-ACCESS  read-write
+    STATUS      current
+    DESCRIPTION
+       "Set the outband loopback activation code.
+            payload(1)     = Payload (00101000)
+            userdefined(2) = 0xxxxxx0
+            disabled(3)    = disabled"
+    ::= { ostDs1ModuleSettingsEntry 6 }
+
+ostDs1ModuleOutbandLoopbackActivationUserDefinedCode OBJECT-TYPE
+    SYNTAX      DisplayString (SIZE(6))
+    MAX-ACCESS  read-write
+    STATUS      current
+    DESCRIPTION
+       "Set the user defined outband loopback activation code.
+        The format of the value of this object is a 6 ASCII character long text string of '0' and '1' characters.
+        The 6 bits are used to generate the 8 bit user defined code, 0xxxxxx0.
+        This object is used when ostDs1ModuleInbandLoopbackDeactivation is set to userdefined(4)."
+    ::= { ostDs1ModuleSettingsEntry 7 }
+
+ostDs1ModuleOutbandLoopbackDeactivationCode OBJECT-TYPE
+    SYNTAX      INTEGER {
+        payload(1),
+        userdefined(2),
+        disabled(3)
+    }
+    MAX-ACCESS  read-write
+    STATUS      current
+    DESCRIPTION
+       "Set the outband loopback deactivation code.
+            payload(1)     = Payload (00100100)
+            userdefined(2) = 0xxxxxx0
+            disabled(3)    = disabled"
+    ::= { ostDs1ModuleSettingsEntry 8 }
+
+ostDs1ModuleOutbandLoopbackDeactivationUserDefinedCode OBJECT-TYPE
+    SYNTAX      DisplayString (SIZE(6))
+    MAX-ACCESS  read-write
+    STATUS      current
+    DESCRIPTION
+       "Set the user defined outband loopback deactivation code.
+        The format of the value of this object is a 6 ASCII character long text string of '0' and '1' characters.
+        The 6 bits are used to generate the 8 bit user defined code, 0xxxxxx0.
+        This object is used when ostDs1ModuleInbandLoopbackDeactivation is set to userdefined(4)."
+    ::= { ostDs1ModuleSettingsEntry 9 }
+
+ostDs1ModuleClockMode OBJECT-TYPE
+    SYNTAX      INTEGER {
+        standard(1),
+        general(2)
+    }
+    MAX-ACCESS  read-write
+    STATUS      current
+    DESCRIPTION
+       "This object sets the clock draft mode.
+
+        standard(1)        sets the standard clock drift mode for Stratum 3 or better
+        general(2)         sets the general clock mode (wide clock acquisition)
+       "
+    ::= { ostDs1ModuleSettingsEntry 10 }
+
+ostDs1ModuleLoopbackTimeout OBJECT-TYPE
+    SYNTAX      Unsigned32 (0..60)
+    UNITS       "minutes"
+    MAX-ACCESS  read-write
+    STATUS      current
+    DESCRIPTION
+       "This object specifies the loopback timeout in minutes.
+
+        A value of 0 indicates there is no loopback timeout.
+       "
+    DEFVAL { 20 }
+    ::= { ostDs1ModuleSettingsEntry 11 }
+
+ostDs1ModuleOneClockMode OBJECT-TYPE
+    SYNTAX      INTEGER {
+        t1RemoteSource(1),
+        t1LocalSource(2)
+    }
+    MAX-ACCESS  read-write
+    STATUS      current
+    DESCRIPTION
+       "This object sets the internal module clock source if DIP switch 22 is
+        OFF. If DIP switch 22 is ON the value of this object is ignored.
+
+        t1RemoteSource(1)     sets the Adaptive clock source from remote device
+        t1LocalSource(2)      sets the Loopback clock source from T1 local source
+       "
+    ::= { ostDs1ModuleSettingsEntry 12 }
+
+
+ostDs1ModuleAisGeneration OBJECT-TYPE
+    SYNTAX      INTEGER {
+        aisEnabled(1),
+        aisDisabled(2)
+    }
+    MAX-ACCESS  read-write
+    STATUS      current
+    DESCRIPTION
+       "This object sets the module to generate AIS when an AIS condition is
+        detected.
+
+        aisEnabled(1)         Enables the generation of AIS
+        aisDisabled(2)        Disables the generation of AIS
+       "
+    DEFVAL { aisEnabled }
+    ::= { ostDs1ModuleSettingsEntry 13 }
+
+ostDs1ModuleAisDetectionTime OBJECT-TYPE
+    SYNTAX      Unsigned32 (0..3600)
+    UNITS       "seconds"
+    MAX-ACCESS  read-write
+    STATUS      current
+    DESCRIPTION
+       "This object specifies the amount time that an AIS condition must be
+        valid when AIS is not being generated before an AIS is generated by the
+        module.
+       "
+    DEFVAL { 20 }
+    ::= { ostDs1ModuleSettingsEntry 14 }
+
+ostDs1ModuleAisGenerationTime OBJECT-TYPE
+    SYNTAX      Unsigned32 (1..3600)
+    UNITS       "seconds"
+    MAX-ACCESS  read-write
+    STATUS      current
+    DESCRIPTION
+       "This object specifies the amount time that an AIS will be generated when
+        a valid AIS condition has been detected for the amount of time indicated
+        by ostDs1ModuleAisDetectionTime.
+       "
+    DEFVAL { 5 }
+    ::= { ostDs1ModuleSettingsEntry 15 }
+
+
+-- -------------------------------------------------------------------------------------
+-- OST DS1 Module Status MIB Table
+-- -------------------------------------------------------------------------------------
+
+ostDs1ModuleStatusTable OBJECT-TYPE
+    SYNTAX      SEQUENCE OF OstDs1ModuleStatusEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION
+       "This supports OST DS1 module status."
+    ::= { ostDs1ModuleStatus 1 }
+
+ostDs1ModuleStatusEntry OBJECT-TYPE
+    SYNTAX      OstDs1ModuleStatusEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION
+       "OST DS1 module status table entry."
+    INDEX { ostDs1ModuleStatusIndex }
+    ::= { ostDs1ModuleStatusTable 1 }
+
+OstDs1ModuleStatusEntry ::= SEQUENCE {
+        ostDs1ModuleStatusIndex         OstModuleSingleIndex,
+        ostDs1ModuleClockIoMode         TruthValue,
+        ostDs1ModuleBaseboardFGPARev    Unsigned32,
+        ostDs1ModuleMezzanineFPGARev    Unsigned32,
+        ostDs1ModuleMuxStatus           INTEGER
+    }
+
+ostDs1ModuleStatusIndex OBJECT-TYPE
+    SYNTAX      OstModuleSingleIndex
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION
+       "The module chassis and slot numbers.
+        Base 10 Format: CCSS where
+            CC is the chassis index, 1 to 99
+            SS is the slot index, 1 to 99"
+    ::= { ostDs1ModuleStatusEntry 1 }
+
+ostDs1ModuleClockIoMode OBJECT-TYPE
+    SYNTAX      TruthValue
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+    "When true, the module places the recovered clock from Port 1 onto the Clock
+     Coax I/O Connector as selected by ostDs1ModuleOneClockMode and DIP switch 22.
+
+     When false, the module uses the clock provided on the Clock Coax I/O connector as the
+     internal clock source instead of the onboard TCXO clock."
+    ::= { ostDs1ModuleStatusEntry 2 }
+
+ostDs1ModuleBaseboardFGPARev OBJECT-TYPE
+    SYNTAX      Unsigned32 (0..999999)
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+    "The FPGA code revision of the baseboard."
+    ::= { ostDs1ModuleStatusEntry 3 }
+
+ostDs1ModuleMezzanineFPGARev OBJECT-TYPE
+    SYNTAX      Unsigned32 (0..999999)
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+    "The FPGA code revision of the mezzanine board."
+    ::= { ostDs1ModuleStatusEntry 4 }
+
+
+ostDs1ModuleMuxStatus OBJECT-TYPE
+    SYNTAX      INTEGER {
+        muxStartup(1),
+        muxInitializing(2),
+        muxInitializingNoPeer(3),
+        muxInitializingPeering(4),
+        muxReadyPeering(5),
+        muxReadyPeered(6),
+        muxReadyNoPeer(7)
+    }
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+    "The status of the TDM mux module.
+        muxStartup(1)              The module is in initial startup and testing
+        muxInitializing(2)         The module is completing initialization but hasn't started finding a partner
+        muxInitializingNoPeer(3)   The module is completing initialization but no partner has been found
+        muxInitializingPeering(4)  The module is completing initialization and a partner has been found, but not completed
+        muxReadyPeering(5)         The module has completed initialization and a partner has been found, but not completed
+        muxReadyPeered(6)          The module has found a partner and is ready transfer TDM data
+        muxReadyNoPeer(7)          The module has lost its partner and cannot transfer TDM data"
+    ::= { ostDs1ModuleStatusEntry 5 }
+
+
+-- -------------------------------------------------------------------------------------
+-- OST DS1 Port Status MIB Table
+-- -------------------------------------------------------------------------------------
+
+ostDs1PortStatusTable OBJECT-TYPE
+    SYNTAX      SEQUENCE OF OstDs1PortStatusEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION
+       "This supports OST DS1 port status."
+    ::= { ostDs1PortStatus 1 }
+
+ostDs1PortStatusEntry OBJECT-TYPE
+    SYNTAX      OstDs1PortStatusEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION
+       "OST DS1 port status table entry."
+    INDEX { ostDs1PortIndex }
+    ::= { ostDs1PortStatusTable 1 }
+
+OstDs1PortStatusEntry ::= SEQUENCE {
+        ostDs1PortIndex             OstPortSingleIndex,
+        ostDs1PortClockType         OstPortClockType,
+        ostDs1PortClockFrequency    OstClockFreq,
+        ostDs1PortClockError        Integer32,
+        ostDs1PortClockValid        INTEGER
+    }
+
+ostDs1PortIndex OBJECT-TYPE
+    SYNTAX      OstPortSingleIndex
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION
+       "Chassis, module and port indices to which this interface belongs."
+    ::= { ostDs1PortStatusEntry 1 }
+
+ostDs1PortClockType OBJECT-TYPE
+    SYNTAX      OstPortClockType
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+    "Clock type."
+    ::= { ostDs1PortStatusEntry 2 }
+
+ostDs1PortClockFrequency OBJECT-TYPE
+    SYNTAX      OstClockFreq
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+    "Clock frequency in hundreths of Hz"
+    ::= { ostDs1PortStatusEntry 3 }
+
+ostDs1PortClockError OBJECT-TYPE
+    SYNTAX      Integer32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+    "Clock error in parts per billion (ppb)."
+    ::= { ostDs1PortStatusEntry 4 }
+
+ostDs1PortClockValid OBJECT-TYPE
+    SYNTAX      INTEGER {
+        valid(1),
+        invalid(2),
+        unknown(3)
+    }
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+    "Indicates where coax input clock is valid.
+
+     valid(1)    indicates input coax clock is valid
+     invalid(2)  indicates input coax clock is invalid
+     unknown(3)  indicates no input coax clock or state of input clock unknown
+    "
+    ::= { ostDs1PortStatusEntry 5 }
+
+
+-- -------------------------------------------------------------------------------------
+-- OST DS1 Far End Current EXT MIB Table
+-- Notes: This table is an extension of the DS1-MIB dsx1FarEndCurrentTable MIB table.
+--        ostDs1MibPortSel is used to select the dsx1CurrentIndex.
+-- -------------------------------------------------------------------------------------
+
+ostdsx1FarEndCurrentTable OBJECT-TYPE
+        SYNTAX  SEQUENCE OF OstDsx1FarEndCurrentEntry
+        MAX-ACCESS  not-accessible
+        STATUS  current
+        DESCRIPTION
+               "The DS1 Fare End Current table contains various statistics
+               being collected for the far end current 15-minute interval."
+        ::= { ostDs1Ext 1 }
+
+ostdsx1FarEndCurrentEntry OBJECT-TYPE
+        SYNTAX  OstDsx1FarEndCurrentEntry
+        MAX-ACCESS  not-accessible
+        STATUS  current
+        DESCRIPTION
+               "An entry in the DS1 Far End Current table."
+        INDEX   { dsx1CurrentIndex }
+        ::= { ostdsx1FarEndCurrentTable 1 }
+
+OstDsx1FarEndCurrentEntry ::=
+        SEQUENCE {
+            ostdsx1FarEndCurrentLCVs       PerfCurrentCount
+   }
+
+ostdsx1FarEndCurrentLCVs OBJECT-TYPE
+        SYNTAX PerfCurrentCount
+        MAX-ACCESS read-only
+        STATUS current
+        DESCRIPTION
+               "The number of Line Coding Violations (LCVs)."
+        ::= { ostdsx1FarEndCurrentEntry 1 }
+
+-- -------------------------------------------------------------------------------------
+-- OST DS1 Far End Interval EXT MIB Table
+-- Note: This table is an extension of the DS1-MIB dsx1FarEndIntervalTable MIB table.
+--       ostDs1MibPortSel is used to select the dsx1IntervalIndex.
+-- -------------------------------------------------------------------------------------
+
+ostdsx1FarEndIntervalTable OBJECT-TYPE
+        SYNTAX  SEQUENCE OF OstDsx1FarEndIntervalEntry
+        MAX-ACCESS  not-accessible
+        STATUS  current
+        DESCRIPTION
+               "The DS1 Far End Interval table contains various
+               statistics collected by each DS1 interface over
+               the previous 24 hours of operation.  The past 24
+               hours are broken into 96 completed 15-minute
+               intervals.  Each row in this table represents one
+               such interval (identified by dsx1IntervalNumber)
+               for one specific instance (identified by
+               dsx1IntervalIndex)."
+        ::= { ostDs1Ext 2 }
+
+ostdsx1FarEndIntervalEntry OBJECT-TYPE
+        SYNTAX  OstDsx1FarEndIntervalEntry
+        MAX-ACCESS  not-accessible
+        STATUS  current
+        DESCRIPTION
+               "An entry in the DS1 Interval table."
+        INDEX   { dsx1IntervalIndex, dsx1IntervalNumber }
+        ::= { ostdsx1FarEndIntervalTable 1 }
+
+OstDsx1FarEndIntervalEntry ::=
+        SEQUENCE {
+            ostdsx1FarEndIntervalLCVs     PerfIntervalCount
+   }
+
+ostdsx1FarEndIntervalLCVs OBJECT-TYPE
+        SYNTAX PerfIntervalCount
+        MAX-ACCESS read-only
+        STATUS current
+        DESCRIPTION
+               "The number of far end Line Coding Violations."
+        ::= { ostdsx1FarEndIntervalEntry 1 }
+
+-- -------------------------------------------------------------------------------------
+-- OST DS1 Far End Total EXT MIB Table
+-- Note: This table is an extension of the DS1-MIB dsx1FarEndTotalTable MIB table.
+--       ostDs1MibPortSel is used to select the dsx1TotalIndex.
+-- -------------------------------------------------------------------------------------
+
+ostdsx1FarEndTotalTable OBJECT-TYPE
+        SYNTAX  SEQUENCE OF OstDsx1FarEndTotalEntry
+        MAX-ACCESS  not-accessible
+        STATUS  current
+        DESCRIPTION
+               "The DS1 Far End Total table contains the cumulative sum
+               of the various statistics for the 24-hour period
+               preceding the current interval."
+        ::= { ostDs1Ext 3 }
+
+ostdsx1FarEndTotalEntry OBJECT-TYPE
+        SYNTAX  OstDsx1FarEndTotalEntry
+        MAX-ACCESS  not-accessible
+        STATUS  current
+        DESCRIPTION
+               "An entry in the DS1 Far End Total table."
+        INDEX   { dsx1TotalIndex }
+        ::= { ostdsx1FarEndTotalTable 1 }
+
+OstDsx1FarEndTotalEntry ::=
+        SEQUENCE {
+            ostdsx1FarEndTotalLCVs                 PerfTotalCount
+   }
+
+ostdsx1FarEndTotalLCVs OBJECT-TYPE
+        SYNTAX PerfTotalCount
+        MAX-ACCESS read-only
+        STATUS current
+        DESCRIPTION
+               "The number of Line Coding Violations (LCVs) encountered by a DS1 far end
+               interface in the current 15-minute interval.  Invalid 15-minute intervals
+               count as 0."
+        ::= { ostdsx1FarEndTotalEntry 1 }
+
+
+-- -----------------------------------------------------------------------------------------
+-- Conformance
+-- -----------------------------------------------------------------------------------------
+
+ostDs1Compliances OBJECT IDENTIFIER ::= { ostDs1Conformance 1 }
+ostDs1Groups      OBJECT IDENTIFIER ::= { ostDs1Conformance 2 }
+
+-- compliance statements
+
+ostDs1Compliance MODULE-COMPLIANCE
+    STATUS       current
+    DESCRIPTION "The compliance statement for iConverter modules which support DS1."
+    MODULE
+        MANDATORY-GROUPS { ostDs1Group }
+    ::= { ostDs1Compliances 1 }
+
+-- units of conformance
+
+ostDs1Group OBJECT-GROUP
+    OBJECTS {
+        ostDs1MibAvail,
+        ostDs1MibPortSel,
+        ostDs1MibPmReady,
+        ostDs1MibGetPm,
+
+        ostDs1ModuleInbandLoopbackActivationCode,
+        ostDs1ModuleInbandLoopbackActivationUserDefinedCode,
+        ostDs1ModuleInbandLoopbackDeactivationCode,
+        ostDs1ModuleInbandLoopbackDeactivationUserDefinedCode,
+        ostDs1ModuleOutbandLoopbackActivationCode,
+        ostDs1ModuleOutbandLoopbackActivationUserDefinedCode,
+        ostDs1ModuleOutbandLoopbackDeactivationCode,
+        ostDs1ModuleOutbandLoopbackDeactivationUserDefinedCode,
+        ostDs1ModuleClockMode,
+        ostDs1ModuleLoopbackTimeout,
+        ostDs1ModuleOneClockMode,
+        ostDs1ModuleAisGeneration,
+        ostDs1ModuleAisDetectionTime,
+        ostDs1ModuleAisGenerationTime,
+
+        ostDs1ModuleClockIoMode,
+        ostDs1ModuleBaseboardFGPARev,
+        ostDs1ModuleMezzanineFPGARev,
+        ostDs1ModuleMuxStatus,
+
+        ostDs1PortClockType,
+        ostDs1PortClockFrequency,
+        ostDs1PortClockError,
+        ostDs1PortClockValid,
+
+        ostdsx1FarEndCurrentLCVs,
+        ostdsx1FarEndIntervalLCVs,
+        ostdsx1FarEndTotalLCVs
+    }
+    STATUS       current
+    DESCRIPTION "A collection of OST DS1 objects."
+    ::= { ostDs1Groups 1 }
+
+END
+

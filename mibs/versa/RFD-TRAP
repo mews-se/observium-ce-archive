@@ -1,0 +1,75 @@
+--
+-- @Description: MIB for RFD Traps
+-- @Date       : 2014-06-25
+--
+
+RFD-TRAP DEFINITIONS ::= BEGIN
+IMPORTS
+    MODULE-IDENTITY, OBJECT-TYPE, NOTIFICATION-TYPE
+        FROM SNMPv2-SMI
+    alarmIndex, alarmType, alarmDevice, alarmObject,
+    alarmSpecificProblem, alarmEventType, alarmProbableCause,
+    alarmTime, alarmSeverity, alarmHasClear, alarmText,
+    tenantName, alarmClass
+        FROM TRAPS-COMMON
+    systemNotification
+        FROM VERSA-MIB;
+
+rfdtrapMIB MODULE-IDENTITY
+    LAST-UPDATED "201406250000Z"
+    ORGANIZATION "Versa Networks"
+    CONTACT-INFO "
+        2953 Bunker Hill Lane, Suite 210
+        Santa Clara, CA - 95035 (USA)
+        Email: support@versa-networks.com"
+    DESCRIPTION  "Versa Networks' Enterprise MIB for Elasticity traps"
+    ::= { systemNotification 1 }
+
+-- Root Object
+rfdTrapObjects OBJECT IDENTIFIER ::= { rfdtrapMIB 1 }
+rfdNotification OBJECT IDENTIFIER ::= { rfdtrapMIB 2 }
+
+rfdApplianceId OBJECT-TYPE
+    SYNTAX      OCTET STRING
+    MAX-ACCESS  accessible-for-notify
+    STATUS      current
+    DESCRIPTION "ApplianceId of instance generating event"
+        ::= { rfdTrapObjects 1 }
+
+rfdScaleOutType OBJECT-TYPE
+    SYNTAX      OCTET STRING
+    MAX-ACCESS  accessible-for-notify
+    STATUS      current
+    DESCRIPTION "Scale-out for IO or Service overload"
+        ::= { rfdTrapObjects 2 }
+
+rfdScaleInSlotId OBJECT-TYPE
+    SYNTAX      OCTET STRING
+    MAX-ACCESS  accessible-for-notify
+    STATUS      current
+    DESCRIPTION "Scale-in for IO or Service underload"
+        ::= { rfdTrapObjects 3 }
+
+scaleOut NOTIFICATION-TYPE
+    OBJECTS {
+        alarmType, alarmDevice, alarmSpecificProblem,
+        alarmClass, alarmEventType, alarmProbableCause, alarmTime,
+        alarmSeverity, alarmHasClear, alarmText,
+        rfdApplianceId, rfdScaleOutType
+    }
+    STATUS  current
+    DESCRIPTION "Scale-Out Notification when instances are over-loaded"
+        ::= { rfdNotification 1 }
+
+scaleIn NOTIFICATION-TYPE
+    OBJECTS {
+        alarmType, alarmDevice, alarmSpecificProblem,
+        alarmClass, alarmEventType, alarmProbableCause, alarmTime,
+        alarmSeverity, alarmHasClear, alarmText,
+        rfdApplianceId, rfdScaleInSlotId
+    }
+    STATUS  current
+    DESCRIPTION "Scale-in Notification when instances are under-loaded"
+        ::= { rfdNotification 2 }
+
+END

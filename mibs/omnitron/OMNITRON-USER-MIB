@@ -1,0 +1,470 @@
+OMNITRON-USER-MIB DEFINITIONS ::= BEGIN
+
+IMPORTS
+    MODULE-IDENTITY, OBJECT-TYPE, Unsigned32
+        FROM SNMPv2-SMI           -- RFC-2578
+    MODULE-COMPLIANCE, OBJECT-GROUP
+        FROM SNMPv2-CONF          -- RFC-2580
+    TimeInterval, RowStatus
+        FROM SNMPv2-TC            -- RFC-2579        
+    omnitron, OstIndexIntegerNextFree, OstIpAddr, OstFileNameStringOrNone
+        FROM OMNITRON-TC-MIB;     -- Omnitron Enterprise Extension MIB
+
+omnitronUserMib MODULE-IDENTITY
+    LAST-UPDATED "201709071200Z"  -- September 7, 2017
+    ORGANIZATION "Omnitron Systems Technology, Inc."
+    CONTACT-INFO "Omnitron Systems Technology, Inc.
+                  38 Tesla
+                  Irvine, CA 92618-4670
+                  USA
+
+             Tel: (949) 250 6510
+             Fax: (949) 250 6514
+          E-mail: info@omnitron-systems.com
+   International: +1 949 250 6510
+
+                  Technical Support and Customer Service
+             Tel: (800) 675 8410
+          E-mail: support@omnitron-systems.com
+   International: +1 949 250 6510"
+
+    DESCRIPTION
+            "Omnitron User MIB for use with iConverter Management Modules v5.3
+             and NetOutlook.
+
+             Copyright 2017 Omnitron Systems Technology, Inc.
+             All rights reserved.
+            "
+
+    REVISION    "201709071200Z"  -- September 7, 2017
+    DESCRIPTION "Added ostUserCfgSshFileName
+                "
+                
+    REVISION    "201706271200Z"  -- June 27, 2017
+    DESCRIPTION "Added ostUserCfgSessionTimeout and ostUserCfgLockout
+                "
+                
+    REVISION    "201706261200Z"  -- June 26, 2017
+    DESCRIPTION "Corrected ostUserCfgPassword minimum length to '1'
+                 Corrected ostUserCfgName minimum length to '1'
+                "
+
+    REVISION    "201702161200Z"  -- February 16, 2017
+    DESCRIPTION "Corrected typographical error ostUserCfgLockTime description 
+                "
+
+    REVISION    "201701191200Z"     -- January 19, 2017
+    DESCRIPTION "Corrected typographical errors
+                "
+                
+    REVISION    "201701181200Z"     -- January 18, 2017
+    DESCRIPTION "Modified ostUserCfgLockTime description.
+                "
+                
+    REVISION    "201701121200Z"     -- January 12, 2017
+    DESCRIPTION "Added ostUserCfgStatus and ostUserCfgLockTime 
+                 Updated ostUserStatusState enumerations
+                 Modified ostUserStatusOpenLockTime to ostUserStatusOpenTime
+                "
+    
+    REVISION    "201603211200Z"     -- March 21, 2016
+    DESCRIPTION "Initial version of v5.3 MIB.
+                "
+    ::= { omnitron 22 }
+
+
+--------------------------------------------------------------------------------
+-- User Global Configuration Table
+--------------------------------------------------------------------------------
+
+ostUserGlobalCfgTable  OBJECT IDENTIFIER ::= { omnitronUserMib 1 }
+
+ostUserGlobalMaxNumber OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+       "This object specifies the maximum number defined users that are possible
+
+       "
+    ::= { ostUserGlobalCfgTable 1 }
+
+ostUserGlobalUserNextIndex OBJECT-TYPE
+    SYNTAX      OstIndexIntegerNextFree
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+       "This object contains an unused value for the next user instance
+        that can be used to create a new user, or a zero to indicate that none exist.
+
+        This value needs to be read in order to find an available index for
+        row-creation of a user instance and then used when a row is created.
+        This value is automatically updated by the SNMP Agent after the row
+        is created.
+       "
+    ::= { ostUserGlobalCfgTable 2 }
+    
+
+--------------------------------------------------------------------------------
+-- User Configuration Table
+--------------------------------------------------------------------------------
+
+ostUserCfgTable OBJECT-TYPE
+    SYNTAX      SEQUENCE OF OstUserCfgEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION
+       "This table supports user configuration. Rows in this table are
+        created by using the ostUserGlobalUserNextIndex object to determine
+        the next index to be used when a row is created.        
+       "
+    ::= { omnitronUserMib 2 }
+    
+
+ostUserCfgEntry OBJECT-TYPE
+    SYNTAX      OstUserCfgEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION
+       "This is a user configuration table entry."
+    INDEX { ostUserCfgIndex }
+    ::= { ostUserCfgTable 1 }
+    
+OstUserCfgEntry ::= SEQUENCE {
+    ostUserCfgIndex                     Unsigned32,
+    ostUserCfgRowStatus                 RowStatus,
+    ostUserCfgType                      INTEGER,
+    ostUserCfgName                      OCTET STRING,
+    ostUserCfgPassword                  OCTET STRING,
+    ostUserCfgStatus                    INTEGER,
+    ostUserCfgLockTime                  TimeInterval,
+    ostUserCfgSessionTimeout            Unsigned32,
+    ostUserCfgLockout                   Unsigned32,
+    ostUserCfgSshFileName               OstFileNameStringOrNone
+    }
+
+ostUserCfgIndex OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION
+       "An index that is used to identify the specific user that is 
+        configured.
+       "
+    ::= { ostUserCfgEntry 1 }
+
+ostUserCfgRowStatus OBJECT-TYPE
+    SYNTAX      RowStatus
+    MAX-ACCESS  read-create
+    STATUS      current
+    DESCRIPTION
+       "The status of the row.
+
+        The writable columns in a row cannot be changed if the row
+        is active. All columns must have a valid value before a row
+        can be activated.
+       "
+   ::= { ostUserCfgEntry 2 }
+
+ostUserCfgType OBJECT-TYPE
+    SYNTAX      INTEGER {
+        admin        (1),
+        readWrite    (2),
+        readOnly     (3),
+        deny         (4)
+    }
+    MAX-ACCESS  read-create
+    STATUS      current
+    DESCRIPTION
+       "This object indicates the specific user type.
+
+        admin(1)       Administration user type. User can read or write
+                       any configuration item
+                       
+        readWrite(2)   Read-write user type. User can read or write all 
+                       configuration items except user names, passwords,
+                       user types of other users. A read-write user can
+                       modify its own password.
+                       
+        readOnly(3)    Read-only user type. User can read any configurion
+                       items except user names, passwords, user types. A
+                       read-only user can modify its own password.
+                       
+        deny(4)        Deny user type. User cannot read or write any 
+                       configuration items. A deny user is not allowed
+                       to log in.
+       "
+    DEFVAL { readWrite }
+    ::= { ostUserCfgEntry 3 }
+    
+ostUserCfgName OBJECT-TYPE
+    SYNTAX      OCTET STRING (SIZE(1..32))
+    MAX-ACCESS  read-create
+    STATUS      current
+    DESCRIPTION
+       "This object configures the user name. The user name can be used for
+        Telnet, FTP, console port, and SSH plain text login types.
+       "
+    ::= { ostUserCfgEntry 4 }
+
+ostUserCfgPassword OBJECT-TYPE
+    SYNTAX      OCTET STRING (SIZE(1..32))
+    MAX-ACCESS  read-create
+    STATUS      current
+    DESCRIPTION
+       "This object configures the user password. The password can be used
+        for Telnet, FTP, console port, or SSH plain text password.
+        
+        When this object is read it always returns '*****', regardless of the
+        length of the password. 
+       "
+    ::= { ostUserCfgEntry 5 }
+
+ostUserCfgStatus OBJECT-TYPE
+    SYNTAX      INTEGER {
+        available (1),
+        lockedout (2)
+    }
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+       "This object indicates the status of the specific user protocol instance.
+
+        available(1)  User available for new user sessions
+        lockedout(2)  User Locked out for authentication and cannot become active
+                      until the locked out timeout expires and the user status
+                      goes back to available.
+       "
+    ::= { ostUserCfgEntry 6 }
+
+ostUserCfgLockTime OBJECT-TYPE
+    SYNTAX      TimeInterval
+    UNITS       "centiseconds"
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+       "This object indicates the time in 0.01 seconds remaining for the user 
+        to be locked out. When a user is locked out the object value 
+        decrements until the user is not locked out. When the ojbect is '0'
+        the user is not locked out and is 'available' for access.  
+       "
+    ::= { ostUserCfgEntry 7 }    
+
+ostUserCfgSessionTimeout OBJECT-TYPE
+    SYNTAX      Unsigned32 (0..3600)
+    MAX-ACCESS  read-write
+    STATUS      current
+    DESCRIPTION
+       "This object specifies the user session timeout value in seconds. This
+        same value is used for all protocols.
+
+        A value of 0 indicates there is no session timeout.
+
+        The session timeout is reset everytime there is valid information
+        sent from the protocol or received by the protocol.
+       "
+    DEFVAL { 300 }
+    ::= { ostUserCfgEntry 8 }
+
+ostUserCfgLockout OBJECT-TYPE
+    SYNTAX      Unsigned32 (0..300)
+    MAX-ACCESS  read-write
+    STATUS      current
+    DESCRIPTION
+       "This object specifies the amount of time in seconds that a user
+        will not be authenticated if too many login attempts have failed.
+        
+
+        A value of 0 indicates there is no user lockout timeout.
+       "
+    DEFVAL { 300 }
+    ::= { ostUserCfgEntry 9 }
+    
+ostUserCfgSshFileName OBJECT-TYPE
+    SYNTAX      OstFileNameStringOrNone
+    MAX-ACCESS  read-write
+    STATUS      current
+    DESCRIPTION
+       "The key file name associated with the SSH user.
+
+        The file must exist and must be previously uploaded in order to
+        be used during user authentication.
+       "
+    ::= { ostUserCfgEntry 10 }
+
+
+--------------------------------------------------------------------------------
+-- User Session Status Table
+--------------------------------------------------------------------------------
+
+ostUserStatusTable OBJECT-TYPE
+    SYNTAX      SEQUENCE OF OstUserStatusEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION
+       "This table supports the user session status."
+    ::= {  omnitronUserMib 3 }
+
+ostUserStatusEntry OBJECT-TYPE
+    SYNTAX      OstUserStatusEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION
+       "This is a user session status table entry."
+    INDEX { ostUserCfgIndex, ostUserStatusInstance}
+    ::= { ostUserStatusTable 1 }
+
+OstUserStatusEntry ::= SEQUENCE {
+    ostUserStatusInstance                 Unsigned32,
+    ostUserStatusType                     INTEGER,
+    ostUserStatusState                    INTEGER,
+    ostUserStatusManagementInterface      INTEGER,
+    ostUserStatusIpAddressString          OstIpAddr,
+    ostUserStatusOpenTime                 TimeInterval    
+    }
+
+ostUserStatusInstance OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION
+       "An index that is used to identify a specific protocol session for 
+        the indicated user.
+
+        The index should remain constant until the session is closed.
+       "
+    ::= { ostUserStatusEntry 1 }
+    
+ostUserStatusType OBJECT-TYPE
+    SYNTAX      INTEGER {
+        console   (1),
+        telnet    (2),
+        ftp       (3),
+        ssh       (4)
+    }
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+       "This object indicates the protocol session identity the specific user
+        protocol instance.
+
+        console(1)     Session instance type is the serial console port
+        telnet(2)      Session instance type is TELNET
+        ftp(3)         Session instance type is FTP
+        ssh(4)         Session instance type is SSH
+       "
+    ::= { ostUserStatusEntry 2 }
+
+ostUserStatusState OBJECT-TYPE
+    SYNTAX      INTEGER {
+        inactive  (1),
+        active    (2)
+    }
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+       "This object indicates the status of the specific user protocol instance.
+
+        inactive(1)   Inactive (reserved value, not used)
+        active(2)     Authenticated and active
+       "
+    ::= { ostUserStatusEntry 3 }
+
+ostUserStatusManagementInterface OBJECT-TYPE
+    SYNTAX      INTEGER {
+        notDefined  (1),
+        mgt1        (2),
+        mgt2        (3)
+    }
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+       "This object indicates the Management Interface of the specific user
+        protocol instance.
+       
+        The value of this object is 'notDefined' if the user session is locked
+        out or the user session is for the serial console port.
+
+        notDefined(1)  Management port is unknown or undefined
+        mgt1(2)        Management Port 1 association
+        mgt2(3)        Management Port 2 association
+       "
+    ::= { ostUserStatusEntry 4 }
+
+ostUserStatusIpAddressString OBJECT-TYPE
+    SYNTAX      OstIpAddr
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+       "This object indicates the IPv4 or IPv6 address of the specific
+        user protocol instance. 
+
+        The value of this this object is '::' if the user session is locked
+        out or the user session is for the serial console port.
+       "
+    ::= { ostUserStatusEntry 5 }
+
+ostUserStatusOpenTime OBJECT-TYPE
+    SYNTAX      TimeInterval
+    UNITS       "centiseconds"
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+       "This object indicates the time a specific user protocol instance has
+        been open in 0.01 seconds.
+       "
+    ::= { ostUserStatusEntry 6 }
+
+
+--------------------------------------------------------------------------------
+-- Conformance Information
+--------------------------------------------------------------------------------
+ostUserCompliances        OBJECT IDENTIFIER ::= { omnitronUserMib 4 }
+ostUserGroups             OBJECT IDENTIFIER ::= { omnitronUserMib 5 }
+
+
+--------------------------------------------------------------------------------
+-- Omnitron User MIB Units of conformance
+--------------------------------------------------------------------------------
+ostUserGroup OBJECT-GROUP
+    OBJECTS {
+        ostUserGlobalMaxNumber,
+        ostUserGlobalUserNextIndex,
+
+        ostUserCfgRowStatus,
+        ostUserCfgType,
+        ostUserCfgName,
+        ostUserCfgPassword,
+        ostUserCfgStatus,
+        ostUserCfgLockTime,
+        ostUserCfgSessionTimeout,
+        ostUserCfgLockout,
+        ostUserCfgSshFileName,
+        
+        ostUserStatusType,
+        ostUserStatusState,
+        ostUserStatusManagementInterface,
+        ostUserStatusIpAddressString,
+        ostUserStatusOpenTime
+    }
+    STATUS      current
+    DESCRIPTION
+       "Mandatory objects for the user functional group."
+    ::= { ostUserGroups 1 }
+
+
+--------------------------------------------------------------------------------
+-- Omnitron User MIB Compliance statements
+-------------------------------------------------------------------------------
+ostUserCompliance MODULE-COMPLIANCE
+    STATUS       current
+    DESCRIPTION "The compliance statement for the Omnitron User MIB."
+    MODULE
+        MANDATORY-GROUPS {
+            ostUserGroup
+        }
+    ::= { ostUserCompliances 1 }
+
+
+END
+

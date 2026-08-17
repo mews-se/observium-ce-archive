@@ -1,0 +1,110 @@
+<?php
+/**
+ * Observium
+ *
+ *   This file is part of Observium.
+ *
+ * @package    observium
+ * @subpackage discovery
+ * @copyright  (C) Adam Armstrong
+ *
+ */
+
+/**
+ * enterprises.netgear.nasManager.diskTable.diskEntry.diskNumber.1 = INTEGER: 1
+ * enterprises.netgear.nasManager.diskTable.diskEntry.diskNumber.2 = INTEGER: 2
+ * enterprises.netgear.nasManager.diskTable.diskEntry.diskNumber.3 = INTEGER: 3
+ * enterprises.netgear.nasManager.diskTable.diskEntry.diskNumber.4 = INTEGER: 4
+ * enterprises.netgear.nasManager.diskTable.diskEntry.diskChannel.1 = INTEGER: 1
+ * enterprises.netgear.nasManager.diskTable.diskEntry.diskChannel.2 = INTEGER: 2
+ * enterprises.netgear.nasManager.diskTable.diskEntry.diskChannel.3 = INTEGER: 3
+ * enterprises.netgear.nasManager.diskTable.diskEntry.diskChannel.4 = INTEGER: 4
+ * enterprises.netgear.nasManager.diskTable.diskEntry.diskModel.1 = STRING: "Seagate ST31000524AS 931 GB"
+ * enterprises.netgear.nasManager.diskTable.diskEntry.diskModel.2 = STRING: "Seagate ST31000524AS 931 GB"
+ * enterprises.netgear.nasManager.diskTable.diskEntry.diskModel.3 = STRING: "Seagate ST31000524AS 931 GB"
+ * enterprises.netgear.nasManager.diskTable.diskEntry.diskModel.4 = STRING: "Seagate ST31000524AS 931 GB"
+ * enterprises.netgear.nasManager.diskTable.diskEntry.diskState.1 = STRING: "ok"
+ * enterprises.netgear.nasManager.diskTable.diskEntry.diskState.2 = STRING: "ok"
+ * enterprises.netgear.nasManager.diskTable.diskEntry.diskState.3 = STRING: "ok"
+ * enterprises.netgear.nasManager.diskTable.diskEntry.diskState.4 = STRING: "ok"
+ * enterprises.netgear.nasManager.diskTable.diskEntry.diskTemperature.1 = INTEGER: 105
+ * enterprises.netgear.nasManager.diskTable.diskEntry.diskTemperature.2 = INTEGER: 114
+ * enterprises.netgear.nasManager.diskTable.diskEntry.diskTemperature.3 = INTEGER: 113
+ * enterprises.netgear.nasManager.diskTable.diskEntry.diskTemperature.4 = INTEGER: 105
+ **/
+
+$cache['readynas-mib']['diskTable'] = snmpwalk_cache_oid($device, 'diskTable', [], 'READYNAS-MIB');
+
+foreach ($cache['readynas-mib']['diskTable'] as $index => $entry) {
+    $descr = $entry['diskNumber'] . ' (' . $entry['diskChannel'] . '): ' . trim($entry['diskModel']);
+    $oid   = ".1.3.6.1.4.1.4526.18.3.1.5.$index";
+    $value = $entry['diskTemperature'];
+
+    if ($value != '') {
+        $options = [ 'rename_rrd' => 'readynas-mib_diskTemperature-diskTemperature.' . $index ];
+        discover_sensor_ng($device, 'temperature', $mib, 'diskTemperature', $oid, $index, $descr, 1, $value, $options);
+    }
+
+    $oid   = ".1.3.6.1.4.1.4526.18.3.1.4.$index";
+    $value = $entry['diskState'];
+
+    if ($value != '') {
+        //discover_status($device, $oid, 'diskState.'.$index, 'readynas-mib_diskState', $descr, $value, array('entPhysicalClass' => 'storage'));
+    }
+}
+
+/*
+ enterprises.netgear.nasManager.fanTable.fanEntry.fanNumber.1 = INTEGER: 1
+ enterprises.netgear.nasManager.fanTable.fanEntry.fanRPM.1 = INTEGER: 2027
+ enterprises.netgear.nasManager.fanTable.fanEntry.fanType.1 = STRING: "none"
+*/
+
+$cache['readynas-mib']['fanTable'] = snmpwalk_cache_oid($device, 'fanTable', [], 'READYNAS-MIB');
+
+foreach ($cache['readynas-mib']['fanTable'] as $index => $entry) {
+    $descr = 'Fan ' . $entry['fanNumber'] . ' (' . $entry['fanType'] . ')';
+    $oid   = ".1.3.6.1.4.1.4526.18.4.1.2.$index";
+    $value = $entry['fanRPM'];
+
+    if ($value != '') {
+        $options = [ 'rename_rrd' => 'readynas-mib_fanRPM-fanRPM.' . $index ];
+        discover_sensor_ng($device, 'fanspeed', $mib, 'fanRPM', $oid, $index, $descr, 1, $value, $options);
+    }
+
+    $oid   = ".1.3.6.1.4.1.4526.22.4.1.3.$index";
+    $value = $entry['fanStatus'];
+
+    if ($value != '') {
+        //discover_status($device, $oid, 'fanStatus.'.$index, 'readynas-mib_fanStatus', $descr, $value, array('entPhysicalClass' => 'storage'));
+    }
+
+}
+
+/*
+ enterprises.netgear.nasManager.temperatureTable.temperatureEntry.temperatureNumber.1 = INTEGER: 1
+ enterprises.netgear.nasManager.temperatureTable.temperatureEntry.temperatureValue.1 = INTEGER: 98
+ enterprises.netgear.nasManager.temperatureTable.temperatureEntry.temperatureStatus.1 = STRING: "ok"
+*/
+
+$cache['readynas-mib']['temperatureTable'] = snmpwalk_cache_oid($device, 'temperatureTable', [], 'READYNAS-MIB');
+
+foreach ($cache['readynas-mib']['temperatureTable'] as $index => $entry) {
+    $descr = 'Temperature ' . $entry['temperatureNumber'];
+    $oid   = ".1.3.6.1.4.1.4526.18.5.1.2.$index";
+    $value = $entry['temperatureValue'];
+
+    if ($value != '') {
+        $options = [ 'rename_rrd' => 'readynas-mib_temperatureValue-temperatureValue.' . $index ];
+        discover_sensor_ng($device, 'temperature', $mib, 'temperatureValue', $oid, $index, $descr, 1, $value, $options);
+    }
+
+    $oid   = ".1.3.6.1.4.1.4526.22.5.1.3.$index";
+    $value = $entry['fanStatus'];
+
+    if ($value != '') {
+        //discover_status($device, $oid, 'fanStatus.'.$index, 'readynas-mib_fanStatus', $descr, $value, array('entPhysicalClass' => 'storage'));
+    }
+
+}
+
+// EOF

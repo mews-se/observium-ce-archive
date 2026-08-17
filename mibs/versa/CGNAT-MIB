@@ -1,0 +1,547 @@
+CGNAT-MIB DEFINITIONS ::= BEGIN
+IMPORTS
+    MODULE-IDENTITY, OBJECT-TYPE,
+    Integer32, Unsigned32, Counter32, Counter64,
+    Gauge32, IpAddress
+        FROM SNMPv2-SMI
+    TEXTUAL-CONVENTION, RowStatus, DateAndTime,
+    TruthValue
+        FROM SNMPv2-TC
+    orgServices
+        FROM VERSA-MIB
+;
+
+cgnat MODULE-IDENTITY
+    LAST-UPDATED "201406100000Z"
+    ORGANIZATION "Versa Networks"
+    CONTACT-INFO "
+        2953 Bunker Hill Lane, Suite 210
+        Santa Clara, CA - 95035 (USA)
+        Email: support@versa-networks.com"
+    DESCRIPTION "Enterprise MIB for Versa Networks'
+Carrier Grade NAT solution"
+    REVISION "201406100000Z"
+    DESCRIPTION "Initial revision"
+    ::= { orgServices 2 }
+
+ConfdString ::= TEXTUAL-CONVENTION
+    DISPLAY-HINT "1t"
+    STATUS      current
+    DESCRIPTION "xs: and confd: types mapped to strings"
+    SYNTAX      OCTET STRING
+
+String ::= TEXTUAL-CONVENTION
+    DISPLAY-HINT "1t"
+    STATUS      current
+    DESCRIPTION "xs:string"
+    SYNTAX      OCTET STRING
+
+cgnatPoolTable OBJECT-TYPE
+    SYNTAX      SEQUENCE OF CgnatPoolEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "CGNAT pool statistics"
+    ::= { cgnat 1 }
+
+cgnatPoolEntry OBJECT-TYPE
+    SYNTAX      CgnatPoolEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION ""
+    INDEX { cgnatPoolOrgId, cgnatPoolId }
+        ::= { cgnatPoolTable 1 }
+
+CgnatPoolEntry ::=
+    SEQUENCE {
+        cgnatPoolOrgId Unsigned32,
+        cgnatPoolId Unsigned32,
+        cgnatPoolOrgName String,
+        cgnatPoolName String,
+        cgnatPoolTcpBindindsAllocd ConfdString,
+        cgnatPoolTcpBindindsFreed ConfdString,
+        cgnatPoolTcpAllocFailures ConfdString,
+        cgnatPoolTcpFreeFailures ConfdString,
+        cgnatPoolTcpPoolUsage Unsigned32,
+        cgnatPoolUdpBindingsAllocd ConfdString,
+        cgnatPoolUdpBindingsFreed ConfdString,
+        cgnatPoolUdpAllocFailures ConfdString,
+        cgnatPoolUdpFreeFailures ConfdString,
+        cgnatPoolUdpPoolUsage Unsigned32,
+        cgnatPoolIcmpBindingsAllocd ConfdString,
+        cgnatPoolIcmpBindingsFreed ConfdString,
+        cgnatPoolIcmpAllocFailures ConfdString,
+        cgnatPoolIcmpFreeFailures ConfdString,
+        cgnatPoolIcmpPoolUsage Unsigned32,
+        cgnatPoolAnyBindingsAllocd ConfdString,
+        cgnatPoolAnyBindingsFreed ConfdString,
+        cgnatPoolAnyAllocFailures ConfdString,
+        cgnatPoolAnyFreeFailures ConfdString,
+        cgnatPoolAnyPoolUsage Unsigned32,
+        cgnatPoolUsage String
+    }
+
+cgnatPoolOrgId OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "Organization id"
+    ::= { cgnatPoolEntry 1 }
+
+cgnatPoolId OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "CGNAT pool id"
+    ::= { cgnatPoolEntry 2 }
+
+cgnatPoolOrgName OBJECT-TYPE
+    SYNTAX      String
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Organization name"
+    ::= { cgnatPoolEntry 3 }
+
+cgnatPoolName OBJECT-TYPE
+    SYNTAX      String
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "CGNAT pool name"
+    ::= { cgnatPoolEntry 4 }
+
+cgnatPoolTcpBindindsAllocd OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total TCP bindings allocated"
+    ::= { cgnatPoolEntry 5 }
+
+cgnatPoolTcpBindindsFreed OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total TCP bindings freed"
+    ::= { cgnatPoolEntry 6 }
+
+cgnatPoolTcpAllocFailures OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total TCP binding alloc failures"
+    ::= { cgnatPoolEntry 7 }
+
+cgnatPoolTcpFreeFailures OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total TCP binding free failures"
+    ::= { cgnatPoolEntry 8 }
+
+cgnatPoolTcpPoolUsage OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  read-only
+    STATUS      deprecated
+    DESCRIPTION "TCP pool utilization"
+    ::= { cgnatPoolEntry 9 }
+
+cgnatPoolUdpBindingsAllocd OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total UDP bindings allocated"
+    ::= { cgnatPoolEntry 10 }
+
+cgnatPoolUdpBindingsFreed OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total UDP bindings freed"
+    ::= { cgnatPoolEntry 11 }
+
+cgnatPoolUdpAllocFailures OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total UDP binding alloc failures"
+    ::= { cgnatPoolEntry 12 }
+
+cgnatPoolUdpFreeFailures OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total UDP binding free failures"
+    ::= { cgnatPoolEntry 13 }
+
+cgnatPoolUdpPoolUsage OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  read-only
+    STATUS      deprecated
+    DESCRIPTION "UDP pool utilization"
+    ::= { cgnatPoolEntry 14 }
+
+cgnatPoolIcmpBindingsAllocd OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      obsolete
+    DESCRIPTION "Total ICMP bindings allocated"
+    ::= { cgnatPoolEntry 15 }
+
+cgnatPoolIcmpBindingsFreed OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      obsolete
+    DESCRIPTION "Total ICMP bindings freed"
+    ::= { cgnatPoolEntry 16 }
+
+cgnatPoolIcmpAllocFailures OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      obsolete
+    DESCRIPTION "Total ICMP binding alloc failures"
+    ::= { cgnatPoolEntry 17 }
+
+cgnatPoolIcmpFreeFailures OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      obsolete
+    DESCRIPTION "Total ICMP binding free failures"
+    ::= { cgnatPoolEntry 18 }
+
+cgnatPoolIcmpPoolUsage OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  read-only
+    STATUS      obsolete
+    DESCRIPTION "ICMP pool utilization"
+    ::= { cgnatPoolEntry 19 }
+
+cgnatPoolAnyBindingsAllocd OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total Any bindings allocated"
+    ::= { cgnatPoolEntry 20 }
+
+cgnatPoolAnyBindingsFreed OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total Any bindings freed"
+    ::= { cgnatPoolEntry 21 }
+
+cgnatPoolAnyAllocFailures OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total Any binding alloc failures"
+    ::= { cgnatPoolEntry 22 }
+
+cgnatPoolAnyFreeFailures OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total Any binding free failures"
+    ::= { cgnatPoolEntry 23 }
+
+cgnatPoolAnyPoolUsage OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  read-only
+    STATUS      deprecated
+    DESCRIPTION "Any pool utilization"
+    ::= { cgnatPoolEntry 24 }
+
+cgnatPoolUsage OBJECT-TYPE
+    SYNTAX      String
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Pool utilization in percentage"
+    ::= { cgnatPoolEntry 25 }
+
+cgnatRuleTable OBJECT-TYPE
+    SYNTAX      SEQUENCE OF CgnatRuleEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "CGNAT rule statistics"
+    ::= { cgnat 4 }
+
+cgnatRuleEntry OBJECT-TYPE
+    SYNTAX      CgnatRuleEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION ""
+    INDEX { cgnatRuleOrgId, cgnatRuleId }
+        ::= { cgnatRuleTable 1 }
+
+CgnatRuleEntry ::=
+    SEQUENCE {
+        cgnatRuleOrgId Unsigned32,
+        cgnatRuleId Unsigned32,
+        cgnatRuleOrgName String,
+        cgnatRuleName String,
+        cgnatRuleHitCount ConfdString,
+        cgnatRuleForwardPktCount ConfdString,
+        cgnatRuleForwardByteCount ConfdString,
+        cgnatRuleReversePktCount ConfdString,
+        cgnatRuleReverseByteCount ConfdString
+    }
+
+cgnatRuleOrgId OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "Organization id"
+    ::= { cgnatRuleEntry 1 }
+
+cgnatRuleId OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "CGNAT rule id"
+    ::= { cgnatRuleEntry 2 }
+
+cgnatRuleOrgName OBJECT-TYPE
+    SYNTAX      String
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Organization name"
+    ::= { cgnatRuleEntry 3 }
+
+cgnatRuleName OBJECT-TYPE
+    SYNTAX      String
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "CGNAT rule name"
+    ::= { cgnatRuleEntry 4 }
+
+cgnatRuleHitCount OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total hits on CGNAT rule"
+    ::= { cgnatRuleEntry 5 }
+
+cgnatRuleForwardPktCount OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total packets sent in forward direction"
+    ::= { cgnatRuleEntry 6 }
+
+cgnatRuleForwardByteCount OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total bytes sent in forward direction"
+    ::= { cgnatRuleEntry 7 }
+
+cgnatRuleReversePktCount OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total packets sent in reverse direction"
+    ::= { cgnatRuleEntry 8 }
+
+cgnatRuleReverseByteCount OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total bytes sent in reverse direction"
+    ::= { cgnatRuleEntry 9 }
+
+cgnatDsliteTable OBJECT-TYPE
+    SYNTAX      SEQUENCE OF CgnatDsliteEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "DSLite softwire concentrator statistics"
+    ::= { cgnat 2 }
+
+cgnatDsliteEntry OBJECT-TYPE
+    SYNTAX      CgnatDsliteEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION ""
+    INDEX { cgnatDsliteOrgId, cgnatDsliteId }
+        ::= { cgnatDsliteTable 1 }
+
+CgnatDsliteEntry ::=
+    SEQUENCE {
+        cgnatDsliteOrgId Unsigned32,
+        cgnatDsliteId Unsigned32,
+        cgnatDsliteOrgName String,
+        cgnatDsliteName String,
+        cgnatDsliteSoftwiresCreated ConfdString,
+        cgnatDsliteSoftwiresDeleted ConfdString,
+        cgnatDsliteSoftwireFlowsCreated ConfdString,
+        cgnatDsliteSoftwireFlowsDeleted ConfdString,
+        cgnatDslitePacketsEncapsulated ConfdString,
+        cgnatDslitePacketsDecapsulated ConfdString,
+        cgnatDsliteSoftwiresCreateFailure ConfdString,
+        cgnatDsliteEncapsulationFailures ConfdString
+    }
+
+cgnatDsliteOrgId OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "Organisation id"
+    ::= { cgnatDsliteEntry 1 }
+
+cgnatDsliteId OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "DSLite software concentrator id"
+    ::= { cgnatDsliteEntry 2 }
+
+cgnatDsliteOrgName OBJECT-TYPE
+    SYNTAX      String
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Organisation name"
+    ::= { cgnatDsliteEntry 3 }
+
+cgnatDsliteName OBJECT-TYPE
+    SYNTAX      String
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "DSLite software concentrator name"
+    ::= { cgnatDsliteEntry 4 }
+
+cgnatDsliteSoftwiresCreated OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Number of softwires created"
+    ::= { cgnatDsliteEntry 5 }
+
+cgnatDsliteSoftwiresDeleted OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Number of softwires created"
+    ::= { cgnatDsliteEntry 6 }
+
+cgnatDsliteSoftwireFlowsCreated OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Number of softwire flows created"
+    ::= { cgnatDsliteEntry 7 }
+
+cgnatDsliteSoftwireFlowsDeleted OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Number of softwire flows deleted"
+    ::= { cgnatDsliteEntry 8 }
+
+cgnatDslitePacketsEncapsulated OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Number of packets encapsulated"
+    ::= { cgnatDsliteEntry 9 }
+
+cgnatDslitePacketsDecapsulated OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Number of packets decapsulated"
+    ::= { cgnatDsliteEntry 10 }
+
+cgnatDsliteSoftwiresCreateFailure OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Softwire creation failures"
+    ::= { cgnatDsliteEntry 11 }
+
+cgnatDsliteEncapsulationFailures OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Packet encapsulation failures"
+    ::= { cgnatDsliteEntry 12 }
+
+cgnat6RDTable OBJECT-TYPE
+    SYNTAX      SEQUENCE OF Cgnat6RDEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "6RD softwire concentrator statistics"
+    ::= { cgnat 3 }
+
+cgnat6RDEntry OBJECT-TYPE
+    SYNTAX      Cgnat6RDEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION ""
+    INDEX { cgnat6RDOrgId, cgnat6RDId }
+        ::= { cgnat6RDTable 1 }
+
+Cgnat6RDEntry ::=
+    SEQUENCE {
+        cgnat6RDOrgId Unsigned32,
+        cgnat6RDId Unsigned32,
+        cgnat6RDOrgName String,
+        cgnat6RDName String,
+        cgnat6RDSoftwiresCreated ConfdString,
+        cgnat6RDSoftwiresDeleted ConfdString,
+        cgnat6RDSoftwireFlowsCreated ConfdString,
+        cgnat6RDSoftwireFlowsDeleted ConfdString
+    }
+
+cgnat6RDOrgId OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "Organisation id"
+    ::= { cgnat6RDEntry 1 }
+
+cgnat6RDId OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "6RD software concentrator id"
+    ::= { cgnat6RDEntry 2 }
+
+cgnat6RDOrgName OBJECT-TYPE
+    SYNTAX      String
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Organisation name"
+    ::= { cgnat6RDEntry 3 }
+
+cgnat6RDName OBJECT-TYPE
+    SYNTAX      String
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "6RD softwire concentrator name"
+    ::= { cgnat6RDEntry 4 }
+
+cgnat6RDSoftwiresCreated OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Number of softwires created"
+    ::= { cgnat6RDEntry 5 }
+
+cgnat6RDSoftwiresDeleted OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Number of softwires created"
+    ::= { cgnat6RDEntry 6 }
+
+cgnat6RDSoftwireFlowsCreated OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Number of softwire flows created"
+    ::= { cgnat6RDEntry 7 }
+
+cgnat6RDSoftwireFlowsDeleted OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Number of softwire flows deleted"
+    ::= { cgnat6RDEntry 8 }
+
+END

@@ -1,0 +1,33 @@
+TLS-SMI DEFINITIONS ::= BEGIN
+
+IMPORTS
+    OBJECT-TYPE,
+    MODULE-IDENTITY,
+    enterprises
+        FROM SNMPv2-SMI;
+
+tls MODULE-IDENTITY
+    LAST-UPDATED  "201404280000Z"            -- 28 April 2014, midnight
+    ORGANIZATION  "The Telos Alliance"
+    CONTACT-INFO  "postal:   The Telos Alliance
+                             1241 Superior Avenue
+                             Cleveland, OH 44114
+                   email:    support@telosalliance.com"
+    DESCRIPTION   "The Structure of Management Information for the
+                  The Telos Alliance enterprise."
+    REVISION      "201404280000Z"
+    DESCRIPTION   "Initial revision"
+    ::= { enterprises 42463 }
+
+-- assigned by IANA
+
+livewire  OBJECT-IDENTITY
+    STATUS     current
+    DESCRIPTION
+        "livewire provides root Object Identifier for Management
+        Information Base for Livewire Audio over IP routing control
+        and configuration."
+    ::= { tls 12 }
+
+END
+

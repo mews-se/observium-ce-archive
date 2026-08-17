@@ -1,0 +1,70 @@
+--
+-- @Description: MIB for SNG Traps
+-- @Date       : 2017-09-10
+--
+
+SNG-TRAP DEFINITIONS ::= BEGIN
+IMPORTS
+    MODULE-IDENTITY, OBJECT-TYPE, NOTIFICATION-TYPE
+        FROM SNMPv2-SMI
+    serviceNotification
+        FROM VERSA-MIB
+    alarmIndex, alarmType, alarmDevice, alarmObject,
+    alarmSpecificProblem, alarmEventType, alarmProbableCause,
+    alarmTime, alarmSeverity, alarmHasClear, alarmText,
+    tenantName, alarmClass
+        FROM TRAPS-COMMON;
+
+sngtrapMIB MODULE-IDENTITY
+    LAST-UPDATED "201406250000Z"
+    ORGANIZATION "Versa Networks"
+    CONTACT-INFO "
+        2953 Bunker Hill Lane, Suite 210
+        Santa Clara, CA - 95035 (USA)
+        Email: support@versa-networks.com"
+    DESCRIPTION  "Versa Networks' Entrprise MIB for SNG traps"
+    ::= { serviceNotification 13 }
+
+-- Root Object
+sngEntities OBJECT IDENTIFIER ::= { sngtrapMIB 1 }
+sngNotification OBJECT IDENTIFIER ::= { sngtrapMIB 2 }
+
+
+sngName OBJECT-TYPE
+    SYNTAX      OCTET STRING
+    MAX-ACCESS  accessible-for-notify
+    STATUS      current
+    DESCRIPTION "Server Name"
+        ::= { sngEntities 1 }
+
+sngVSNId OBJECT-TYPE
+    SYNTAX      INTEGER
+    MAX-ACCESS  accessible-for-notify
+    STATUS      current
+    DESCRIPTION "VSN id"
+        ::= { sngEntities 2 }
+
+
+sngDown NOTIFICATION-TYPE
+    OBJECTS {
+        alarmType, alarmDevice, alarmObject, alarmSpecificProblem,
+        alarmClass, alarmEventType, alarmProbableCause, alarmTime,
+        alarmSeverity, alarmHasClear, alarmText, tenantName,
+        sngName, sngVSNId
+    }
+    STATUS  current
+    DESCRIPTION "Service Node Group down notification"
+        ::= { sngNotification 1 }
+
+sngUp NOTIFICATION-TYPE
+    OBJECTS {
+        alarmType, alarmDevice, alarmObject, alarmSpecificProblem,
+        alarmClass, alarmEventType, alarmProbableCause, alarmTime,
+        alarmSeverity, alarmHasClear, alarmText, tenantName,
+        sngName, sngVSNId
+    }
+    STATUS  current
+    DESCRIPTION "Service Node Group up notification"
+        ::= { sngNotification 2 }
+
+END

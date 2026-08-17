@@ -1,0 +1,345 @@
+HA-MIB DEFINITIONS ::= BEGIN
+IMPORTS
+    MODULE-IDENTITY, OBJECT-TYPE,
+    Integer32, Unsigned32, Counter32, Counter64,
+    Gauge32, IpAddress
+        FROM SNMPv2-SMI
+    TEXTUAL-CONVENTION, RowStatus, DateAndTime,
+    TruthValue
+        FROM SNMPv2-TC
+    device
+        FROM VERSA-MIB
+;
+
+ha MODULE-IDENTITY
+    LAST-UPDATED "201501090000Z"
+    ORGANIZATION "Versa Networks"
+    CONTACT-INFO "
+        2953 Bunker Hill Lane, Suite 210
+        Santa Clara, CA - 95035 (USA)
+        Email: support@versa-networks.com"
+    DESCRIPTION "Enterprise MIB for Versa Networks'
+High Redundancy solution"
+    REVISION "201501090000Z"
+    DESCRIPTION "Initial revision"
+    ::= { device 2 }
+
+String ::= TEXTUAL-CONVENTION
+    DISPLAY-HINT "1t"
+    STATUS      current
+    DESCRIPTION "xs:string"
+    SYNTAX      OCTET STRING
+
+-- Control nodes redundancy information
+intraChassisControl OBJECT IDENTIFIER ::= { ha 1 }
+
+-- Service nodes redundancy information
+intraChassisService OBJECT IDENTIFIER ::= { ha 2 }
+
+-- Control nodes redundancy information
+interChassisControl OBJECT IDENTIFIER ::= { ha 3 }
+
+-- Service nodes redundancy information
+interChassisService OBJECT IDENTIFIER ::= { ha 4 }
+
+intraChassisControlNodesTable OBJECT-TYPE
+    SYNTAX      SEQUENCE OF IntraChassisControlNodesEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "Control nodes"
+    ::= { intraChassisControl 1 }
+
+intraChassisControlNodesEntry OBJECT-TYPE
+    SYNTAX      IntraChassisControlNodesEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION ""
+    INDEX { intraChassisControlNodesCtrlId }
+        ::= { intraChassisControlNodesTable 1 }
+
+IntraChassisControlNodesEntry ::=
+    SEQUENCE {
+        intraChassisControlNodesCtrlId Unsigned32,
+        intraChassisControlNodesApplianceInstance String,
+        intraChassisControlNodesVcnInstance String,
+        intraChassisControlNodesVcnSlot Unsigned32,
+        intraChassisControlNodesRedRole String,
+        intraChassisControlNodesIp String
+    }
+
+intraChassisControlNodesCtrlId OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "Control Node Id"
+    ::= { intraChassisControlNodesEntry 1 }
+
+intraChassisControlNodesApplianceInstance OBJECT-TYPE
+    SYNTAX      String
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Appliance instance"
+    ::= { intraChassisControlNodesEntry 2 }
+
+intraChassisControlNodesVcnInstance OBJECT-TYPE
+    SYNTAX      String
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Control node instance"
+    ::= { intraChassisControlNodesEntry 3 }
+
+intraChassisControlNodesVcnSlot OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Control node slot"
+    ::= { intraChassisControlNodesEntry 4 }
+
+intraChassisControlNodesRedRole OBJECT-TYPE
+    SYNTAX      String
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Redundancy role"
+    ::= { intraChassisControlNodesEntry 5 }
+
+intraChassisControlNodesIp OBJECT-TYPE
+    SYNTAX      String
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Control node IP address"
+    ::= { intraChassisControlNodesEntry 6 }
+
+intraChassisServiceNodesTable OBJECT-TYPE
+    SYNTAX      SEQUENCE OF IntraChassisServiceNodesEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "Service nodes"
+    ::= { intraChassisService 1 }
+
+intraChassisServiceNodesEntry OBJECT-TYPE
+    SYNTAX      IntraChassisServiceNodesEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION ""
+    INDEX { intraChassisServiceNodesSvcId }
+        ::= { intraChassisServiceNodesTable 1 }
+
+IntraChassisServiceNodesEntry ::=
+    SEQUENCE {
+        intraChassisServiceNodesSvcId Unsigned32,
+        intraChassisServiceNodesApplianceInstance String,
+        intraChassisServiceNodesSngId Unsigned32,
+        intraChassisServiceNodesSngName String,
+        intraChassisServiceNodesRedGroupId Unsigned32,
+        intraChassisServiceNodesVsnId Unsigned32,
+        intraChassisServiceNodesVid Unsigned32,
+        intraChassisServiceNodesRedRole String
+    }
+
+intraChassisServiceNodesSvcId OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "Service Node Id"
+    ::= { intraChassisServiceNodesEntry 1 }
+
+intraChassisServiceNodesApplianceInstance OBJECT-TYPE
+    SYNTAX      String
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Appliance instance"
+    ::= { intraChassisServiceNodesEntry 2 }
+
+intraChassisServiceNodesSngId OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Service node group id"
+    ::= { intraChassisServiceNodesEntry 3 }
+
+intraChassisServiceNodesSngName OBJECT-TYPE
+    SYNTAX      String
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Service node group name"
+    ::= { intraChassisServiceNodesEntry 4 }
+
+intraChassisServiceNodesRedGroupId OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Redundancy group ID"
+    ::= { intraChassisServiceNodesEntry 5 }
+
+intraChassisServiceNodesVsnId OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "VSN ID (Slot ID)"
+    ::= { intraChassisServiceNodesEntry 6 }
+
+intraChassisServiceNodesVid OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Virtual ID"
+    ::= { intraChassisServiceNodesEntry 7 }
+
+intraChassisServiceNodesRedRole OBJECT-TYPE
+    SYNTAX      String
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Redundancy role"
+    ::= { intraChassisServiceNodesEntry 8 }
+
+interChassisControlNodesTable OBJECT-TYPE
+    SYNTAX      SEQUENCE OF InterChassisControlNodesEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "Control nodes"
+    ::= { interChassisControl 1 }
+
+interChassisControlNodesEntry OBJECT-TYPE
+    SYNTAX      InterChassisControlNodesEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION ""
+    INDEX { interChassisControlNodesCtrlId }
+        ::= { interChassisControlNodesTable 1 }
+
+InterChassisControlNodesEntry ::=
+    SEQUENCE {
+        interChassisControlNodesCtrlId Unsigned32,
+        interChassisControlNodesApplianceInstance String,
+        interChassisControlNodesVcnInstance String,
+        interChassisControlNodesVcnSlot Unsigned32,
+        interChassisControlNodesRedRole String,
+        interChassisControlNodesIp String
+    }
+
+interChassisControlNodesCtrlId OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "Control Node Id"
+    ::= { interChassisControlNodesEntry 1 }
+
+interChassisControlNodesApplianceInstance OBJECT-TYPE
+    SYNTAX      String
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Appliance instance"
+    ::= { interChassisControlNodesEntry 2 }
+
+interChassisControlNodesVcnInstance OBJECT-TYPE
+    SYNTAX      String
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Control node instance"
+    ::= { interChassisControlNodesEntry 3 }
+
+interChassisControlNodesVcnSlot OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Control node slot"
+    ::= { interChassisControlNodesEntry 4 }
+
+interChassisControlNodesRedRole OBJECT-TYPE
+    SYNTAX      String
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Redundancy role"
+    ::= { interChassisControlNodesEntry 5 }
+
+interChassisControlNodesIp OBJECT-TYPE
+    SYNTAX      String
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Control node IP address"
+    ::= { interChassisControlNodesEntry 6 }
+
+interChassisServiceNodesTable OBJECT-TYPE
+    SYNTAX      SEQUENCE OF InterChassisServiceNodesEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "Service nodes"
+    ::= { interChassisService 1 }
+
+interChassisServiceNodesEntry OBJECT-TYPE
+    SYNTAX      InterChassisServiceNodesEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION ""
+    INDEX { interChassisServiceNodesSvcId }
+        ::= { interChassisServiceNodesTable 1 }
+
+InterChassisServiceNodesEntry ::=
+    SEQUENCE {
+        interChassisServiceNodesSvcId Unsigned32,
+        interChassisServiceNodesApplianceInstance String,
+        interChassisServiceNodesSngId Unsigned32,
+        interChassisServiceNodesSngName String,
+        interChassisServiceNodesRedGroupId Unsigned32,
+        interChassisServiceNodesVsnId Unsigned32,
+        interChassisServiceNodesVid Unsigned32,
+        interChassisServiceNodesRedRole String
+    }
+
+interChassisServiceNodesSvcId OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "Service Node Id"
+    ::= { interChassisServiceNodesEntry 1 }
+
+interChassisServiceNodesApplianceInstance OBJECT-TYPE
+    SYNTAX      String
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Appliance instance"
+    ::= { interChassisServiceNodesEntry 2 }
+
+interChassisServiceNodesSngId OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Service node group id"
+    ::= { interChassisServiceNodesEntry 3 }
+
+interChassisServiceNodesSngName OBJECT-TYPE
+    SYNTAX      String
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Service node group name"
+    ::= { interChassisServiceNodesEntry 4 }
+
+interChassisServiceNodesRedGroupId OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Redundancy group ID"
+    ::= { interChassisServiceNodesEntry 5 }
+
+interChassisServiceNodesVsnId OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "VSN ID (Slot ID)"
+    ::= { interChassisServiceNodesEntry 6 }
+
+interChassisServiceNodesVid OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Virtual ID"
+    ::= { interChassisServiceNodesEntry 7 }
+
+interChassisServiceNodesRedRole OBJECT-TYPE
+    SYNTAX      String
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Redundancy role"
+    ::= { interChassisServiceNodesEntry 8 }
+
+END

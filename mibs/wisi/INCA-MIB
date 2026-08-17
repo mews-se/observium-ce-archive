@@ -1,0 +1,44 @@
+INCA-MIB DEFINITIONS ::= BEGIN
+
+IMPORTS
+    MODULE-IDENTITY, enterprises
+            FROM SNMPv2-SMI;
+
+incaNetworks MODULE-IDENTITY
+    LAST-UPDATED    "201611030000Z"  -- Nov 3rd, 2016
+    ORGANIZATION    "Inca Networks Inc."
+    CONTACT-INFO   
+        "Mike Bradley
+         Postal: Inca Networks
+                 112-19055 Airport Way
+                 Pitt Meadows BC  V3Y 0G4
+                 Canada
+         Phone:  +1 604 998 4665
+         E-mail: support@incanetworks.com
+   
+         Initial MIB creator: Mike Bradley
+         Postal: Inca Networks
+                 112-19055 Airport Way
+                 Pitt Meadows BC  V3Y 0G4
+                 Canada
+         Phone:  +1 604 998 4665
+         E-mail: support@incanetworks.com"
+    DESCRIPTION
+        "This is a header for the Inca Networks enterprise MIB.  All objects appear
+         elsewhere."        
+                  
+-- Revision history 
+    REVISION     "201611030000Z"  -- Nov 3rd, 2016
+    DESCRIPTION  "Updated contact info"
+    REVISION     "201205250000Z"  -- May 25th, 2012
+    DESCRIPTION  "Added Inca enterprise and demux class"
+         
+    ::= { enterprises 39938 }
+
+--incaDevice OBJECT IDENTIFIER ::= { incaNetworks 1 }
+
+incaVideo OBJECT IDENTIFIER ::= { incaNetworks 2 }
+
+incaProducts OBJECT IDENTIFIER ::= { incaNetworks 3 }
+
+END

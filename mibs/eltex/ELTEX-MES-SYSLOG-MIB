@@ -1,0 +1,275 @@
+ELTEX-MES-SYSLOG-MIB DEFINITIONS ::= BEGIN
+
+-- Title:      ELTEX MES SYSLOG Private MIB
+-- Version:    2.0
+-- Date:       11 May 2016
+--
+-- 03-Aug-2015 Added eltMesSyslogEvents
+-- 11-May-2016 Added eltSyslogUserCmdEnable
+-- 24-Jul-2019 Added eltMesSnmpSyslogCollector
+
+IMPORTS
+    eltMes                                  FROM ELTEX-MES
+    OBJECT-TYPE, IpAddress, Unsigned32,Counter32,
+    MODULE-IDENTITY                         FROM SNMPv2-SMI
+    EltCpuRateLimiterTrafficType            FROM ELTEX-MES-SWITCH-RATE-LIMITER-MIB
+    snmpSyslogCollectorEntry                FROM DRAFT-IETF-SYSLOG-DEVICE-MIB
+    rlSyslogLogEntry                        FROM RADLAN-SYSLOG-MIB
+    DisplayString, TEXTUAL-CONVENTION,
+    TruthValue, RowStatus                   FROM SNMPv2-TC;
+
+eltMesSyslog MODULE-IDENTITY
+          LAST-UPDATED "201605110000Z"
+          ORGANIZATION "Eltex Ltd."
+          CONTACT-INFO
+                  "eltex.nsk.ru"
+          DESCRIPTION
+                  "The private MIB module definition for SYSLOG services in Eltex devices."
+          ::= { eltMes 10 }
+
+eltSyslogCpuRateLimiterTable OBJECT-TYPE
+    SYNTAX          SEQUENCE OF EltSyslogCpuRateLimiterEntry
+    MAX-ACCESS      not-accessible
+    STATUS          current
+    DESCRIPTION        "Enable/disable logging per CPU rate limitter."
+    ::= { eltMesSyslog 1 }
+
+eltSyslogCpuRateLimiterEntry OBJECT-TYPE
+    SYNTAX          EltSyslogCpuRateLimiterEntry
+    MAX-ACCESS      not-accessible
+    STATUS          current
+    DESCRIPTION        "An entry containing enable/disable logging settings per CPU rate limitter."
+    INDEX           { eltSyslogCpuRateLimiterIndex }
+    ::= { eltSyslogCpuRateLimiterTable 1 }
+
+EltSyslogCpuRateLimiterEntry ::= SEQUENCE {
+        eltSyslogCpuRateLimiterIndex       EltCpuRateLimiterTrafficType,
+        eltSyslogCpuRateLimiterEnabled     TruthValue
+}
+
+eltSyslogCpuRateLimiterIndex OBJECT-TYPE
+    SYNTAX          EltCpuRateLimiterTrafficType
+    MAX-ACCESS      read-only
+    STATUS          current
+    DESCRIPTION        "Traffic type"
+    ::= { eltSyslogCpuRateLimiterEntry 1 }
+
+eltSyslogCpuRateLimiterEnabled OBJECT-TYPE
+    SYNTAX          TruthValue
+    MAX-ACCESS      read-write
+    STATUS          current
+    DESCRIPTION        "Enable logging of rate-limiter events"
+    ::= { eltSyslogCpuRateLimiterEntry 2 }
+
+--
+-- eltMesSyslogEvents
+--
+
+eltMesSyslogEvents  OBJECT IDENTIFIER
+    ::= { eltMesSyslog 2 }
+
+--
+-- eltSyslogEventsStpTable
+--
+
+eltSyslogEventsStpTable OBJECT-TYPE
+    SYNTAX          SEQUENCE OF EltSyslogEventsStpEntry
+    MAX-ACCESS      read-write
+    STATUS          current
+    DESCRIPTION        "Enable/disable logging of STP events."
+    ::= { eltMesSyslogEvents 2 }
+
+EltSyslogEventsStpEventType ::= TEXTUAL-CONVENTION
+    STATUS current
+    DESCRIPTION    "Types of STP events."
+    SYNTAX INTEGER {
+        eltSyslogEventsStpEventStateChange(1),
+        eltSyslogEventsStpEventTopologyChange(2),
+        eltSyslogEventsStpEventRootBridgeChange(3),
+        eltSyslogEventsStpTcProtectionThresholdReached(4)
+}
+
+EltSyslogEventsStpEntry ::= SEQUENCE {
+	eltSyslogEventsStpEventIndex  		EltSyslogEventsStpEventType,
+	eltSyslogEventsStpEventEnabled      TruthValue
+}
+
+eltSyslogEventsStpEntry OBJECT-TYPE
+    SYNTAX          EltSyslogEventsStpEntry
+    MAX-ACCESS      read-write
+    STATUS          current
+    DESCRIPTION        "An entry containing enable/disable logging of STP events."
+    INDEX           { eltSyslogEventsStpEventIndex }
+    ::= { eltSyslogEventsStpTable 1 }
+
+eltSyslogEventsStpEventIndex OBJECT-TYPE
+	SYNTAX			EltSyslogEventsStpEventType
+    MAX-ACCESS		read-write
+    STATUS			current
+    DESCRIPTION			"Specify the index of STP event."
+    ::= { eltSyslogEventsStpEntry 1 }
+
+eltSyslogEventsStpEventEnabled OBJECT-TYPE
+	SYNTAX			TruthValue
+    MAX-ACCESS		read-write
+    STATUS			current
+    DESCRIPTION			"Enable logging of STP event."
+    ::= { eltSyslogEventsStpEntry 2 }
+
+--
+-- eltSyslogEventsSLATable
+--
+
+eltSyslogEventsSLATable OBJECT-TYPE
+    SYNTAX          SEQUENCE OF EltSyslogEventsSLAEntry
+    MAX-ACCESS      read-write
+    STATUS          current
+    DESCRIPTION        "Enable/disable logging of IP SLA events."
+    ::= { eltMesSyslogEvents 3 }
+
+EltSyslogEventsSLAEventType ::= TEXTUAL-CONVENTION
+    STATUS current
+    DESCRIPTION    "Types of IP SLA events."
+    SYNTAX INTEGER {
+        eltSyslogEventsSLAOperationStateChange(1),
+        eltSyslogEventsSLATrackStateChange(2)
+}
+
+EltSyslogEventsSLAEntry ::= SEQUENCE {
+    eltSyslogEventsSLAEventIndex      EltSyslogEventsSLAEventType,
+    eltSyslogEventsSLAEventEnabled    TruthValue
+}
+
+eltSyslogEventsSLAEntry OBJECT-TYPE
+    SYNTAX          EltSyslogEventsSLAEntry
+    MAX-ACCESS      read-write
+    STATUS          current
+    DESCRIPTION        "An entry containing enable/disable logging of IP SLA events."
+    INDEX           { eltSyslogEventsSLAEventIndex }
+    ::= { eltSyslogEventsSLATable 1 }
+
+eltSyslogEventsSLAEventIndex OBJECT-TYPE
+	SYNTAX          EltSyslogEventsSLAEventType
+    MAX-ACCESS      read-write
+    STATUS          current
+    DESCRIPTION         "Specify the index of IP SLA event."
+    ::= { eltSyslogEventsSLAEntry 1 }
+
+eltSyslogEventsSLAEventEnabled OBJECT-TYPE
+	SYNTAX          TruthValue
+    MAX-ACCESS      read-write
+    STATUS          current
+    DESCRIPTION	        "Enable logging of IP SLA event."
+    ::= { eltSyslogEventsSLAEntry 2 }
+
+
+eltSyslogUserCmdEnable OBJECT-TYPE
+    SYNTAX  TruthValue
+    MAX-ACCESS  read-write
+    STATUS  current
+    DESCRIPTION
+        "User commands enter enable for syslog flash, syslog cache and syslog UDP.
+         When set to true, generating syslog entry for user commands entered."
+    DEFVAL  { false }
+    ::= { eltMesSyslog 3 }
+
+--
+-- eltSnmpSyslogCollectorTable
+--
+
+eltMesSnmpSyslogCollector OBJECT IDENTIFIER
+    ::= { eltMesSyslog 4 }
+
+EltSyslogCollectorMsgFormat  ::=  TEXTUAL-CONVENTION
+    STATUS  current
+    DESCRIPTION
+        "Format of messages that will be sent to collectors."
+    SYNTAX  INTEGER {
+                      default(0),
+                      cef(1)
+                    }
+
+eltSnmpSyslogCollectorTable OBJECT-TYPE
+    SYNTAX      SEQUENCE OF EltSnmpSyslogCollectorEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION
+        "A table containing Syslog collector information."
+    ::= { eltMesSnmpSyslogCollector 1 }
+
+eltSnmpSyslogCollectorEntry OBJECT-TYPE
+    SYNTAX      EltSnmpSyslogCollectorEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION
+        "Defines the information to generate syslog messages to
+         an aggregating agent or collector.
+
+         Entries within this table with an access level of read-
+         create MUST be considered non-volatile and MUST be
+         maintained across entity resets."
+    AUGMENTS   { snmpSyslogCollectorEntry }
+    ::= { eltSnmpSyslogCollectorTable 1 }
+
+EltSnmpSyslogCollectorEntry ::=
+    SEQUENCE {
+        eltSnmpSyslogCollectorMsgFormat
+             EltSyslogCollectorMsgFormat
+    }
+
+eltSnmpSyslogCollectorMsgFormat OBJECT-TYPE
+    SYNTAX      EltSyslogCollectorMsgFormat
+    MAX-ACCESS  read-create
+    STATUS      current
+    DEFVAL      {default}
+    DESCRIPTION 
+        "Format of messages that will be sent to collectors."
+    ::= { eltSnmpSyslogCollectorEntry 1 }
+
+--
+-- eltMesSyslogLogTable
+--
+
+eltMesSyslogLog OBJECT IDENTIFIER
+    ::= { eltMesSyslog 5 }
+
+eltMesSyslogLogTable OBJECT-TYPE
+    SYNTAX      SEQUENCE OF EltMesSyslogLogEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION
+        "A table containing events sent to the system log file."
+    ::= { eltMesSyslogLog 1 }
+
+eltMesSyslogLogEntry OBJECT-TYPE
+    SYNTAX      EltMesSyslogLogEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION
+        "A log entry "
+    AUGMENTS   { rlSyslogLogEntry }
+    ::= { eltMesSyslogLogTable 1 }
+
+EltMesSyslogLogEntry ::=
+    SEQUENCE {
+        eltMesSyslogLogText1            DisplayString,
+        eltMesSyslogLogText2            DisplayString
+    }
+
+eltMesSyslogLogText1 OBJECT-TYPE
+    SYNTAX  DisplayString (SIZE(0..160))
+    MAX-ACCESS  read-only
+    STATUS  current
+    DESCRIPTION
+        "The text of the logged message without time and date - part 5."
+    ::= { eltMesSyslogLogEntry 1 }
+
+eltMesSyslogLogText2 OBJECT-TYPE
+    SYNTAX  DisplayString (SIZE(0..160))
+    MAX-ACCESS  read-only
+    STATUS  current
+    DESCRIPTION
+        "The text of the logged message without time and date - part 6."
+    ::= { eltMesSyslogLogEntry 2 }
+    
+END

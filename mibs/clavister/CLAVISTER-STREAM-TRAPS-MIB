@@ -1,0 +1,248 @@
+-- ########################################################################
+-- #
+-- # CLAVISTER-STREAM-TRAPS-MIB:	Clavister AB
+-- #
+-- # Copyright (c) by Clavister AB
+-- # All rights reserved.
+-- #
+-- ########################################################################
+
+CLAVISTER-STREAM-TRAPS-MIB DEFINITIONS ::= BEGIN
+
+IMPORTS
+    clavisterSystemTrap,
+    clavisterSystemTrapInfo
+        FROM CLAVISTER-SMI
+    MODULE-COMPLIANCE, NOTIFICATION-GROUP, OBJECT-GROUP
+        FROM SNMPv2-CONF
+    MODULE-IDENTITY,
+    NOTIFICATION-TYPE,
+    OBJECT-TYPE
+        FROM SNMPv2-SMI
+    DisplayString
+        FROM SNMPv2-TC
+    ;
+
+clavisterTrapMibModule MODULE-IDENTITY
+    LAST-UPDATED "201707120000Z"
+    ORGANIZATION 
+        "Clavister AB"
+    CONTACT-INFO
+        "Clavister Support
+
+         Sjogatan 6J
+         SE-891 60 ORNSKOLDSVIK
+         SWEDEN
+
+         Tel: +46-660-299200
+         http://www.clavister.com"
+    DESCRIPTION
+        "Clavister Trap MIB."
+    REVISION  "201707120000Z"
+    DESCRIPTION
+        "Shutdown trap added."
+    REVISION  "201611230000Z"
+    DESCRIPTION
+        "Updated with regards to High Availability traps."
+    REVISION    "201206270900Z"
+    DESCRIPTION
+        "Updated with regards to name change."
+    REVISION    "201012160900Z"
+    DESCRIPTION
+        "Initial version."
+    ::= { clavisterSystemTrapInfo 0 }
+
+ssmSnmpGenericTrap NOTIFICATION-TYPE
+    OBJECTS     { ssmSnmpTrapVarSeverity,
+                  ssmSnmpTrapVarCategories,
+                  ssmSnmpTrapVarID,
+                  ssmSnmpTrapVarEvent,
+                  ssmSnmpTrapVarAction,
+                  ssmSnmpTrapVarTime,
+                  ssmSnmpTrapVarParameters }
+    STATUS      current
+    DESCRIPTION 
+        "Generic Event."
+    ::= { clavisterSystemTrap 1 }
+
+ssmSnmpHighAvailability OBJECT IDENTIFIER
+    ::= { clavisterSystemTrap 2010 }
+
+ssmSnmpHighAvailabilityTrap OBJECT IDENTIFIER
+    ::= { ssmSnmpHighAvailability 0 }
+
+ssmHAActivePeerDead NOTIFICATION-TYPE
+    OBJECTS     { ssmSnmpTrapVarEvent,
+                  ssmSnmpTrapVarAction,
+                  ssmSnmpTrapVarTime,
+                  ssmSnmpTrapVarParameters }
+    STATUS      current
+    DESCRIPTION 
+        "The previously active HA peer became offline and the inactive
+         node took over in a failover."
+    ::= { ssmSnmpHighAvailabilityTrap 1005 }
+
+ssmHAActiveOutrankingPeer NOTIFICATION-TYPE
+    OBJECTS     { ssmSnmpTrapVarEvent,
+                  ssmSnmpTrapVarAction,
+                  ssmSnmpTrapVarTime,
+                  ssmSnmpTrapVarParameters }
+    STATUS      current
+    DESCRIPTION 
+        "The previously active HA peer had some sort of malfunction and
+         the inactive node took over."
+    ::= { ssmSnmpHighAvailabilityTrap 1010 }
+
+ssmHAActiveUserRequest NOTIFICATION-TYPE
+    OBJECTS     { ssmSnmpTrapVarEvent,
+                  ssmSnmpTrapVarAction,
+                  ssmSnmpTrapVarTime,
+                  ssmSnmpTrapVarParameters }
+    STATUS      current
+    DESCRIPTION 
+        "The system administrator triggered a hand-over and the node
+         became HA active."
+    ::= { ssmSnmpHighAvailabilityTrap 1015 }
+
+ssmHAInactiveOutrankedByPeer NOTIFICATION-TYPE
+    OBJECTS     { ssmSnmpTrapVarEvent,
+                  ssmSnmpTrapVarAction,
+                  ssmSnmpTrapVarTime,
+                  ssmSnmpTrapVarParameters }
+    STATUS      current
+    DESCRIPTION 
+        "A hand-over was performed due to the peer node being deemed to
+         be better fit to be active."
+    ::= { ssmSnmpHighAvailabilityTrap 1020 }
+
+ssmHAInactiveUserRequest NOTIFICATION-TYPE
+    OBJECTS     { ssmSnmpTrapVarEvent,
+                  ssmSnmpTrapVarAction,
+                  ssmSnmpTrapVarTime,
+                  ssmSnmpTrapVarParameters }
+    STATUS      current
+    DESCRIPTION 
+        "The system administrator triggered a hand-over and the node
+         became HA inactive."
+    ::= { ssmSnmpHighAvailabilityTrap 1025 }
+
+ssmSnmpSystemShutdown OBJECT IDENTIFIER
+    ::= { clavisterSystemTrap 2020 }
+
+ssmSnmpShutdownTrap OBJECT IDENTIFIER
+    ::= { ssmSnmpSystemShutdown 0 }
+
+ssmShutdown NOTIFICATION-TYPE
+    OBJECTS     { ssmSnmpTrapVarEvent,
+                  ssmSnmpTrapVarAction,
+                  ssmSnmpTrapVarTime,
+                  ssmSnmpTrapVarParameters }
+    STATUS      current
+    DESCRIPTION 
+        "System shutting down."
+    ::= { ssmSnmpShutdownTrap 1005 }
+
+ssmSnmpTrapVarParameters OBJECT-TYPE
+    SYNTAX      DisplayString
+    MAX-ACCESS  accessible-for-notify
+    STATUS      current
+    DESCRIPTION 
+        "Formatted string with all parameters."
+    ::= { clavisterSystemTrapInfo 10 }
+
+ssmSnmpTrapVarSeverity OBJECT-TYPE
+    SYNTAX      INTEGER {
+                   emergency(0),
+                   alert(1),
+                   critical(2),
+                   error(3),
+                   warning(4),
+                   notice(5),
+                   info(6),
+                   debug(7)
+                 }
+    MAX-ACCESS  accessible-for-notify
+    STATUS      current
+    DESCRIPTION 
+        "Severity of the event."
+    ::= { clavisterSystemTrapInfo 4 }
+
+ssmSnmpTrapVarCategories OBJECT-TYPE
+    SYNTAX      DisplayString
+    MAX-ACCESS  accessible-for-notify
+    STATUS      current
+    DESCRIPTION 
+        "List of categories the event belongs to."
+    ::= { clavisterSystemTrapInfo 5 }
+
+ssmSnmpTrapVarID OBJECT-TYPE
+    SYNTAX      DisplayString
+    MAX-ACCESS  accessible-for-notify
+    STATUS      current
+    DESCRIPTION 
+        "Unique identifier for the event."
+    ::= { clavisterSystemTrapInfo 6 }
+
+ssmSnmpTrapVarEvent OBJECT-TYPE
+    SYNTAX      DisplayString
+    MAX-ACCESS  accessible-for-notify
+    STATUS      current
+    DESCRIPTION 
+        "Message describing the event that took place."
+    ::= { clavisterSystemTrapInfo 7 }
+
+ssmSnmpTrapVarAction OBJECT-TYPE
+    SYNTAX      DisplayString
+    MAX-ACCESS  accessible-for-notify
+    STATUS      current
+    DESCRIPTION 
+        "Gateway Action."
+    ::= { clavisterSystemTrapInfo 8 }
+
+ssmSnmpTrapVarTime OBJECT-TYPE
+    SYNTAX      DisplayString
+    MAX-ACCESS  accessible-for-notify
+    STATUS      current
+    DESCRIPTION 
+        "Timestamp of the event."
+    ::= { clavisterSystemTrapInfo 9 }
+
+ssmSnmpTrapGroupTrap NOTIFICATION-GROUP
+    NOTIFICATIONS { ssmHAActiveOutrankingPeer,
+                    ssmHAActivePeerDead,
+                    ssmHAActiveUserRequest,
+                    ssmHAInactiveOutrankedByPeer,
+                    ssmHAInactiveUserRequest,
+                    ssmShutdown,
+                    ssmSnmpGenericTrap }
+    STATUS      current
+    DESCRIPTION
+        "Traps."
+    ::= { clavisterSystemTrapInfo 1 }
+
+ssmSnmpTrapGroupVar OBJECT-GROUP
+    OBJECTS     { ssmSnmpTrapVarAction,
+                  ssmSnmpTrapVarCategories,
+                  ssmSnmpTrapVarEvent,
+                  ssmSnmpTrapVarID,
+                  ssmSnmpTrapVarParameters,
+                  ssmSnmpTrapVarSeverity,
+                  ssmSnmpTrapVarTime }
+    STATUS      current
+    DESCRIPTION
+        "Variables."
+    ::= { clavisterSystemTrapInfo 2 }
+
+ssmSnmpTrapCompliance MODULE-COMPLIANCE
+    STATUS      current
+    DESCRIPTION
+        "Module Compliance"
+
+    MODULE      -- this module
+
+    MANDATORY-GROUPS { ssmSnmpTrapGroupTrap,
+                       ssmSnmpTrapGroupVar }
+    ::= { clavisterSystemTrapInfo 3 }
+
+END -- end of module CLAVISTER-STREAM-TRAPS-MIB.
+

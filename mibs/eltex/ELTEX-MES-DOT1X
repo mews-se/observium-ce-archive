@@ -1,0 +1,63 @@
+ELTEX-MES-DOT1X DEFINITIONS ::= BEGIN
+
+-- Title:      ELTEX MES 802.1x Extension Private
+-- Version:    1.0
+-- Date:       6 Jun 2019
+
+IMPORTS
+    eltMes                            FROM ELTEX-MES
+    TruthValue                        FROM SNMPv2-TC
+    MODULE-IDENTITY, OBJECT-TYPE      FROM SNMPv2-SMI
+    rldot1xAuthenticationPortEntry    FROM RADLAN-DOT1X-MIB;
+
+eltMesDot1x MODULE-IDENTITY
+    LAST-UPDATED "201906060000Z"
+    ORGANIZATION "Eltex Enterprise Co, Ltd."
+    CONTACT-INFO "www.eltex-co.ru"
+    DESCRIPTION
+        "This private MIB module defines Eltex's private 802.1x MIBs."
+    REVISION     "201906060000Z"
+    DESCRIPTION  "Initial revision."
+    ::= { eltMes 95 }
+
+--
+-- 802.1x Radius Attributes
+--
+eltMesDot1xRadiusAttr     OBJECT IDENTIFIER ::= { eltMesDot1x 1 }
+eltMesDot1xMacAuth        OBJECT IDENTIFIER ::= { eltMesDot1x 2 }
+eltMesDot1xAuthentication OBJECT IDENTIFIER ::= { eltMesDot1x 3 }
+
+eltdot1xAuthenticationPortTable OBJECT-TYPE 
+    SYNTAX SEQUENCE OF Eltdot1xAuthenticationPortEntry
+    MAX-ACCESS         not-accessible
+    STATUS             current
+    DESCRIPTION
+        ""
+    ::= { eltMesDot1xAuthentication 1 }
+
+eltdot1xAuthenticationPortEntry OBJECT-TYPE
+    SYNTAX      Eltdot1xAuthenticationPortEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION
+        "A table of system level information for each port
+         supported by the Port Access Entity. An entry appears
+         in this table for each port of this system."
+    AUGMENTS { rldot1xAuthenticationPortEntry }
+    ::= { eltdot1xAuthenticationPortTable 1 }
+
+Eltdot1xAuthenticationPortEntry ::= SEQUENCE {
+    eltdot1xRadiusAttAclEnabled TruthValue
+}
+
+eltdot1xRadiusAttAclEnabled OBJECT-TYPE
+    SYNTAX      TruthValue
+    MAX-ACCESS  read-write
+    STATUS      current
+    DESCRIPTION
+        "Defines if treat Data-filter that received from Radius attributes
+         in Radius-Accept message."
+    DEFVAL      { false }
+    ::= { eltdot1xAuthenticationPortEntry 1 }
+
+END

@@ -1,0 +1,2953 @@
+PPM-IGNIS-MIB DEFINITIONS ::= BEGIN
+
+	IMPORTS
+		MODULE-IDENTITY, OBJECT-TYPE,Counter32
+			FROM SNMPv2-SMI
+    	TimeTicks, IpAddress
+    		FROM RFC1155-SMI
+		MacAddress, DisplayString
+			FROM SNMPv2-TC
+		vialiteProducts, ppm
+			FROM PPM-ORG-MIB;
+
+-- ---------------------------------------------------------- --
+-- PPM sub tree
+-- ---------------------------------------------------------- --
+
+	ignis    MODULE-IDENTITY
+		LAST-UPDATED "202207121300Z"
+		ORGANIZATION
+				"Pulse Power & Measurement Ltd."
+		CONTACT-INFO
+				"
+				Postal:     65 Shrivenham Hundred Business Park
+				Watchfield
+				Swindon, Wiltshire. SN6 8TY, UK
+				Telephone:  +44 (0)1793 784389
+				E-Mail:     sales@ppm.co.uk  "
+		DESCRIPTION
+				"PPM IGNIS (ViaLiteHD) MIB
+
+				This MIB defines the data objects available for use with the
+				ViaLiteHD Web & SNMP Controller module.
+
+				This MIB is incompatible with the ViaLite Classic MIB.
+
+				This MIB (as of version 1.2) must be loaded with the PPM-ORG-MIB.
+				This MIB includes OIDs originally defined in the PPM-TRAPS-MIB, 
+				and such the PPM-TRAPS-MIB should be replaced with the PPM-IGNIS-V1TRAPS-MIB.
+				
+				Pulse Power & Measurement Ltd. reserves the right to make changes in specifications 
+				and all other information contained in this document without prior notice.
+				
+				Pulse Power & Measurement Ltd. grants vendors, end-users, and other interested parties 
+				a non-exclusive license to use this specification in connection with the management of
+				Pulse Power & Measurement products."
+		
+		
+		REVISION
+				"202207221300Z"
+		DESCRIPTION
+				"1.34 - Add support for 6GHz MilAero products
+						Correct AGC mode enumeration
+						Add SNMP controller P/N query"
+		REVISION
+				"202204121300Z"
+		DESCRIPTION
+				"1.33 - Added support for PROC rack card."
+		REVISION
+				"202202091300Z"
+		DESCRIPTION
+				"1.32 - Added ODE-A4 enclosure product type."
+		REVISION
+				"202109231300Z"
+		DESCRIPTION
+				"1.31 - Added LED off status to mcpLEDs."
+		REVISION
+				"202007221300Z"
+		DESCRIPTION
+				"1.3 - Add enumeration for the ODE Mini Enclosure (fitted with Embedded Site Controller). Move Trap Sink and FTP update MIB sections to PPM-ORG-MIB as these may be used in other products."
+		REVISION
+				"201907161300Z"
+		DESCRIPTION
+				"1.29 - Add sysVoltageAlarm and sysTempAlarm OIDs to monitor the current state of the HRC-3 temperature and voltage alarms (HRC-3 only)."
+		REVISION
+				"201905211300Z"
+		DESCRIPTION
+				"1.28 - Correct modSWAlarmBitMap mapping."
+		REVISION
+				"201903011300Z"
+		DESCRIPTION
+				"1.27 - Remove read-write support for Tx TEC enable. TEC should be permanently enabled."	
+		REVISION
+				"201807051300Z"
+		DESCRIPTION
+				"1.26 - Add support for the ViaLiteHD 1U GPS Splitter rack"	
+		REVISION
+				"201710111300Z"
+		DESCRIPTION
+				"1.25 - Add the HRC-3 specific OIDS
+						Add the Trap history table OIDs to this MIB
+						Update the OID definitions & clarify the explanations"				
+				
+		REVISION
+				"201701101300Z"
+		DESCRIPTION
+				"1.2 - Update to reference new PPM GENERIC MIB structure."
+		REVISION
+				"201611301300Z"
+		DESCRIPTION
+				"1.15 - Update for standards compliance, and to improve MIB useability."
+		REVISION
+				"201602231300Z"
+		DESCRIPTION
+				"1.14 - Fix some typos."
+		REVISION
+				"201601311200Z"
+		DESCRIPTION
+				"1.13 - Add description"
+		REVISION
+				"201507151200Z"
+		DESCRIPTION
+				"1.12 - Add support for Tx TEC monitor & control OIDs"
+		REVISION
+				"201504281200Z"
+		DESCRIPTION
+				"1.11 - Change OID 351 description"
+		REVISION
+				"201504141200Z"
+		DESCRIPTION
+				"1.10 - Add modSwitchModeSetting"
+		REVISION
+				"201408041200Z"
+		DESCRIPTION
+				"1.09 - General fixes. Serial alarm OIDs removed, consolidated into one OID."
+		REVISION
+				"201407231200Z"
+		DESCRIPTION
+				"1.08 - Added: 	New configuration parameter for TX LNB alarm severity
+								Support for DC switched splitter module
+								New serial parameters
+						Changed: Serial Configuration parameter OIDs"
+		REVISION
+				"201309091200Z"
+		DESCRIPTION
+				"1.07 - Add support for SATCOM6 device."
+		REVISION
+				"201303111200Z"
+		DESCRIPTION
+				"1.06 - Adjust ethernet card parameters"
+		REVISION
+				"201207011200Z"
+		DESCRIPTION
+				"1.05 - Add support for 1RU device."
+		REVISION
+				"201010121200Z"
+		DESCRIPTION
+				"1.03 - LNB related enumerations fixed."
+		REVISION
+				"201006101200Z"
+		DESCRIPTION
+				"1.02 - Amplifier support added."
+		REVISION
+				"200912091200Z"
+		DESCRIPTION
+				"1.01 - First released version."
+	::=  { vialiteProducts 1 }
+
+	ignisSystem     OBJECT IDENTIFIER ::= { ignis 1 }
+	ignisSlots      OBJECT IDENTIFIER ::= { ignis 4 }
+	ppmTrapHistory      OBJECT IDENTIFIER ::= { ppm 5 }
+	
+-- ---------------------------------------------------------- --
+-- IGNIS System Group
+-- ---------------------------------------------------------- --
+
+	productModel OBJECT-TYPE
+		SYNTAX      INTEGER
+		{
+			viaLiteHDinHRK3(1),
+			viaLiteHDinHRK1(2),
+			viaLiteHDinSATCOM6(6),
+			viaLiteHDin1UGPSSplitterChassis(7),
+			vialiteHDinODEMini(8)
+			vialiteHDinODEA4(9)
+		}
+		MAX-ACCESS  read-only
+		STATUS      current
+		DESCRIPTION
+			"ViaLiteHD Chassis Type"
+	::= { ignisSystem 1 }
+
+	sysDate OBJECT-TYPE
+		SYNTAX DisplayString
+		MAX-ACCESS  read-write
+		STATUS      current
+		DESCRIPTION
+			"System date. Formatted as DD/MM/YY."
+	::= { ignisSystem 2 }
+
+	sysTime OBJECT-TYPE
+		SYNTAX DisplayString
+		MAX-ACCESS  read-write
+		STATUS      current
+		DESCRIPTION
+			"System time. Formatted as HH:MM:SS."
+	::= { ignisSystem 3 }
+
+	snmpHWrevision OBJECT-TYPE
+		SYNTAX      DisplayString
+		MAX-ACCESS  read-only
+		STATUS      current
+		DESCRIPTION
+			"ViaLiteHD Controller hardware version."
+	::= { ignisSystem 10 }
+
+	snmpSWversion OBJECT-TYPE
+		SYNTAX      DisplayString
+		MAX-ACCESS  read-only
+		STATUS      current
+		DESCRIPTION
+			"ViaLiteHD Controller software version."
+	::= { ignisSystem 11 }
+
+	snmpMACaddress OBJECT-TYPE
+		SYNTAX      MacAddress
+		MAX-ACCESS  read-only
+		STATUS      current
+		DESCRIPTION
+			"MAC address of the ViaLiteHD controller."
+	::= { ignisSystem 12 }
+
+	snmpSerialNumber OBJECT-TYPE
+		SYNTAX      DisplayString
+		MAX-ACCESS  read-only
+		STATUS      current
+		DESCRIPTION
+			"ViaLiteHD Controller Serial number."
+	::= { ignisSystem 13 }
+
+	snmpTemp OBJECT-TYPE
+		SYNTAX      INTEGER
+		UNITS "degC"
+		MAX-ACCESS  read-only
+		STATUS      current
+		DESCRIPTION
+			"ViaLiteHD controller internal temperature. Trap threshold set by highTempThreshold (ignisSystem.27)."
+	::= { ignisSystem 20 }
+
+	snmpVoltage OBJECT-TYPE
+		SYNTAX      INTEGER
+		UNITS	   "mV"
+		MAX-ACCESS  read-only
+		STATUS      current
+		DESCRIPTION
+			"ViaLiteHD backplane voltage reading, measured in millivolts. Nominal value 12000mV.
+			Trap thresholds set by lowVoltageThreshold & highVoltageThreshold (ignisSystem.28 & .29)."
+	::= { ignisSystem 21 }
+
+	mcpLEDs OBJECT-TYPE
+		SYNTAX      INTEGER
+		MAX-ACCESS  read-only
+		STATUS      current
+		DESCRIPTION
+			"A bitmap representation of the SNMP controller front panel LEDs.
+			Each LED is a 4 bit nibble, encoded as:  Off=0x0, Green=0x1, Red=0x3
+			Nibbles are arranged (LSB->MSB) PWR LED, Link Rear LED, Link Fibre LED, Front Panel RJ45 LEDs."
+	::= { ignisSystem 22 }
+
+	mcpReset OBJECT-TYPE
+		SYNTAX      INTEGER
+		{
+			ready(1),
+			reset(2),
+			clearEventHistory(4)
+		}
+		MAX-ACCESS  read-write
+		STATUS      current
+		DESCRIPTION
+			"Reset command for the SNMP controller."
+	::= { ignisSystem 23 }
+
+	psu1Status OBJECT-TYPE
+		SYNTAX      INTEGER
+		{
+			statNotAvailable(1),
+			statNormal(2),
+			statFailure(3)
+		}
+		MAX-ACCESS  read-only
+		STATUS      current
+		DESCRIPTION
+			"PSU #1 status."
+	::= { ignisSystem 25 }
+
+	psu2Status OBJECT-TYPE
+		SYNTAX      INTEGER
+		{
+			statNotAvailable(1),
+			statNormal(2),
+			statFailure(3)
+		}
+		MAX-ACCESS  read-only
+		STATUS      current
+		DESCRIPTION
+			"PSU #2 status."
+	::= { ignisSystem 26 }
+
+	highTempThreshold OBJECT-TYPE
+		SYNTAX        	INTEGER
+		UNITS			"degC"
+		MAX-ACCESS    	read-write
+		STATUS        	current
+		DESCRIPTION
+			"Controller module internal temperature alarm threshold (in degrees Celsius). Max of 90 degC"
+	::= { ignisSystem 27 }
+
+	lowVoltageThreshold OBJECT-TYPE
+		SYNTAX        INTEGER
+		UNITS			"mV"
+		MAX-ACCESS    read-write
+		STATUS        current
+		DESCRIPTION
+			"Low voltage alarm threshold, in mV. Valid range: 9000-15000mV."
+	::= { ignisSystem 28 }
+
+	highVoltageThreshold OBJECT-TYPE
+		SYNTAX			INTEGER
+		UNITS			"mV"
+		MAX-ACCESS    	read-write
+		STATUS        	current
+		DESCRIPTION
+			"High voltage alarm threshold, in mV. Valid range: 9000-15000mV."
+	::= { ignisSystem 29 }
+
+	autoCfgDownload OBJECT-TYPE
+		SYNTAX        INTEGER
+		{
+			enabled(2),
+			disabled(3)
+		}
+		MAX-ACCESS    read-write
+		STATUS        current
+		DESCRIPTION
+			"Enable/disable automatic card configuration.
+			If enabled, when a module is replaced by an exact duplicate, the controller will
+			reconfigure the new module to match the old module's settings."
+	::= { ignisSystem 30 }
+
+	defaulthighTempThreshold OBJECT-TYPE
+		SYNTAX        INTEGER
+		UNITS			"degC"
+		MAX-ACCESS    read-only
+		STATUS        current
+		DESCRIPTION
+			"Default internal temperature alarm threshold in deg. celsius. Max of 90 degC"
+	::= { ignisSystem 31 }
+
+	defaultlowVoltageThreshold OBJECT-TYPE
+		SYNTAX        INTEGER
+		UNITS			"mV"
+		MAX-ACCESS    read-only
+		STATUS        current
+		DESCRIPTION
+			"Default low voltage alarm threshold(in mV)."
+	::= { ignisSystem 32 }
+
+	defaulthighVoltageThreshold OBJECT-TYPE
+		SYNTAX        INTEGER
+		UNITS			"mV"
+		MAX-ACCESS    read-only
+		STATUS        current
+		DESCRIPTION
+			"Default high voltage alarm threshold(in mV)."
+	::= { ignisSystem 33 }
+
+	sysVoltageAlarm OBJECT-TYPE
+		SYNTAX        INTEGER
+		{
+			noAlarm(0),
+			highVoltageAlarm(1),
+			lowVoltageAlarm(-1)
+		}
+		MAX-ACCESS    read-only
+		STATUS        current
+		DESCRIPTION
+			"Current status of the system voltage alarm, as configured with lowVoltageThreshold and highVoltageThreshold. 0 = No alarm. -1 = Low voltage alarm. 1 = High voltage alarm."
+	::= { ignisSystem 34 }
+
+	sysTempAlarm OBJECT-TYPE
+		SYNTAX        INTEGER
+		{
+			noAlarm(0),
+			highTemperatureAlarm(1)
+		}
+		MAX-ACCESS    read-only
+		STATUS        current
+		DESCRIPTION
+			"Current status of the system temperature alarm, as configured with highTempThreshold. 0 = No alarm. 1 = High temperature alarm."
+	::= { ignisSystem 35 }
+
+	snmpPartNumber OBJECT-TYPE
+		SYNTAX      DisplayString
+		MAX-ACCESS  read-only
+		STATUS      current
+		DESCRIPTION
+			"ViaLiteHD Controller part number."
+	::= { ignisSystem 36 }
+
+-- ---------------------------------------------------------- --
+-- IGNIS Slots Group
+-- ---------------------------------------------------------- --
+
+	slotsTable OBJECT-TYPE
+		SYNTAX SEQUENCE OF SlotsEntry
+		MAX-ACCESS not-accessible
+		STATUS current
+		DESCRIPTION
+			"A table detailing the configuration and status information for the modules in the ViaLiteHD chassis"
+	::= { ignisSlots 1 }
+
+	slotsEntry OBJECT-TYPE
+		SYNTAX SlotsEntry
+		MAX-ACCESS not-accessible
+		STATUS current
+		DESCRIPTION 	"A single slot entry."
+		INDEX  { modIx  }
+	::= { slotsTable 1 }
+
+	SlotsEntry ::=
+		SEQUENCE
+		{
+			modIx                 	INTEGER,
+			modType               	INTEGER,
+			modPN		          	DisplayString,
+			modFWPN			      	DisplayString,
+			modFWVer		      	DisplayString,
+			modSN			      	DisplayString,
+			modOemNumber          	DisplayString,
+			modCustomerID  	      	DisplayString,
+			modMonLifeCounter     	INTEGER,
+			modMonPanelComp       	INTEGER,
+			modMonPanelLEDS       	INTEGER,
+			modLabel	          	DisplayString,
+			modFreeText	          	DisplayString,
+			modFwDate				DisplayString,
+
+			modWaveLenInteger       INTEGER,
+			modWaveLenDecimal       INTEGER,
+
+			modTx1MonSuppVoltage  	INTEGER,
+			modTx1MonLaserBias    	INTEGER,
+			modTx1MonLaserPower   	INTEGER,
+			modTx1MonRfPower      	INTEGER,
+			modTx1MonRfGain       	INTEGER,
+			modTx1MonFeedI        	INTEGER,
+			modTx1MonFeedV        	INTEGER,
+			modTx1MonStatus       	INTEGER,
+			modTx1MonAlarms       	INTEGER,
+			modTx1MonInputPower     INTEGER,
+			modTx1MonTECTemprtr     INTEGER,
+			modTx1MonTEC            INTEGER,
+			modTx2MonSuppVoltage  	INTEGER,
+			modTx2MonLaserBias    	INTEGER,
+			modTx2MonLaserPower   	INTEGER,
+			modTx2MonRfPower      	INTEGER,
+			modTx2MonRfGain       	INTEGER,
+			modTx2MonFeedI       	INTEGER,
+			modTx2MonFeedV       	INTEGER,
+			modTx2MonStatus      	INTEGER,
+			modTx2MonAlarms      	INTEGER,
+			modTx2MonInputPower     INTEGER,
+			modTx1CfgGainSoftSet  	INTEGER,
+			modTx1CfgAgcTarget    	INTEGER,
+			modTx1CfgLaserDisable 	INTEGER,
+			modTx1CfgFskDisable   	INTEGER,
+			modTx1CfgAgc          	INTEGER,
+			modTx1CfgSgc          	INTEGER,
+			modTx1CfgGpsLoad      	INTEGER,
+			modTx1CfgRFPlevelHigh   INTEGER,
+			modTx1CfgRFPlevelLow    INTEGER,
+			modTx1CfgLnbAlarm       INTEGER,
+			modTx1CfgTECcontrol	    INTEGER,
+
+			modTx2CfgGainSoftSet  	INTEGER,
+			modTx2CfgAgcTarget    	INTEGER,
+			modTx2CfgLaserDisable 	INTEGER,
+			modTx2CfgFskDisable   	INTEGER,
+			modTx2CfgAgc          	INTEGER,
+			modTx2CfgSgc          	INTEGER,
+			modTx2CfgGpsLoad      	INTEGER,
+			modTx2CfgRFPlevelHigh   INTEGER,
+			modTx2CfgRFPlevelLow    INTEGER,
+			modTx2CfgLnbAlarm       INTEGER,
+
+			modTx1InterRange      	OCTET STRING,
+			modTx1InterBiasSet    	INTEGER,
+			modTx1InterPowerSet   	INTEGER,
+			modTx1InterPowerCal   	INTEGER,
+			modTx1InterGainDef    	INTEGER,
+			modTx1InterRfMonCal   	INTEGER,
+			modTx1InterFskFreqSet 	INTEGER,
+
+			modTx1InterRfGainCal 	INTEGER,
+			modTx1InterMonitorMask 	INTEGER,
+			modTx1InterAlarmMask   	INTEGER,
+			modTx2InterRange      	OCTET STRING,
+			modTx2InterBiasSet    	INTEGER,
+			modTx2InterPowerSet   	INTEGER,
+			modTx2InterPowerCal   	INTEGER,
+			modTx2InterGainDef    	INTEGER,
+			modTx2InterRfMonCal   	INTEGER,
+			modTx2InterFskFreqSet 	INTEGER,
+			modTx2InterRfGainCal   	INTEGER,
+			modTx2InterMonitorMask 	INTEGER,
+
+			modRx1MonSuppVoltage  	INTEGER,
+			modRx1MonRLLBias      	INTEGER,
+			modRx1MonRfPower      	INTEGER,
+			modRx1MonRfGain       	INTEGER,
+			modRx1MonStatus       	INTEGER,
+			modRx1MonAlarms       	INTEGER,
+			modRx1MonOutputPower    INTEGER,
+
+			modRx2MonSuppVoltage  	INTEGER,
+			modRx2MonRLLBias      	INTEGER,
+			modRx2MonRfPower      	INTEGER,
+			modRx2MonRfGain       	INTEGER,
+			modRx2MonStatus       	INTEGER,
+			modRx2MonAlarms       	INTEGER,
+			modRx2MonOutputPower    INTEGER,
+
+			modRx1CfgGainSoftSet  	INTEGER,
+			modRx1CfgAgcTarget    	INTEGER,
+			modRx1CfgFskDisable   	INTEGER,
+			modRx1CfgAgc          	INTEGER,
+			modRx1CfgSgc          	INTEGER,
+			modRx1CfgAgcMode      	INTEGER,
+			modRx1CfgGpsLoad      	INTEGER,
+			modRx1CfgRFPlevelHigh   INTEGER,
+			modRx1CfgRFPlevelLow    INTEGER,
+
+			modRx2CfgGainSoftSet  	INTEGER,
+			modRx2CfgAgcTarget    	INTEGER,
+			modRx2CfgFskDisable   	INTEGER,
+			modRx2CfgAgc          	INTEGER,
+			modRx2CfgSgc          	INTEGER,
+			modRx2CfgAgcMode      	INTEGER,
+			modRx2CfgGpsLoad      	INTEGER,
+			modRx2CfgRFPlevelHigh   INTEGER,
+			modRx2CfgRFPlevelLow    INTEGER,
+
+			modRx1InterRange      	OCTET STRING,
+			modRx1InterBiasSet    	INTEGER,
+			modRx1InterGainDef    	INTEGER,
+			modRx1InterRfMonCal   	INTEGER,
+			modRx1InterFskFreqSet 	INTEGER,
+			modRx1InterFskSlicSet 	INTEGER,
+			modRx1InterRfGainCal	INTEGER,
+			modRx1InterMonitorMask	INTEGER,
+			modRx1InterAlarmMask	INTEGER,
+			modRx2InterRange      	OCTET STRING,
+			modRx2InterBiasSet    	INTEGER,
+			modRx2InterGainDef    	INTEGER,
+			modRx2InterRfMonCal   	INTEGER,
+			modRx2InterFskFreqSet 	INTEGER,
+			modRx2InterFskSlicSet 	INTEGER,
+			modRx2InterRfGainCal  	INTEGER,
+			modRx2InterMonitorMask 	INTEGER,
+			modRx2InterAlarmMask  	INTEGER,
+			modAmpMonVcc			INTEGER,
+			modAmpMonTemp			INTEGER,
+			modAmp1MonRf			INTEGER,
+			modAmp1MonRfGain		INTEGER,
+			modAmp1MonStatus      	INTEGER,
+			modAmp1MonAlarms       	INTEGER,
+			modAmp1CfgGainSoftSet  	INTEGER,
+			modAmp1CfgAgcTarget    	INTEGER,
+			modAmp1InterRange      	OCTET STRING,
+			modAmp1InterGainCal		INTEGER,
+			modAmp1InterRfMonCal   	INTEGER,
+			modAmp1InterAgcCtrl   	INTEGER,
+			modAmp2MonRf			INTEGER,
+			modAmp2MonRfGain		INTEGER,
+			modAmp2MonStatus       	INTEGER,
+			modAmp2MonAlarms       	INTEGER,
+			modAmp2CfgGainSoftSet  	INTEGER,
+			modAmp2CfgAgcTarget    	INTEGER,
+			modAmp2InterRange      	OCTET STRING,
+			modAmp2InterGainCal		INTEGER,
+			modAmp2InterRfMonCal   	INTEGER,
+			modAmp2InterAgcCtrl   	INTEGER,
+
+			modAmp1LvlLimitHCtrl    INTEGER,
+			modAmp1LvlLimitLCtrl    INTEGER,
+			modAmp2LvlLimitHCtrl    INTEGER,
+			modAmp2LvlLimitLCtrl    INTEGER,
+			modAmpGainAlThCtrl    	INTEGER,
+			modAmpLvlAlThCtrl       INTEGER,
+
+			modSwtchMonModeSetting	INTEGER,
+			modSwtchMonStatus     	INTEGER,
+			modSWAlarmBitMap     	INTEGER,
+			modSwtchModeSetting		INTEGER,
+
+			modLNBAlarmMask			INTEGER,
+			modLNBbitAUX        	INTEGER,
+			modLNBbitITEST        	INTEGER,
+			modLNBbitEN          	INTEGER,
+			modLNBbitVSEL        	INTEGER,
+			modLNBbitLLC        	INTEGER,
+			modLNBbitTEN        	INTEGER,
+			modLNBbitTTX        	INTEGER,
+			modLNBbitPCL        	INTEGER,
+
+			modLNBbitOLF        	INTEGER,
+			modLNBbitOTF        	INTEGER,
+			modLNBMonStatus        	INTEGER,
+			modLNBDIPSwitch        	INTEGER,
+			modLNBAlarmStatus		INTEGER,
+
+			modETHMonSupplyVolt		INTEGER,
+			modETHMonLinkdataRate 	INTEGER,
+			modETHMonDataActivity   INTEGER,
+			modETHMonAlarms  		INTEGER,
+			modETHMonCopperdataRate INTEGER,
+			modETHMonCopperActivity	INTEGER,
+
+			modSERMonLinkdataRate	INTEGER,
+			modSERMonDataActivity	INTEGER,
+			modSERMonSerialAlarm	INTEGER,
+			modSERMonChannel1Type	INTEGER,
+			modSERMonChannel2		INTEGER,
+			modSERMonSupplyVolt		INTEGER,
+			modSERMonLaserPower     INTEGER,
+			modSERMonRLLLevel       INTEGER,
+			modSERMonDipManualMode  INTEGER,
+			modSERCfgChannelRate	INTEGER,
+			modSERCfgTTlImpedance	INTEGER,
+			modSERCfgLaserDisable   INTEGER,
+			
+			modMaintenanceMode		INTEGER,
+			
+			modG6CardMonSupplyVolt	INTGEER,
+
+			modG6Dev1CfgBiasTSrc    INTGEER,
+			modG6Dev1MonFeedI       INTGEER,
+			modG6Dev1MonFeedV       INTGEER,
+			modG6Dev1Type           INTGEER,
+			modG6Dev1WaveLenInteger INTGEER,
+			modG6Dev1WaveLenDecimal INTGEER,
+			modG6Dev1CfgAFDThr      INTGEER,
+			modG6Dev1CfgAFDEn       INTGEER,
+
+			modG6Dev2CfgBiasTSrc    INTGEER,
+			modG6Dev2MonFeedI       INTGEER,
+			modG6Dev2MonFeedV       INTGEER,
+			modG6Dev2Type           INTGEER,
+			modG6Dev2WaveLenInteger INTGEER,
+			modG6Dev2WaveLenDecimal INTGEER,
+			modG6Dev2CfgAFDThr      INTGEER,
+			modG6Dev2CfgAFDEn       INTGEER,
+		}
+
+	modIx              OBJECT-TYPE
+		SYNTAX INTEGER (1..13)
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION 	 "Module index in slots table. Corresponds to module slot in the ViaLiteHD chassis"
+	::= { slotsEntry 1 }
+	
+	modType            OBJECT-TYPE
+		SYNTAX INTEGER
+		{
+			modTxRx			(1),
+			modTx			(2),
+			modRx			(3),
+			modDTx			(4),
+			modDRx			(5),
+			modAMP			(6),
+			modSW			(7),
+			modFILTER		(8),
+			modOSC			(9),
+			modSPLTR		(10),
+			modSER			(11),
+			modDcSWSPLTR	(14),
+			modTxDWDM  		(15),
+			modPROC  		(16),
+			modETH			(32),
+			modMilAeroOEMTX	(37),
+			modMilAeroOEMRX	(33), 
+			modMilAeroTX	(42),
+			modMilAeroRX	(43), 
+			modMilAeroTRX	(44), 
+			modMilAeroDTX	(45), 
+			modMilAeroDRX	(46), 
+			modEDGETxDWDM 	(143),
+			modTxRxLNB		(193),
+			modTxLNB		(194),
+			modRxLNB		(195),
+			modDTxLNB		(196),
+			modDRxLNB		(197),
+			modLNBSAT6    	(198),
+			modDUALLNB    	(199),
+			modSINGLELNB  	(200),
+			modDWDMTxLNB  	(207),
+			empty		  	(255)
+		}
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION "Module type."
+	::= { slotsEntry 2 }
+
+	modPN              OBJECT-TYPE
+		SYNTAX DisplayString
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION "Module part number."
+	::= { slotsEntry 3 }
+
+	modFWPN            OBJECT-TYPE
+		SYNTAX DisplayString
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION "Module firmware part number."
+	::= { slotsEntry 4 }
+
+	modFWVer           OBJECT-TYPE
+		SYNTAX DisplayString
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION "Module firmware version and build date/time."
+	::= { slotsEntry 5 }
+
+	modSN              OBJECT-TYPE
+		SYNTAX DisplayString
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION "Module serial number."
+	::= { slotsEntry 6 }
+
+	modOemNumber       OBJECT-TYPE
+		SYNTAX DisplayString
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION "Module OEM number."
+	::= { slotsEntry 7 }
+
+	modCustomerID      OBJECT-TYPE
+		SYNTAX DisplayString
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION "Module customer ID."
+	::= { slotsEntry 8 }
+
+	modMonLifeCounter  OBJECT-TYPE
+		SYNTAX INTEGER
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION "Module working hours counter. Increments every 2 hours of continuous operation."
+	::= { slotsEntry 9 }
+
+	modMonPanelComp  OBJECT-TYPE
+		SYNTAX INTEGER
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION
+			"Module Front Panel type bitmap.
+			Encoded as two 4 bit nibbles (LSNibble for the lower(B) front panel port, MSNibble for the upper (A) front panel port).
+			Port type encoded as: Not Fitted=0x0, SMA=0x1, BNC=0x2."
+	::= { slotsEntry 10 }
+
+	modMonPanelLEDS  OBJECT-TYPE
+		SYNTAX INTEGER
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION "A bitmap representation of the module front panel LEDs.
+			Each LED is a 4 bit nibble, encoded as:  Green=0x1, Red=0x3, Red&Flashing=0x7
+			Nibbles are arranged (LSB->MSB) PWR LED, ALM LED."
+	::= { slotsEntry 11 }
+
+	modLabel           OBJECT-TYPE
+		SYNTAX DisplayString
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION "Module type label."
+	::= { slotsEntry 12 }
+
+	modFreeText           OBJECT-TYPE
+		SYNTAX DisplayString
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION "User defined module name."
+	::= { slotsEntry 13 }
+
+	modFwDate           OBJECT-TYPE
+		SYNTAX DisplayString
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION "Firmware build date"
+	::= { slotsEntry 14 }
+
+	modWaveLenInteger   OBJECT-TYPE
+		SYNTAX INTEGER
+		UNITS	"nm"
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION "Optical Wavelength (integer part). Given in nm (truncated)"
+	::= { slotsEntry 15 }
+
+	modWaveLenDecimal   OBJECT-TYPE
+		SYNTAX INTEGER
+		UNITS	"x 0.01nm"
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION "Optical Wavelength (decimal part). Given in 0.01nm"
+	::= { slotsEntry 16 }
+
+
+	modTx1MonSuppVoltage   OBJECT-TYPE
+		SYNTAX INTEGER
+		UNITS	"mV"
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION "Tx1 Current supply voltage measured in mV. Nominal 12000mV"
+	::= { slotsEntry 20 }
+
+	modTx1MonLaserBias   OBJECT-TYPE
+		SYNTAX INTEGER
+		UNITS	"uA"
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION "Tx1 Current laser bias current measurement, measured in uA."
+	::= { slotsEntry 21 }
+
+	modTx1MonLaserPower   OBJECT-TYPE
+		SYNTAX INTEGER
+		UNITS	"x 10mdBm"
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION "Tx1 Current laser power measurement, measured in 10mdBm."
+	::= { slotsEntry 22 }
+
+	modTx1MonRfPower   OBJECT-TYPE
+		SYNTAX INTEGER
+		UNITS	"x 10mdBm"
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION "Tx1 Current RF power, measured in 10mdBm."
+	::= { slotsEntry 23 }
+
+	modTx1MonRfGain   OBJECT-TYPE
+		SYNTAX INTEGER
+		UNITS	"x 10mdB"
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION "Tx1 Current RF gain, measured in 10mdB."
+	::= { slotsEntry 24 }
+
+	modTx1MonFeedI   OBJECT-TYPE
+		SYNTAX INTEGER
+		UNITS	"x 0.1mA"
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION "Tx1 External feed current [0.1mA]."
+	::= { slotsEntry 25 }
+
+	modTx1MonFeedV   OBJECT-TYPE
+		SYNTAX INTEGER
+		UNITS	"mV"
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION "Tx1 External feed voltage [mV]."
+	::= { slotsEntry 26 }
+
+	modTx1MonStatus   OBJECT-TYPE
+		SYNTAX INTEGER
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION
+			"Bitmap encoding of the current configuration status of the Tx1 module.
+			Bit 0: Laser Status (0=Enabled, 1=Disabled)
+				1: FSK Tone (Digital Channel) Status (0=Enabled, 1=Disabled)
+				2: Manual Gain Control (MGC) Status (0=Disabled, 1=Enabled)
+				3: Automatic Gain Control (AGC) Status (0=Disabled, 1=Enabled)
+				4: Software Gain Control (SGC) Status (0=Disabled, 1=Enabled)
+				5: GPS Mode Status (0=Disabled, 1=Enabled)
+				6: TEC Status (0=Enabled, 1=Disabled)
+				7: LNB Alarm Status (0=Off, 1=On)"
+	::= { slotsEntry 27 }
+
+	modTx1MonAlarms   OBJECT-TYPE
+		SYNTAX INTEGER
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION
+			"Bitmap encoding of the current alarm status of the Tx1 module. All bits are encoded as 0=NoAlarm 1=Alarm
+			Bit 0: Major Alarm
+				1: Minor Alarm
+				2: Laser Alarm
+				3: Automatic Gain Control (AGC) Alarm
+				4: TEC Alarm
+				5-7: Unused
+
+				Bit 8: Supply Voltage Alarm
+				9: Laser Bias Alarm
+				10: Power Alarm
+				11: External Feed Current Alarm
+				12: External Feed Voltage Alarm
+				13: Temperature Alarm
+				14: RF Level Alarm
+				15: RF Gain Alarm"
+	::= { slotsEntry 28 }
+
+	modTx1MonInputPower   OBJECT-TYPE
+		SYNTAX INTEGER
+		UNITS	"x 10mdBm"
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION "Tx1 Input power level, measured in 10mdBm"
+	::= { slotsEntry 29 }
+
+	modTx1MonTECTemprtr   OBJECT-TYPE
+		SYNTAX INTEGER
+		UNITS	"degC"
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION "Tx1 Laser TEC (Thermo-Electric Cooler) temperature, measured in degrees Centigrade."
+	::= { slotsEntry 30 }
+
+	modTx1MonTEC   OBJECT-TYPE
+		SYNTAX INTEGER
+		UNITS	"x 0.1mA"
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION "Tx1 Laser TEC (Thermo-Electric Cooler) current, measured in 0.1mA"
+	::= { slotsEntry 31 }
+
+
+	modTx2MonSuppVoltage   OBJECT-TYPE
+		SYNTAX INTEGER
+		UNITS	"mV"
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION "Tx2 Current supply voltage measured in mV."
+	::= { slotsEntry 40 }
+
+	modTx2MonLaserBias   OBJECT-TYPE
+		SYNTAX INTEGER
+		UNITS	"uA"
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION "Tx2 Current laser bias current measurement [uA]."
+	::= { slotsEntry 41 }
+
+	modTx2MonLaserPower   OBJECT-TYPE
+		SYNTAX INTEGER
+		UNITS	"x 10mdBm"
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION "Tx2 Current laser power measurement, measured in 10mdBm."
+	::= { slotsEntry 42 }
+
+	modTx2MonRfPower   OBJECT-TYPE
+		SYNTAX INTEGER
+		UNITS	"x 10mdBm"
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION "Tx2 Current RF power, measured in 10mdBm."
+	::= { slotsEntry 43 }
+
+	modTx2MonRfGain   OBJECT-TYPE
+		SYNTAX INTEGER
+		UNITS	"x 10mdB"
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION "Tx2 Current RF gain, measured in 10mdB."
+	::= { slotsEntry 44 }
+
+	modTx2MonFeedI   OBJECT-TYPE
+		SYNTAX INTEGER
+		UNITS	"0.1mA"
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION "Tx2 External feed current [0.1mA]."
+	::= { slotsEntry 45 }
+
+	modTx2MonFeedV   OBJECT-TYPE
+		SYNTAX INTEGER
+		UNITS	"mV"
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION "Tx2 External feed voltage [mV]."
+	::= { slotsEntry 46 }
+
+	modTx2MonStatus   OBJECT-TYPE
+		SYNTAX INTEGER
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION
+			"Bitmap encoding of the current configuration status of the Tx2 module.
+			Bit 0: Laser Status (0=Enabled, 1=Disabled)
+				1: FSK Tone (Digital Channel) Status (0=Enabled, 1=Disabled)
+				2: Manual Gain Control (MGC) Status (0=Disabled, 1=Enabled)
+				3: Automatic Gain Control (AGC) Status (0=Disabled, 1=Enabled)
+				4: Software Gain Control (SGC) Status (0=Disabled, 1=Enabled)
+				5: GPS Mode Status (0=Disabled, 1=Enabled)
+				6: TEC Status (0=Enabled, 1=Disabled)
+				7: LNB Alarm Status (0=Off, 1=On)"
+	::= { slotsEntry 47 }
+
+	modTx2MonAlarms   OBJECT-TYPE
+		SYNTAX INTEGER
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION
+			"Bitmap encoding of the current alarm status of the Tx2 module. All bits are encoded as 0=NoAlarm 1=Alarm
+			Bit 0: Major Alarm
+				1: Minor Alarm
+				2: Laser Alarm
+				3: Automatic Gain Control (AGC) Alarm
+				4: TEC Alarm
+				5-7: Unused
+
+			Bit 8: Supply Voltage Alarm
+				9: Laser Bias Alarm
+				10: Power Alarm
+				11: External Feed Current Alarm
+				12: External Feed Voltage Alarm
+				13: Temperature Alarm
+				14: RF Level Alarm
+				15: RF Gain Alarm"
+	::= { slotsEntry 48 }
+
+	modTx2MonInputPower   OBJECT-TYPE
+		SYNTAX INTEGER
+		UNITS	"x 10mdB"
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION "Tx2 Input power level, measured in 10mdBm"
+	::= { slotsEntry 49 }
+
+	modTx1CfgGainSoftSet   OBJECT-TYPE
+		SYNTAX INTEGER
+		UNITS	"x 10mdB"
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION "Tx1 Software Gain Control (SGC) Gain setting, measured in 10mdB"
+	::= { slotsEntry 60 }
+
+	modTx1CfgAgcTarget   OBJECT-TYPE
+		SYNTAX INTEGER
+		UNITS	"x 10mdBm"
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION "Tx1 Automatic Gain Control target, measured in 10mdBm."
+	::= { slotsEntry 61 }
+
+	modTx1CfgLaserDisable   OBJECT-TYPE
+		SYNTAX INTEGER
+		{
+			notAvailable(1),
+			enable(2),
+			disable(3)
+		}
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION "Module Tx1 Laser enable/disable."
+	::= { slotsEntry 62 }
+
+	modTx1CfgFskDisable   OBJECT-TYPE
+		SYNTAX INTEGER
+		{
+			notAvailable(1),
+			enable(2),
+			disable(3)
+		}
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION "Module Tx1 FSK Tone (Digital Channel) Enable/disable."
+	::= { slotsEntry 63 }
+
+	modTx1CfgAgc   OBJECT-TYPE
+		SYNTAX INTEGER
+		{
+			notAvailable(1),
+			enable(2),
+			disable(3)
+		}
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION "Module Tx1 Automatic Gain Control enable/disable."
+	::= { slotsEntry 64 }
+
+	modTx1CfgSgc   OBJECT-TYPE
+		SYNTAX INTEGER
+		{
+			notAvailable(1),
+			enable(2),
+			disable(3)
+		}
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION "Module Tx1 Software Gain Control enable/disable."
+	::= { slotsEntry 65 }
+
+	modTx1CfgGpsLoad   OBJECT-TYPE
+		SYNTAX INTEGER
+		{
+			notAvailable(1),
+			enable(2),
+			disable(3)
+		}
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION "Tx1 GPS dummy load enable/disable. If the module does not support GPS mode, this will have no effect."
+	::= { slotsEntry 66 }
+
+	modTx1CfgRFPlevelHigh   OBJECT-TYPE
+		SYNTAX INTEGER
+		UNITS	"x 10mdBm"
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION "Tx1 Rf Power level alarm high threshold, measured in 10mdBm."
+	::= { slotsEntry 67 }
+
+	modTx1CfgRFPlevelLow   OBJECT-TYPE
+		SYNTAX INTEGER
+		UNITS	"x 10mdBm"
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION "Tx1 Rf Power level alarm low threshold, measured in 10mdBm."
+	::= { slotsEntry 68 }
+
+	modTx1CfgLnbAlarm   OBJECT-TYPE
+		SYNTAX INTEGER
+		{
+			noAlarm(0),
+			minorSeverity(1),
+			majorSeverity(2)
+		}
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION "Tx1 LNB voltage alarm severity."
+	::= { slotsEntry 69 }
+
+	modTx1CfgTECcontrol   OBJECT-TYPE
+		SYNTAX INTEGER
+		{
+			enable(2),
+			disable(3)
+		}
+		MAX-ACCESS read-only
+		STATUS deprecated
+		DESCRIPTION "Module Tx1 TEC control enable/disable."
+	::= { slotsEntry 70 }
+
+
+	modTx2CfgGainSoftSet   OBJECT-TYPE
+		SYNTAX INTEGER
+		UNITS	"x 10mdB"
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION "Tx2 Software Gain Control (SGC) Gain setting, measured in 10mdB"
+	::= { slotsEntry 80 }
+
+	modTx2CfgAgcTarget   OBJECT-TYPE
+		SYNTAX INTEGER
+		UNITS	"x 10mdBm"
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION "Tx2 Automatic Gain Control (AGC) target, measured in 10mdBm."
+	::= { slotsEntry 81 }
+
+	modTx2CfgLaserDisable   OBJECT-TYPE
+		SYNTAX INTEGER
+		{
+			notAvailable(1),
+			enable(2),
+			disable(3)
+		}
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION "Module Tx2 Laser enable/disable."
+	::= { slotsEntry 82 }
+
+	modTx2CfgFskDisable   OBJECT-TYPE
+		SYNTAX INTEGER
+		{
+			notAvailable(1),
+			enable(2),
+			disable(3)
+		}
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION "Module Tx2 FSK Tone (Digital Channel) Enable/disable."
+	::= { slotsEntry 83 }
+
+	modTx2CfgAgc   OBJECT-TYPE
+		SYNTAX INTEGER
+		{
+			notAvailable(1),
+			enable(2),
+			disable(3)
+		}
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION "Module Tx2 Automatic Gain Control (AGC) enable/disable."
+	::= { slotsEntry 84 }
+
+	modTx2CfgSgc   OBJECT-TYPE
+		SYNTAX INTEGER
+		{
+			notAvailable(1),
+			enable(2),
+			disable(3)
+		}
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION "Module Tx2 Software Gain Control (SGC) enable/disable."
+	::= { slotsEntry 85 }
+
+	modTx2CfgGpsLoad   OBJECT-TYPE
+		SYNTAX INTEGER
+		{
+			notAvailable(1),
+			enable(2),
+			disable(3)
+		}
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION "Module Tx2 GPS dummy load enable/disable. If the module does not support GPS mode, this will have no effect."
+	::= { slotsEntry 86 }
+
+	modTx2CfgRFPlevelHigh   OBJECT-TYPE
+		SYNTAX INTEGER
+		UNITS	"x 10mdBm"
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION "Tx2 Rf Power level alarm high threshold, measured in 10mdBm."
+	::= { slotsEntry 87 }
+
+	modTx2CfgRFPlevelLow   OBJECT-TYPE
+		SYNTAX INTEGER
+		UNITS	"x 10mdBm"
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION "Tx2 RF Power level alarm low threshold, measured in 10mdBm."
+	::= { slotsEntry 88 }
+
+	modTx2CfgLnbAlarm   OBJECT-TYPE
+		SYNTAX INTEGER
+		{
+			noAlarm(0),
+			minorSeverity(1),
+			majorSeverity(2)
+		}
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION "Module Tx2 LNB voltage alarm severity."
+	::= { slotsEntry 89 }
+
+	modTx1InterRange   OBJECT-TYPE
+		SYNTAX OCTET STRING
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION "Internal system information."
+	::= { slotsEntry 100 }
+
+	modTx1InterBiasSet   OBJECT-TYPE
+		SYNTAX INTEGER
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION "Internal system information."
+	::= { slotsEntry 101 }
+
+	modTx1InterPowerSet   OBJECT-TYPE
+		SYNTAX INTEGER
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION "Internal system information."
+	::= { slotsEntry 102 }
+
+	modTx1InterPowerCal   OBJECT-TYPE
+		SYNTAX INTEGER
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION "Internal system information."
+	::= { slotsEntry 103 }
+
+	modTx1InterGainDef   OBJECT-TYPE
+		SYNTAX INTEGER
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION "Internal system information."
+	::= { slotsEntry 104 }
+
+	modTx1InterRfMonCal   OBJECT-TYPE
+		SYNTAX INTEGER
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION "Internal system information."
+	::= { slotsEntry 105 }
+
+	modTx1InterFskFreqSet   OBJECT-TYPE
+		SYNTAX INTEGER
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION "Internal system information."
+	::= { slotsEntry 106 }
+
+	modTx1InterRfGainCal   OBJECT-TYPE
+		SYNTAX INTEGER
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION "Internal system information."
+	::= { slotsEntry 107 }
+
+	modTx1InterMonitorMask         OBJECT-TYPE
+		SYNTAX INTEGER
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION "Internal system information."
+	::= { slotsEntry 108 }
+
+	modTx1InterAlarmMask   OBJECT-TYPE
+		SYNTAX INTEGER
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION "Internal system information."
+	::= { slotsEntry 109 }
+
+	modTx2InterRange   OBJECT-TYPE
+		SYNTAX OCTET STRING
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION "Internal system information."
+	::= { slotsEntry 120 }
+
+	modTx2InterBiasSet   OBJECT-TYPE
+		SYNTAX INTEGER
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION "Internal system information."
+	::= { slotsEntry 121 }
+
+	modTx2InterPowerSet   OBJECT-TYPE
+		SYNTAX INTEGER
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION "Internal system information."
+	::= { slotsEntry 122 }
+
+	modTx2InterPowerCal   OBJECT-TYPE
+		SYNTAX INTEGER
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION "Internal system information."
+	::= { slotsEntry 123 }
+
+	modTx2InterGainDef   OBJECT-TYPE
+		SYNTAX INTEGER
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION "Internal system information."
+	::= { slotsEntry 124 }
+
+	modTx2InterRfMonCal   OBJECT-TYPE
+		SYNTAX INTEGER
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION "Internal system information."
+	::= { slotsEntry 125 }
+
+	modTx2InterFskFreqSet   OBJECT-TYPE
+		SYNTAX INTEGER
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION "Internal system information."
+	::= { slotsEntry 126 }
+
+	modTx2InterRfGainCal   OBJECT-TYPE
+		SYNTAX INTEGER
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION "Internal system information."
+	::= { slotsEntry 127 }
+
+	modTx2InterMonitorMask   OBJECT-TYPE
+		SYNTAX INTEGER
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION "Internal system information."
+	::= { slotsEntry 128 }
+
+	modRx1MonSuppVoltage   OBJECT-TYPE
+		SYNTAX INTEGER
+		UNITS	"mV"
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION "Rx1 Current supply voltage measured in mV."
+	::= { slotsEntry 140 }
+
+	modRx1MonRLLBias   OBJECT-TYPE
+		SYNTAX INTEGER
+		UNITS	"x 0.01dBm"
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION "Module Rx1 Photodiode received light level [0.01dBm]."
+	::= { slotsEntry 141 }
+
+	modRx1MonRfPower   OBJECT-TYPE
+		SYNTAX INTEGER
+		UNITS	"mdBm"
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION "Module Rx1 current RF power [mdBm]."
+	::= { slotsEntry 142 }
+
+	modRx1MonRfGain   OBJECT-TYPE
+		SYNTAX INTEGER
+		UNITS "mdB"
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION "Module Rx1 current RF gain [mdB]."
+	::= { slotsEntry 143 }
+
+	modRx1MonStatus   OBJECT-TYPE
+		SYNTAX INTEGER
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION
+			"Bitmap encoding of the current configuration status of the Rx1 module.
+			Bit 0: FSK (Digital Channel) Detection Status (0=Not Detected, 1=Detected)
+				1: FSK (Digital Channel) Detection (0=Enabled, 1=Disabled)
+				2: Manual Gain Control (MGC) Status (0=Disabled, 1=Enabled)
+				3: Automatic Gain Control (AGC) Status (0=Disabled, 1=Enabled)
+				4: Software Gain Control (SGC) Status (0=Disabled, 1=Enabled)
+				5: Automatic Gain Control (AGC) Mode (0=RLL, 1=RF Level)
+				6: GPS Mode Status (0=Disabled, 1=Enabled)
+				7: Unused"
+	::= { slotsEntry 144 }
+
+	modRx1MonAlarms   OBJECT-TYPE
+		SYNTAX INTEGER
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION
+			"Bitmap encoding of the current alarm status of the Rx1 module. All bits are encoded as 0=NoAlarm 1=Alarm
+			Bit 0: Major Alarm
+				1: Minor Alarm
+				2: Automatic Gain Control (AGC) Alarm
+				3-7: Unused
+
+			Bit 8: Supply Voltage Alarm
+				9: Received Light Level Alarm
+				10: RF Level Alarm
+				11: RF Gain Alarm
+				12: BUC Alarm
+				13: Module Temperature Alarm
+				14-15: Unused"
+	::= { slotsEntry 145 }
+
+	modRx1MonOutputPower   OBJECT-TYPE
+		SYNTAX INTEGER
+		UNITS	"10mdBm"
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION "Rx1 Current output RF power level, measured in 10mdBm"
+	::= { slotsEntry 146 }
+
+	modRx2MonSuppVoltage   OBJECT-TYPE
+		SYNTAX INTEGER
+		UNITS	"mV"
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION "Rx2 Current supply voltage measured value [mV]."
+	::= { slotsEntry 160 }
+
+	modRx2MonRLLBias   OBJECT-TYPE
+		SYNTAX INTEGER
+		UNITS	"x 0.01dBm"
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION "Rx2 Photodiode received light level [0.01dBm]."
+	::= { slotsEntry 161 }
+
+	modRx2MonRfPower   OBJECT-TYPE
+		SYNTAX INTEGER
+		UNITS	"mdBm"
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION "Rx2 Current RF power [mdBm]."
+	::= { slotsEntry 162 }
+
+	modRx2MonRfGain   OBJECT-TYPE
+		SYNTAX INTEGER
+		UNITS	"mdB"
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION "Rx2 Current RF gain [mdB]."
+	::= { slotsEntry 163 }
+
+	modRx2MonStatus   OBJECT-TYPE
+		SYNTAX INTEGER
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION
+			"Bitmap encoding of the current configuration status of the Rx1 module.
+			Bit 0: FSK (Digital Channel) Detection Status (0=Not Detected, 1=Detected)
+				1: FSK (Digital Channel) Detection (0=Enabled, 1=Disabled)
+				2: Manual Gain Control (MGC) Status (0=Disabled, 1=Enabled)
+				3: Automatic Gain Control (AGC) Status (0=Disabled, 1=Enabled)
+				4: Software Gain Control (SGC) Status (0=Disabled, 1=Enabled)
+				5: Automatic Gain Control (AGC) Mode (0=RLL, 1=RF Level)
+				6: GPS Mode Status (0=Disabled, 1=Enabled)
+				7: Unused"
+	::= { slotsEntry 164 }
+
+	modRx2MonAlarms   OBJECT-TYPE
+		SYNTAX INTEGER
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION
+			"Bitmap encoding of the current alarm status of the Rx1 module. All bits are encoded as 0=NoAlarm 1=Alarm
+			Bit 0: Major Alarm
+				1: Minor Alarm
+				2: Automatic Gain Control (AGC) Alarm
+				3-7: Unused
+
+			Bit 8: Supply Voltage Alarm
+				9: Received Light Level Alarm
+				10: RF Level Alarm
+				11: RF Gain Alarm
+				12: BUC Alarm
+				13: Module Temperature Alarm
+				14-15: Unused"
+	::= { slotsEntry 165 }
+
+	modRx2MonOutputPower   OBJECT-TYPE
+		SYNTAX INTEGER
+		UNITS	"x 10mdBm"
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION "Rx2 Current output RF power level, measured in 10mdBm"
+	::= { slotsEntry 166 }
+
+	modRx1CfgGainSoftSet   OBJECT-TYPE
+		SYNTAX INTEGER
+		UNITS	"x 10mdB"
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION "Rx1 Software Gain Control (SGC) setting measured in 10mdB."
+	::= { slotsEntry 180 }
+
+	modRx1CfgAgcTarget   OBJECT-TYPE
+		SYNTAX INTEGER
+		UNITS	"x 10mdBm"
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION "Rx1 Automatic Gain Control target, measured in 10mdBm."
+	::= { slotsEntry 181 }
+
+	modRx1CfgFskDisable   OBJECT-TYPE
+		SYNTAX INTEGER
+		{
+			notAvailable(1),
+			enable(2),
+			disable(3)
+		}
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION "Rx1 Digital Channel Frequency Shift Keying (FSK) enable/disable."
+	::= { slotsEntry 182 }
+
+	modRx1CfgAgc   OBJECT-TYPE
+		SYNTAX INTEGER
+		{
+			notAvailable(1),
+			enable(2),
+			disable(3)
+		}
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION "Rx1 Automatic Gain Control (AGC) enable/disable."
+	::= { slotsEntry 183 }
+
+	modRx1CfgSgc   OBJECT-TYPE
+		SYNTAX INTEGER
+		{
+			notAvailable(1),
+			enable(2),
+			disable(3)
+		}
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION "Rx1 Software Gain Control (SGC) enable/disable."
+	::= { slotsEntry 184 }
+
+	modRx1CfgAgcMode   OBJECT-TYPE
+		SYNTAX INTEGER
+		{
+			agcRF(2),
+			agcRLL(3)
+		}
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION "Rx1 Automatic Gain Control (AGC) mode select.
+			If in AGC RF Level mode, the AGC control loop will adjust the RF gain to maintain a constant RF power output
+			If in AGC RLL (Received Light Level) mode, the receiver will attempt to compensate for the optical loss by adjusting the modules RF gain, 
+				and the AGC Target is not used (instead the SGC gain setting may be used to set a module gain target)"
+	::= { slotsEntry 185 }
+
+	modRx1CfgGpsLoad   OBJECT-TYPE
+		SYNTAX INTEGER
+		{
+			notAvailable(1),
+			enable(2),
+			disable(3)
+		}
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION "Rx1 GPS dummy load enable/disable. If the module does not support GPS mode, this will have no effect."
+	::= { slotsEntry 186 }
+
+	modRx1CfgRFPlevelHigh   OBJECT-TYPE
+		SYNTAX INTEGER
+		UNITS "x 10mdBm"
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION "Rx1 RF Power level alarm high threshold, measured in 10mdBm"
+	::= { slotsEntry 187 }
+
+	modRx1CfgRFPlevelLow   OBJECT-TYPE
+		SYNTAX INTEGER
+		UNITS "x 10mdBm"
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION "Rx1 RF Power level alarm low threshold, measured in 10mdBm"
+	::= { slotsEntry 188 }
+
+	modRx2CfgGainSoftSet   OBJECT-TYPE
+		SYNTAX INTEGER
+		UNITS	"x 10mdB"
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION "Rx2 Software Gain Control (SGC) level measured in 10mdB."
+	::= { slotsEntry 200 }
+
+	modRx2CfgAgcTarget   OBJECT-TYPE
+		SYNTAX INTEGER
+		UNITS	"x 10mdBm"
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION "Rx2 Automatic Gain Control (AGC) target, measured in 10mdBm."
+	::= { slotsEntry 201 }
+
+	modRx2CfgFskDisable   OBJECT-TYPE
+		SYNTAX INTEGER
+		{
+			notAvailable(1),
+			enable(2),
+			disable(3)
+		}
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION "Rx2 Digital Channel Frequency Shift Keying (FSK) enable/disable."
+	::= { slotsEntry 202 }
+
+	modRx2CfgAgc   OBJECT-TYPE
+		SYNTAX INTEGER
+		{
+			notAvailable(1),
+			enable(2),
+			disable(3)
+		}
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION "Rx2 Automatic Gain Control (AGC) enable/disable."
+	::= { slotsEntry 203 }
+
+	modRx2CfgSgc   OBJECT-TYPE
+		SYNTAX INTEGER
+		{
+			notAvailable(1),
+			enable(2),
+			disable(3)
+		}
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION "Rx2 Software Gain Control (SGC) enable/disable."
+	::= { slotsEntry 204 }
+
+	modRx2CfgAgcMode   OBJECT-TYPE
+		SYNTAX INTEGER
+		{
+			agcRF(2),
+			agcRLL(3)
+		}
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION "Rx2 Automatic Gain Control (AGC) mode select.
+			If in AGC RF Level mode, the AGC control loop will adjust the RF gain to maintain a constant RF power output
+			If in AGC RLL (Received Light Level) mode, the receiver will attempt to compensate for the optical loss by adjusting the modules RF gain, 
+				and the AGC Target is not used (instead the SGC gain setting may be used to set a module gain target)"
+	::= { slotsEntry 205 }
+
+	modRx2CfgGpsLoad   OBJECT-TYPE
+		SYNTAX INTEGER
+		{
+			notAvailable(1),
+			enable(2),
+			disable(3)
+		}
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION "Rx2 GPS dummy load enable/disable. If the module does not support GPS mode, this will have no effect."
+	::= { slotsEntry 206 }
+
+	modRx2CfgRFPlevelHigh   OBJECT-TYPE
+		SYNTAX INTEGER
+		UNITS "x 10mdBm"
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION "Rx2 RF Power level alarm high threshold, measured in 10mdBm"
+	::= { slotsEntry 207 }
+
+	modRx2CfgRFPlevelLow   OBJECT-TYPE
+		SYNTAX INTEGER
+		UNITS "x 10mdBm"
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION "Rx2 RF Power level alarm low threshold, measured in 10mdBm"
+	::= { slotsEntry 208 }
+
+	modRx1InterRange   OBJECT-TYPE
+		SYNTAX OCTET STRING
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION "Internal system information."
+	::= { slotsEntry 220 }
+
+	modRx1InterBiasSet   OBJECT-TYPE
+		SYNTAX INTEGER
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION "Internal system information."
+	::= { slotsEntry 221 }
+
+	modRx1InterGainDef   OBJECT-TYPE
+		SYNTAX INTEGER
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION "Internal system information."
+	::= { slotsEntry 222 }
+
+	modRx1InterRfMonCal   OBJECT-TYPE
+		SYNTAX INTEGER
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION "Internal system information."
+	::= { slotsEntry 223 }
+
+	modRx1InterFskFreqSet   OBJECT-TYPE
+		SYNTAX INTEGER
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION "Internal system information."
+	::= { slotsEntry 224 }
+
+	modRx1InterFskSlicSet   OBJECT-TYPE
+		SYNTAX INTEGER
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION "Internal system information."
+	::= { slotsEntry 225 }
+
+	modRx1InterRfGainCal   OBJECT-TYPE
+		SYNTAX INTEGER
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION "Internal system information."
+	::= { slotsEntry 226 }
+
+	modRx1InterMonitorMask   OBJECT-TYPE
+		SYNTAX INTEGER
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION "Internal system information."
+	::= { slotsEntry 227 }
+
+	modRx1InterAlarmMask   OBJECT-TYPE
+		SYNTAX INTEGER
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION "Internal system information."
+	::= { slotsEntry 228 }
+
+	modRx2InterRange   OBJECT-TYPE
+		SYNTAX OCTET STRING
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION "Internal system information."
+	::= { slotsEntry 240 }
+
+	modRx2InterBiasSet   OBJECT-TYPE
+		SYNTAX INTEGER
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION "Internal system information."
+	::= { slotsEntry 241 }
+
+	modRx2InterGainDef   OBJECT-TYPE
+		SYNTAX INTEGER
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION "Internal system information."
+	::= { slotsEntry 242 }
+
+	modRx2InterRfMonCal   OBJECT-TYPE
+		SYNTAX INTEGER
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION "Internal system information."
+	::= { slotsEntry 243 }
+
+	modRx2InterFskFreqSet   OBJECT-TYPE
+		SYNTAX INTEGER
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION "Internal system information."
+	::= { slotsEntry 244 }
+
+	modRx2InterFskSlicSet   OBJECT-TYPE
+		SYNTAX INTEGER
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION "Internal system information."
+	::= { slotsEntry 245 }
+
+	modRx2InterRfGainCal   OBJECT-TYPE
+		SYNTAX INTEGER
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION "Internal system information."
+	::= { slotsEntry 246 }
+
+	modRx2InterMonitorMask   OBJECT-TYPE
+		SYNTAX INTEGER
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION "Internal system information."
+	::= { slotsEntry 247 }
+
+	modRx2InterAlarmMask   OBJECT-TYPE
+		SYNTAX INTEGER
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION "Internal system information."
+	::= { slotsEntry 248 }
+
+
+	modAmpMonVcc	    OBJECT-TYPE
+		SYNTAX INTEGER
+		UNITS "mV"
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION "Amplifier supply voltage, measured in mV."
+	::= { slotsEntry 260 }
+
+	modAmpMonTemp		OBJECT-TYPE
+		SYNTAX INTEGER
+		UNITS "degC"
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION "Amplifier temperature, measured in degrees Celsius"
+	::= { slotsEntry 261 }
+
+	modAmp1MonRf	    OBJECT-TYPE
+		SYNTAX INTEGER
+		UNITS "x 10mdBm"
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION "Amplifier 1 Current RF level, measured in 10mdBm."
+	::= { slotsEntry 262 }
+
+	modAmp1MonRfGain    OBJECT-TYPE
+		SYNTAX INTEGER
+		UNITS "x 10mdB"
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION "Amplifier 1 RF gain, measured in 10mdB."
+	::= { slotsEntry 263 }
+
+	modAmp1MonStatus   OBJECT-TYPE
+		SYNTAX INTEGER
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION
+			"Bitmap encoding of the current configuration status of the Amplifier card:
+			Bit 0: Amplifier 2 Automatic Gain Control (AGC) Status (0=Disabled, 1=Enabled)
+				1: Amplifier 1 Automatic Gain Control (AGC) Status (0=Disabled, 1=Enabled)
+				2: Amplifier 2 Manual Gain Control (MGC) Status (0=Disabled, 1=Enabled)
+				3: Amplifier 1 Manual Gain Control (MGC) Status (0=Disabled, 1=Enabled)
+				4-7: Unused
+				
+				8-9: LED 2 status
+				10-11: LED 1 status
+				12-15: Unused"
+	::= { slotsEntry 264 }
+
+	modAmp1MonAlarms   OBJECT-TYPE
+		SYNTAX INTEGER
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION
+			"Bitmap encoding of the current alarm status of the amplifier card: (All alarms encoded as 0=NoAlarm, 1=Alarm)
+			Bit 0: Amplifier 2 RF Gain Alarm
+				1: Amplifier 2 RF Level Alarm
+				2: Temperature Alarm
+				3: Amplifier 1 RF Gain Alarm
+				4: Amplifier 1 RF Level Alarm
+				5-6: Unused
+				7: Supply Voltage Alarm
+
+			Bit 8: Amplifier 2 AGC Alarm
+				9: Amplifier 1 AGC Alarm
+				10: Minor Alarm
+				11: Major Alarm
+				12-15: Unused"
+	::= { slotsEntry 265 }
+
+	modAmp2MonRf		OBJECT-TYPE
+		SYNTAX INTEGER
+		UNITS "x 10mdBm"
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION "Amplifier 2 Current RF level, measured in 10mdBm."
+	::= { slotsEntry 280 }
+
+	modAmp2MonRfGain	OBJECT-TYPE
+		SYNTAX INTEGER
+		UNITS "x 10mdB"
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION "Amplifier 2 RF gain, measured in 10mdBm."
+	::= { slotsEntry 281 }
+
+	modAmp2MonStatus   OBJECT-TYPE
+		SYNTAX INTEGER
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION
+			"Bitmap encoding of the current configuration status of the Amplifier card:
+			Bit 0: Amplifier 1 Automatic Gain Control (AGC) Status (0=Disabled, 1=Enabled)
+				1: Amplifier 2 Automatic Gain Control (AGC) Status (0=Disabled, 1=Enabled)
+				2: Amplifier 1 Manual Gain Control (MGC) Status (0=Disabled, 1=Enabled)
+				3: Amplifier 2 Manual Gain Control (MGC) Status (0=Disabled, 1=Enabled)
+				4-7: Unused"
+	::= { slotsEntry 282 }
+
+	modAmp2MonAlarms   	OBJECT-TYPE
+		SYNTAX INTEGER
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION
+			"Bitmap encoding of the current alarm status of the amplifier card: (All alarms encoded as 0=NoAlarm, 1=Alarm)
+			Bit 0: Amplifier 2 RF Gain Alarm
+				1: Amplifier 2 RF Level Alarm
+				2: Temperature Alarm
+				3: Amplifier 1 RF Gain Alarm
+				4: Amplifier 1 RF Level Alarm
+				5-6: Unused
+				7: Supply Voltage Alarm
+
+			Bit 8: Amplifier 2 AGC Alarm
+				9: Amplifier 1 AGC Alarm
+				10: Minor Alarm
+				11: Major Alarm
+				12-15: Unused"
+	::= { slotsEntry 283 }
+
+	modAmp1CfgGainSoftSet OBJECT-TYPE
+		SYNTAX INTEGER     (1500..3000)
+		UNITS "x 10mdB"
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION "Amp 1 Software Gain Control (SGC) gain setting, measured in 10mdB"
+	::= { slotsEntry 300 }
+
+	modAmp1CfgAgcTarget  OBJECT-TYPE
+		SYNTAX INTEGER   (0..1500)
+		UNITS "x 10mdBm"
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION "Amp 1 Automatic Gain Control (AGC) target, measured in 10mdBm."
+	::= { slotsEntry 301 }
+
+	modAmp1InterRange     OBJECT-TYPE
+		SYNTAX OCTET STRING
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION "Internal system information."
+	::= { slotsEntry 302 }
+
+	modAmp1InterGainCal OBJECT-TYPE
+		SYNTAX INTEGER   (0..50)
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION "Amp 1 Gain calibration."
+	::= { slotsEntry 303 }
+
+	modAmp1InterRfMonCal OBJECT-TYPE
+		SYNTAX INTEGER
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION "Amp 1 RF level monitor calibration."
+	::= { slotsEntry 304 }
+
+	modAmp1InterAgcCtrl OBJECT-TYPE
+		SYNTAX INTEGER
+		{
+			enabled(2),
+			disabled(3)
+		}
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION "Amp 1 Automatic Gain Control setting."
+	::= { slotsEntry 305 }
+
+	modAmp2CfgGainSoftSet OBJECT-TYPE
+		SYNTAX INTEGER    (1500..3000)
+		UNITS "x 10mdB"
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION "Amp 1 Software Gain Control (SGC) gain setting, measured in 10mdB"
+	::= { slotsEntry 320 }
+
+	modAmp2CfgAgcTarget  OBJECT-TYPE
+		SYNTAX INTEGER  (0..1500)
+		UNITS "x 10mdBm"
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION "Amp 2 Automatic Gain Control (AGC) target, measured in 10mdBm."
+	::= { slotsEntry 321 }
+
+	modAmp2InterRange   OBJECT-TYPE
+		SYNTAX OCTET STRING
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION "Internal system information."
+	::= { slotsEntry 322 }
+
+	modAmp2InterGainCal OBJECT-TYPE
+		SYNTAX INTEGER (0..50)
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION "Amp 2 Gain calibration."
+	::= { slotsEntry 323 }
+
+	modAmp2InterRfMonCal  OBJECT-TYPE
+		SYNTAX INTEGER
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION "Amp 2 RF level monitor calibration."
+	::= { slotsEntry 324 }
+
+	modAmp2InterAgcCtrl OBJECT-TYPE
+		SYNTAX INTEGER
+		{
+			enabled(2),
+			disabled(3)
+		}
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION "Amp 2 Automatic Gain Control enable/disable."
+	::= { slotsEntry 325 }
+
+	modAmp1LvlLimitHCtrl OBJECT-TYPE
+		SYNTAX INTEGER
+		UNITS "x 10mdBm"
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION "Amp 1 RF Level high alarm threshold, measured in 10mdBm."
+	::= { slotsEntry 330 }
+
+	modAmp1LvlLimitLCtrl OBJECT-TYPE
+		SYNTAX INTEGER
+		UNITS "x 10mdBm"
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION "Amp 1 RF Level low alarm threshold, measured in 10mdBm."
+	::= { slotsEntry 331 }
+
+	modAmp2LvlLimitHCtrl OBJECT-TYPE
+		SYNTAX INTEGER
+		UNITS "x 10mdBm"
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION "Amp 2 RF Level high alarm threshold, measured in 10mdBm."
+	::= { slotsEntry 332 }
+
+	modAmp2LvlLimitLCtrl OBJECT-TYPE
+		SYNTAX INTEGER
+		UNITS "x 10mdBm"
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION "Amp 2 RF Level low alarm threshold, measured in 10mdBm."
+	::= { slotsEntry 333 }
+
+	modAmpGainAlThCtrl OBJECT-TYPE
+		SYNTAX INTEGER
+		UNITS "x 10mdB"
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+			"Amplifier Gain warning threshold, measured in 10mdB.
+			This threshold is measured from the alarm thresholds (typically a low threshold of 15dB, and a high threshold of 30dB),
+			i.e, if the Alarm threshold is 10dB, and this warning threshold is set at 2dB, the warning shall be triggered
+			if the level reaches 8dB (10dB-2dB)."
+	::= { slotsEntry 334 }
+
+	modAmpLvlAlThCtrl OBJECT-TYPE
+		SYNTAX INTEGER
+		UNITS "x 10mdBm"
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+			"Amplifier RF Level warning threshold, measured in 10mdBm.
+			This threshold is measured from the alarm threshold,
+			i.e, if the Alarm threshold is 10dBm, and this warning threshold is set at 2dBm, the warning shall be triggered
+			if the level reaches 8dBm (10dBm-2dBm)."
+	::= { slotsEntry 335 }
+
+
+	modSwtchMonModeSetting OBJECT-TYPE
+		SYNTAX INTEGER
+		{
+			forcedRight(0),
+			forcedLeft(4),
+			preferedRight(8),
+			preferedLeft(12)
+		}
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION "Switch mode status."
+	::= { slotsEntry 350 }
+
+	modSwtchMonStatus    OBJECT-TYPE
+		SYNTAX INTEGER
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION
+			"Bitmap encoding of the current switch status.
+			Bit 0-3: Unused
+				4: Switch Direction (1=Left, 0=Right)
+				5-11: Unused
+				12-13: Front Panel ALM LED status (00=off, 01=Green, 11=Red)
+				14-15: Unused"
+	::= { slotsEntry 351 }
+
+	modSWAlarmBitMap    OBJECT-TYPE
+		SYNTAX INTEGER
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION
+			"Bitmap encoding of the current switch alarm status.
+			Bit 0-1: Unused
+				2: Minor Alarm
+				3: Major Alarm
+				4-15: Unused"
+	::= { slotsEntry 352 }
+
+	modSwtchModeSetting OBJECT-TYPE
+		SYNTAX INTEGER
+		{
+			forcedLeft(1),
+			forcedRight(2),
+			preferedLeft(3),
+			preferedRight(4)
+		}
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION "Switch mode control"
+	::= { slotsEntry 355 }
+
+	modLNBAlarmMask        	   OBJECT-TYPE
+		SYNTAX INTEGER
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION "LNB masking for invalid alarms. Bit 0 = major, Bit 8= OLF"
+	::= { slotsEntry 360 }
+
+	modLNBbitAUX        	   OBJECT-TYPE
+		SYNTAX INTEGER
+		{
+			disabled(2),
+			enabled(3)
+		}
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION "LNB Auxillary Mode setting: ON = Set Vout to +22V nominal."
+	::= { slotsEntry 361 }
+
+	modLNBbitITEST       	OBJECT-TYPE
+		SYNTAX INTEGER
+		{
+			low6mA(2),
+			high12mA(3)
+		}
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION "LNB Current threshold setting. Options are Low (6mA) or High (12mA)"
+	::= { slotsEntry 362 }
+
+	modLNBbitEN          	OBJECT-TYPE
+		SYNTAX INTEGER
+		{
+			enabled(2),
+			disabled(3)
+		}
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION "LNB Module Power block enable."
+	::= { slotsEntry 363 }
+
+	modLNBbitVSEL        	OBJECT-TYPE
+		SYNTAX INTEGER
+		{
+			low13V(2),
+			high18V(3)
+		}
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION "LNB Module Output voltage select. Options are High (18V nominal), or Low (13V Nominal)."
+	::= { slotsEntry 364 }
+
+	modLNBbitLLC        	OBJECT-TYPE
+		SYNTAX INTEGER
+		{
+			boost1V(2),
+			noBoost(3)
+		}
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION "LNB Cable compensation setting. If enabled, the output voltage is boosted by an additional +1V."
+	::= { slotsEntry 365 }
+
+	modLNBbitTEN        	OBJECT-TYPE
+		SYNTAX INTEGER
+		{
+			disabled(2),
+			enabled(3)
+		}
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION "LNB 22kHz tone enable."
+	::= { slotsEntry 366 }
+
+	modLNBbitTTX        	OBJECT-TYPE
+		SYNTAX INTEGER
+		{
+			dSQIN(2),
+			active(3)
+		}
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION "LNB 22kHz tone output switch."
+	::= { slotsEntry 367 }
+
+	modLNBbitPCL        	OBJECT-TYPE
+		SYNTAX INTEGER
+		{
+			static(2),
+			active(3)
+		}
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION "LNB Current limit mode selector.
+					Static mode uses a simple clamp current limit.
+					Active mode uses a pulsed current limit"
+	::= { slotsEntry 368 }
+
+	modLNBbitOLF        	OBJECT-TYPE
+		SYNTAX INTEGER
+		{
+			ok(2),
+			overload(3)
+		}
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION "LNB Overload flag."
+	::= { slotsEntry 369 }
+
+	modLNBbitOTF        	OBJECT-TYPE
+		SYNTAX INTEGER
+		{
+			ok(2),
+			overTemperature(3)
+		}
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION "LNB Over Temperature flag."
+	::= { slotsEntry 370 }
+
+	modLNBMonStatus      	OBJECT-TYPE
+		SYNTAX INTEGER
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION 
+			"Bitmap of the current status of the LNB module
+			Bit 0: Power Block Enable (0=Disabled, 1=Enabled)
+				1: Output Voltage Setting (0=Low(13V), 1=High(18V))
+				2: Cable Compensation setting (0=None, 1=Boost(additional 1V))
+				3: Tone Alarm (0=noAlarm, 1=Alarm)
+				4: Voltage Alarm (0=noAlarm, 1=Alarm)
+				5: Current Alarm (0=noAlarm, 1=Alarm)
+				6-7: Unused"
+	::= { slotsEntry 371 }
+
+	modLNBDIPSwitch      	OBJECT-TYPE
+		SYNTAX INTEGER
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION 
+			"Bitmap of the DIP switch settings on the LNB Module. All bits are encoded as 0=disabled, 1=enabled
+			Bit 0: Power Block Enable
+				1: High Voltage output
+				2: Tone
+				3: Cable Compensation
+				4: Aux Mode
+				5-7: Unused"
+	::= { slotsEntry 372 }
+
+	modLNBAlarmStatus      	OBJECT-TYPE
+		SYNTAX INTEGER
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION 
+			"Bitmap of the LNB alarm status. All bits are encoded as 0=noAlarm, 1= Alarm.
+			Bit 0: Overload Alarm
+				1: Over Temperature Alarm
+				2-7: Unused
+				
+				8: Major Alarm
+				9: Minor Alarm
+				10-15: Unused"
+	::= { slotsEntry 373 }
+
+
+	modETHMonSupplyVolt      	OBJECT-TYPE
+		SYNTAX INTEGER
+		UNITS "mV"
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION "Ethernet module supply voltage, measured in mV"
+	::= { slotsEntry 380 }
+
+	modETHMonLinkdataRate     OBJECT-TYPE
+		SYNTAX INTEGER
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION "Ethernet module Fibre Link data rate bitmap. All bits are encoded as 0=noLink, 1=Link). 
+			Bit 0-4: Unused
+				5: Valid 100BASE Link
+				6: Valid 1000BASE Link
+				7: Valid Link (any speed)"
+	::= { slotsEntry 381 }
+
+	modETHMonDataActivity     OBJECT-TYPE
+		SYNTAX INTEGER
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION "Ethernet data activity bitmap.
+			Bit 0-2: Unused
+				3: Activity (0=noActivity, 1=Activity)
+				4-7: Unused"
+	::= { slotsEntry 382 }
+
+	modETHMonAlarms     OBJECT-TYPE
+		SYNTAX INTEGER
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION "Ethernet module alarms bitmap. All bits are encoded as 0=noAlarm, 1=Alarm
+			Bit 0-1: Unused
+				2: Minor Alarm
+				3: Major Alarm
+				4-7: Unused"
+	::= { slotsEntry 383 }
+
+	modETHMonCopperdataRate     OBJECT-TYPE
+		SYNTAX INTEGER
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION "Ethernet module Copper Link data rate bitmap. All bits are encoded as 0=noLink, 1=Link).
+			Bit 0-3: Unused
+				4: Valid 10BASE link
+				5: Valid 100BASE Link
+				6: Valid 1000BASE Link
+				7: Valid Link (any speed)"
+	::= { slotsEntry 384 }
+
+	modETHMonCopperActivity     OBJECT-TYPE
+		SYNTAX INTEGER
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION "Ethernet module Copper Link activity bitmap.
+			Bit 0: Unused
+				1: Duplex (0=Half Duplex, 1=Full Duplex)
+				2: Collision (0=noCollision, 1=Collision Detected)
+				3: Activity (0=noActivity, 1=Activity)
+				4-7: Unused"
+	::= { slotsEntry 385 }
+
+	modSERMonLinkdataRate	     OBJECT-TYPE
+		SYNTAX INTEGER
+		{
+			ser115k (1),
+			ser500k (2),
+			ser10m (4)
+		}
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION "Serial data module link data rate."
+	::= { slotsEntry 390 }
+
+	modSERMonDataActivity		     OBJECT-TYPE
+		SYNTAX INTEGER
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION "Serial data module data activity."
+	::= { slotsEntry 391 }
+
+	modSERMonSerialAlarm	     OBJECT-TYPE
+		SYNTAX INTEGER
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION "Serial data alarm bitmap. All bits are encoded as 0=noAlarm, 1=Alarm.
+			Bit 0: Vcc Alarm
+				1: Laser Power Alarm
+				2: RLL (Received Light Level) Alarm
+				3: Temperature Alarm
+				4-7: Unused
+				
+				8: Major Alarm
+				9: Minor Alarm
+				10-15: Unused"
+	::= { slotsEntry 392 }
+
+	modSERMonChannel1Type		     OBJECT-TYPE
+		SYNTAX INTEGER
+		{
+			ttl50R (8),
+			ttl600R(16),
+			ttl10K (32)
+		}
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION "Serial data - Channel 1 type."
+	::= { slotsEntry 393 }
+
+	modSERMonChannel2			     OBJECT-TYPE
+		SYNTAX INTEGER
+		{
+			ttl50R (8),
+			ttl600R(16),
+			ttl10K (32)
+		}
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION "Serial data - Channel 2 type."
+	::= { slotsEntry 394 }
+
+	modSERMonSupplyVolt		     OBJECT-TYPE
+		SYNTAX INTEGER
+		UNITS "mV"
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION "Serial data - Supply voltage."
+	::= { slotsEntry 395 }
+
+	modSERMonLaserPower   OBJECT-TYPE
+		SYNTAX INTEGER
+		UNITS "x 10mdBm"
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION "Serial Digital Module Laser optical power [10mdBm]."
+	::= { slotsEntry 396 }
+
+	modSERMonRLLLevel   OBJECT-TYPE
+		SYNTAX INTEGER
+		UNITS "x 10mDBm"
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION "Serial Digital Module RLL level [10mdBm]."
+	::= { slotsEntry 397 }
+
+	modSERMonDipManualMode   OBJECT-TYPE
+		SYNTAX INTEGER
+		{
+			off(0),
+			on(1)
+		}
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION "Serial Digital Module Manual Mode DIP switch status."
+	::= { slotsEntry 398 }
+
+	modSERCfgChannelRate		     OBJECT-TYPE
+		SYNTAX INTEGER
+		{
+			ser10m (0),
+			ser500k (1),
+			ser115k (2)
+		}
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION "Serial Digital Module channel data rate setting."
+	::= { slotsEntry 420 }
+
+	modSERCfgTTlImpedance		     OBJECT-TYPE
+		SYNTAX INTEGER
+		{
+			ttl10K (0),
+			ttl600R(4),
+			ttl50R (8)
+		}
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION "Serial Digital Module TTL Impedance setting."
+	::= { slotsEntry 421 }
+
+	modSERCfgLaserDisable   OBJECT-TYPE
+		SYNTAX INTEGER
+		{
+			notAvailable(1),
+			enable(2),
+			disable(3)
+		}
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION "Serial Digital Module Laser enable/disable."
+	::= { slotsEntry 422 }
+
+	modPROCDescription  OBJECT-TYPE
+		SYNTAX OCTET STRING
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION "PROC module description."
+	::= { slotsEntry 423 }
+
+	modMaintenanceMode    OBJECT-TYPE
+		SYNTAX INTEGER
+		{
+			enable(2),
+			disable(3)
+		}
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION "Module Maintenance Mode.
+			When in maintenance mode, a module will not produce events/traps and will not contribute to the summary alarm outputs.
+			Other module OIDs will be updated as normal."
+	::= { slotsEntry 430 }
+	
+	modG6CardMonSupplyVolt  OBJECT-TYPE
+		SYNTAX INTEGER
+		UNITS "mV"
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION "Card supply voltage, measured in mV."
+	::= { slotsEntry 440 }
+
+	modG6Dev1CfgBiasTSrc   OBJECT-TYPE
+		SYNTAX INTEGER
+		{
+			off(0),
+			external(1),
+			internal5V(2),
+			supply12V(3)
+		}
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION "Set bias-t source."
+	::= { slotsEntry 452 }
+	
+	modG6Dev1MonFeedI   OBJECT-TYPE
+		SYNTAX INTEGER
+		UNITS	"x 0.01mA"
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION "External feed current [0.01mA]."
+	::= { slotsEntry 454 }
+
+	modG6Dev1MonFeedV   OBJECT-TYPE
+		SYNTAX INTEGER
+		UNITS	"mV"
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION "External feed voltage [mV]."
+	::= { slotsEntry 455 }
+	
+	modG6Dev1Type   OBJECT-TYPE
+		SYNTAX INTEGER
+		{
+			receiver(0),
+			transmitter(1),
+			notFitted(254)
+		}
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION "RF device 1 type."
+	::= { slotsEntry 456 }
+	
+	modG6Dev1WaveLenInteger   OBJECT-TYPE
+		SYNTAX INTEGER
+		UNITS	"nm"
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION "Optical Wavelength (integer part). Given in nm (truncated)"
+	::= { slotsEntry 457 }
+
+	modG6Dev1WaveLenDecimal   OBJECT-TYPE
+		SYNTAX INTEGER
+		UNITS	"x 0.01nm"
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION "Optical Wavelength (decimal part). Given in 0.01nm"
+	::= { slotsEntry 458 }
+	
+	modG6Dev1CfgAFDThr   OBJECT-TYPE
+		SYNTAX INTEGER
+		UNITS "x 0.01mA"
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION "Antenna fault detection low current threshold"
+	::= { slotsEntry 464 }
+
+	modG6Dev1CfgAFDEn   OBJECT-TYPE
+		SYNTAX INTEGER
+		{
+			disable(0),
+			enable(1)
+		}
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION "Antenna fault detection enable"
+	::= { slotsEntry 465 }
+
+	modG6Dev1CfgAGCMode   OBJECT-TYPE
+		SYNTAX INTEGER
+		{
+			off(0),
+			rll(1)
+		}
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION "Enable automatic gain control based on received light level (RLL)"
+	::= { slotsEntry 466 }
+			
+	modG6Dev2CfgBiasTSrc   OBJECT-TYPE
+		SYNTAX INTEGER
+		{
+			off(0),
+			external(1),
+			internal5V(2),
+			supply12V(3)
+		}
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION "Set bias-t source."
+	::= { slotsEntry 472 }
+	
+	modG6Dev2MonFeedI   OBJECT-TYPE
+		SYNTAX INTEGER
+		UNITS	"x 0.01mA"
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION "External feed current [0.01mA]."
+	::= { slotsEntry 474 }
+
+	modG6Dev2MonFeedV   OBJECT-TYPE
+		SYNTAX INTEGER
+		UNITS	"mV"
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION "External feed voltage [mV]."
+	::= { slotsEntry 475 }
+	
+	modG6Dev2Type   OBJECT-TYPE
+		SYNTAX INTEGER
+		{
+			receiver(0),
+			transmitter(1),
+			notFitted(254)
+		}
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION "RF device 2 type."
+	::= { slotsEntry 476 }
+	
+	modG6Dev2WaveLenInteger   OBJECT-TYPE
+		SYNTAX INTEGER
+		UNITS	"nm"
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION "Optical Wavelength (integer part). Given in nm (truncated)"
+	::= { slotsEntry 477 }
+
+	modG6Dev2WaveLenDecimal   OBJECT-TYPE
+		SYNTAX INTEGER
+		UNITS	"x 0.01nm"
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION "Optical Wavelength (decimal part). Given in 0.01nm"
+	::= { slotsEntry 478 }
+
+	modG6Dev2CfgAFDThr   OBJECT-TYPE
+		SYNTAX INTEGER
+		UNITS "x 0.01mA"
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION "Antenna fault detection low current threshold"
+	::= { slotsEntry 484 }
+
+	modG6Dev2CfgAFDEn   OBJECT-TYPE
+		SYNTAX INTEGER
+		{
+			disable(0),
+			enable(1)
+		}
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION "Antenna fault detection enable"
+	::= { slotsEntry 485 }
+
+	modG6Dev2CfgAGCMode   OBJECT-TYPE
+		SYNTAX INTEGER
+		{
+			off(0),
+			rll(1)
+		}
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION "Enable automatic gain control based on received light level (RLL)"
+	::= { slotsEntry 486 }
+
+-- ---------------------------------------------------------- -- 
+-- HRC-3 Trap History Group 
+-- ---------------------------------------------------------- --
+   
+	trapsLastTrapSeqID OBJECT-TYPE
+		SYNTAX  Counter32
+		MAX-ACCESS  read-only
+		STATUS  current
+		DESCRIPTION    	 
+			"The sequence number of the last trap that was sent by the agent."
+	::= { ppmTrapHistory 1 }
+
+	trapsTableMaximumSize OBJECT-TYPE
+		SYNTAX  INTEGER (0..65535)
+		MAX-ACCESS  read-only
+		STATUS  current
+		DESCRIPTION    	 "The maximum size of the trap history table."
+	::= { ppmTrapHistory 2 }
+
+	trapsTable OBJECT-TYPE
+		SYNTAX SEQUENCE OF TrapsEntry
+		MAX-ACCESS not-accessible
+		STATUS current
+		DESCRIPTION 	"A table that contains the last trapsTableMaximumSize traps."
+	::= { ppmTrapHistory 3 }
+
+	trapsEntry OBJECT-TYPE
+		SYNTAX TrapsEntry
+		MAX-ACCESS not-accessible
+		STATUS current
+		DESCRIPTION 	"A trap entry to the trap table"
+		INDEX  { trapsSequenceID  }
+	::= { trapsTable 1 }
+	 
+	TrapsEntry ::=
+		SEQUENCE {
+			trapsSequenceID 		Counter32,
+			trapsTick   	    	TimeTicks,
+			trapsDate         		DisplayString,
+			trapsTime         		DisplayString,
+			trapsSeverity   		INTEGER,	  
+			trapsSpecificType  		INTEGER,	  
+			trapsModuleType  		INTEGER,
+			trapsSlotIndex  		INTEGER,
+			trapsSpecificCard		INTEGER 
+		}
+
+	trapsSequenceID OBJECT-TYPE
+		SYNTAX Counter32 
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION "Sequence number of the trap in the last traps table."
+	::= { trapsEntry 1 }
+
+	trapsTick OBJECT-TYPE
+		SYNTAX TimeTicks 
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION "Timetick when the current trap was sent."
+	::= { trapsEntry 2 }
+
+	trapsDate OBJECT-TYPE
+		SYNTAX DisplayString 
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION "System date when the current trap was sent."
+	::= { trapsEntry 3 }
+
+	trapsTime OBJECT-TYPE
+		SYNTAX DisplayString 
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION "System time when the current trap was sent."
+	::= { trapsEntry 4 }
+				   
+	trapsSeverity OBJECT-TYPE
+		SYNTAX INTEGER 
+		{
+			notify(0), 
+			normal(1),
+			minor(2), 
+			major(3),
+			critical(4)
+		}
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION "The severity of the trap instance."
+	::= { trapsEntry 5 }
+				   
+	trapsSpecificType OBJECT-TYPE
+		SYNTAX INTEGER 
+		{
+			majorAlarm (10),
+			majorClear (11),
+			minorAlarm (12),
+			minorClear (13),
+		
+			agcAlarm (14),
+			agcClear (15),
+			vccAlarm (16),
+			vccCleared (17),
+			rllAlarm (18),
+			rllCleared (19),
+			rflAlarm (21),
+			rflCleared (22),
+			rfGainAlarm (23),
+			rfGainCleared (24),
+			laserAlarm (25),
+			laserCleared (26),
+			biasAlarm (27),
+			biasCleared (28),
+			powerAlarm (29),
+			powerCleared (30),
+			
+			
+			feedIAlarm (31),
+			feedICleared (32),
+			feedVAlarm (33),
+			feedVCleared (34),
+			txTempAlarm (35),
+			txTempCleared (36),
+			lnbOverloadAlarm (37),
+			lnbOverloadCleared (38),
+			lnbTempAlarm (39),
+			lnbTempCleared (40),
+			
+			sysVoltageAlarm (50),
+			sysVoltageCleared (51),
+			sysTempAlarm (52),
+			sysTempCleared (53),
+			sysPowerUp (54),
+			sysEventHistoryCleared (55),
+			cardInserted (60),
+			cardRemoved (61),
+			psuNormal (62),
+			psuAlarm (63),
+			
+			ethNoLinkAlarm (64),
+			ethLink (65),
+			moduleInMaintenaceMode (66),
+			moduleNotInMaintenaceMode (67),
+			doorOpen (68),
+			doorClosed (69),
+
+			rllHighAlarm (70),
+			rllHighCleared (71),
+			afdAlarm (72),
+			afdCleared (73)
+		}
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION "The specific type of trap instance."
+	::= { trapsEntry 6 }
+
+	trapsModuleType OBJECT-TYPE
+		SYNTAX INTEGER 
+		{
+			modTxRx			(1),
+			modTx			(2),	
+			modRx			(3),
+			modDTx			(4),
+			modDRx			(5),
+			modAMP			(6),
+			modSW			(7),
+			modFILTER		(8),
+			modOSC			(9),
+			modSPLTR		(10),
+			modSER			(11),
+			modTxDWDM  		(15),
+			modETH			(32),
+			modPSU			(35),
+			modWebSNMPCont	(36),
+			modDcSWSPLTR	(14),
+			modMilAeroOEMTX	(37),
+			modMilAeroOEMRX	(33), 
+			modMilAeroTX	(42),
+			modMilAeroRX	(43), 
+			modMilAeroDTX	(44), 
+			modMilAeroDRX	(45), 
+			modMilAeroTRX	(46),  			
+			modEDGETxDWDM 	(143),
+			modTxRxLNB		(193),
+			modTxLNB		(194),	
+			modRxLNB		(195),
+			modDTxLNB		(196),
+			modDRxLNB		(197),					
+			modLNBSAT6    	(198),					
+			modDUALLNB    	(199),					
+			modSINGLELNB  	(200),
+			modDWDMTxLNB  	(207),
+			empty		  	(255)	
+		}
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION "Additional data sent with the trap. This is the module type that generated the trap."
+	::= { trapsEntry 7 }
+  
+	trapsSlotIndex OBJECT-TYPE
+		SYNTAX INTEGER 
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION "Additional data sent with the trap. The module which generated the trap was in this slot in the ViaLiteHD chassis."
+	::= { trapsEntry 8 }
+
+	trapsSpecificCard OBJECT-TYPE
+		SYNTAX INTEGER 
+		{
+			none(0),
+			upperCard(1),
+			lowerCard(2),
+			singleCard(3)
+		}
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION 	 "This define if the upper or lower card generated the trap."
+	::= { trapsEntry 9 }
+
+END

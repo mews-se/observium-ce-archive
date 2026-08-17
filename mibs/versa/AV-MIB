@@ -1,0 +1,649 @@
+AV-MIB DEFINITIONS ::= BEGIN
+IMPORTS
+    MODULE-IDENTITY, OBJECT-TYPE,
+    Integer32, Unsigned32, Counter32, Counter64,
+    Gauge32, IpAddress
+        FROM SNMPv2-SMI
+    TEXTUAL-CONVENTION, RowStatus, DateAndTime,
+    TruthValue
+        FROM SNMPv2-TC
+    ngfw
+        FROM VERSA-MIB
+;
+
+av MODULE-IDENTITY
+    LAST-UPDATED "201406090000Z"
+    ORGANIZATION "Versa Networks"
+    CONTACT-INFO "
+        2953 Bunker Hill Lane, Suite 210
+        Santa Clara, CA - 95035 (USA)
+        Email: support@versa-networks.com"
+    DESCRIPTION "Enterprise MIB for Versa Networks'
+AV solution"
+    REVISION "201406090000Z"
+    DESCRIPTION "Initial revision"
+    ::= { ngfw 2 }
+
+ConfdString ::= TEXTUAL-CONVENTION
+    DISPLAY-HINT "1t"
+    STATUS      current
+    DESCRIPTION "xs: and confd: types mapped to strings"
+    SYNTAX      OCTET STRING
+
+String ::= TEXTUAL-CONVENTION
+    DISPLAY-HINT "1t"
+    STATUS      current
+    DESCRIPTION "xs:string"
+    SYNTAX      OCTET STRING
+
+avPreDefTable OBJECT-TYPE
+    SYNTAX      SEQUENCE OF AvPreDefEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "AV Pre-defined C Statistics"
+    ::= { av 1 }
+
+avPreDefEntry OBJECT-TYPE
+    SYNTAX      AvPreDefEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION ""
+    INDEX { avPreDefOrgId, avPreDefProfileID }
+        ::= { avPreDefTable 1 }
+
+AvPreDefEntry ::=
+    SEQUENCE {
+        avPreDefOrgId Unsigned32,
+        avPreDefProfileID Unsigned32,
+        avPreDefOrgName String,
+        avPreDefProfileName String,
+        avPreDefProfileHitCnt ConfdString,
+        avPreDefActionAllowCnt ConfdString,
+        avPreDefActionAlertCnt ConfdString,
+        avPreDefActionRejectCnt ConfdString,
+        avPreDefActionBlockCnt ConfdString,
+        avPreDefActionOnDiskFullCnt ConfdString,
+        avPreDefFileInQueueCnt ConfdString,
+        avPreDefEofRcvdCnt ConfdString,
+        avPreDefFlowBypassCnt ConfdString,
+        avPreDefFiletypeMismatchCnt ConfdString
+    }
+
+avPreDefOrgId OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "Organization id"
+    ::= { avPreDefEntry 1 }
+
+avPreDefProfileID OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "AV Profile Id"
+    ::= { avPreDefEntry 2 }
+
+avPreDefOrgName OBJECT-TYPE
+    SYNTAX      String
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Organization Name"
+    ::= { avPreDefEntry 3 }
+
+avPreDefProfileName OBJECT-TYPE
+    SYNTAX      String
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "AV Profile Name"
+    ::= { avPreDefEntry 4 }
+
+avPreDefProfileHitCnt OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "No of times profile hit"
+    ::= { avPreDefEntry 5 }
+
+avPreDefActionAllowCnt OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "No of flow allowed."
+    ::= { avPreDefEntry 6 }
+
+avPreDefActionAlertCnt OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "No of flow alerted."
+    ::= { avPreDefEntry 7 }
+
+avPreDefActionRejectCnt OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "No of flow rejected."
+    ::= { avPreDefEntry 8 }
+
+avPreDefActionBlockCnt OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "No of flow blocked"
+    ::= { avPreDefEntry 9 }
+
+avPreDefActionOnDiskFullCnt OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "No of actions on disk full"
+    ::= { avPreDefEntry 10 }
+
+avPreDefFileInQueueCnt OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "No of files in queue"
+    ::= { avPreDefEntry 11 }
+
+avPreDefEofRcvdCnt OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "No of EOF received"
+    ::= { avPreDefEntry 12 }
+
+avPreDefFlowBypassCnt OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "No of flow bypassed"
+    ::= { avPreDefEntry 13 }
+
+avPreDefFiletypeMismatchCnt OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "No of flow with filetype mismatched"
+    ::= { avPreDefEntry 14 }
+
+avUserDefTable OBJECT-TYPE
+    SYNTAX      SEQUENCE OF AvUserDefEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "AV User-defined Category Statistics"
+    ::= { av 2 }
+
+avUserDefEntry OBJECT-TYPE
+    SYNTAX      AvUserDefEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION ""
+    INDEX { avUserDefOrgId, avUserDefProfileID }
+        ::= { avUserDefTable 1 }
+
+AvUserDefEntry ::=
+    SEQUENCE {
+        avUserDefOrgId Unsigned32,
+        avUserDefProfileID Unsigned32,
+        avUserDefOrgName String,
+        avUserDefProfileName String,
+        avUserDefProfileHitCnt ConfdString,
+        avUserDefActionAllowCnt ConfdString,
+        avUserDefActionAlertCnt ConfdString,
+        avUserDefActionRejectCnt ConfdString,
+        avUserDefActionBlockCnt ConfdString,
+        avUserDefActionOnDiskFullCnt ConfdString,
+        avUserDefFileInQueueCnt ConfdString,
+        avUserDefEofRcvdCnt ConfdString,
+        avUserDefFlowBypassCnt ConfdString,
+        avUserDefFiletypeMismatchCnt ConfdString
+    }
+
+avUserDefOrgId OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "Organization id"
+    ::= { avUserDefEntry 1 }
+
+avUserDefProfileID OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "AV Profile Id"
+    ::= { avUserDefEntry 2 }
+
+avUserDefOrgName OBJECT-TYPE
+    SYNTAX      String
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Organization Name"
+    ::= { avUserDefEntry 3 }
+
+avUserDefProfileName OBJECT-TYPE
+    SYNTAX      String
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "AV Profile Name"
+    ::= { avUserDefEntry 4 }
+
+avUserDefProfileHitCnt OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "No of times profile hit"
+    ::= { avUserDefEntry 5 }
+
+avUserDefActionAllowCnt OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "No of flow allowed."
+    ::= { avUserDefEntry 6 }
+
+avUserDefActionAlertCnt OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "No of flow alerted."
+    ::= { avUserDefEntry 7 }
+
+avUserDefActionRejectCnt OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "No of flow rejected."
+    ::= { avUserDefEntry 8 }
+
+avUserDefActionBlockCnt OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "No of flow blocked"
+    ::= { avUserDefEntry 9 }
+
+avUserDefActionOnDiskFullCnt OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "No of actions on disk full"
+    ::= { avUserDefEntry 10 }
+
+avUserDefFileInQueueCnt OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "No of files in queue"
+    ::= { avUserDefEntry 11 }
+
+avUserDefEofRcvdCnt OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "No of eof received"
+    ::= { avUserDefEntry 12 }
+
+avUserDefFlowBypassCnt OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "No of flow bypassed"
+    ::= { avUserDefEntry 13 }
+
+avUserDefFiletypeMismatchCnt OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "No of flow with filetype mismatched"
+    ::= { avUserDefEntry 14 }
+
+avUserDefProtocolTable OBJECT-TYPE
+    SYNTAX      SEQUENCE OF AvUserDefProtocolEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "AV file types Statistics"
+    ::= { av 3 }
+
+avUserDefProtocolEntry OBJECT-TYPE
+    SYNTAX      AvUserDefProtocolEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION ""
+    INDEX { avUserDefProtocolOrgId, avUserDefProtocolProfileID, avUserDefProtocol }
+        ::= { avUserDefProtocolTable 1 }
+
+AvUserDefProtocolEntry ::=
+    SEQUENCE {
+        avUserDefProtocolOrgId Unsigned32,
+        avUserDefProtocolProfileID Unsigned32,
+        avUserDefProtocol Unsigned32,
+        avUserDefProtocolOrgName String,
+        avUserDefProtocolProfileName String,
+        avUserDefProtocolName String,
+        avUserDefProtoFlowBlocked ConfdString,
+        avUserDefProtoFlowAllowed ConfdString,
+        avUserDefProtoNumCtxSwitch ConfdString
+    }
+
+avUserDefProtocolOrgId OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "Organization id"
+    ::= { avUserDefProtocolEntry 1 }
+
+avUserDefProtocolProfileID OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "AV Profile Id"
+    ::= { avUserDefProtocolEntry 2 }
+
+avUserDefProtocol OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "Protocol ID"
+    ::= { avUserDefProtocolEntry 3 }
+
+avUserDefProtocolOrgName OBJECT-TYPE
+    SYNTAX      String
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Organization Name"
+    ::= { avUserDefProtocolEntry 4 }
+
+avUserDefProtocolProfileName OBJECT-TYPE
+    SYNTAX      String
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "AV Profile Name"
+    ::= { avUserDefProtocolEntry 5 }
+
+avUserDefProtocolName OBJECT-TYPE
+    SYNTAX      String
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Protocol Name"
+    ::= { avUserDefProtocolEntry 6 }
+
+avUserDefProtoFlowBlocked OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "No of flows blocked."
+    ::= { avUserDefProtocolEntry 7 }
+
+avUserDefProtoFlowAllowed OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "No of flow allowed."
+    ::= { avUserDefProtocolEntry 8 }
+
+avUserDefProtoNumCtxSwitch OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "No of context switches."
+    ::= { avUserDefProtocolEntry 9 }
+
+avPreDefProtocolTable OBJECT-TYPE
+    SYNTAX      SEQUENCE OF AvPreDefProtocolEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "AV protocol Statistics"
+    ::= { av 4 }
+
+avPreDefProtocolEntry OBJECT-TYPE
+    SYNTAX      AvPreDefProtocolEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION ""
+    INDEX { avPreDefProtocolOrgId, avPreDefProtocolProfileID, avPreDefProtocol }
+        ::= { avPreDefProtocolTable 1 }
+
+AvPreDefProtocolEntry ::=
+    SEQUENCE {
+        avPreDefProtocolOrgId Unsigned32,
+        avPreDefProtocolProfileID Unsigned32,
+        avPreDefProtocol Unsigned32,
+        avPreDefProtocolOrgName String,
+        avPreDefProtocolProfileName String,
+        avPreDefProtocolName String,
+        avPreDefProtoFlowBlocked ConfdString,
+        avPreDefProtoFlowAllowed ConfdString,
+        avPreDefProtoNumCtxSwitch ConfdString
+    }
+
+avPreDefProtocolOrgId OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "Organization id"
+    ::= { avPreDefProtocolEntry 1 }
+
+avPreDefProtocolProfileID OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "AV Profile Id"
+    ::= { avPreDefProtocolEntry 2 }
+
+avPreDefProtocol OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "Protocol ID"
+    ::= { avPreDefProtocolEntry 3 }
+
+avPreDefProtocolOrgName OBJECT-TYPE
+    SYNTAX      String
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Organization Name"
+    ::= { avPreDefProtocolEntry 4 }
+
+avPreDefProtocolProfileName OBJECT-TYPE
+    SYNTAX      String
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "AV Profile Name"
+    ::= { avPreDefProtocolEntry 5 }
+
+avPreDefProtocolName OBJECT-TYPE
+    SYNTAX      String
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Protocol Name"
+    ::= { avPreDefProtocolEntry 6 }
+
+avPreDefProtoFlowBlocked OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "No of flows blocked."
+    ::= { avPreDefProtocolEntry 7 }
+
+avPreDefProtoFlowAllowed OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "No of flow allowed."
+    ::= { avPreDefProtocolEntry 8 }
+
+avPreDefProtoNumCtxSwitch OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "No of context switches."
+    ::= { avPreDefProtocolEntry 9 }
+
+avUserDefFileTypeTable OBJECT-TYPE
+    SYNTAX      SEQUENCE OF AvUserDefFileTypeEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "AV file types Statistics"
+    ::= { av 5 }
+
+avUserDefFileTypeEntry OBJECT-TYPE
+    SYNTAX      AvUserDefFileTypeEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION ""
+    INDEX { avUserDefFileTypeOrgId, avUserDefFileTypeProfileID, avUserDefFileType }
+        ::= { avUserDefFileTypeTable 1 }
+
+AvUserDefFileTypeEntry ::=
+    SEQUENCE {
+        avUserDefFileTypeOrgId Unsigned32,
+        avUserDefFileTypeProfileID Unsigned32,
+        avUserDefFileType Unsigned32,
+        avUserDefFileTypeOrgName String,
+        avUserDefFileTypeProfileName String,
+        avUserDefFileTypeName String,
+        avUserDefFileTypeScanned ConfdString,
+        avUserDefFileTypeBlocked ConfdString
+    }
+
+avUserDefFileTypeOrgId OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "Organization id"
+    ::= { avUserDefFileTypeEntry 1 }
+
+avUserDefFileTypeProfileID OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "AV Profile Id"
+    ::= { avUserDefFileTypeEntry 2 }
+
+avUserDefFileType OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "File Type id"
+    ::= { avUserDefFileTypeEntry 3 }
+
+avUserDefFileTypeOrgName OBJECT-TYPE
+    SYNTAX      String
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Organization Name"
+    ::= { avUserDefFileTypeEntry 4 }
+
+avUserDefFileTypeProfileName OBJECT-TYPE
+    SYNTAX      String
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "AV Profile Name"
+    ::= { avUserDefFileTypeEntry 5 }
+
+avUserDefFileTypeName OBJECT-TYPE
+    SYNTAX      String
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "File Type Name"
+    ::= { avUserDefFileTypeEntry 6 }
+
+avUserDefFileTypeScanned OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "No of file scanned of this type"
+    ::= { avUserDefFileTypeEntry 7 }
+
+avUserDefFileTypeBlocked OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "No of file blocked of this type"
+    ::= { avUserDefFileTypeEntry 8 }
+
+avPreDefFileTypeTable OBJECT-TYPE
+    SYNTAX      SEQUENCE OF AvPreDefFileTypeEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "AV file types Statistics"
+    ::= { av 6 }
+
+avPreDefFileTypeEntry OBJECT-TYPE
+    SYNTAX      AvPreDefFileTypeEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION ""
+    INDEX { avPreDefFileTypeOrgId, avPreDefFileTypeProfileID, avPreDefFileType }
+        ::= { avPreDefFileTypeTable 1 }
+
+AvPreDefFileTypeEntry ::=
+    SEQUENCE {
+        avPreDefFileTypeOrgId Unsigned32,
+        avPreDefFileTypeProfileID Unsigned32,
+        avPreDefFileType Unsigned32,
+        avPreDefFileTypeOrgName String,
+        avPreDefFileTypeProfileName String,
+        avPreDefFileTypeName String,
+        avPreDefFileTypeScanned ConfdString,
+        avPreDefFileTypeBlocked ConfdString
+    }
+
+avPreDefFileTypeOrgId OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "Organization id"
+    ::= { avPreDefFileTypeEntry 1 }
+
+avPreDefFileTypeProfileID OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "AV Profile Id"
+    ::= { avPreDefFileTypeEntry 2 }
+
+avPreDefFileType OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "File Type id"
+    ::= { avPreDefFileTypeEntry 3 }
+
+avPreDefFileTypeOrgName OBJECT-TYPE
+    SYNTAX      String
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Organization Name"
+    ::= { avPreDefFileTypeEntry 4 }
+
+avPreDefFileTypeProfileName OBJECT-TYPE
+    SYNTAX      String
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "AV Profile Name"
+    ::= { avPreDefFileTypeEntry 5 }
+
+avPreDefFileTypeName OBJECT-TYPE
+    SYNTAX      String
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "File Type Name"
+    ::= { avPreDefFileTypeEntry 6 }
+
+avPreDefFileTypeScanned OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "No of file scanned of this type"
+    ::= { avPreDefFileTypeEntry 7 }
+
+avPreDefFileTypeBlocked OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "No of file blocked of this type"
+    ::= { avPreDefFileTypeEntry 8 }
+
+END

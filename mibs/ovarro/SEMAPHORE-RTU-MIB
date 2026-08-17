@@ -1,0 +1,1854 @@
+SEMAPHORE-RTU-MIB DEFINITIONS ::= BEGIN
+
+IMPORTS
+	enterprises,
+	MODULE-IDENTITY,
+	OBJECT-TYPE,
+	Integer32,
+	TimeTicks,
+	Unsigned32
+		FROM SNMPv2-SMI
+	TimeStamp
+		FROM SNMPv2-TC
+	OBJECT-GROUP,
+	MODULE-COMPLIANCE
+		FROM SNMPv2-CONF;
+
+semaphore MODULE-IDENTITY
+	LAST-UPDATED "200711201500Z"
+	ORGANIZATION "CSE Semaphore"
+	CONTACT-INFO
+		"Rob Casey <robc@cse-semaphore.com>"
+	DESCRIPTION
+		"Semaphore offers the first IP-based RTU solution that enables complete
+		integration of SCADA, control and communications functionality in one rugged
+		package.  Our products leverage easy-to-use web technologies and inexpensive
+		public networks to offer dramatically reduced costs versus traditional SCADA
+		and PLC systems.  In addition, Semaphore systems provide fast implementation
+		and start-up, minimal training and engineering costs and easy integration with
+		a vast range of third-party devices.  Semaphore is the RTU of choice for those
+		desiring flexible, proven standard or Internet-based technology with minimal
+		project delay or risks."
+	REVISION "200711201500Z"
+	DESCRIPTION
+		"Initial Revision of Semaphore RTU MIB."
+	::= { enterprises 27982 }
+
+semaphoreRTUs OBJECT IDENTIFIER         ::= { semaphore 1 }
+
+nrj-anx OBJECT IDENTIFIER             ::= { semaphoreRTUs 7 }
+
+
+	digitalTags OBJECT IDENTIFIER         ::= {nrj-anx 1 }
+
+		deftensionnorm OBJECT-TYPE
+		SYNTAX INTEGER
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+			"Défaut Tension Normale (Amont INS)"
+		::= { digitalTags 1001 }
+
+		deftensiongrp OBJECT-TYPE
+		SYNTAX INTEGER
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+			"Défaut Tension groupe Electrogène"
+		::= { digitalTags 1002 }
+
+		deftensavalins OBJECT-TYPE
+		SYNTAX INTEGER
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+			"Défaut Tension aval INS"
+		::= { digitalTags 1003 }
+
+		deptemp1transf OBJECT-TYPE
+		SYNTAX INTEGER
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+			"Défaut Temp 1 transfo"
+		::= { digitalTags 1004 }
+
+		deftemp2gazpr OBJECT-TYPE
+		SYNTAX INTEGER
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+			"Défaut Temp 2. gaz. pression transfo"
+		::= { digitalTags 1005 }
+
+		fusiblehths OBJECT-TYPE
+		SYNTAX INTEGER
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+			"Fusion fusible HT"
+		::= { digitalTags 1006 }
+
+		disjdepartbt OBJECT-TYPE
+		SYNTAX INTEGER
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+			"Au moins 1départ BT disjoncté"
+		::= { digitalTags 1007 }
+
+		disjonctiontbt OBJECT-TYPE
+		SYNTAX INTEGER
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+			"Au moins 1 départ TBT disjoncté"
+		::= { digitalTags 1008 }
+
+		disjaccueil OBJECT-TYPE
+		SYNTAX INTEGER
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+			"Au moins 1 départ Accueil disjoncté"
+		::= { digitalTags 1009 }
+
+		defasi OBJECT-TYPE
+		SYNTAX INTEGER
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+			"Défaut ASI"
+		::= { digitalTags 1010 }
+
+		modenonauto OBJECT-TYPE
+		SYNTAX INTEGER
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+			"Mode non auto"
+		::= { digitalTags 1011 }
+
+		defdgbt OBJECT-TYPE
+		SYNTAX INTEGER
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+			"Défaut DGBT"
+		::= { digitalTags 1012 }
+
+		detincendie OBJECT-TYPE
+		SYNTAX INTEGER
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+			"Détection incendie"
+		::= { digitalTags 1013 }
+
+		arretsectorise OBJECT-TYPE
+		SYNTAX INTEGER
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+			"Arrêt sectorisé"
+		::= { digitalTags 1014 }
+
+		arreturgence OBJECT-TYPE
+		SYNTAX INTEGER
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+			"Arrêt d'urgence"
+		::= { digitalTags 1015 }
+
+		insnormalencl OBJECT-TYPE
+		SYNTAX INTEGER
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+			"Inverseur NalSec - Normal enclenché"
+		::= { digitalTags 1016 }
+
+		inssecoursencl OBJECT-TYPE
+		SYNTAX INTEGER
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+			"INS - Secours enclenché"
+		::= { digitalTags 1021 }
+
+		defautautomat OBJECT-TYPE
+		SYNTAX INTEGER
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+			"Défaut automaticité"
+		::= { digitalTags 1022 }
+
+		deftensionnorm_ OBJECT-TYPE
+		SYNTAX INTEGER
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION
+			"Digital Tag at Modbus Address 512"
+		::= { digitalTags 512 }
+
+		deftensiongrp_ OBJECT-TYPE
+		SYNTAX INTEGER
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION
+			"Digital Tag at Modbus Address 513"
+		::= { digitalTags 513 }
+
+		deftensavalins_ OBJECT-TYPE
+		SYNTAX INTEGER
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION
+			"Digital Tag at Modbus Address 514"
+		::= { digitalTags 514 }
+
+		deptemp1transf_ OBJECT-TYPE
+		SYNTAX INTEGER
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION
+			"Digital Tag at Modbus Address 515"
+		::= { digitalTags 515 }
+
+		deftemp2gazpr_ OBJECT-TYPE
+		SYNTAX INTEGER
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION
+			"Digital Tag at Modbus Address 516"
+		::= { digitalTags 516 }
+
+		fusiblehths_ OBJECT-TYPE
+		SYNTAX INTEGER
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION
+			"Digital Tag at Modbus Address 517"
+		::= { digitalTags 517 }
+
+		disjdepartbt_ OBJECT-TYPE
+		SYNTAX INTEGER
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION
+			"Digital Tag at Modbus Address 518"
+		::= { digitalTags 518 }
+
+		disjonctiontbt_ OBJECT-TYPE
+		SYNTAX INTEGER
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION
+			"Digital Tag at Modbus Address 519"
+		::= { digitalTags 519 }
+
+		disjaccueil_ OBJECT-TYPE
+		SYNTAX INTEGER
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION
+			"Digital Tag at Modbus Address 520"
+		::= { digitalTags 520 }
+
+		defasi_ OBJECT-TYPE
+		SYNTAX INTEGER
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION
+			"Digital Tag at Modbus Address 521"
+		::= { digitalTags 521 }
+
+		modenonauto_ OBJECT-TYPE
+		SYNTAX INTEGER
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION
+			"Digital Tag at Modbus Address 522"
+		::= { digitalTags 522 }
+
+		defdgbt_ OBJECT-TYPE
+		SYNTAX INTEGER
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION
+			"Digital Tag at Modbus Address 523"
+		::= { digitalTags 523 }
+
+		detincendie_ OBJECT-TYPE
+		SYNTAX INTEGER
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION
+			"Digital Tag at Modbus Address 524"
+		::= { digitalTags 524 }
+
+		arretsectorise_ OBJECT-TYPE
+		SYNTAX INTEGER
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION
+			"Digital Tag at Modbus Address 525"
+		::= { digitalTags 525 }
+
+		arreturgence_ OBJECT-TYPE
+		SYNTAX INTEGER
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION
+			"Digital Tag at Modbus Address 526"
+		::= { digitalTags 526 }
+
+		insnormalencl_ OBJECT-TYPE
+		SYNTAX INTEGER
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION
+			"Digital Tag at Modbus Address 527"
+		::= { digitalTags 527 }
+
+		inssecoursencl_ OBJECT-TYPE
+		SYNTAX INTEGER
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION
+			"Digital Tag at Modbus Address 768"
+		::= { digitalTags 768 }
+
+		defautautomat_ OBJECT-TYPE
+		SYNTAX INTEGER
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION
+			"Digital Tag at Modbus Address 769"
+		::= { digitalTags 769 }
+
+		defautmajtbt OBJECT-TYPE
+		SYNTAX INTEGER
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+			"Défaut majeur"
+		::= { digitalTags 1061 }
+
+		defautmintbt OBJECT-TYPE
+		SYNTAX INTEGER
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+			"Défaut mineur"
+		::= { digitalTags 1062 }
+
+		dechrgbatttbt OBJECT-TYPE
+		SYNTAX INTEGER
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+			"Décharge batterie"
+		::= { digitalTags 1063 }
+
+		defmajsdx700 OBJECT-TYPE
+		SYNTAX INTEGER
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+			"SDX700-Defaut Majeur"
+		::= { digitalTags 1064 }
+
+		defautmajtbt_ OBJECT-TYPE
+		SYNTAX INTEGER
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION
+			"Digital Tag at Modbus Address 2024"
+		::= { digitalTags 2024 }
+
+		defautmintbt_ OBJECT-TYPE
+		SYNTAX INTEGER
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION
+			"Digital Tag at Modbus Address 2025"
+		::= { digitalTags 2025 }
+
+		dechrgbatttbt_ OBJECT-TYPE
+		SYNTAX INTEGER
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION
+			"Digital Tag at Modbus Address 2026"
+		::= { digitalTags 2026 }
+
+		defmajsdx700_ OBJECT-TYPE
+		SYNTAX INTEGER
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION
+			"Digital Tag at Modbus Address 2027"
+		::= { digitalTags 2027 }
+
+		marchaufbat OBJECT-TYPE
+		SYNTAX INTEGER
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+			"Chaufferie en marche"
+		::= { digitalTags 1081 }
+
+		marventbat OBJECT-TYPE
+		SYNTAX INTEGER
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+			"Ventilation en marche"
+		::= { digitalTags 1082 }
+
+		effracctaleacti OBJECT-TYPE
+		SYNTAX INTEGER
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+			"Effraction centrale en service"
+		::= { digitalTags 1083 }
+
+		effracentcentre OBJECT-TYPE
+		SYNTAX INTEGER
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+			"Effraction entrée centre"
+		::= { digitalTags 1084 }
+
+		defbalisagebat OBJECT-TYPE
+		SYNTAX INTEGER
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+			"Défaut balisage"
+		::= { digitalTags 1085 }
+
+		deftempbat OBJECT-TYPE
+		SYNTAX INTEGER
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+			"Défaut temperature"
+		::= { digitalTags 1086 }
+
+		feu OBJECT-TYPE
+		SYNTAX INTEGER
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+			"Feu"
+		::= { digitalTags 1087 }
+
+		defventilation OBJECT-TYPE
+		SYNTAX INTEGER
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+			"Défaut Ventilation"
+		::= { digitalTags 1088 }
+
+		defpressur OBJECT-TYPE
+		SYNTAX INTEGER
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+			"Défaut pressurisation"
+		::= { digitalTags 1089 }
+
+		defchaufferie OBJECT-TYPE
+		SYNTAX INTEGER
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+			"Défaut chaufferie"
+		::= { digitalTags 1090 }
+
+		defclimat OBJECT-TYPE
+		SYNTAX INTEGER
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+			"Défaut climatisation"
+		::= { digitalTags 1091 }
+
+		defdetectorage OBJECT-TYPE
+		SYNTAX INTEGER
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+			"Défaut détecteur d'orage"
+		::= { digitalTags 1092 }
+
+		orage OBJECT-TYPE
+		SYNTAX INTEGER
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+			"Orage"
+		::= { digitalTags 1093 }
+
+		pannedetinc OBJECT-TYPE
+		SYNTAX INTEGER
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+			"Panne détecteur incendie"
+		::= { digitalTags 1094 }
+
+		defctaleinc OBJECT-TYPE
+		SYNTAX INTEGER
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+			"Défaut centrale incendie"
+		::= { digitalTags 1095 }
+
+		marchaufbat_ OBJECT-TYPE
+		SYNTAX INTEGER
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION
+			"Digital Tag at Modbus Address 1280"
+		::= { digitalTags 1280 }
+
+		marventbat_ OBJECT-TYPE
+		SYNTAX INTEGER
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION
+			"Digital Tag at Modbus Address 1281"
+		::= { digitalTags 1281 }
+
+		effracctaleact_ OBJECT-TYPE
+		SYNTAX INTEGER
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION
+			"Digital Tag at Modbus Address 1282"
+		::= { digitalTags 1282 }
+
+		effracentcentr_ OBJECT-TYPE
+		SYNTAX INTEGER
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION
+			"Digital Tag at Modbus Address 1283"
+		::= { digitalTags 1283 }
+
+		defbalisagebat_ OBJECT-TYPE
+		SYNTAX INTEGER
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION
+			"Digital Tag at Modbus Address 1284"
+		::= { digitalTags 1284 }
+
+		deftempbat_ OBJECT-TYPE
+		SYNTAX INTEGER
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION
+			"Digital Tag at Modbus Address 1285"
+		::= { digitalTags 1285 }
+
+		feu_ OBJECT-TYPE
+		SYNTAX INTEGER
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION
+			"Digital Tag at Modbus Address 1286"
+		::= { digitalTags 1286 }
+
+		defventilation_ OBJECT-TYPE
+		SYNTAX INTEGER
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION
+			"Digital Tag at Modbus Address 1287"
+		::= { digitalTags 1287 }
+
+		defpressur_ OBJECT-TYPE
+		SYNTAX INTEGER
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION
+			"Digital Tag at Modbus Address 1288"
+		::= { digitalTags 1288 }
+
+		defchaufferie_ OBJECT-TYPE
+		SYNTAX INTEGER
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION
+			"Digital Tag at Modbus Address 1289"
+		::= { digitalTags 1289 }
+
+		defclimat_ OBJECT-TYPE
+		SYNTAX INTEGER
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION
+			"Digital Tag at Modbus Address 1290"
+		::= { digitalTags 1290 }
+
+		defdetectorage_ OBJECT-TYPE
+		SYNTAX INTEGER
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION
+			"Digital Tag at Modbus Address 1291"
+		::= { digitalTags 1291 }
+
+		orage_ OBJECT-TYPE
+		SYNTAX INTEGER
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION
+			"Digital Tag at Modbus Address 1292"
+		::= { digitalTags 1292 }
+
+		pannedetinc_ OBJECT-TYPE
+		SYNTAX INTEGER
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION
+			"Digital Tag at Modbus Address 1293"
+		::= { digitalTags 1293 }
+
+		defctaleinc_ OBJECT-TYPE
+		SYNTAX INTEGER
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION
+			"Digital Tag at Modbus Address 1294"
+		::= { digitalTags 1294 }
+
+		informerror OBJECT-TYPE
+		SYNTAX INTEGER
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+			"Tag d'erreur d'inform"
+		::= { digitalTags 20521 }
+
+		disablestate1 OBJECT-TYPE
+		SYNTAX INTEGER
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+			"Désactiver destinataire 1"
+		::= { digitalTags 20520 }
+
+		disablestate2 OBJECT-TYPE
+		SYNTAX INTEGER
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+			"Désactiver destinataire 2"
+		::= { digitalTags 20522 }
+
+		disablealldest OBJECT-TYPE
+		SYNTAX INTEGER
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+			"Désactiver tous les destinataires"
+		::= { digitalTags 20523 }
+
+		presencecarte01 OBJECT-TYPE
+		SYNTAX INTEGER
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+			"Digital Tag at Modbus Address 20500"
+		::= { digitalTags 20500 }
+
+		presencecarte02 OBJECT-TYPE
+		SYNTAX INTEGER
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+			"Digital Tag at Modbus Address 20501"
+		::= { digitalTags 20501 }
+
+		presencecarte11 OBJECT-TYPE
+		SYNTAX INTEGER
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+			"Digital Tag at Modbus Address 20502"
+		::= { digitalTags 20502 }
+
+		presencecarte12 OBJECT-TYPE
+		SYNTAX INTEGER
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+			"Digital Tag at Modbus Address 20503"
+		::= { digitalTags 20503 }
+
+		presencecarte21 OBJECT-TYPE
+		SYNTAX INTEGER
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+			"Digital Tag at Modbus Address 20504"
+		::= { digitalTags 20504 }
+
+		presencecarte22 OBJECT-TYPE
+		SYNTAX INTEGER
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+			"Digital Tag at Modbus Address 20505"
+		::= { digitalTags 20505 }
+
+		presencecarte31 OBJECT-TYPE
+		SYNTAX INTEGER
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+			"Digital Tag at Modbus Address 20506"
+		::= { digitalTags 20506 }
+
+		presencecarte32 OBJECT-TYPE
+		SYNTAX INTEGER
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+			"Digital Tag at Modbus Address 20507"
+		::= { digitalTags 20507 }
+
+		presencecarte41 OBJECT-TYPE
+		SYNTAX INTEGER
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+			"Digital Tag at Modbus Address 20508"
+		::= { digitalTags 20508 }
+
+		presencecarte42 OBJECT-TYPE
+		SYNTAX INTEGER
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+			"Digital Tag at Modbus Address 20509"
+		::= { digitalTags 20509 }
+
+		presencecarte51 OBJECT-TYPE
+		SYNTAX INTEGER
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+			"Digital Tag at Modbus Address 20510"
+		::= { digitalTags 20510 }
+
+		presencecarte52 OBJECT-TYPE
+		SYNTAX INTEGER
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+			"Digital Tag at Modbus Address 20511"
+		::= { digitalTags 20511 }
+
+		presencecarte61 OBJECT-TYPE
+		SYNTAX INTEGER
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+			"Digital Tag at Modbus Address 20512"
+		::= { digitalTags 20512 }
+
+		presencecarte62 OBJECT-TYPE
+		SYNTAX INTEGER
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+			"Digital Tag at Modbus Address 20513"
+		::= { digitalTags 20513 }
+
+		triggermodbus1 OBJECT-TYPE
+		SYNTAX INTEGER
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+			"Digital Tag at Modbus Address 20578"
+		::= { digitalTags 20578 }
+
+		systemerr OBJECT-TYPE
+		SYNTAX INTEGER
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION
+			"Erreur Système"
+		::= { digitalTags 28188 }
+
+		reboot OBJECT-TYPE
+		SYNTAX INTEGER
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+			"Reboot"
+		::= { digitalTags 28163 }
+
+		prgrun OBJECT-TYPE
+		SYNTAX INTEGER
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION
+			"Programme démarré"
+		::= { digitalTags 28161 }
+
+		rejeualltagtext OBJECT-TYPE
+		SYNTAX INTEGER
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+			"Tag de rejeu des tags de type text (temporaire)"
+		::= { digitalTags 20538 }
+
+		preshtbt OBJECT-TYPE
+		SYNTAX INTEGER
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+			"Présence de la carte HT-BT"
+		::= { digitalTags 20517 }
+
+		prestbt OBJECT-TYPE
+		SYNTAX INTEGER
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+			"Présence de la carte TBT"
+		::= { digitalTags 20518 }
+
+		presbat OBJECT-TYPE
+		SYNTAX INTEGER
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+			"Présence de la carte BAT"
+		::= { digitalTags 20519 }
+
+		etatclimclient_ OBJECT-TYPE
+		SYNTAX INTEGER
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION
+			"Entrée digitale 8"
+		::= { digitalTags 2028 }
+
+		etatclimclient OBJECT-TYPE
+		SYNTAX INTEGER
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+			"Etat Clim Co-habitant"
+		::= { digitalTags 1065 }
+
+		actsyncntp OBJECT-TYPE
+		SYNTAX INTEGER
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+			"Commande snmp de synchro ntp"
+		::= { digitalTags 20003 }
+
+		forcsyncntp OBJECT-TYPE
+		SYNTAX INTEGER
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+			"Forcage de la synchro Ntp"
+		::= { digitalTags 20102 }
+
+		pulse2secondes OBJECT-TYPE
+		SYNTAX INTEGER
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+			"Pour battre la mesure toutes les 2 secondes"
+		::= { digitalTags 20100 }
+
+		tiksec OBJECT-TYPE
+		SYNTAX INTEGER
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION
+			"Top horloge 1 sec"
+		::= { digitalTags 20101 }
+
+		synchro_snmp OBJECT-TYPE
+		SYNTAX INTEGER
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+			"Pour GS : mode de synchro NTP (1=non)"
+		::= { digitalTags 20000 }
+
+		disala OBJECT-TYPE
+		SYNTAX INTEGER
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+			"Flag d'inhibition d'alarme si DisALA=1"
+		::= { digitalTags 28175 }
+
+		extinctionacti2 OBJECT-TYPE
+		SYNTAX INTEGER
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+			"Digital Tag at Modbus Address 20480"
+		::= { digitalTags 20480 }
+
+		extinctionacti_ OBJECT-TYPE
+		SYNTAX INTEGER
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION
+			"Digital Tag at Modbus Address 1295"
+		::= { digitalTags 1295 }
+
+		nomitensionnorm OBJECT-TYPE
+		SYNTAX INTEGER
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+			"Défaut Tension Normale (Amont INS)"
+		::= { digitalTags 11000 }
+
+		nomitensiongrp OBJECT-TYPE
+		SYNTAX INTEGER
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+			"Défaut Tension groupe Electrogène"
+		::= { digitalTags 11001 }
+
+		nomitensavalins OBJECT-TYPE
+		SYNTAX INTEGER
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+			"Défaut Tension aval INS"
+		::= { digitalTags 11002 }
+
+		nomitemp1transf OBJECT-TYPE
+		SYNTAX INTEGER
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+			"Défaut Temp 1 transfo"
+		::= { digitalTags 11003 }
+
+		nomitemp2gazpr OBJECT-TYPE
+		SYNTAX INTEGER
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+			"Défaut Temp 2. gaz. pression transfo"
+		::= { digitalTags 11004 }
+
+		nomifusiblehths OBJECT-TYPE
+		SYNTAX INTEGER
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+			"Fusion fusible HT"
+		::= { digitalTags 11005 }
+
+		nomidisjdepartb OBJECT-TYPE
+		SYNTAX INTEGER
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+			"Au moins 1départ BT disjoncté"
+		::= { digitalTags 11006 }
+
+		nomidisjtbt OBJECT-TYPE
+		SYNTAX INTEGER
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+			"Au moins 1 départ TBT disjoncté"
+		::= { digitalTags 11007 }
+
+		nomidisjaccueil OBJECT-TYPE
+		SYNTAX INTEGER
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+			"Au moins 1 départ Accueil disjoncté"
+		::= { digitalTags 11008 }
+
+		nomiasi OBJECT-TYPE
+		SYNTAX INTEGER
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+			"Défaut ASI"
+		::= { digitalTags 11009 }
+
+		nomimodenonauto OBJECT-TYPE
+		SYNTAX INTEGER
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+			"Mode non auto"
+		::= { digitalTags 11010 }
+
+		nomidgbt OBJECT-TYPE
+		SYNTAX INTEGER
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+			"Défaut DGBT"
+		::= { digitalTags 11011 }
+
+		nomidetincendie OBJECT-TYPE
+		SYNTAX INTEGER
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+			"Détection incendie"
+		::= { digitalTags 11012 }
+
+		nomiarretsector OBJECT-TYPE
+		SYNTAX INTEGER
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+			"Arrêt sectorisé"
+		::= { digitalTags 11013 }
+
+		nomiarreturgenc OBJECT-TYPE
+		SYNTAX INTEGER
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+			"Arrêt d'urgence"
+		::= { digitalTags 11014 }
+
+		nominormalencl OBJECT-TYPE
+		SYNTAX INTEGER
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+			"Inverseur NalSec - Normal enclenché"
+		::= { digitalTags 11015 }
+
+		nomisecoursencl OBJECT-TYPE
+		SYNTAX INTEGER
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+			"INS - Secours enclenché"
+		::= { digitalTags 11016 }
+
+		nomiautomaticit OBJECT-TYPE
+		SYNTAX INTEGER
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+			"Défaut automaticité"
+		::= { digitalTags 11017 }
+
+		nomimajtbt OBJECT-TYPE
+		SYNTAX INTEGER
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+			"Défaut majeur"
+		::= { digitalTags 11020 }
+
+		nomimintbt OBJECT-TYPE
+		SYNTAX INTEGER
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+			"Défaut mineur"
+		::= { digitalTags 11021 }
+
+		nomidechbatttbt OBJECT-TYPE
+		SYNTAX INTEGER
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+			"Décharge batterie"
+		::= { digitalTags 11022 }
+
+		nomisdx700 OBJECT-TYPE
+		SYNTAX INTEGER
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+			"SDX700-Defaut Majeur"
+		::= { digitalTags 11023 }
+
+		nomiclimclient OBJECT-TYPE
+		SYNTAX INTEGER
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+			"Etat Clim Co-habitant"
+		::= { digitalTags 11024 }
+
+		nomirchaufbat OBJECT-TYPE
+		SYNTAX INTEGER
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+			"Chaufferie en marche"
+		::= { digitalTags 11030 }
+
+		nomirventbat OBJECT-TYPE
+		SYNTAX INTEGER
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+			"Ventilation en marche"
+		::= { digitalTags 11031 }
+
+		nomireffracctal OBJECT-TYPE
+		SYNTAX INTEGER
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+			"Effraction centrale en service"
+		::= { digitalTags 11032 }
+
+		nomireffracentr OBJECT-TYPE
+		SYNTAX INTEGER
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+			"Effraction entrée centre"
+		::= { digitalTags 11033 }
+
+		nomibalisage OBJECT-TYPE
+		SYNTAX INTEGER
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+			"Défaut balisage"
+		::= { digitalTags 11034 }
+
+		nomitempbat OBJECT-TYPE
+		SYNTAX INTEGER
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+			"Défaut température"
+		::= { digitalTags 11035 }
+
+		nomifeu OBJECT-TYPE
+		SYNTAX INTEGER
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+			"Feu"
+		::= { digitalTags 11036 }
+
+		nomiventilation OBJECT-TYPE
+		SYNTAX INTEGER
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+			"Défaut Ventilation"
+		::= { digitalTags 11037 }
+
+		nomipressurisat OBJECT-TYPE
+		SYNTAX INTEGER
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+			"Défaut pressurisation guide"
+		::= { digitalTags 11038 }
+
+		nomichaufferie OBJECT-TYPE
+		SYNTAX INTEGER
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+			"Défaut chaufferie"
+		::= { digitalTags 11039 }
+
+		nomiclimat OBJECT-TYPE
+		SYNTAX INTEGER
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+			"Défaut climatisation"
+		::= { digitalTags 11040 }
+
+		nomidetecorage OBJECT-TYPE
+		SYNTAX INTEGER
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+			"Défaut détecteur orage"
+		::= { digitalTags 11041 }
+
+		nomiorage OBJECT-TYPE
+		SYNTAX INTEGER
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+			"Orage"
+		::= { digitalTags 11042 }
+
+		nomidetinc OBJECT-TYPE
+		SYNTAX INTEGER
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+			"Panne détecteur incendie"
+		::= { digitalTags 11043 }
+
+		nomictaleinc OBJECT-TYPE
+		SYNTAX INTEGER
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+			"Défaut centrale incendie"
+		::= { digitalTags 11044 }
+
+		nomiextincacti OBJECT-TYPE
+		SYNTAX INTEGER
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+			"Extinction incendie activée"
+		::= { digitalTags 11045 }
+
+		deftensionnor_1 OBJECT-TYPE
+		SYNTAX INTEGER
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+			"Défaut Tension Normale (Amont INS)"
+		::= { digitalTags 1017 }
+
+		deftensiongrp_1 OBJECT-TYPE
+		SYNTAX INTEGER
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+			"Défaut Tension groupe Electrogène"
+		::= { digitalTags 1018 }
+
+		deftensavalin_1 OBJECT-TYPE
+		SYNTAX INTEGER
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+			"Défaut Tension aval INS"
+		::= { digitalTags 1019 }
+
+		deptemp1trans_1 OBJECT-TYPE
+		SYNTAX INTEGER
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+			"Défaut Temp 1 transfo"
+		::= { digitalTags 1020 }
+
+		deftemp2gazpr_1 OBJECT-TYPE
+		SYNTAX INTEGER
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+			"Défaut Temp 2. gaz. pression transfo"
+		::= { digitalTags 1023 }
+
+		fusiblehths_1 OBJECT-TYPE
+		SYNTAX INTEGER
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+			"Fusion fusible HT"
+		::= { digitalTags 1024 }
+
+		disjdepartbt_1 OBJECT-TYPE
+		SYNTAX INTEGER
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+			"Au moins 1départ BT disjoncté"
+		::= { digitalTags 1025 }
+
+		disjonctiontb_1 OBJECT-TYPE
+		SYNTAX INTEGER
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+			"Au moins 1 départ TBT disjoncté"
+		::= { digitalTags 1026 }
+
+		disjaccueil_1 OBJECT-TYPE
+		SYNTAX INTEGER
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+			"Au moins 1 départ Accueil disjoncté"
+		::= { digitalTags 1027 }
+
+		defasi_1 OBJECT-TYPE
+		SYNTAX INTEGER
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+			"Défaut ASI"
+		::= { digitalTags 1028 }
+
+		modenonauto_1 OBJECT-TYPE
+		SYNTAX INTEGER
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+			"Mode non auto"
+		::= { digitalTags 1029 }
+
+		defdgbt_1 OBJECT-TYPE
+		SYNTAX INTEGER
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+			"Défaut DGBT"
+		::= { digitalTags 1030 }
+
+		detincendie_1 OBJECT-TYPE
+		SYNTAX INTEGER
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+			"Détection incendie"
+		::= { digitalTags 1031 }
+
+		arretsectoris_1 OBJECT-TYPE
+		SYNTAX INTEGER
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+			"Arrêt sectorisé"
+		::= { digitalTags 1032 }
+
+		arreturgence_1 OBJECT-TYPE
+		SYNTAX INTEGER
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+			"Arrêt d'urgence"
+		::= { digitalTags 1033 }
+
+		insnormalencl_1 OBJECT-TYPE
+		SYNTAX INTEGER
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+			"Inverseur NalSec - Normal enclenché"
+		::= { digitalTags 1034 }
+
+		inssecoursenc_1 OBJECT-TYPE
+		SYNTAX INTEGER
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+			"INS - Secours enclenché"
+		::= { digitalTags 1035 }
+
+		defautautomat_1 OBJECT-TYPE
+		SYNTAX INTEGER
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+			"Défaut automaticité"
+		::= { digitalTags 1036 }
+
+		defautmajtbt_1 OBJECT-TYPE
+		SYNTAX INTEGER
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+			"Défaut majeur"
+		::= { digitalTags 1166 }
+
+		defautmintbt_1 OBJECT-TYPE
+		SYNTAX INTEGER
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+			"Défaut mineur"
+		::= { digitalTags 1167 }
+
+		dechrgbatttbt_1 OBJECT-TYPE
+		SYNTAX INTEGER
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+			"Décharge batterie"
+		::= { digitalTags 1168 }
+
+		defmajsdx701 OBJECT-TYPE
+		SYNTAX INTEGER
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+			"SDX700-Defaut Majeur"
+		::= { digitalTags 1169 }
+
+		etatclimclien_1 OBJECT-TYPE
+		SYNTAX INTEGER
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+			"Etat Clim Co-habitant"
+		::= { digitalTags 1170 }
+
+		marchaufbat_1 OBJECT-TYPE
+		SYNTAX INTEGER
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+			"Chaufferie en marche"
+		::= { digitalTags 1112 }
+
+		marventbat_1 OBJECT-TYPE
+		SYNTAX INTEGER
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+			"Ventilation en marche"
+		::= { digitalTags 1097 }
+
+		effracctaleac_1 OBJECT-TYPE
+		SYNTAX INTEGER
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+			"Effraction centrale en service"
+		::= { digitalTags 1098 }
+
+		effracentcent_1 OBJECT-TYPE
+		SYNTAX INTEGER
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+			"Effraction entrée centre"
+		::= { digitalTags 1099 }
+
+		defbalisageba_1 OBJECT-TYPE
+		SYNTAX INTEGER
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+			"Défaut balisage"
+		::= { digitalTags 1100 }
+
+		deftempbat_1 OBJECT-TYPE
+		SYNTAX INTEGER
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+			"Défaut temperature"
+		::= { digitalTags 1101 }
+
+		feu_1 OBJECT-TYPE
+		SYNTAX INTEGER
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+			"Feu"
+		::= { digitalTags 1102 }
+
+		defventilatio_1 OBJECT-TYPE
+		SYNTAX INTEGER
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+			"Défaut Ventilation"
+		::= { digitalTags 1103 }
+
+		defpressur_1 OBJECT-TYPE
+		SYNTAX INTEGER
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+			"Défaut pressurisation"
+		::= { digitalTags 1104 }
+
+		defchaufferie_1 OBJECT-TYPE
+		SYNTAX INTEGER
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+			"Défaut chaufferie"
+		::= { digitalTags 1105 }
+
+		defclimat_1 OBJECT-TYPE
+		SYNTAX INTEGER
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+			"Défaut climatisation"
+		::= { digitalTags 1106 }
+
+		defdetectorag_1 OBJECT-TYPE
+		SYNTAX INTEGER
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+			"Défaut détecteur d'orage"
+		::= { digitalTags 1107 }
+
+		orage_1 OBJECT-TYPE
+		SYNTAX INTEGER
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+			"Orage"
+		::= { digitalTags 1108 }
+
+		pannedetinc_1 OBJECT-TYPE
+		SYNTAX INTEGER
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+			"Panne détecteur incendie"
+		::= { digitalTags 1109 }
+
+		defctaleinc_1 OBJECT-TYPE
+		SYNTAX INTEGER
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+			"Défaut centrale incendie"
+		::= { digitalTags 1110 }
+
+		extinctionact_1 OBJECT-TYPE
+		SYNTAX INTEGER
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+			"Digital Tag at Modbus Address 1113"
+		::= { digitalTags 1113 }
+
+		defventhbgmxfm_ OBJECT-TYPE
+		SYNTAX INTEGER
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION
+			"DefVentHbgMuxFM"
+		::= { digitalTags 2029 }
+
+		defventmuxfm_1 OBJECT-TYPE
+		SYNTAX INTEGER
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+			"DefVentMuxFM"
+		::= { digitalTags 1171 }
+
+		nomiventmuxfm OBJECT-TYPE
+		SYNTAX INTEGER
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+			"NomiVentMuxFM"
+		::= { digitalTags 11025 }
+
+		defventhbgmuxfm OBJECT-TYPE
+		SYNTAX INTEGER
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+			"Defaut ventilation hebergement mux FM"
+		::= { digitalTags 1066 }
+
+		presencecarte71 OBJECT-TYPE
+		SYNTAX INTEGER
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+			"Digital Tag at Modbus Address 20514"
+		::= { digitalTags 20514 }
+
+		presencecarte72 OBJECT-TYPE
+		SYNTAX INTEGER
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+			"Digital Tag at Modbus Address 20515"
+		::= { digitalTags 20515 }
+
+		informerror_2 OBJECT-TYPE
+		SYNTAX INTEGER
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+			"Tag d'erreur d'inform"
+		::= { digitalTags 20524 }
+
+		informerror_1 OBJECT-TYPE
+		SYNTAX INTEGER
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+			"Tag d'erreur d'inform"
+		::= { digitalTags 20525 }
+
+		etattimererr OBJECT-TYPE
+		SYNTAX INTEGER
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+			"Digital Tag at Modbus Address 20482"
+		::= { digitalTags 20482 }
+
+		trigtimererr OBJECT-TYPE
+		SYNTAX INTEGER
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+			"Digital Tag at Modbus Address 20483"
+		::= { digitalTags 20483 }
+
+		extinctionacti OBJECT-TYPE
+		SYNTAX INTEGER
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+			"Digital Tag at Modbus Address 1096"
+		::= { digitalTags 1096 }
+
+	analogTags OBJECT IDENTIFIER         ::= {nrj-anx 2 }
+
+		site OBJECT-TYPE
+		SYNTAX OCTET STRING
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+			"Analog Tag at Modbus Address 23"
+		::= { analogTags 23 }
+
+		codeig OBJECT-TYPE
+		SYNTAX OCTET STRING
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+			"Analog Tag at Modbus Address 24"
+		::= { analogTags 24 }
+
+		adresseip OBJECT-TYPE
+		SYNTAX OCTET STRING
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+			"Analog Tag at Modbus Address 25"
+		::= { analogTags 25 }
+
+		versioncfg OBJECT-TYPE
+		SYNTAX OCTET STRING
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+			"Analog Tag at Modbus Address 26"
+		::= { analogTags 26 }
+
+		dategeneration OBJECT-TYPE
+		SYNTAX OCTET STRING
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+			"Analog Tag at Modbus Address 27"
+		::= { analogTags 27 }
+
+		desttrap OBJECT-TYPE
+		SYNTAX OCTET STRING
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+			"Analog Tag at Modbus Address 28"
+		::= { analogTags 28 }
+
+		stackstate1 OBJECT-TYPE
+		SYNTAX Unsigned32
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+			"Analog Tag at Modbus Address 20480"
+		::= { analogTags 20480 }
+
+		stackstate2 OBJECT-TYPE
+		SYNTAX Unsigned32
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+			"Nombre de traps mémorisés destinataire 2"
+		::= { analogTags 20481 }
+
+		stackfct1 OBJECT-TYPE
+		SYNTAX Unsigned32
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+			"Envoi des traps/alarmes destinataire 1"
+		::= { analogTags 20482 }
+
+		stackfct2 OBJECT-TYPE
+		SYNTAX Unsigned32
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+			"Envoi des traps/alarmes destinataire 2"
+		::= { analogTags 20483 }
+
+		stackfctall OBJECT-TYPE
+		SYNTAX Unsigned32
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+			"Envoi des traps/alarmes de tous els destinataires"
+		::= { analogTags 20484 }
+
+		carderr OBJECT-TYPE
+		SYNTAX Unsigned32
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION
+			"Masque d'erreur carte"
+		::= { analogTags 22052 }
+
+		statusinf OBJECT-TYPE
+		SYNTAX Integer32
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+			"Analog Tag at Modbus Address 20486"
+		::= { analogTags 20486 }
+
+		osver OBJECT-TYPE
+		SYNTAX Unsigned32
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION
+			"Version d'OS"
+		::= { analogTags 22038 }
+
+		osbuil OBJECT-TYPE
+		SYNTAX Unsigned32
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION
+			"OS Build"
+		::= { analogTags 22039 }
+
+		categorie OBJECT-TYPE
+		SYNTAX OCTET STRING
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+			"Analog Tag at Modbus Address 29"
+		::= { analogTags 29 }
+
+		valrafrntp OBJECT-TYPE
+		SYNTAX Unsigned32
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+			"24 heures = 43200 * 2 secondes"
+		::= { analogTags 20102 }
+
+		nbperiod2sec OBJECT-TYPE
+		SYNTAX Unsigned32
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+			"Compteur de périodes de 2 secondes"
+		::= { analogTags 20104 }
+
+		initialsec OBJECT-TYPE
+		SYNTAX Unsigned32
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+			"Analog Tag at Modbus Address 20101"
+		::= { analogTags 20101 }
+
+		timesec OBJECT-TYPE
+		SYNTAX Unsigned32
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+			"Temps : secondes"
+		::= { analogTags 20106 }
+
+		adrservntp OBJECT-TYPE
+		SYNTAX OCTET STRING
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+			"Analog Tag at Modbus Address 20002"
+		::= { analogTags 20002 }
+
+		utctim OBJECT-TYPE
+		SYNTAX Unsigned32
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+			"UTC Time"
+		::= { analogTags 20000 }
+
+		zonid OBJECT-TYPE
+		SYNTAX Unsigned32
+		MAX-ACCESS read-only
+		STATUS current
+		DESCRIPTION
+			"Time Zone Id"
+		::= { analogTags 20004 }
+
+		inhibntp OBJECT-TYPE
+		SYNTAX Unsigned32
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+			"Pour gs : mettre à 1 pour inhiber NTP"
+		::= { analogTags 20003 }
+
+		paramservntp OBJECT-TYPE
+		SYNTAX OCTET STRING
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+			"Analog Tag at Modbus Address 20005"
+		::= { analogTags 20005 }
+
+		dureetimererr OBJECT-TYPE
+		SYNTAX Integer32
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+			"Analog Tag at Modbus Address 20488"
+		::= { analogTags 20488 }
+
+		valtimererr OBJECT-TYPE
+		SYNTAX Integer32
+		MAX-ACCESS read-write
+		STATUS current
+		DESCRIPTION
+			"Analog Tag at Modbus Address 20490"
+		::= { analogTags 20490 }
+
+END

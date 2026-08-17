@@ -1,0 +1,453 @@
+TPLINK-USERSECURITY-MIB DEFINITIONS ::= BEGIN
+
+          IMPORTS
+			  TPRowStatus       	 
+  					FROM TPLINK-TC-MIB
+              OBJECT-TYPE,MODULE-IDENTITY,IpAddress
+          	  	         	FROM SNMPv2-SMI
+              tplinkMgmt	          
+          	  	          FROM TPLINK-MIB
+			  ifIndex 
+							FROM  RFC1213-MIB;
+  	  	
+  	  	MacAddress ::= OCTET STRING (SIZE (6))          	
+  	  	
+	      tplinkUserSecurity MODULE-IDENTITY  
+		    LAST-UPDATED    "2009070900Z"
+		    ORGANIZATION    "TPLINK"
+		    CONTACT-INFO    "www.tplink.com"
+		    DESCRIPTION
+		             "Implementation of the user security is mandatory for the
+					swtich."
+		    REVISION        "2009070900Z"
+		    DESCRIPTION
+				"Initial version of this MIB module."
+		    ::= { tplinkMgmt 41 }      	               
+          
+		   tplinkUserSecurityMIBObjects   OBJECT IDENTIFIER    ::=  {tplinkUserSecurity 1}
+		   tplinkUserSecurityMIBNotifications OBJECT IDENTIFIER ::=   {tplinkUserSecurity 2}
+          userSecurityUserAuth OBJECT IDENTIFIER ::= { tplinkUserSecurityMIBObjects 1}   
+          
+          userSecurityUserAuthType OBJECT-TYPE
+              SYNTAX INTEGER{
+	      		disable(0), 					
+	      		ip(1),
+	      		mac(2),
+	      		port(3)					
+	      	   }
+              MAX-ACCESS  read-only
+              STATUS  current
+              DESCRIPTION
+                      "disable(0), 					
+	      		ip(1),
+	      		mac(2),
+	      		port(3)
+	      		The mode of user authentication."
+              ::= { userSecurityUserAuth 1 }
+          
+         userSecurityUserAuthPort OBJECT IDENTIFIER ::= { userSecurityUserAuth 2 }
+         
+         userSecurityUserAuthPortEnable OBJECT-TYPE
+              SYNTAX  INTEGER{
+	      		disable(0), 					
+	      		enable(1)					
+	      		}
+              MAX-ACCESS  read-write
+              STATUS  current
+              DESCRIPTION
+                       "0. disable
+                      1.enable"
+              ::= { userSecurityUserAuthPort 1 }
+		 
+		  userSecurityUserAuthPortTable OBJECT-TYPE
+              SYNTAX  SEQUENCE OF USERSECURITYAUTHPORTENTRY
+              MAX-ACCESS  not-accessible
+              STATUS  current
+              DESCRIPTION
+                      "A list of Port."
+              ::= { userSecurityUserAuthPort 2 }
+		  
+		  userSecurityUserAuthPortEntry OBJECT-TYPE
+              SYNTAX  USERSECURITYAUTHPORTENTRY
+              MAX-ACCESS  not-accessible
+              STATUS  current
+              DESCRIPTION
+                      "An entry contains of the port for user authentication ."
+              INDEX   { userSecurityUserAuthIndex }
+              ::= { userSecurityUserAuthPortTable 1 }
+		  
+		  USERSECURITYAUTHPORTENTRY ::=
+           SEQUENCE {
+           	    userSecurityUserAuthPortIndex  	INTEGER,
+				userSecurityUserAuthPortAccessSnmp INTEGER,
+				userSecurityUserAuthPortAccessTelnet INTEGER,
+				userSecurityUserAuthPortAccessSsh INTEGER,
+				userSecurityUserAuthPortAccessHttp INTEGER,
+				userSecurityUserAuthPortAccessHttps INTEGER,
+				userSecurityUserAuthPortAccessPing INTEGER,
+                userSecurityUserAuthPortConf OCTET STRING (SIZE (0..255))                 
+          }	
+		  
+		  userSecurityUserAuthPortIndex OBJECT-TYPE
+              SYNTAX  INTEGER
+              MAX-ACCESS  read-only
+              STATUS  current
+              DESCRIPTION
+                      "Port entry ID"
+              ::= { userSecurityUserAuthPortEntry 1 }
+			  
+		  userSecurityUserAuthPortAccessSnmp OBJECT-TYPE
+              SYNTAX  INTEGER{
+	      		disable(0), 					
+	      		enable(1)					
+	      		}
+              MAX-ACCESS  read-write
+              STATUS  current
+              DESCRIPTION
+                      "0. disable -- SNMP frame sent to the switch will be accepted by default
+					  1. enable -- SNMP frame sent to the switch will be accepted only if it comes from the auth port(s)"
+              ::= { userSecurityUserAuthPortEntry 2 }
+			  
+			userSecurityUserAuthPortAccessTelnet OBJECT-TYPE
+              SYNTAX  INTEGER{
+	      		disable(0), 					
+	      		enable(1)					
+	      		}
+              MAX-ACCESS  read-write
+              STATUS  current
+              DESCRIPTION
+                      "0. disable -- Telnet frame sent to the switch will be accepted by default
+					  1. enable -- Telnet frame sent to the switch will be accepted only if it comes from the auth port(s)"
+              ::= { userSecurityUserAuthPortEntry 3 }
+			  
+			userSecurityUserAuthPortAccessSsh OBJECT-TYPE
+              SYNTAX  INTEGER{
+	      		disable(0), 					
+	      		enable(1)					
+	      		}
+              MAX-ACCESS  read-write
+              STATUS  current
+              DESCRIPTION
+                      "0. disable -- SSH frame sent to the switch will be accepted by default
+					  1. enable -- SSH frame sent to the switch will be accepted only if it comes from the auth port(s)"
+              ::= { userSecurityUserAuthPortEntry 4 }
+			  
+			userSecurityUserAuthPortAccessHttp OBJECT-TYPE
+              SYNTAX  INTEGER{
+	      		disable(0), 					
+	      		enable(1)					
+	      		}
+              MAX-ACCESS  read-write
+              STATUS  current
+              DESCRIPTION
+                      "0. disable -- HTTP frame sent to the switch will be accepted by default
+					  1. enable -- HTTP frame sent to the switch will be accepted only if it comes from the auth port(s)"
+              ::= { userSecurityUserAuthPortEntry 5 }
+			  
+			userSecurityUserAuthPortAccessHttps OBJECT-TYPE
+              SYNTAX  INTEGER{
+	      		disable(0), 					
+	      		enable(1)					
+	      		}
+              MAX-ACCESS  read-write
+              STATUS  current
+              DESCRIPTION
+                      "0. disable -- HTTPS frame sent to the switch will be accepted by default
+					  1. enable -- HTTPS frame sent to the switch will be accepted only if it comes from the auth port(s)"
+              ::= { userSecurityUserAuthPortEntry 6 }
+			  
+			userSecurityUserAuthPortAccessPing OBJECT-TYPE
+              SYNTAX  INTEGER{
+	      		disable(0), 					
+	      		enable(1)					
+	      		}
+              MAX-ACCESS  read-write
+              STATUS  current
+              DESCRIPTION
+                      "0. disable -- Ping request frame sent to the switch will be accepted by default
+					  1. enable -- Ping request frame sent to the switch will be accepted only if it comes from the auth port(s)"
+              ::= { userSecurityUserAuthPortEntry 7 }
+              
+         
+          userSecurityUserAuthPortConf OBJECT-TYPE
+              SYNTAX  OCTET STRING (SIZE (0..255))
+              MAX-ACCESS  read-write
+              STATUS  current
+              DESCRIPTION
+                      "A list of port."
+              ::= { userSecurityUserAuthPortEntry 8 }
+              
+          --IP     
+		  userSecurityUserAuthIp  OBJECT IDENTIFIER ::= { userSecurityUserAuth 3 }
+          
+          userSecurityUserAuthIpEnable OBJECT-TYPE
+              SYNTAX  INTEGER{
+	      		disable(0), 					
+	      		enable(1)					
+	      		}
+              MAX-ACCESS  read-write
+              STATUS  current
+              DESCRIPTION
+                       "0. disable
+                      1.enable"
+              ::= { userSecurityUserAuthIp 1 }
+          
+          userSecurityUserAuthIpTable OBJECT-TYPE
+              SYNTAX  SEQUENCE OF USERSECURITYAUTHIPENTRY
+              MAX-ACCESS  not-accessible
+              STATUS  current
+              DESCRIPTION
+                      "A list of IP."
+              ::= { userSecurityUserAuthIp 2 }
+          
+          userSecurityUserAuthIpEntry OBJECT-TYPE
+              SYNTAX  USERSECURITYAUTHIPENTRY
+              MAX-ACCESS  not-accessible
+              STATUS  current
+              DESCRIPTION
+                      "An entry contains of the IP for user authentication ."
+              INDEX   { userSecurityUserAuthIndex }
+              ::= { userSecurityUserAuthIpTable 1 }
+          
+          USERSECURITYAUTHIPENTRY ::=
+           SEQUENCE {
+           	  userSecurityUserAuthIpIndex  	INTEGER,
+				userSecurityUserAuthIpAccessSnmp INTEGER,
+				userSecurityUserAuthIpAccessTelnet INTEGER,
+				userSecurityUserAuthIpAccessSsh INTEGER,
+				userSecurityUserAuthIpAccessHttp INTEGER,
+				userSecurityUserAuthIpAccessHttps INTEGER,
+				userSecurityUserAuthIpAccessPing INTEGER,
+                  userSecurityUserAuthIpAddress IpAddress,                
+                      userSecurityUserAuthIpMask    IpAddress                      
+          }
+          
+          userSecurityUserAuthIpIndex OBJECT-TYPE
+              SYNTAX  INTEGER
+              MAX-ACCESS  read-only
+              STATUS  current
+              DESCRIPTION
+                      "IP entry ID"
+              ::= { userSecurityUserAuthIpEntry 1 }
+             
+		  userSecurityUserAuthIpAccessSnmp OBJECT-TYPE
+              SYNTAX  INTEGER{
+	      		disable(0), 					
+	      		enable(1)					
+	      		}
+              MAX-ACCESS  read-write
+              STATUS  current
+              DESCRIPTION
+                       "0. disable -- SNMP frame sent to the switch will be accepted by default
+                      1.enable -- SNMP frame sent to the switch will be accepted only if its source ip is in the same network segment with auth ip"
+              ::= { userSecurityUserAuthIpEntry 2 }
+			  
+		  userSecurityUserAuthIpAccessTelnet OBJECT-TYPE
+              SYNTAX  INTEGER{
+	      		disable(0), 					
+	      		enable(1)					
+	      		}
+              MAX-ACCESS  read-write
+              STATUS  current
+              DESCRIPTION
+                       "0. disable -- Telnet frame sent to the switch will be accepted by default
+                      1.enable -- Telnet frame sent to the switch will be accepted only if its source ip is in the same network segment with auth ip"
+              ::= { userSecurityUserAuthIpEntry 3 }
+			  
+		  userSecurityUserAuthIpAccessSsh OBJECT-TYPE
+              SYNTAX  INTEGER{
+	      		disable(0), 					
+	      		enable(1)					
+	      		}
+              MAX-ACCESS  read-write
+              STATUS  current
+              DESCRIPTION
+                       "0. disable -- SSH frame sent to the switch will be accepted by default
+                      1.enable -- SSH frame sent to the switch will be accepted only if its source ip is in the same network segment with auth ip"
+              ::= { userSecurityUserAuthIpEntry 4 }
+		
+		  userSecurityUserAuthIpAccessHttp OBJECT-TYPE
+              SYNTAX  INTEGER{
+	      		disable(0), 					
+	      		enable(1)					
+	      		}
+              MAX-ACCESS  read-write
+              STATUS  current
+              DESCRIPTION
+                       "0. disable -- HTTP frame sent to the switch will be accepted by default
+                      1.enable -- HTTP frame sent to the switch will be accepted only if its source ip is in the same network segment with auth ip"
+              ::= { userSecurityUserAuthIpEntry 5 }
+			  
+		  userSecurityUserAuthIpAccessHttps OBJECT-TYPE
+              SYNTAX  INTEGER{
+	      		disable(0), 					
+	      		enable(1)					
+	      		}
+              MAX-ACCESS  read-write
+              STATUS  current
+              DESCRIPTION
+                       "0. disable -- HTTPS frame sent to the switch will be accepted by default
+                      1.enable -- HTTPS frame sent to the switch will be accepted only if its source ip is in the same network segment with auth ip"
+              ::= { userSecurityUserAuthIpEntry 6 }
+			  
+		  userSecurityUserAuthIpAccessPing OBJECT-TYPE
+              SYNTAX  INTEGER{
+	      		disable(0), 					
+	      		enable(1)					
+	      		}
+              MAX-ACCESS  read-write
+              STATUS  current
+              DESCRIPTION
+                       "0. disable -- Ping request frame sent to the switch will be accepted by default
+                      1.enable -- Ping request frame sent to the switch will be accepted only if its source ip is in the same network segment with auth ip"
+              ::= { userSecurityUserAuthIpEntry 7 }
+                  
+          userSecurityUserAuthIpAddress OBJECT-TYPE
+              SYNTAX  IpAddress
+              MAX-ACCESS  read-write
+              STATUS  current
+              DESCRIPTION
+                      "the auth ip address.for example: 192.168.0.1"
+              ::= { userSecurityUserAuthIpEntry 8 }
+              
+          userSecurityUserAuthIpMask OBJECT-TYPE
+              SYNTAX  IpAddress
+              MAX-ACCESS  read-write
+              STATUS  current
+              DESCRIPTION
+                      "the subnet mask of the auth ip address.for example: 255.255.255.0"
+              ::= { userSecurityUserAuthIpEntry 9 }
+          
+          --MAC
+         userSecurityUserAuthMac  OBJECT IDENTIFIER ::= { userSecurityUserAuth 4 }
+              
+          userSecurityUserAuthMacEnable OBJECT-TYPE
+              SYNTAX  INTEGER{
+	      		disable(0), 					
+	      		enable(1)					
+	      		}
+              MAX-ACCESS  read-write
+              STATUS  current
+              DESCRIPTION
+                       "0. disable
+                      1.enable"
+              ::= { userSecurityUserAuthMac 1 }
+		  
+		  userSecurityUserAuthMacTable OBJECT-TYPE
+              SYNTAX  SEQUENCE OF USERSECURITYAUTHMACENTRY
+              MAX-ACCESS  not-accessible
+              STATUS  current
+              DESCRIPTION
+                      "A list of Mac."
+              ::= { userSecurityUserAuthMac 2 }
+			  
+		  userSecurityUserAuthMacEntry OBJECT-TYPE
+              SYNTAX  USERSECURITYAUTHMACENTRY
+              MAX-ACCESS  not-accessible
+              STATUS  current
+              DESCRIPTION
+                      "An entry contains of the Mac for user authentication ."
+              INDEX   { userSecurityUserAuthIndex }
+              ::= { userSecurityUserAuthMacTable 1 }
+			  
+		  USERSECURITYAUTHMACENTRY ::=
+           SEQUENCE {
+           	    userSecurityUserAuthMacIndex  	INTEGER,
+				userSecurityUserAuthMacAccessSnmp INTEGER,
+				userSecurityUserAuthMacAccessTelnet INTEGER,
+				userSecurityUserAuthMacAccessSsh INTEGER,
+				userSecurityUserAuthMacAccessHttp INTEGER,
+				userSecurityUserAuthMacAccessHttps INTEGER,
+				userSecurityUserAuthMacAccessPing INTEGER,
+                userSecurityUserAuthMacAddress OCTET STRING (SIZE (0..255))                 
+          }		  
+		  
+		  userSecurityUserAuthMacIndex OBJECT-TYPE
+              SYNTAX  INTEGER
+              MAX-ACCESS  read-only
+              STATUS  current
+              DESCRIPTION
+                      "Mac entry ID"
+              ::= { userSecurityUserAuthMacEntry 1 }
+             
+		  userSecurityUserAuthMacAccessSnmp OBJECT-TYPE
+              SYNTAX  INTEGER{
+	      		disable(0), 					
+	      		enable(1)					
+	      		}
+              MAX-ACCESS  read-write
+              STATUS  current
+              DESCRIPTION
+                       "0. disable -- SNMP frame sent to the switch will be accepted by default
+                      1.enable -- SNMP frame sent to the switch will be accepted only if its source mac is auth mac"
+              ::= { userSecurityUserAuthMacEntry 2 }
+			  
+		  userSecurityUserAuthMacAccessTelnet OBJECT-TYPE
+              SYNTAX  INTEGER{
+	      		disable(0), 					
+	      		enable(1)					
+	      		}
+              MAX-ACCESS  read-write
+              STATUS  current
+              DESCRIPTION
+                       "0. disable -- Telnet frame sent to the switch will be accepted by default
+                      1.enable -- Telnet frame sent to the switch will be accepted only if its source mac is auth mac"
+              ::= { userSecurityUserAuthMacEntry 3 }
+			  
+		  userSecurityUserAuthMacAccessSsh OBJECT-TYPE
+              SYNTAX  INTEGER{
+	      		disable(0), 					
+	      		enable(1)					
+	      		}
+              MAX-ACCESS  read-write
+              STATUS  current
+              DESCRIPTION
+                       "0. disable -- SSH frame sent to the switch will be accepted by default
+                      1.enable -- SSH frame sent to the switch will be accepted only if its source mac is auth mac"
+              ::= { userSecurityUserAuthMacEntry 4 }
+		
+		  userSecurityUserAuthMacAccessHttp OBJECT-TYPE
+              SYNTAX  INTEGER{
+	      		disable(0), 					
+	      		enable(1)					
+	      		}
+              MAX-ACCESS  read-write
+              STATUS  current
+              DESCRIPTION
+                       "0. disable -- HTTP frame sent to the switch will be accepted by default
+                      1.enable -- HTTP frame sent to the switch will be accepted only if its source mac is auth mac"
+              ::= { userSecurityUserAuthMacEntry 5 }
+			  
+		  userSecurityUserAuthMacAccessHttps OBJECT-TYPE
+              SYNTAX  INTEGER{
+	      		disable(0), 					
+	      		enable(1)					
+	      		}
+              MAX-ACCESS  read-write
+              STATUS  current
+              DESCRIPTION
+                       "0. disable -- HTTPS frame sent to the switch will be accepted by default
+                      1.enable -- HTTPS frame sent to the switch will be accepted only if its source mac is auth mac"
+              ::= { userSecurityUserAuthMacEntry 6 }
+			  
+		  userSecurityUserAuthMacAccessPing OBJECT-TYPE
+              SYNTAX  INTEGER{
+	      		disable(0), 					
+	      		enable(1)					
+	      		}
+              MAX-ACCESS  read-write
+              STATUS  current
+              DESCRIPTION
+                       "0. disable -- Ping request frame sent to the switch will be accepted by default
+                      1.enable -- Ping request frame sent to the switch will be accepted only if its source mac is auth mac"
+              ::= { userSecurityUserAuthMacEntry 7 }
+                  
+          userSecurityUserAuthMacAddress OBJECT-TYPE
+              SYNTAX  OCTET STRING (SIZE (0..255))
+              MAX-ACCESS  read-write
+              STATUS  current
+              DESCRIPTION
+                      "the auth mac"
+              ::= { userSecurityUserAuthMacEntry 8 }       
+            
+END	  	         

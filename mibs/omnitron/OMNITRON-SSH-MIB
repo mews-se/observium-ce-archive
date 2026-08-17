@@ -1,0 +1,263 @@
+OMNITRON-SSH-MIB DEFINITIONS ::= BEGIN
+
+IMPORTS
+    MODULE-IDENTITY, OBJECT-TYPE, Integer32, Unsigned32
+        FROM SNMPv2-SMI           -- RFC-2578
+    TruthValue
+        FROM SNMPv2-TC            -- RFC-2579
+    MODULE-COMPLIANCE, OBJECT-GROUP
+        FROM SNMPv2-CONF          -- RFC-2580
+    omnitron,  OstFingerprintString
+        FROM OMNITRON-TC-MIB;     -- Omnitron Textual Convention MIB
+
+omnitronSshMib MODULE-IDENTITY
+    LAST-UPDATED "201709071200Z"  -- September 7, 2017
+    ORGANIZATION "Omnitron Systems Technology, Inc."
+    CONTACT-INFO "Omnitron Systems Technology, Inc.
+                  38 Tesla
+                  Irvine, CA 92618-4670
+                  USA
+
+             Tel: (949) 250 6510
+             Fax: (949) 250 6514
+          E-mail: info@omnitron-systems.com
+   International: +1 949 250 6510
+
+                  Technical Support and Customer Service
+             Tel: (800) 675 8410
+          E-mail: support@omnitron-systems.com
+   International: +1 949 250 6510"
+
+    DESCRIPTION
+            "Omnitron SSH MIB for use with iConverter Management Modules v5.3
+             and NetOutlook.
+
+             Copyright 2017 Omnitron Systems Technology, Inc.
+             All rights reserved.
+            "
+
+    REVISION    "201709071200Z"  -- September 7, 2017
+    DESCRIPTION "Deprecated and removed ostSshUserCfgTable (part of OMNITRON-USER-MIB)
+                 Deprecated and removed ostSshUserStatusTable (part of OMNITRON-USER-MIB)
+                "
+                
+    REVISION    "201706271200Z"  -- June 27, 2017
+    DESCRIPTION "Deprecated ostSshGlobalCfgSessionLockout and 
+                   ostSshGlobalCfgSessionTimeout, replaced by User MIB objects 
+                "
+                
+    REVISION    "201702161200Z"  -- February 16, 2017
+    DESCRIPTION "Modified size syntax ostSshUserCfgFileName 
+                "
+                
+    REVISION    "201603171200Z"  -- March 17, 2016
+    DESCRIPTION "Initial version of v5.3 MIB.
+                   Added ostSshUserStatusIpAddressString
+                "
+    ::= { omnitron protocols(10) protocolobjects(1) 2 }
+
+
+--------------------------------------------------------------------------------
+-- Secure Shell (SSH) Global Configuration Table
+--------------------------------------------------------------------------------
+
+ostSshGlobalCfgTable  OBJECT IDENTIFIER ::= { omnitronSshMib 1 }
+
+ostSshGlobalCfgSshEnable OBJECT-TYPE
+    SYNTAX      TruthValue
+    MAX-ACCESS  read-write
+    STATUS      current
+    DESCRIPTION
+       "This object specifies whether the SSH function is enabled.
+
+        The value 'true' indicates that SSH is enabled.
+
+        The value 'false' indicates that SSH is disabled.
+       "
+    DEFVAL { true }
+    ::= { ostSshGlobalCfgTable 1 }
+
+ostSshGlobalCfgSftpEnable OBJECT-TYPE
+    SYNTAX      TruthValue
+    MAX-ACCESS  read-write
+    STATUS      current
+    DESCRIPTION
+       "This object specifies whether the SFTP function is enabled.
+
+        The value 'true' indicates that SFTP is enabled.
+
+        The value 'false' indicates that SFTP is disabled.
+       "
+    DEFVAL { true }
+    ::= { ostSshGlobalCfgTable 2 }
+
+ostSshGlobalCfgPasswordEnable OBJECT-TYPE
+    SYNTAX      TruthValue
+    MAX-ACCESS  read-write
+    STATUS      current
+    DESCRIPTION
+       "This object specifies whether plain text password entry is enabled.
+
+        The value 'true' indicates that plain text password entry is enabled.
+
+        The value 'false' indicates that plain text password entry is disabled.
+       "
+    DEFVAL { true }
+    ::= { ostSshGlobalCfgTable 3 }
+
+ostSshGlobalCfgDsaRsaEnable OBJECT-TYPE
+    SYNTAX      INTEGER {
+        dsa   (1),
+        rsa    (2),
+        dsaRsa (3)
+    }
+    MAX-ACCESS  read-write
+    STATUS      current
+    DESCRIPTION
+       "This object indicates which SSH key authentication is enabled.
+
+        dsa(1)         DSA key authentication is enabled
+        rsa(2)         RSA  key authentication is enabled
+        dsaRsa(3)      DSA & RSA  key authentication is enabled
+       "
+    DEFVAL { dsaRsa }
+    ::= { ostSshGlobalCfgTable 4 }
+
+ostSshGlobalCfgAuthenticationTimeout OBJECT-TYPE
+    SYNTAX      Integer32 (0..300)
+    MAX-ACCESS  read-write
+    STATUS      current
+    DESCRIPTION
+       "This object specifies the authentication timeout in seconds.
+
+        A value of 0 indicates there is no authentication timeout.
+       "
+    DEFVAL { 300 }
+    ::= { ostSshGlobalCfgTable 5 }
+
+ostSshGlobalCfgAuthenticationRetry OBJECT-TYPE
+    SYNTAX      Integer32 (1..5)
+    MAX-ACCESS  read-write
+    STATUS      current
+    DESCRIPTION
+       "This object specifies the authentication retries to attempt. Expired
+        retry counts are stopped for the particular SSH session.
+       "
+    DEFVAL { 3 }
+    ::= { ostSshGlobalCfgTable 6 }
+
+ostSshGlobalCfgSessionTimeout OBJECT-TYPE
+    SYNTAX      Integer32 (0..3600)
+    MAX-ACCESS  read-write
+    STATUS      current
+    DESCRIPTION
+       "This object has been deprecated and is not to be used. Setting this 
+        object has no effect.
+       "
+    DEFVAL { 300 }
+    ::= { ostSshGlobalCfgTable 7 }
+
+ostSshGlobalCfgSessionLockout OBJECT-TYPE
+    SYNTAX      Integer32 (1..300)
+    MAX-ACCESS  read-write
+    STATUS      current
+    DESCRIPTION
+       "This object has been deprecated and is not to be used. Setting this 
+        object has no effect.
+       "
+    DEFVAL { 300 }
+    ::= { ostSshGlobalCfgTable 8 }
+
+ostSshGlobalCfgTcpPortNumber OBJECT-TYPE
+    SYNTAX      Unsigned32 (1..65535)
+    MAX-ACCESS  read-write
+    STATUS      current
+    DESCRIPTION
+       "This object specifies the TCP port number to be used for the SSH
+        protocol.
+       "
+    DEFVAL { 22 }
+    ::= { ostSshGlobalCfgTable 9 }
+
+ostSshGlobalCfgGenerateKeys OBJECT-TYPE
+    SYNTAX      TruthValue
+    MAX-ACCESS  read-write
+    STATUS      current
+    DESCRIPTION
+       "This object is used to regenerate the public and private keys.
+
+        When written with a value of 'true' the public and private keys
+        for SSH are regenerated.
+
+        When read the value 'true' is returned when keys are being generated.
+
+        When read the value 'false' is returned when keys are valid and can
+        be used.
+       "
+    DEFVAL { false }
+    ::= { ostSshGlobalCfgTable 10 }
+
+
+ostSshGlobalCfgRsaFingerprint OBJECT-TYPE
+    SYNTAX      OstFingerprintString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+        "This object is the RSA fingerprint used during SSH authentication."
+    ::= { ostSshGlobalCfgTable 11 }
+
+ostSshGlobalCfgDsaFingerprint OBJECT-TYPE
+    SYNTAX      OstFingerprintString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+        "This object is the DSA fingerprint used during SSH authentication."
+    ::= { ostSshGlobalCfgTable 12 }
+
+
+--------------------------------------------------------------------------------
+-- Conformance Information
+--------------------------------------------------------------------------------
+ostSshCompliances       OBJECT IDENTIFIER ::= { omnitronSshMib 4 }
+ostSshGroups            OBJECT IDENTIFIER ::= { omnitronSshMib 5 }
+
+
+--------------------------------------------------------------------------------
+-- Omnitron SSH MIB Units of conformance
+--------------------------------------------------------------------------------
+ostSshGroup OBJECT-GROUP
+    OBJECTS {
+        ostSshGlobalCfgSshEnable,
+        ostSshGlobalCfgSftpEnable,
+        ostSshGlobalCfgPasswordEnable,
+        ostSshGlobalCfgDsaRsaEnable,
+        ostSshGlobalCfgAuthenticationTimeout,
+        ostSshGlobalCfgAuthenticationRetry,
+        ostSshGlobalCfgSessionTimeout,
+        ostSshGlobalCfgSessionLockout,
+        ostSshGlobalCfgTcpPortNumber,
+        ostSshGlobalCfgGenerateKeys,
+        ostSshGlobalCfgRsaFingerprint,
+        ostSshGlobalCfgDsaFingerprint
+    }
+    STATUS      current
+    DESCRIPTION
+       "Mandatory objects for the SSH functional group."
+    ::= { ostSshGroups 1 }
+
+
+--------------------------------------------------------------------------------
+-- Omnitron SSH MIB Compliance statements
+-------------------------------------------------------------------------------
+ostSshCompliance MODULE-COMPLIANCE
+    STATUS       current
+    DESCRIPTION "The compliance statement for the Omnitron Protocol MIB."
+    MODULE
+        MANDATORY-GROUPS {
+            ostSshGroup
+        }
+    ::= { ostSshCompliances 2 }
+
+
+END
+

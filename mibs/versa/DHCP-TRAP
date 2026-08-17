@@ -1,0 +1,67 @@
+--
+-- @Description: MIB for DHCP Traps
+-- @Date       : 2016-09-28
+--
+
+DHCP-TRAP DEFINITIONS ::= BEGIN
+IMPORTS
+    MODULE-IDENTITY, OBJECT-TYPE, NOTIFICATION-TYPE,
+    IpAddress, Integer32
+        FROM SNMPv2-SMI
+    alarmIndex, alarmType, alarmDevice, alarmObject,
+    alarmSpecificProblem, alarmEventType, alarmProbableCause,
+    alarmTime, alarmSeverity, alarmHasClear, alarmText,
+    tenantName, thresholdStatus, currentUtilization,
+    alarmClass
+        FROM TRAPS-COMMON
+    serviceNotification
+        FROM VERSA-MIB;
+
+dhcptrapMIB MODULE-IDENTITY
+    LAST-UPDATED "201807300000Z"
+    ORGANIZATION "Versa Networks"
+    CONTACT-INFO "
+        2953 Bunker Hill Lane, Suite 210
+        Santa Clara, CA - 95035 (USA)
+        Email: support@versa-networks.com"
+    DESCRIPTION  "Versa Networks' Enterprise MIB for DHCP traps"
+    ::= { serviceNotification 8 }
+
+
+-- Root Object
+dhcpEntities OBJECT IDENTIFIER ::= { dhcptrapMIB 1 }
+dhcpNotification OBJECT IDENTIFIER ::= { dhcptrapMIB 2 }
+
+dhcpServiceProfileName OBJECT-TYPE
+    SYNTAX      OCTET STRING
+    MAX-ACCESS  accessible-for-notify
+    STATUS      current
+    DESCRIPTION "Service Profile Name"
+        ::= { dhcpEntities 1 }
+
+dhcpPoolUtilization NOTIFICATION-TYPE
+    OBJECTS {
+        alarmType, alarmDevice, alarmObject,
+        alarmSpecificProblem, alarmClass, alarmEventType,
+        alarmProbableCause, alarmTime, alarmSeverity,
+        alarmHasClear, alarmText, tenantName,
+        thresholdStatus, dhcpServiceProfileName,
+        currentUtilization
+    }
+    STATUS  current
+    DESCRIPTION "Address pool utilization threshold notification"
+        ::= { dhcpNotification 1 }
+
+dhcpIpDeclined NOTIFICATION-TYPE
+    OBJECTS {
+        alarmType, alarmDevice, alarmObject,
+        alarmSpecificProblem, alarmClass, alarmEventType,
+        alarmTime, alarmSeverity,
+        alarmHasClear, alarmText, tenantName,
+        dhcpServiceProfileName
+    }
+    STATUS  current
+    DESCRIPTION "DHCP IP declined notification"
+        ::= { dhcpNotification 2 }
+
+END

@@ -1,0 +1,159 @@
+--
+-- @Description: MIB for Device Traps
+-- @Date       : 2015-04-08
+--
+
+DEVICE-TRAP DEFINITIONS ::= BEGIN
+IMPORTS
+    MODULE-IDENTITY, OBJECT-TYPE, NOTIFICATION-TYPE,
+    IpAddress
+        FROM SNMPv2-SMI
+    alarmIndex, alarmType, alarmDevice, alarmObject,
+    alarmSpecificProblem, alarmEventType, alarmProbableCause,
+    alarmTime, alarmSeverity, alarmHasClear, alarmText,
+    currentUtilization, thresholdStatus, alarmClass
+        FROM TRAPS-COMMON
+    systemNotification
+        FROM VERSA-MIB;
+
+devicetrapMIB MODULE-IDENTITY
+    LAST-UPDATED "201504080000Z"
+    ORGANIZATION "Versa Networks"
+    CONTACT-INFO "
+        2953 Bunker Hill Lane, Suite 210
+        Santa Clara, CA - 95035 (USA)
+        Email: support@versa-networks.com"
+    DESCRIPTION  "Versa Networks' Enterprise MIB for Device traps"
+    ::= { systemNotification 5 }
+
+
+-- Root Object
+deviceEntities OBJECT IDENTIFIER ::= { devicetrapMIB 1 }
+deviceNotification OBJECT IDENTIFIER ::= { devicetrapMIB 2 }
+
+deviceVSNId OBJECT-TYPE
+    SYNTAX      INTEGER
+    MAX-ACCESS  accessible-for-notify
+    STATUS      current
+    DESCRIPTION "VSN id"
+        ::= { deviceEntities 1 }
+
+deviceHostName OBJECT-TYPE
+    SYNTAX      OCTET STRING
+    MAX-ACCESS  accessible-for-notify
+    STATUS      current
+    DESCRIPTION "Device hostname"
+        ::= { deviceEntities 2 }
+
+deviceSiteName OBJECT-TYPE
+    SYNTAX      OCTET STRING
+    MAX-ACCESS  accessible-for-notify
+    STATUS      current
+    DESCRIPTION "SD-WAN Provider tenant site-name"
+        ::= { deviceEntities 3 }
+
+
+-- Traps
+
+deviceSessionExhausted NOTIFICATION-TYPE
+    OBJECTS {
+        alarmType,            alarmDevice, alarmObject,
+        alarmSpecificProblem, alarmClass,  alarmEventType,
+        alarmProbableCause,   alarmTime,   alarmSeverity,
+        alarmHasClear,        alarmText,   deviceVSNId
+    }
+    STATUS  deprecated
+    DESCRIPTION "Sessions exhausted notification"
+        ::= { deviceNotification 1 }
+
+deviceMemErrors NOTIFICATION-TYPE
+    OBJECTS {
+        alarmType,            alarmDevice, alarmObject,
+        alarmSpecificProblem, alarmClass,  alarmEventType,
+        alarmProbableCause,   alarmTime ,  alarmSeverity,
+        alarmHasClear,        alarmText
+    }
+    STATUS  current
+    DESCRIPTION "Memory (RAM) errors"
+        ::= { deviceNotification 2 }
+
+deviceDiskErrors NOTIFICATION-TYPE
+    OBJECTS {
+        alarmType,            alarmDevice, alarmObject,
+        alarmSpecificProblem, alarmClass,  alarmEventType,
+        alarmProbableCause,   alarmTime,   alarmSeverity,
+        alarmHasClear,        alarmText
+    }
+    STATUS  current
+    DESCRIPTION "Disk errors (Bad blocks)"
+        ::= { deviceNotification 3 }
+
+
+cpuUtilization NOTIFICATION-TYPE
+    OBJECTS {
+        alarmType,            alarmDevice,        alarmSpecificProblem,
+        alarmClass,           alarmProbableCause, alarmTime,
+        alarmSeverity,        alarmHasClear,      alarmText,
+        deviceHostName,       deviceSiteName,
+        currentUtilization,   thresholdStatus
+    }
+    STATUS  current
+    DESCRIPTION "CPU utilization alarm"
+        ::= { deviceNotification 4 }
+
+memoryUtilization NOTIFICATION-TYPE
+    OBJECTS {
+        alarmType,            alarmDevice,        alarmSpecificProblem,
+        alarmClass,           alarmProbableCause, alarmTime,
+        alarmSeverity,        alarmHasClear,      alarmText,
+        deviceHostName,       deviceSiteName,
+        currentUtilization,   thresholdStatus
+    }
+    STATUS  current
+    DESCRIPTION "Memory utilization alarm"
+        ::= { deviceNotification 5 }
+
+diskUtilization NOTIFICATION-TYPE
+    OBJECTS {
+        alarmType,            alarmDevice,        alarmSpecificProblem,
+        alarmClass,           alarmProbableCause, alarmTime,
+        alarmSeverity,        alarmHasClear,      alarmText,
+        currentUtilization,   thresholdStatus
+    }
+    STATUS  current
+    DESCRIPTION "Disk utilization alarm"
+        ::= { deviceNotification 6 }
+
+logDiskUtilization NOTIFICATION-TYPE
+    OBJECTS {
+        alarmType,            alarmDevice,        alarmSpecificProblem,
+        alarmClass,           alarmProbableCause, alarmTime,
+        alarmSeverity,        alarmHasClear,      alarmText,
+        currentUtilization,   thresholdStatus
+    }
+    STATUS  current
+    DESCRIPTION "Log disk utilization alarm"
+        ::= { deviceNotification 7 }
+
+powerSupplyStatus NOTIFICATION-TYPE
+    OBJECTS {
+        alarmType,            alarmDevice,        alarmSpecificProblem,
+        alarmClass,           alarmProbableCause, alarmTime,
+        alarmSeverity,        alarmHasClear,      alarmText
+    }
+    STATUS  current
+    DESCRIPTION "Power supply status alarm"
+        ::= { deviceNotification 8 }
+
+deviceSessionUtilization NOTIFICATION-TYPE
+    OBJECTS {
+        alarmType,            alarmDevice,        alarmSpecificProblem,
+            alarmClass,           alarmProbableCause, alarmTime,
+            alarmSeverity,        alarmHasClear,      alarmText,
+            currentUtilization,   thresholdStatus
+    }
+    STATUS  current
+        DESCRIPTION "Sessions utilization notification"
+                ::= { deviceNotification 9 }
+
+END

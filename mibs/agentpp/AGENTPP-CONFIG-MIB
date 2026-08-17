@@ -1,0 +1,403 @@
+AGENTPP-CONFIG-MIB DEFINITIONS ::= BEGIN
+
+IMPORTS
+	DisplayString,
+	RowStatus,
+	StorageType,
+	TEXTUAL-CONVENTION
+		FROM SNMPv2-TC
+	OBJECT-GROUP
+		FROM SNMPv2-CONF
+	agentppProducts
+		FROM AGENTPP-GLOBAL-REG
+	MODULE-IDENTITY,
+	OBJECT-TYPE,
+	Integer32,
+	TimeTicks
+		FROM SNMPv2-SMI
+	SnmpAdminString
+		FROM SNMP-FRAMEWORK-MIB;
+
+agentppCfgMIB MODULE-IDENTITY
+	LAST-UPDATED "200411110004Z"	-- Nov 11, 2004 12:04:00 AM
+	ORGANIZATION "AGENT++"
+	CONTACT-INFO
+		"Frank Fock
+		Email: fock@agentpp.com"
+	DESCRIPTION
+		"This module defines MIB objects for configuration
+		of AGENT++ agent features that cannot be configured
+		through standard MIB modules."
+	REVISION "200411110004Z"	-- Nov 11, 2004 12:04:00 AM
+	DESCRIPTION
+		"Revised descriptions of the agentppCfgStorage
+		objects as result of discussion on the AGENT++
+		mailing list."
+	REVISION "200410191900Z"	-- Oct 19, 2004 7:00:00 PM
+	DESCRIPTION
+		"Added objects for controlling the persistent
+		storage of an agent's configuration."
+	REVISION "200311302145Z"	-- Nov 30, 2003 9:45:00 PM
+	DESCRIPTION
+		"Initial version."
+	-- 1.3.6.1.4.1.4976.3.3
+	::= { agentppProducts 3 }
+
+
+AgentppLogLevel ::= TEXTUAL-CONVENTION
+	STATUS current
+	DESCRIPTION
+		"The AGENT++ log level is specified by an integer
+		value between 0 and 15, where 0 denotes the
+		highest priority. By setting the log level to zero
+		only those log message with level 0 will be logged.
+
+		If the level is set to 10, all messages with level 0
+		up to 10 (inclusive) will be logged."
+	SYNTAX Integer32 (0..15)
+
+
+-- Scalars and Tables
+--
+
+agentppCfgObjects OBJECT IDENTIFIER 
+	-- 1.3.6.1.4.1.4976.3.3.1
+	::= { agentppCfgMIB 1 }
+
+agentppCfgLogging OBJECT IDENTIFIER 
+	-- 1.3.6.1.4.1.4976.3.3.1.1
+	::= { agentppCfgObjects 1 }
+
+agentppCfgLogLevelError OBJECT-TYPE
+	SYNTAX  AgentppLogLevel
+	MAX-ACCESS read-write
+	STATUS current
+	DESCRIPTION
+		"The the log level for log messages of the type
+		ERROR."
+	-- 1.3.6.1.4.1.4976.3.3.1.1.1
+	::= { agentppCfgLogging 1 }
+
+
+agentppCfgLogLevelWarning OBJECT-TYPE
+	SYNTAX  AgentppLogLevel
+	MAX-ACCESS read-write
+	STATUS current
+	DESCRIPTION
+		"The the log level for log messages of the type
+		WARNING."
+	-- 1.3.6.1.4.1.4976.3.3.1.1.2
+	::= { agentppCfgLogging 2 }
+
+
+agentppCfgLogLevelEvent OBJECT-TYPE
+	SYNTAX  AgentppLogLevel
+	MAX-ACCESS read-write
+	STATUS current
+	DESCRIPTION
+		"The the log level for log messages of the type
+		EVENT."
+	-- 1.3.6.1.4.1.4976.3.3.1.1.3
+	::= { agentppCfgLogging 3 }
+
+
+agentppCfgLogLevelInfo OBJECT-TYPE
+	SYNTAX  AgentppLogLevel
+	MAX-ACCESS read-write
+	STATUS current
+	DESCRIPTION
+		"The the log level for log messages of the type
+		INFO."
+	-- 1.3.6.1.4.1.4976.3.3.1.1.4
+	::= { agentppCfgLogging 4 }
+
+
+agentppCfgLogLevelDebug OBJECT-TYPE
+	SYNTAX  AgentppLogLevel
+	MAX-ACCESS read-write
+	STATUS current
+	DESCRIPTION
+		"The the log level for log messages of the type
+		DEBUG."
+	-- 1.3.6.1.4.1.4976.3.3.1.1.5
+	::= { agentppCfgLogging 5 }
+
+
+agentppCfgSecurity OBJECT IDENTIFIER 
+	-- 1.3.6.1.4.1.4976.3.3.1.2
+	::= { agentppCfgObjects 2 }
+
+agentppCfgSecSrcAddrValidation OBJECT-TYPE
+	SYNTAX  INTEGER {
+			enabled(1),
+			disabled(2),
+			notAvailable(3) }
+	MAX-ACCESS read-write
+	STATUS current
+	DESCRIPTION
+		"Specifies whether SNMPv1/v2c source address
+		validation via the snmpTargetAddrExtTable and
+		the snmpCommunityTable is enabled or disabled.
+
+		If the value of this object is notAvailable(3), then at
+		least one of the necessary MIB modules are not
+		implemented for this agent instance and an attempt
+		to set this object's value to enabled(1) or disabled(2)
+		will result in a wrongValue error."
+	-- 1.3.6.1.4.1.4976.3.3.1.2.1
+	::= { agentppCfgSecurity 1 }
+
+
+agentppCfgStorage OBJECT IDENTIFIER 
+	-- 1.3.6.1.4.1.4976.3.3.1.3
+	::= { agentppCfgObjects 3 }
+
+agentppCfgStorageTable OBJECT-TYPE
+	SYNTAX  SEQUENCE OF AgentppCfgStorageEntry
+	MAX-ACCESS not-accessible
+	STATUS current
+	DESCRIPTION
+		"A table containing a list of AGENT++ persistent
+		storage configurations. By default this table contains
+		a single row with an agentppCfgStorageName of
+		'primary' that represents the persistent storage
+		configuration used to load the agent's configuration
+		at boot time. This entry will have a storage type of
+		'permanent' and thus it cannot be deleted.
+
+		Other entries may be added to provide for
+		experimental or backup storage."
+	-- 1.3.6.1.4.1.4976.3.3.1.3.1
+	::= { agentppCfgStorage 1 }
+
+
+agentppCfgStorageEntry OBJECT-TYPE
+	SYNTAX  AgentppCfgStorageEntry
+	MAX-ACCESS not-accessible
+	STATUS current
+	DESCRIPTION
+		"A row specifying the location and storage format
+		of an AGENT++ agent configuration."
+	INDEX {
+		agentppCfgStorageName }
+	-- 1.3.6.1.4.1.4976.3.3.1.3.1.1
+	::= { agentppCfgStorageTable 1 }
+
+
+AgentppCfgStorageEntry ::= SEQUENCE {
+
+	agentppCfgStorageName        SnmpAdminString,
+	agentppCfgStoragePath        DisplayString,
+	agentppCfgStorageFormat      INTEGER,
+	agentppCfgStorageLastStore   TimeTicks,
+	agentppCfgStorageLastRestore TimeTicks,
+	agentppCfgStorageOperation   INTEGER,
+	agentppCfgStorageStorageType StorageType,
+	agentppCfgStorageStatus      RowStatus }
+
+
+agentppCfgStorageName OBJECT-TYPE
+	SYNTAX  SnmpAdminString
+	MAX-ACCESS not-accessible
+	STATUS current
+	DESCRIPTION
+		"The name of the configuration storage entry.
+		A default AGENT++ agent implementation will
+		always contain an entry (row) with the name
+		'primary'. The 'primary' entry specifies the storage
+		from which the agent reads its configuration after
+		a restart.
+		the"
+	-- 1.3.6.1.4.1.4976.3.3.1.3.1.1.1
+	::= { agentppCfgStorageEntry 1 }
+
+
+agentppCfgStoragePath OBJECT-TYPE
+	SYNTAX  DisplayString
+	MAX-ACCESS read-create
+	STATUS current
+	DESCRIPTION
+		"The path to the configuration on the agent's file
+		system. Depending on the persistent storage type,
+		the path can be a directory or a file.
+
+		If the path is a directory, the last character of the
+		path has to be the file separation character (on 
+		UNIX '/') of the platform the agent is running on."
+	-- 1.3.6.1.4.1.4976.3.3.1.3.1.1.2
+	::= { agentppCfgStorageEntry 2 }
+
+
+agentppCfgStorageFormat OBJECT-TYPE
+	SYNTAX  INTEGER {
+			agentppBER(1) 	-- Default format
+			}
+	MAX-ACCESS read-create
+	STATUS current
+	DESCRIPTION
+		"The storage format specifies the format of the persistent
+		configuration storage associated with this row.
+		Currently only AGENT++'s BER encoded MIB object
+		serialization 'agentppBER(1)' is supported."
+	DEFVAL { agentppBER }
+	-- 1.3.6.1.4.1.4976.3.3.1.3.1.1.3
+	::= { agentppCfgStorageEntry 3 }
+
+
+agentppCfgStorageLastStore OBJECT-TYPE
+	SYNTAX  TimeTicks
+	MAX-ACCESS read-only
+	STATUS current
+	DESCRIPTION
+		"The time stamp of the last store operation on the
+		configuration persistent storage represented by
+		this entry. A zero value is returned when this
+		configuration have not been written since the last
+		agent restart.
+
+		This object will be reset to 0 if agentppCfgStoragePath
+		is altered for this row."
+	DEFVAL { 0 }
+	-- 1.3.6.1.4.1.4976.3.3.1.3.1.1.4
+	::= { agentppCfgStorageEntry 4 }
+
+
+agentppCfgStorageLastRestore OBJECT-TYPE
+	SYNTAX  TimeTicks
+	MAX-ACCESS read-only
+	STATUS current
+	DESCRIPTION
+		"The time stamp when the configuration of this
+		persistent storage has been restored for the last time.
+		A zero value is returned, when this configuration has not
+		been read since the last restart of the agent.
+
+		This object will be reset to 0 if agentppCfgStoragePath
+		is altered for this row."
+	DEFVAL { 0 }
+	-- 1.3.6.1.4.1.4976.3.3.1.3.1.1.5
+	::= { agentppCfgStorageEntry 5 }
+
+
+agentppCfgStorageOperation OBJECT-TYPE
+	SYNTAX  INTEGER {
+			idle(1),       	-- no action
+			inProgress(2), 	-- (re)store operation in progress
+			store(3),      	-- store current configuration
+			restore(4)    	-- restore configuration
+			}
+	MAX-ACCESS read-create
+	STATUS current
+	DESCRIPTION
+		"The states 'idle(1)' and 'inProgress(2)'  can only be
+		read, whereas the states 'store(3)' and 'restore(4)' can
+		only be written.
+
+		Setting this object to 'store(3)' will save the agent's
+		configuration to the location identified by
+		agentppCfgStoragePath. Setting this object to
+		'restore(4)' resets the agent to the configuration
+		read from location agentppCfgStoragePath.
+		While the two operations above are in progress,
+		this object returns 'inProgress(2)' on get requests.
+		Otherwise 'idle(1)' is returned on get requests.
+
+		While its state is 'inProgress' any set request returns
+		a 'resourceUnavailable(13)' error."
+	DEFVAL { idle }
+	-- 1.3.6.1.4.1.4976.3.3.1.3.1.1.6
+	::= { agentppCfgStorageEntry 6 }
+
+
+agentppCfgStorageStorageType OBJECT-TYPE
+	SYNTAX  StorageType
+	MAX-ACCESS read-create
+	STATUS current
+	DESCRIPTION
+		"The storage type of the entry in the AGENT++ persistent
+		storage table."
+	DEFVAL { nonVolatile }
+	-- 1.3.6.1.4.1.4976.3.3.1.3.1.1.7
+	::= { agentppCfgStorageEntry 7 }
+
+
+agentppCfgStorageStatus OBJECT-TYPE
+	SYNTAX  RowStatus
+	MAX-ACCESS read-create
+	STATUS current
+	DESCRIPTION
+		"Control for creating and deleting entries.  Entries may
+		not be modified while active."
+	-- 1.3.6.1.4.1.4976.3.3.1.3.1.1.8
+	::= { agentppCfgStorageEntry 8 }
+
+
+-- Notification Types
+--
+
+agentppCfgEvents OBJECT IDENTIFIER 
+	-- 1.3.6.1.4.1.4976.3.3.2
+	::= { agentppCfgMIB 2 }
+
+-- Conformance
+--
+
+agentppCfgConf OBJECT IDENTIFIER 
+	-- 1.3.6.1.4.1.4976.3.3.3
+	::= { agentppCfgMIB 3 }
+
+-- Groups
+--
+
+agentppCfgGroups OBJECT IDENTIFIER 
+	-- 1.3.6.1.4.1.4976.3.3.3.1
+	::= { agentppCfgConf 1 }
+
+-- Compliance
+--
+
+agentppCfgCompls OBJECT IDENTIFIER 
+	-- 1.3.6.1.4.1.4976.3.3.3.2
+	::= { agentppCfgConf 2 }
+
+agentppCfgBasicGroupLogging OBJECT-GROUP
+	OBJECTS {
+		agentppCfgLogLevelError,
+		agentppCfgLogLevelWarning,
+		agentppCfgLogLevelEvent,
+		agentppCfgLogLevelInfo,
+		agentppCfgLogLevelDebug,
+		agentppCfgSecSrcAddrValidation }
+	STATUS current
+	DESCRIPTION
+		"Basic objects for log configuration."
+	-- 1.3.6.1.4.1.4976.3.3.3.1.1
+	::= { agentppCfgGroups 1 }
+
+agentppCfgBasicGroupSecurity OBJECT-GROUP
+	OBJECTS {
+		agentppCfgSecSrcAddrValidation }
+	STATUS current
+	DESCRIPTION
+		"This group specifies basic objects for security
+		configuration."
+	-- 1.3.6.1.4.1.4976.3.3.3.1.2
+	::= { agentppCfgGroups 2 }
+
+agentppCfgBasicGroupStorage OBJECT-GROUP
+	OBJECTS {
+		agentppCfgStorageFormat,
+		agentppCfgStorageLastRestore,
+		agentppCfgStorageLastStore,
+		agentppCfgStorageOperation,
+		agentppCfgStoragePath,
+		agentppCfgStorageStatus,
+		agentppCfgStorageStorageType }
+	STATUS current
+	DESCRIPTION
+		"Basic objects for agents that implement persistent
+		storage.for the agent configuration."
+	-- 1.3.6.1.4.1.4976.3.3.3.1.3
+	::= { agentppCfgGroups 3 }
+
+END

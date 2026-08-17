@@ -1,0 +1,130 @@
+SNAT-MIB DEFINITIONS ::= BEGIN
+IMPORTS
+    MODULE-IDENTITY, OBJECT-TYPE,
+    Integer32, Unsigned32, Counter32, Counter64,
+    Gauge32, IpAddress
+        FROM SNMPv2-SMI
+    TEXTUAL-CONVENTION, RowStatus, DateAndTime,
+    TruthValue
+        FROM SNMPv2-TC
+    orgServices
+        FROM VERSA-MIB
+;
+
+snat MODULE-IDENTITY
+    LAST-UPDATED "201602040000Z"
+    ORGANIZATION "Versa Networks"
+    CONTACT-INFO "
+        2953 Bunker Hill Lane, Suite 210
+        Santa Clara, CA - 95035 (USA)
+        Email: support@versa-networks.com"
+    DESCRIPTION "Enterprise MIB for Versa Networks'
+Application Delivery Controller solution"
+    REVISION "201602040000Z"
+    DESCRIPTION "Initial revision"
+    ::= { orgServices 12 }
+
+ConfdString ::= TEXTUAL-CONVENTION
+    DISPLAY-HINT "1t"
+    STATUS      current
+    DESCRIPTION "xs: and confd: types mapped to strings"
+    SYNTAX      OCTET STRING
+
+String ::= TEXTUAL-CONVENTION
+    DISPLAY-HINT "1t"
+    STATUS      current
+    DESCRIPTION "xs:string"
+    SYNTAX      OCTET STRING
+
+snatPoolTable OBJECT-TYPE
+    SYNTAX      SEQUENCE OF SnatPoolEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "Display information about a pool"
+    ::= { snat 1 }
+
+snatPoolEntry OBJECT-TYPE
+    SYNTAX      SnatPoolEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION ""
+    INDEX { snatPoolOrgId, snatPoolId }
+        ::= { snatPoolTable 1 }
+
+SnatPoolEntry ::=
+    SEQUENCE {
+        snatPoolOrgId Unsigned32,
+        snatPoolId Unsigned32,
+        snatPoolOrgName String,
+        snatPoolName String,
+        snatIpAllocSuccessCount ConfdString,
+        snatIpAllocFailCount ConfdString,
+        snatIpReleaseCount ConfdString,
+        snatGenIdMismatch ConfdString,
+        snatIpInUse ConfdString
+    }
+
+snatPoolOrgId OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "Organization id"
+    ::= { snatPoolEntry 1 }
+
+snatPoolId OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "SNAT pool id"
+    ::= { snatPoolEntry 2 }
+
+snatPoolOrgName OBJECT-TYPE
+    SYNTAX      String
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Organization name"
+    ::= { snatPoolEntry 3 }
+
+snatPoolName OBJECT-TYPE
+    SYNTAX      String
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "SNAT pool name"
+    ::= { snatPoolEntry 4 }
+
+snatIpAllocSuccessCount OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Number of Pool IP Allocated"
+    ::= { snatPoolEntry 5 }
+
+snatIpAllocFailCount OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Number of Pool IP Allocation Failed"
+    ::= { snatPoolEntry 6 }
+
+snatIpReleaseCount OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Number of IP Released"
+    ::= { snatPoolEntry 7 }
+
+snatGenIdMismatch OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Number of genId mismatched during free"
+    ::= { snatPoolEntry 8 }
+
+snatIpInUse OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Number of SNAT IP/port in use"
+    ::= { snatPoolEntry 9 }
+
+END

@@ -1,0 +1,185 @@
+--
+-- Sonus Networks, Inc.
+--
+-- The Sonus Common Textural Conventions MIB
+--
+
+    SONUS-COMMON-TC DEFINITIONS ::= BEGIN
+
+    IMPORTS
+    	MODULE-IDENTITY,  Unsigned32
+    		FROM SNMPv2-SMI
+    	TEXTUAL-CONVENTION
+    		FROM SNMPv2-TC
+    	sonusCommonSoftwarePlatformServicesMIBs 
+    		FROM SONUS-SMI;
+
+
+    sonusCommonTextualConventions MODULE-IDENTITY
+    	LAST-UPDATED "202003090000Z"
+    	ORGANIZATION	"Sonus Networks, Inc."
+    	CONTACT-INFO
+        "   Customer Support    
+            Sonus Networks, Inc.
+            4 Technology Park Drive
+            Westford, MA 01886
+            USA
+
+            Tel: 978-614-8100
+            Fax: 978-614-8609"
+    	DESCRIPTION
+    		"This module defines textual conventions used throughout
+    		sonus enterprise mibs."
+    	::= { sonusCommonSoftwarePlatformServicesMIBs 2 }
+
+	SonusAlarmLevel ::= TEXTUAL-CONVENTION
+        STATUS          current
+        DESCRIPTION
+                "The severity level of events."
+        SYNTAX	INTEGER {
+							critical(1),
+							major(2),
+							minor(3),
+							info(4)
+				}
+
+	SonusAlarmFilterLevel ::= TEXTUAL-CONVENTION
+        STATUS          current
+        DESCRIPTION
+                "The filter severity level of events."
+        SYNTAX	INTEGER {
+							noevents(0),
+							critical(1),
+							major(2),
+							minor(3),
+							info(4)
+				}
+
+    SonusName ::= TEXTUAL-CONVENTION
+		DISPLAY-HINT "255a"
+        STATUS current
+        DESCRIPTION
+                "This data type is used to model textual information taken
+                from the NVT ASCII character set.  The SonusName type is used
+                to label Sonus Named objects."
+        SYNTAX OCTET STRING(SIZE (1..23))
+
+    SonusNameReference ::= TEXTUAL-CONVENTION
+		DISPLAY-HINT "255a"
+        STATUS current
+        DESCRIPTION
+                "This data type is used to model textual information taken
+                from the NVT ASCII character set.  The SonusNameReference
+                type is used to refer to Sonus Named objects."
+        SYNTAX OCTET STRING(SIZE (0..23))
+
+ 
+    SonusServiceState   ::= TEXTUAL-CONVENTION
+        STATUS          current
+        DESCRIPTION
+                        "The service state of a resource."
+        SYNTAX          INTEGER {
+	                        outOfService(1),
+	                        inService(2)
+                        }
+
+    SonusAdminState     ::= TEXTUAL-CONVENTION
+        STATUS          current
+        DESCRIPTION
+                        "The administrative state of a resource."
+        SYNTAX          INTEGER {
+	                        disabled(1),
+	                        enabled(2)
+                        }
+
+    SonusAdminAction    ::= TEXTUAL-CONVENTION
+        STATUS          current
+        DESCRIPTION
+                        "The action assignment of a resource."
+        SYNTAX          INTEGER {
+	                        dryUp(1),
+	                        force(2)
+                        }
+
+    SonusSoftwareVersion ::= TEXTUAL-CONVENTION
+		DISPLAY-HINT "1d.1d.1d.1d.2d"
+        STATUS current
+        DESCRIPTION
+				"Octet string that identifies the version of the runtime
+				 software application:
+
+				 Byte(s)  Code
+				 -------  ----
+				 0        major version
+				 1        minor version
+				 2        release version
+				 3        type (1:alpha, 2:beta, 3:release, 4:special)
+				 4-5      type build number"
+        SYNTAX OCTET STRING(SIZE (6))
+
+
+    SonusGMTTime ::= TEXTUAL-CONVENTION
+		DISPLAY-HINT "1d:1d:1d.1d"
+        STATUS current
+        DESCRIPTION
+                "The pure GMT time specification ( without YY-MM-DD ) 
+                 for daily reoccurring events.
+
+                 field  octets  contents                  range
+                 -----  ------  --------                  -----
+                   1       1    hour                      0..23
+                   2       2    minutes                   0..59
+                   3       3    seconds                   0..60
+                                (use 60 for leap-second)
+                   4       4    deci-seconds              0..9
+                " 
+        SYNTAX OCTET STRING(SIZE (4))
+
+--
+-- Sonus Call Accounting Record Types
+--
+    SonusAcctRecordType ::= TEXTUAL-CONVENTION
+        STATUS current
+        DESCRIPTION
+            "Represents the different types of call accounting records
+             that are available in Sonus Products."
+        SYNTAX      INTEGER {
+                            start(1),
+                            stop(2),
+                            attempt(3),
+                            intermediate(4),
+                            reboot(5),
+                            switchover(6)
+                            }
+
+    SonusIpAddress ::= TEXTUAL-CONVENTION
+        STATUS          current
+        DESCRIPTION
+                "The IPv6 address."
+        SYNTAX OCTET STRING(SIZE (16))
+
+    SonusIpPrefix ::= TEXTUAL-CONVENTION
+        STATUS          current
+        DESCRIPTION
+                "The prefix of IP address."
+        SYNTAX  Unsigned32 (0..128)
+
+    SonusIpPort ::= TEXTUAL-CONVENTION
+        STATUS          current
+        DESCRIPTION
+                "The index for a Sonus shelf."
+        SYNTAX  Unsigned32 (0..65535)
+
+    SonusShelfIndex ::= TEXTUAL-CONVENTION
+        STATUS          current
+        DESCRIPTION
+                "The index for a Sonus shelf."
+        SYNTAX	INTEGER (1..6)
+
+	SonusSlotIndex ::= TEXTUAL-CONVENTION
+        STATUS          current
+        DESCRIPTION
+                "The index for a Sonus slot."
+        SYNTAX	INTEGER (1..18)
+
+END

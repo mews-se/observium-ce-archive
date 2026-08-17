@@ -1,0 +1,1219 @@
+VFP-MIB DEFINITIONS ::= BEGIN
+IMPORTS
+    MODULE-IDENTITY, OBJECT-TYPE,
+    Integer32, Unsigned32, Counter32, Counter64,
+    Gauge32, IpAddress
+        FROM SNMPv2-SMI
+    TEXTUAL-CONVENTION, RowStatus, DateAndTime,
+    TruthValue
+        FROM SNMPv2-TC
+    orgServices
+        FROM VERSA-MIB
+;
+
+vfp MODULE-IDENTITY
+    LAST-UPDATED "201602040000Z"
+    ORGANIZATION "Versa Networks"
+    CONTACT-INFO "
+        2953 Bunker Hill Lane, Suite 210
+        Santa Clara, CA - 95035 (USA)
+        Email: support@versa-networks.com"
+    DESCRIPTION "Enterprise MIB for Versa Networks'
+Application Delivery Controller solution"
+    REVISION "201602040000Z"
+    DESCRIPTION "Initial revision"
+    ::= { orgServices 11 }
+
+UnsignedShort ::= TEXTUAL-CONVENTION
+    DISPLAY-HINT "d"
+    STATUS      current
+    DESCRIPTION "xs:unsignedShort"
+    SYNTAX      Unsigned32 (0 .. 65535)
+
+ConfdString ::= TEXTUAL-CONVENTION
+    DISPLAY-HINT "1t"
+    STATUS      current
+    DESCRIPTION "xs: and confd: types mapped to strings"
+    SYNTAX      OCTET STRING
+
+String ::= TEXTUAL-CONVENTION
+    DISPLAY-HINT "1t"
+    STATUS      current
+    DESCRIPTION "xs:string"
+    SYNTAX      OCTET STRING
+
+vfpProfileTable OBJECT-TYPE
+    SYNTAX      SEQUENCE OF VfpProfileEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "Display information about a profile"
+    ::= { vfp 1 }
+
+vfpProfileEntry OBJECT-TYPE
+    SYNTAX      VfpProfileEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION ""
+    INDEX { vfpProfileOrgId, vfpProfileId }
+        ::= { vfpProfileTable 1 }
+
+VfpProfileEntry ::=
+    SEQUENCE {
+        vfpProfileOrgId Unsigned32,
+        vfpProfileId Unsigned32,
+        vfpProfileOrgName String,
+        vfpProfileName String,
+        vfpProfileSessSuccess ConfdString,
+        vfpProfileSessDelete ConfdString,
+        vfpProfileMemoryFail ConfdString,
+        vfpProfileLportFail ConfdString,
+        vfpProfileSrvConnectFail ConfdString,
+        vfpProfileNatflowInstallFail ConfdString,
+        vfpSessResetConn ConfdString,
+        vfpProfileInvalidDomainName ConfdString,
+        vfpProfileIgnoredAlreadyNatted ConfdString,
+        vfpProfileDnsLookupFail ConfdString,
+        vfpProfileBlockOnDns ConfdString,
+        vfpProfileResumedDnsDone ConfdString,
+        vfpProfileDnsLookupCancelled ConfdString,
+        vfpProfileProxyChainNoMatch ConfdString,
+        vfpProfileBlockOnFqdn ConfdString,
+        vfpProfileResumedFqdnDone ConfdString,
+        vfpProfileFqdnLookupCancelled ConfdString,
+        vfpProfileAuthRedirectSuccess ConfdString,
+        vfpProfileAuthRedirectFail ConfdString,
+        vfpProfileProxyChainMatch ConfdString,
+        vfpProfileLocalBreakoutMatch ConfdString,
+        vfpProfileSentBytes ConfdString,
+        vfpProfileReceivedBytes ConfdString,
+        vfpProfileSentPackets ConfdString,
+        vfpProfileReceivedPackets ConfdString,
+        vfpProfilePbfHonoredCnt ConfdString,
+        vfpProfileDnsNexthopReceived ConfdString,
+        vfpProfileReqNexthopSnat ConfdString,
+        vfpHttpMethodConnect ConfdString,
+        vfpHttpMethodDelete ConfdString,
+        vfpHttpMethodGet ConfdString,
+        vfpHttpMethodHead ConfdString,
+        vfpHttpMethodPost ConfdString,
+        vfpHttpMethodPut ConfdString,
+        vfpHttpMethodUnknown ConfdString,
+        vfpHttpVersion0-9 ConfdString,
+        vfpHttpVersion1-0 ConfdString,
+        vfpHttpVersion1-1 ConfdString,
+        vfpHttpVersion1-2 ConfdString,
+        vfpHttpVersion2-0 ConfdString,
+        vfpHttpVersionUnknown ConfdString,
+        vfpHttpResponse100 ConfdString,
+        vfpHttpResponse101 ConfdString,
+        vfpHttpResponse102 ConfdString,
+        vfpHttpResponse200 ConfdString,
+        vfpHttpResponse201 ConfdString,
+        vfpHttpResponse202 ConfdString,
+        vfpHttpResponse203 ConfdString,
+        vfpHttpResponse204 ConfdString,
+        vfpHttpResponse205 ConfdString,
+        vfpHttpResponse206 ConfdString,
+        vfpHttpResponse207 ConfdString,
+        vfpHttpResponse208 ConfdString,
+        vfpHttpResponse226 ConfdString,
+        vfpHttpResponse300 ConfdString,
+        vfpHttpResponse301 ConfdString,
+        vfpHttpResponse302 ConfdString,
+        vfpHttpResponse303 ConfdString,
+        vfpHttpResponse304 ConfdString,
+        vfpHttpResponse305 ConfdString,
+        vfpHttpResponse306 ConfdString,
+        vfpHttpResponse307 ConfdString,
+        vfpHttpResponse308 ConfdString,
+        vfpHttpResponse400 ConfdString,
+        vfpHttpResponse401 ConfdString,
+        vfpHttpResponse402 ConfdString,
+        vfpHttpResponse403 ConfdString,
+        vfpHttpResponse404 ConfdString,
+        vfpHttpResponse405 ConfdString,
+        vfpHttpResponse406 ConfdString,
+        vfpHttpResponse407 ConfdString,
+        vfpHttpResponse408 ConfdString,
+        vfpHttpResponse409 ConfdString,
+        vfpHttpResponse410 ConfdString,
+        vfpHttpResponse411 ConfdString,
+        vfpHttpResponse412 ConfdString,
+        vfpHttpResponse413 ConfdString,
+        vfpHttpResponse414 ConfdString,
+        vfpHttpResponse415 ConfdString,
+        vfpHttpResponse416 ConfdString,
+        vfpHttpResponse417 ConfdString,
+        vfpHttpResponse418 ConfdString,
+        vfpHttpResponse419 ConfdString,
+        vfpHttpResponse420 ConfdString,
+        vfpHttpResponse422 ConfdString,
+        vfpHttpResponse423 ConfdString,
+        vfpHttpResponse424 ConfdString,
+        vfpHttpResponse425 ConfdString,
+        vfpHttpResponse426 ConfdString,
+        vfpHttpResponse428 ConfdString,
+        vfpHttpResponse429 ConfdString,
+        vfpHttpResponse431 ConfdString,
+        vfpHttpResponse440 ConfdString,
+        vfpHttpResponse444 ConfdString,
+        vfpHttpResponse449 ConfdString,
+        vfpHttpResponse450 ConfdString,
+        vfpHttpResponse451 ConfdString,
+        vfpHttpResponse494 ConfdString,
+        vfpHttpResponse495 ConfdString,
+        vfpHttpResponse496 ConfdString,
+        vfpHttpResponse497 ConfdString,
+        vfpHttpResponse499 ConfdString,
+        vfpHttpResponse500 ConfdString,
+        vfpHttpResponse501 ConfdString,
+        vfpHttpResponse502 ConfdString,
+        vfpHttpResponse503 ConfdString,
+        vfpHttpResponse504 ConfdString,
+        vfpHttpResponse505 ConfdString,
+        vfpHttpResponse506 ConfdString,
+        vfpHttpResponse507 ConfdString,
+        vfpHttpResponse508 ConfdString,
+        vfpHttpResponse509 ConfdString,
+        vfpHttpResponse510 ConfdString,
+        vfpHttpResponse511 ConfdString,
+        vfpHttpResponse520 ConfdString,
+        vfpHttpResponse522 ConfdString,
+        vfpHttpResponse523 ConfdString,
+        vfpHttpResponse524 ConfdString,
+        vfpHttpResponse598 ConfdString,
+        vfpHttpResponse599 ConfdString,
+        vfpHttpResponse ConfdString,
+        vfpHttpMethodOptions ConfdString,
+        vfpHttpMethodTrace ConfdString,
+        vfpHttpMethodPatch ConfdString
+    }
+
+vfpProfileOrgId OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "Organization id"
+    ::= { vfpProfileEntry 1 }
+
+vfpProfileId OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "VFP profile id"
+    ::= { vfpProfileEntry 2 }
+
+vfpProfileOrgName OBJECT-TYPE
+    SYNTAX      String
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Organization name"
+    ::= { vfpProfileEntry 3 }
+
+vfpProfileName OBJECT-TYPE
+    SYNTAX      String
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "VFP profile name"
+    ::= { vfpProfileEntry 4 }
+
+vfpProfileSessSuccess OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Number of sessions successfully established"
+    ::= { vfpProfileEntry 9 }
+
+vfpProfileSessDelete OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Number of sessions successfully deleted"
+    ::= { vfpProfileEntry 10 }
+
+vfpProfileMemoryFail OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Number of sessions failed due to lack of Memory"
+    ::= { vfpProfileEntry 15 }
+
+vfpProfileLportFail OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Number of sessions failed, due to local IP/Port unavailable"
+    ::= { vfpProfileEntry 16 }
+
+vfpProfileSrvConnectFail OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Number of server connection failed"
+    ::= { vfpProfileEntry 17 }
+
+vfpProfileNatflowInstallFail OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Number of netflow install failed"
+    ::= { vfpProfileEntry 18 }
+
+vfpSessResetConn OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Number of Session connection reset"
+    ::= { vfpProfileEntry 19 }
+
+vfpProfileInvalidDomainName OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Number of Invalid Domain Name"
+    ::= { vfpProfileEntry 20 }
+
+vfpProfileIgnoredAlreadyNatted OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Number of Sess Ignored Due to Already Natted"
+    ::= { vfpProfileEntry 21 }
+
+vfpProfileDnsLookupFail OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Number of DNS lookup failed"
+    ::= { vfpProfileEntry 22 }
+
+vfpProfileBlockOnDns OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Number of DNS lookup blocked"
+    ::= { vfpProfileEntry 27 }
+
+vfpProfileResumedDnsDone OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Number of session resumed on DNS lookup done"
+    ::= { vfpProfileEntry 28 }
+
+vfpProfileDnsLookupCancelled OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Number of DNS lookup cancelled"
+    ::= { vfpProfileEntry 29 }
+
+vfpProfileProxyChainNoMatch OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      deprecated
+    DESCRIPTION "Number of Domain Not Matched For Proxy Service"
+    ::= { vfpProfileEntry 30 }
+
+vfpProfileBlockOnFqdn OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Number of FQDN lookup blocked"
+    ::= { vfpProfileEntry 33 }
+
+vfpProfileResumedFqdnDone OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Number of session resumed on FQDN lookup done"
+    ::= { vfpProfileEntry 34 }
+
+vfpProfileFqdnLookupCancelled OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Number of FQDN lookup cancelled"
+    ::= { vfpProfileEntry 35 }
+
+vfpProfileAuthRedirectSuccess OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Number of Auth Server Redirect Success"
+    ::= { vfpProfileEntry 45 }
+
+vfpProfileAuthRedirectFail OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Number of Auth Server Redirect Fail"
+    ::= { vfpProfileEntry 46 }
+
+vfpProfileProxyChainMatch OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Number of Domain Matched For Proxy Service"
+    ::= { vfpProfileEntry 50 }
+
+vfpProfileLocalBreakoutMatch OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Number of Domain Matched For Local Breakout"
+    ::= { vfpProfileEntry 51 }
+
+vfpProfileSentBytes OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Number of Sent Bytes"
+    ::= { vfpProfileEntry 55 }
+
+vfpProfileReceivedBytes OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Number of Received Bytes"
+    ::= { vfpProfileEntry 56 }
+
+vfpProfileSentPackets OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Number of Sent Packets"
+    ::= { vfpProfileEntry 57 }
+
+vfpProfileReceivedPackets OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Number of Received Packets"
+    ::= { vfpProfileEntry 58 }
+
+vfpProfilePbfHonoredCnt OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Number of PBF honored for Proxy Service"
+    ::= { vfpProfileEntry 65 }
+
+vfpProfileDnsNexthopReceived OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Number of Nexthop received from DNS lookup"
+    ::= { vfpProfileEntry 66 }
+
+vfpProfileReqNexthopSnat OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Number of SNAT request using nexthop"
+    ::= { vfpProfileEntry 67 }
+
+vfpHttpMethodConnect OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Number of Http Method Connect"
+    ::= { vfpProfileEntry 105 }
+
+vfpHttpMethodDelete OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Number of Http Method Delete"
+    ::= { vfpProfileEntry 106 }
+
+vfpHttpMethodGet OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Number of Http Method Get"
+    ::= { vfpProfileEntry 107 }
+
+vfpHttpMethodHead OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Number of Http Method Head"
+    ::= { vfpProfileEntry 108 }
+
+vfpHttpMethodPost OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Number of Http Method Post"
+    ::= { vfpProfileEntry 109 }
+
+vfpHttpMethodPut OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Number of Http Method Put"
+    ::= { vfpProfileEntry 110 }
+
+vfpHttpMethodUnknown OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Number of Http Method Unknown"
+    ::= { vfpProfileEntry 111 }
+
+vfpHttpVersion0-9 OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Number of Http Version 0.9"
+    ::= { vfpProfileEntry 121 }
+
+vfpHttpVersion1-0 OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Number of Http Version 1.0"
+    ::= { vfpProfileEntry 122 }
+
+vfpHttpVersion1-1 OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Number of Http Version 1.1"
+    ::= { vfpProfileEntry 123 }
+
+vfpHttpVersion1-2 OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Number of Http Version 1.2"
+    ::= { vfpProfileEntry 124 }
+
+vfpHttpVersion2-0 OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Number of Http Version 2.0"
+    ::= { vfpProfileEntry 125 }
+
+vfpHttpVersionUnknown OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Number of Http Version Unknown"
+    ::= { vfpProfileEntry 126 }
+
+vfpHttpResponse100 OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Number of Http Response 100"
+    ::= { vfpProfileEntry 131 }
+
+vfpHttpResponse101 OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Number of Http Response 101"
+    ::= { vfpProfileEntry 132 }
+
+vfpHttpResponse102 OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Number of Http Response 102"
+    ::= { vfpProfileEntry 133 }
+
+vfpHttpResponse200 OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Number of Http Response 200"
+    ::= { vfpProfileEntry 134 }
+
+vfpHttpResponse201 OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Number of Http Response 201"
+    ::= { vfpProfileEntry 135 }
+
+vfpHttpResponse202 OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Number of Http Response 202"
+    ::= { vfpProfileEntry 136 }
+
+vfpHttpResponse203 OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Number of Http Response 203"
+    ::= { vfpProfileEntry 137 }
+
+vfpHttpResponse204 OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Number of Http Response 204"
+    ::= { vfpProfileEntry 138 }
+
+vfpHttpResponse205 OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Number of Http Response 205"
+    ::= { vfpProfileEntry 139 }
+
+vfpHttpResponse206 OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Number of Http Response 206"
+    ::= { vfpProfileEntry 140 }
+
+vfpHttpResponse207 OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Number of Http Response 207"
+    ::= { vfpProfileEntry 141 }
+
+vfpHttpResponse208 OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Number of Http Response 208"
+    ::= { vfpProfileEntry 142 }
+
+vfpHttpResponse226 OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Number of Http Response 226"
+    ::= { vfpProfileEntry 143 }
+
+vfpHttpResponse300 OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Number of Http Response 300"
+    ::= { vfpProfileEntry 144 }
+
+vfpHttpResponse301 OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Number of Http Response 301"
+    ::= { vfpProfileEntry 145 }
+
+vfpHttpResponse302 OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Number of Http Response 302"
+    ::= { vfpProfileEntry 146 }
+
+vfpHttpResponse303 OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Number of Http Response 303"
+    ::= { vfpProfileEntry 147 }
+
+vfpHttpResponse304 OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Number of Http Response 304"
+    ::= { vfpProfileEntry 148 }
+
+vfpHttpResponse305 OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Number of Http Response 305"
+    ::= { vfpProfileEntry 149 }
+
+vfpHttpResponse306 OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Number of Http Response 306"
+    ::= { vfpProfileEntry 150 }
+
+vfpHttpResponse307 OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Number of Http Response 307"
+    ::= { vfpProfileEntry 151 }
+
+vfpHttpResponse308 OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Number of Http Response 308"
+    ::= { vfpProfileEntry 152 }
+
+vfpHttpResponse400 OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Number of Http Response 400"
+    ::= { vfpProfileEntry 153 }
+
+vfpHttpResponse401 OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Number of Http Response 401"
+    ::= { vfpProfileEntry 154 }
+
+vfpHttpResponse402 OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Number of Http Response 402"
+    ::= { vfpProfileEntry 155 }
+
+vfpHttpResponse403 OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Number of Http Response 403"
+    ::= { vfpProfileEntry 156 }
+
+vfpHttpResponse404 OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Number of Http Response 404"
+    ::= { vfpProfileEntry 157 }
+
+vfpHttpResponse405 OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Number of Http Response 405"
+    ::= { vfpProfileEntry 158 }
+
+vfpHttpResponse406 OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Number of Http Response 406"
+    ::= { vfpProfileEntry 159 }
+
+vfpHttpResponse407 OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Number of Http Response 407"
+    ::= { vfpProfileEntry 160 }
+
+vfpHttpResponse408 OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Number of Http Response 408"
+    ::= { vfpProfileEntry 161 }
+
+vfpHttpResponse409 OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Number of Http Response 409"
+    ::= { vfpProfileEntry 162 }
+
+vfpHttpResponse410 OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Number of Http Response 410"
+    ::= { vfpProfileEntry 163 }
+
+vfpHttpResponse411 OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Number of Http Response 411"
+    ::= { vfpProfileEntry 164 }
+
+vfpHttpResponse412 OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Number of Http Response 412"
+    ::= { vfpProfileEntry 165 }
+
+vfpHttpResponse413 OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Number of Http Response 413"
+    ::= { vfpProfileEntry 166 }
+
+vfpHttpResponse414 OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Number of Http Response 414"
+    ::= { vfpProfileEntry 167 }
+
+vfpHttpResponse415 OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Number of Http Response 415"
+    ::= { vfpProfileEntry 168 }
+
+vfpHttpResponse416 OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Number of Http Response 416"
+    ::= { vfpProfileEntry 169 }
+
+vfpHttpResponse417 OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Number of Http Response 417"
+    ::= { vfpProfileEntry 170 }
+
+vfpHttpResponse418 OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Number of Http Response 418"
+    ::= { vfpProfileEntry 171 }
+
+vfpHttpResponse419 OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Number of Http Response 419"
+    ::= { vfpProfileEntry 172 }
+
+vfpHttpResponse420 OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Number of Http Response 420"
+    ::= { vfpProfileEntry 173 }
+
+vfpHttpResponse422 OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Number of Http Response 422"
+    ::= { vfpProfileEntry 174 }
+
+vfpHttpResponse423 OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Number of Http Response 423"
+    ::= { vfpProfileEntry 175 }
+
+vfpHttpResponse424 OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Number of Http Response 424"
+    ::= { vfpProfileEntry 176 }
+
+vfpHttpResponse425 OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Number of Http Response 425"
+    ::= { vfpProfileEntry 177 }
+
+vfpHttpResponse426 OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Number of Http Response 426"
+    ::= { vfpProfileEntry 178 }
+
+vfpHttpResponse428 OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Number of Http Response 428"
+    ::= { vfpProfileEntry 179 }
+
+vfpHttpResponse429 OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Number of Http Response 429"
+    ::= { vfpProfileEntry 180 }
+
+vfpHttpResponse431 OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Number of Http Response 431"
+    ::= { vfpProfileEntry 181 }
+
+vfpHttpResponse440 OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Number of Http Response 440"
+    ::= { vfpProfileEntry 182 }
+
+vfpHttpResponse444 OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Number of Http Response 444"
+    ::= { vfpProfileEntry 183 }
+
+vfpHttpResponse449 OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Number of Http Response 449"
+    ::= { vfpProfileEntry 184 }
+
+vfpHttpResponse450 OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Number of Http Response 450"
+    ::= { vfpProfileEntry 185 }
+
+vfpHttpResponse451 OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Number of Http Response 451"
+    ::= { vfpProfileEntry 186 }
+
+vfpHttpResponse494 OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Number of Http Response 494"
+    ::= { vfpProfileEntry 187 }
+
+vfpHttpResponse495 OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Number of Http Response 495"
+    ::= { vfpProfileEntry 188 }
+
+vfpHttpResponse496 OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Number of Http Response 496"
+    ::= { vfpProfileEntry 189 }
+
+vfpHttpResponse497 OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Number of Http Response 497"
+    ::= { vfpProfileEntry 190 }
+
+vfpHttpResponse499 OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Number of Http Response 499"
+    ::= { vfpProfileEntry 191 }
+
+vfpHttpResponse500 OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Number of Http Response 500"
+    ::= { vfpProfileEntry 192 }
+
+vfpHttpResponse501 OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Number of Http Response 501"
+    ::= { vfpProfileEntry 193 }
+
+vfpHttpResponse502 OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Number of Http Response 502"
+    ::= { vfpProfileEntry 194 }
+
+vfpHttpResponse503 OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Number of Http Response 503"
+    ::= { vfpProfileEntry 195 }
+
+vfpHttpResponse504 OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Number of Http Response 504"
+    ::= { vfpProfileEntry 196 }
+
+vfpHttpResponse505 OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Number of Http Response 505"
+    ::= { vfpProfileEntry 197 }
+
+vfpHttpResponse506 OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Number of Http Response 506"
+    ::= { vfpProfileEntry 198 }
+
+vfpHttpResponse507 OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Number of Http Response 507"
+    ::= { vfpProfileEntry 199 }
+
+vfpHttpResponse508 OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Number of Http Response 508"
+    ::= { vfpProfileEntry 200 }
+
+vfpHttpResponse509 OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Number of Http Response 509"
+    ::= { vfpProfileEntry 201 }
+
+vfpHttpResponse510 OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Number of Http Response 510"
+    ::= { vfpProfileEntry 202 }
+
+vfpHttpResponse511 OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Number of Http Response 511"
+    ::= { vfpProfileEntry 203 }
+
+vfpHttpResponse520 OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Number of Http Response 520"
+    ::= { vfpProfileEntry 204 }
+
+vfpHttpResponse522 OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Number of Http Response 522"
+    ::= { vfpProfileEntry 205 }
+
+vfpHttpResponse523 OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Number of Http Response 523"
+    ::= { vfpProfileEntry 206 }
+
+vfpHttpResponse524 OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Number of Http Response 524"
+    ::= { vfpProfileEntry 207 }
+
+vfpHttpResponse598 OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Number of Http Response 598"
+    ::= { vfpProfileEntry 208 }
+
+vfpHttpResponse599 OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Number of Http Response 599"
+    ::= { vfpProfileEntry 209 }
+
+vfpHttpResponse OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Number of Http Response "
+    ::= { vfpProfileEntry 210 }
+
+vfpHttpMethodOptions OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Number of HTTP Method Options"
+    ::= { vfpProfileEntry 211 }
+
+vfpHttpMethodTrace OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Number of HTTP Method Trace"
+    ::= { vfpProfileEntry 212 }
+
+vfpHttpMethodPatch OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Number of HTTP Method Patch"
+    ::= { vfpProfileEntry 213 }
+
+vfpProfileRulesTable OBJECT-TYPE
+    SYNTAX      SEQUENCE OF VfpProfileRulesEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "Display VFP rules statistics"
+    ::= { vfp 5 }
+
+vfpProfileRulesEntry OBJECT-TYPE
+    SYNTAX      VfpProfileRulesEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION ""
+    INDEX { vfpProfileOrgId, vfpProfileId, vfpRuleOrgId, vfpRuleProfileId, vfpRuleId }
+        ::= { vfpProfileRulesTable 1 }
+
+VfpProfileRulesEntry ::=
+    SEQUENCE {
+        vfpRuleOrgId Unsigned32,
+        vfpRuleProfileId UnsignedShort,
+        vfpRuleId UnsignedShort,
+        vfpRuleOrgName String,
+        vfpRuleProfileName String,
+        vfpRuleName String,
+        vfpRuleMonitorStatus String,
+        vfpRuleHitCount ConfdString,
+        vfpIngloreLocalBreakout ConfdString,
+        vfpFqdnInvalid ConfdString,
+        vfpFailedFqdnLookup ConfdString,
+        vfpIgnoreProxyChainOnDnsFail ConfdString,
+        vfpFallbackOnDnsFail ConfdString,
+        vfpRuleActivationStatus String
+    }
+
+vfpRuleOrgId OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "Organization id"
+    ::= { vfpProfileRulesEntry 1 }
+
+vfpRuleProfileId OBJECT-TYPE
+    SYNTAX      UnsignedShort
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "VFP profile id"
+    ::= { vfpProfileRulesEntry 2 }
+
+vfpRuleId OBJECT-TYPE
+    SYNTAX      UnsignedShort
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "VFP rule id"
+    ::= { vfpProfileRulesEntry 3 }
+
+vfpRuleOrgName OBJECT-TYPE
+    SYNTAX      String
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Organization name"
+    ::= { vfpProfileRulesEntry 4 }
+
+vfpRuleProfileName OBJECT-TYPE
+    SYNTAX      String
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "VFP profile name"
+    ::= { vfpProfileRulesEntry 5 }
+
+vfpRuleName OBJECT-TYPE
+    SYNTAX      String
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "VFP rule name"
+    ::= { vfpProfileRulesEntry 6 }
+
+vfpRuleMonitorStatus OBJECT-TYPE
+    SYNTAX      String
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Monitor status"
+    ::= { vfpProfileRulesEntry 7 }
+
+vfpRuleHitCount OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Hit count"
+    ::= { vfpProfileRulesEntry 8 }
+
+vfpIngloreLocalBreakout OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Vfp Inglore Local Breakout"
+    ::= { vfpProfileRulesEntry 9 }
+
+vfpFqdnInvalid OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Vfp FQDN Invalid"
+    ::= { vfpProfileRulesEntry 10 }
+
+vfpFailedFqdnLookup OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Vfp Failed FQDN Lookup"
+    ::= { vfpProfileRulesEntry 11 }
+
+vfpIgnoreProxyChainOnDnsFail OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Vfp Ignore Proxy-Chain On Dns Fail"
+    ::= { vfpProfileRulesEntry 12 }
+
+vfpFallbackOnDnsFail OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "VFP fallback from local breakout when DNS fails"
+    ::= { vfpProfileRulesEntry 13 }
+
+vfpRuleActivationStatus OBJECT-TYPE
+    SYNTAX      String
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Rule activation status"
+    ::= { vfpProfileRulesEntry 14 }
+
+END

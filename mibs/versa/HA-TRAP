@@ -1,0 +1,89 @@
+--
+-- @Description: MIB for HA Traps
+-- @Date       : 2014-09-23
+--
+
+HA-TRAP DEFINITIONS ::= BEGIN
+IMPORTS
+    MODULE-IDENTITY, OBJECT-TYPE, NOTIFICATION-TYPE
+        FROM SNMPv2-SMI
+    alarmIndex, alarmType, alarmDevice, alarmObject,
+    alarmSpecificProblem, alarmEventType, alarmProbableCause,
+    alarmTime, alarmSeverity, alarmHasClear, alarmText,
+    tenantName, alarmClass
+        FROM TRAPS-COMMON
+    systemNotification
+        FROM VERSA-MIB;
+
+hatrapMIB MODULE-IDENTITY
+    LAST-UPDATED "201406250000Z"
+    ORGANIZATION "Versa Networks"
+    CONTACT-INFO "
+        2953 Bunker Hill Lane, Suite 210
+        Santa Clara, CA - 95035 (USA)
+        Email: support@versa-networks.com"
+    DESCRIPTION  "Versa Networks' Enterprise MIB for HA traps"
+    ::= { systemNotification 2 }
+
+-- Root Object
+haTrapObjects OBJECT IDENTIFIER ::= { hatrapMIB 1 }
+haNotification OBJECT IDENTIFIER ::= { hatrapMIB 2 }
+
+haVSNSlotId OBJECT-TYPE
+    SYNTAX      OCTET STRING
+    MAX-ACCESS  accessible-for-notify
+    STATUS      current
+    DESCRIPTION "VSN Slot Id that is assigned a HA role"
+        ::= { haTrapObjects 1 }
+
+haModeType OBJECT-TYPE
+    SYNTAX      OCTET STRING
+    MAX-ACCESS  accessible-for-notify
+    STATUS      current
+    DESCRIPTION "VSN Modetype that is configured on VSN"
+        ::= { haTrapObjects 2 }
+
+haRoleType OBJECT-TYPE
+    SYNTAX      OCTET STRING
+    MAX-ACCESS  accessible-for-notify
+    STATUS      current
+    DESCRIPTION "VSN HA Roletype during bootup or switchover"
+        ::= { haTrapObjects 3 }
+
+haTriggerType OBJECT-TYPE
+    SYNTAX      OCTET STRING
+    MAX-ACCESS  accessible-for-notify
+    STATUS      current
+    DESCRIPTION "HA Triggertype that changes the HA role"
+        ::= { haTrapObjects 4 }
+
+haEntity OBJECT-TYPE
+    SYNTAX      OCTET STRING
+    MAX-ACCESS  accessible-for-notify
+    STATUS      current
+    DESCRIPTION "Entity that generated the trap"
+        ::= { haTrapObjects 5 }
+
+haStateChange NOTIFICATION-TYPE
+    OBJECTS {
+        alarmType, alarmDevice, alarmObject, alarmSpecificProblem,
+        alarmClass, alarmEventType, alarmProbableCause, alarmTime,
+        alarmSeverity, alarmHasClear, alarmText,
+        haVSNSlotId, haModeType, haRoleType, haTriggerType
+    }
+    STATUS  current
+    DESCRIPTION "HA role-change notification during bootup or switchover"
+        ::= { haNotification 1 }
+
+haSyncStatus NOTIFICATION-TYPE
+    OBJECTS {
+        alarmType, alarmDevice, alarmObject, alarmSpecificProblem,
+        alarmClass, alarmEventType, alarmProbableCause, alarmTime,
+        alarmSeverity, alarmHasClear, alarmText,
+        haEntity, haVSNSlotId, haModeType, haRoleType
+    }
+    STATUS  current
+    DESCRIPTION "HA synchronization status"
+        ::= { haNotification 2 }
+
+END

@@ -1,0 +1,2808 @@
+ALLNET-SENSOR-MIB DEFINITIONS ::= BEGIN
+
+IMPORTS
+    enterprises, OBJECT-TYPE FROM RFC1155-SMI;
+
+allnetmsr OBJECT IDENTIFIER ::= { enterprises 19935 }
+
+sensor1 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Sensor 1"
+    ::= { allnetmsr 1 }
+
+sensorvalue1 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Value of sensor 1"
+    ::= { leveld1 65 }
+
+sensor2 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Sensor 2"
+    ::= { allnetmsr 2 }
+
+sensorvalue2 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Value of sensor 2"
+    ::= { leveld2 65 }
+
+sensor3 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Sensor 3"
+    ::= { allnetmsr 3 }
+
+sensorvalue3 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Value of sensor 3"
+    ::= { leveld3 65 }
+
+sensor4 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Sensor 4"
+    ::= { allnetmsr 4 }
+
+sensorvalue4 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Value of sensor 4"
+    ::= { leveld4 65 }
+
+sensor5 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Sensor 5"
+    ::= { allnetmsr 5 }
+
+sensorvalue5 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Value of sensor 5"
+    ::= { leveld5 65 }
+
+sensor6 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Sensor 6"
+    ::= { allnetmsr 6 }
+
+sensorvalue6 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Value of sensor 6"
+    ::= { leveld6 65 }
+
+sensor7 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Sensor 7"
+    ::= { allnetmsr 7 }
+
+sensorvalue7 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Value of sensor 7"
+    ::= { leveld7 65 }
+
+sensor8 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Sensor 8"
+    ::= { allnetmsr 8 }
+
+sensorvalue8 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Value of sensor 8"
+    ::= { leveld8 65 }
+
+sensor9 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Sensor 9"
+    ::= { allnetmsr 9 }
+
+sensorvalue9 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Value of sensor 9"
+    ::= { leveld9 65 }
+
+sensor10 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Sensor 10"
+    ::= { allnetmsr 10 }
+
+sensorvalue10 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Value of sensor 10"
+    ::= { leveld10 65 }
+
+sensor11 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Sensor 11"
+    ::= { allnetmsr 11 }
+
+sensorvalue11 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Value of sensor 11"
+    ::= { leveld11 65 }
+
+sensor12 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Sensor 12"
+    ::= { allnetmsr 12 }
+
+sensorvalue12 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Value of sensor 12"
+    ::= { leveld12 65 }
+
+sensor13 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Sensor 13"
+    ::= { allnetmsr 13 }
+
+sensorvalue13 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Value of sensor 13"
+    ::= { leveld13 65 }
+
+sensor14 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Sensor 14"
+    ::= { allnetmsr 14 }
+
+sensorvalue14 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Value of sensor 14"
+    ::= { leveld14 65 }
+
+sensor15 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Sensor 15"
+    ::= { allnetmsr 15 }
+
+sensorvalue15 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Value of sensor 15"
+    ::= { leveld15 65 }
+
+sensor16 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Sensor 16"
+    ::= { allnetmsr 16 }
+
+sensorvalue16 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Value of sensor 16"
+    ::= { leveld16 65 }
+
+sensor17 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Sensor 17"
+    ::= { allnetmsr 17 }
+
+sensorvalue17 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Value of sensor 17"
+    ::= { leveld17 65 }
+
+sensor18 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Sensor 18"
+    ::= { allnetmsr 18 }
+
+sensorvalue18 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Value of sensor 18"
+    ::= { leveld18 65 }
+
+sensor19 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Sensor 19"
+    ::= { allnetmsr 19 }
+
+sensorvalue19 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Value of sensor 19"
+    ::= { leveld19 65 }
+
+sensor20 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Sensor 20"
+    ::= { allnetmsr 20 }
+
+sensorvalue20 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Value of sensor 20"
+    ::= { leveld20 65 }
+
+sensor21 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Sensor 21"
+    ::= { allnetmsr 21 }
+
+sensorvalue21 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Value of sensor 21"
+    ::= { leveld21 65 }
+
+sensor22 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Sensor 22"
+    ::= { allnetmsr 22 }
+
+sensorvalue22 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Value of sensor 22"
+    ::= { leveld22 65 }
+
+sensor23 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Sensor 23"
+    ::= { allnetmsr 23 }
+
+sensorvalue23 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Value of sensor 23"
+    ::= { leveld23 65 }
+
+sensor24 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Sensor 24"
+    ::= { allnetmsr 24 }
+
+sensorvalue24 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Value of sensor 24"
+    ::= { leveld24 65 }
+
+sensor25 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Sensor 25"
+    ::= { allnetmsr 25 }
+
+sensorvalue25 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Value of sensor 25"
+    ::= { leveld25 65 }
+
+sensor26 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Sensor 26"
+    ::= { allnetmsr 26 }
+
+sensorvalue26 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Value of sensor 26"
+    ::= { leveld26 65 }
+
+sensor27 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Sensor 27"
+    ::= { allnetmsr 27 }
+
+sensorvalue27 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Value of sensor 27"
+    ::= { leveld27 65 }
+
+sensor28 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Sensor 28"
+    ::= { allnetmsr 28 }
+
+sensorvalue28 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Value of sensor 28"
+    ::= { leveld28 65 }
+
+sensor29 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Sensor 29"
+    ::= { allnetmsr 29 }
+
+sensorvalue29 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Value of sensor 29"
+    ::= { leveld29 65 }
+
+sensor30 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Sensor 30"
+    ::= { allnetmsr 30 }
+
+sensorvalue30 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Value of sensor 30"
+    ::= { leveld30 65 }
+
+sensor31 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Sensor 31"
+    ::= { allnetmsr 31 }
+
+sensorvalue31 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Value of sensor 31"
+    ::= { leveld31 65 }
+
+sensor32 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Sensor 32"
+    ::= { allnetmsr 32 }
+
+sensorvalue32 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Value of sensor 32"
+    ::= { leveld32 65 }
+
+sensor33 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Sensor 33"
+    ::= { allnetmsr 33 }
+
+sensorvalue33 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Value of sensor 33"
+    ::= { leveld33 65 }
+
+sensor34 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Sensor 34"
+    ::= { allnetmsr 34 }
+
+sensorvalue34 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Value of sensor 34"
+    ::= { leveld34 65 }
+
+sensor35 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Sensor 35"
+    ::= { allnetmsr 35 }
+
+sensorvalue35 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Value of sensor 35"
+    ::= { leveld35 65 }
+
+sensor36 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Sensor 36"
+    ::= { allnetmsr 36 }
+
+sensorvalue36 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Value of sensor 36"
+    ::= { leveld36 65 }
+
+sensor37 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Sensor 37"
+    ::= { allnetmsr 37 }
+
+sensorvalue37 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Value of sensor 37"
+    ::= { leveld37 65 }
+
+sensor38 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Sensor 38"
+    ::= { allnetmsr 38 }
+
+sensorvalue38 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Value of sensor 38"
+    ::= { leveld38 65 }
+
+sensor39 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Sensor 39"
+    ::= { allnetmsr 39 }
+
+sensorvalue39 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Value of sensor 39"
+    ::= { leveld39 65 }
+
+sensor40 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Sensor 40"
+    ::= { allnetmsr 40 }
+
+sensorvalue40 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Value of sensor 40"
+    ::= { leveld40 65 }
+
+sensor41 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Sensor 41"
+    ::= { allnetmsr 41 }
+
+sensorvalue41 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Value of sensor 41"
+    ::= { leveld41 65 }
+
+sensor42 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Sensor 42"
+    ::= { allnetmsr 42 }
+
+sensorvalue42 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Value of sensor 42"
+    ::= { leveld42 65 }
+
+sensor43 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Sensor 43"
+    ::= { allnetmsr 43 }
+
+sensorvalue43 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Value of sensor 43"
+    ::= { leveld43 65 }
+
+sensor44 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Sensor 44"
+    ::= { allnetmsr 44 }
+
+sensorvalue44 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Value of sensor 44"
+    ::= { leveld44 65 }
+
+sensor45 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Sensor 45"
+    ::= { allnetmsr 45 }
+
+sensorvalue45 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Value of sensor 45"
+    ::= { leveld45 65 }
+
+sensor46 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Sensor 46"
+    ::= { allnetmsr 46 }
+
+sensorvalue46 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Value of sensor 46"
+    ::= { leveld46 65 }
+
+sensor47 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Sensor 47"
+    ::= { allnetmsr 47 }
+
+sensorvalue47 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Value of sensor 47"
+    ::= { leveld47 65 }
+
+sensor48 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Sensor 48"
+    ::= { allnetmsr 48 }
+
+sensorvalue48 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Value of sensor 48"
+    ::= { leveld48 65 }
+
+sensor49 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Sensor 49"
+    ::= { allnetmsr 49 }
+
+sensorvalue49 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Value of sensor 49"
+    ::= { leveld49 65 }
+
+sensor50 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Sensor 50"
+    ::= { allnetmsr 50 }
+
+sensorvalue50 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Value of sensor 50"
+    ::= { leveld50 65 }
+
+sensor51 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Sensor 51"
+    ::= { allnetmsr 51 }
+
+sensorvalue51 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Value of sensor 51"
+    ::= { leveld51 65 }
+
+sensor52 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Sensor 52"
+    ::= { allnetmsr 52 }
+
+sensorvalue52 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Value of sensor 52"
+    ::= { leveld52 65 }
+
+sensor53 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Sensor 53"
+    ::= { allnetmsr 53 }
+
+sensorvalue53 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Value of sensor 53"
+    ::= { leveld53 65 }
+
+sensor54 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Sensor 54"
+    ::= { allnetmsr 54 }
+
+sensorvalue54 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Value of sensor 54"
+    ::= { leveld54 65 }
+
+sensor55 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Sensor 55"
+    ::= { allnetmsr 55 }
+
+sensorvalue55 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Value of sensor 55"
+    ::= { leveld55 65 }
+
+sensor56 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Sensor 56"
+    ::= { allnetmsr 56 }
+
+sensorvalue56 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Value of sensor 56"
+    ::= { leveld56 65 }
+
+sensor57 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Sensor 57"
+    ::= { allnetmsr 57 }
+
+sensorvalue57 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Value of sensor 57"
+    ::= { leveld57 65 }
+
+sensor58 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Sensor 58"
+    ::= { allnetmsr 58 }
+
+sensorvalue58 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Value of sensor 58"
+    ::= { leveld58 65 }
+
+sensor59 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Sensor 59"
+    ::= { allnetmsr 59 }
+
+sensorvalue59 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Value of sensor 59"
+    ::= { leveld59 65 }
+
+sensor60 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Sensor 60"
+    ::= { allnetmsr 60 }
+
+sensorvalue60 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Value of sensor 60"
+    ::= { leveld60 65 }
+
+sensor61 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Sensor 61"
+    ::= { allnetmsr 61 }
+
+sensorvalue61 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Value of sensor 61"
+    ::= { leveld61 65 }
+
+sensor62 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Sensor 62"
+    ::= { allnetmsr 62 }
+
+sensorvalue62 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Value of sensor 62"
+    ::= { leveld62 65 }
+
+sensor63 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Sensor 63"
+    ::= { allnetmsr 63 }
+
+sensorvalue63 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Value of sensor 63"
+    ::= { leveld63 65 }
+
+sensor64 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Sensor 64"
+    ::= { allnetmsr 64 }
+
+sensorvalue64 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Value of sensor 64"
+    ::= { leveld64 65 }
+
+sensor65 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Sensor 65"
+    ::= { allnetmsr 65 }
+
+sensorvalue65 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Value of sensor 65"
+    ::= { leveld65 65 }
+
+sensor66 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Sensor 66"
+    ::= { allnetmsr 66 }
+
+sensorvalue66 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Value of sensor 66"
+    ::= { leveld66 65 }
+
+sensor67 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Sensor 67"
+    ::= { allnetmsr 67 }
+
+sensorvalue67 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Value of sensor 67"
+    ::= { leveld67 65 }
+
+sensor68 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Sensor 68"
+    ::= { allnetmsr 68 }
+
+sensorvalue68 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Value of sensor 68"
+    ::= { leveld68 65 }
+
+sensor69 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Sensor 69"
+    ::= { allnetmsr 69 }
+
+sensorvalue69 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Value of sensor 69"
+    ::= { leveld69 65 }
+
+sensor70 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Sensor 70"
+    ::= { allnetmsr 70 }
+
+sensorvalue70 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Value of sensor 70"
+    ::= { leveld70 65 }
+
+sensor71 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Sensor 71"
+    ::= { allnetmsr 71 }
+
+sensorvalue71 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Value of sensor 71"
+    ::= { leveld71 65 }
+
+sensor72 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Sensor 72"
+    ::= { allnetmsr 72 }
+
+sensorvalue72 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Value of sensor 72"
+    ::= { leveld72 65 }
+
+sensor73 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Sensor 73"
+    ::= { allnetmsr 73 }
+
+sensorvalue73 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Value of sensor 73"
+    ::= { leveld73 65 }
+
+sensor74 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Sensor 74"
+    ::= { allnetmsr 74 }
+
+sensorvalue74 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Value of sensor 74"
+    ::= { leveld74 65 }
+
+sensor75 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Sensor 75"
+    ::= { allnetmsr 75 }
+
+sensorvalue75 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Value of sensor 75"
+    ::= { leveld75 65 }
+
+sensor76 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Sensor 76"
+    ::= { allnetmsr 76 }
+
+sensorvalue76 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Value of sensor 76"
+    ::= { leveld76 65 }
+
+sensor77 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Sensor 77"
+    ::= { allnetmsr 77 }
+
+sensorvalue77 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Value of sensor 77"
+    ::= { leveld77 65 }
+
+sensor78 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Sensor 78"
+    ::= { allnetmsr 78 }
+
+sensorvalue78 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Value of sensor 78"
+    ::= { leveld78 65 }
+
+sensor79 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Sensor 79"
+    ::= { allnetmsr 79 }
+
+sensorvalue79 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Value of sensor 79"
+    ::= { leveld79 65 }
+
+sensor80 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Sensor 80"
+    ::= { allnetmsr 80 }
+
+sensorvalue80 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Value of sensor 80"
+    ::= { leveld80 65 }
+
+sensor81 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Sensor 81"
+    ::= { allnetmsr 81 }
+
+sensorvalue81 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Value of sensor 81"
+    ::= { leveld81 65 }
+
+sensor82 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Sensor 82"
+    ::= { allnetmsr 82 }
+
+sensorvalue82 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Value of sensor 82"
+    ::= { leveld82 65 }
+
+sensor83 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Sensor 83"
+    ::= { allnetmsr 83 }
+
+sensorvalue83 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Value of sensor 83"
+    ::= { leveld83 65 }
+
+sensor84 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Sensor 84"
+    ::= { allnetmsr 84 }
+
+sensorvalue84 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Value of sensor 84"
+    ::= { leveld84 65 }
+
+sensor85 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Sensor 85"
+    ::= { allnetmsr 85 }
+
+sensorvalue85 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Value of sensor 85"
+    ::= { leveld85 65 }
+
+sensor86 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Sensor 86"
+    ::= { allnetmsr 86 }
+
+sensorvalue86 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Value of sensor 86"
+    ::= { leveld86 65 }
+
+sensor87 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Sensor 87"
+    ::= { allnetmsr 87 }
+
+sensorvalue87 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Value of sensor 87"
+    ::= { leveld87 65 }
+
+sensor88 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Sensor 88"
+    ::= { allnetmsr 88 }
+
+sensorvalue88 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Value of sensor 88"
+    ::= { leveld88 65 }
+
+sensor89 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Sensor 89"
+    ::= { allnetmsr 89 }
+
+sensorvalue89 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Value of sensor 89"
+    ::= { leveld89 65 }
+
+sensor90 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Sensor 90"
+    ::= { allnetmsr 90 }
+
+sensorvalue90 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Value of sensor 90"
+    ::= { leveld90 65 }
+
+sensor91 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Sensor 91"
+    ::= { allnetmsr 91 }
+
+sensorvalue91 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Value of sensor 91"
+    ::= { leveld91 65 }
+
+sensor92 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Sensor 92"
+    ::= { allnetmsr 92 }
+
+sensorvalue92 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Value of sensor 92"
+    ::= { leveld92 65 }
+
+sensor93 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Sensor 93"
+    ::= { allnetmsr 93 }
+
+sensorvalue93 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Value of sensor 93"
+    ::= { leveld93 65 }
+
+sensor94 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Sensor 94"
+    ::= { allnetmsr 94 }
+
+sensorvalue94 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Value of sensor 94"
+    ::= { leveld94 65 }
+
+sensor95 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Sensor 95"
+    ::= { allnetmsr 95 }
+
+sensorvalue95 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Value of sensor 95"
+    ::= { leveld95 65 }
+
+sensor96 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Sensor 96"
+    ::= { allnetmsr 96 }
+
+sensorvalue96 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Value of sensor 96"
+    ::= { leveld96 65 }
+
+sensor97 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Sensor 97"
+    ::= { allnetmsr 97 }
+
+sensorvalue97 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Value of sensor 97"
+    ::= { leveld97 65 }
+
+sensor98 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Sensor 98"
+    ::= { allnetmsr 98 }
+
+sensorvalue98 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Value of sensor 98"
+    ::= { leveld98 65 }
+
+sensor99 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Sensor 99"
+    ::= { allnetmsr 99 }
+
+sensorvalue99 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Value of sensor 99"
+    ::= { leveld99 65 }
+
+sensor100 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Sensor 100"
+    ::= { allnetmsr 100 }
+
+sensorvalue100 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Value of sensor 100"
+    ::= { leveld100 65 }
+
+sensor101 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Sensor 101"
+    ::= { allnetmsr 101 }
+
+sensorvalue101 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Value of sensor 101"
+    ::= { leveld101 65 }
+
+sensor102 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Sensor 102"
+    ::= { allnetmsr 102 }
+
+sensorvalue102 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Value of sensor 102"
+    ::= { leveld102 65 }
+
+sensor103 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Sensor 103"
+    ::= { allnetmsr 103 }
+
+sensorvalue103 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Value of sensor 103"
+    ::= { leveld103 65 }
+
+sensor104 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Sensor 104"
+    ::= { allnetmsr 104 }
+
+sensorvalue104 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Value of sensor 104"
+    ::= { leveld104 65 }
+
+sensor105 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Sensor 105"
+    ::= { allnetmsr 105 }
+
+sensorvalue105 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Value of sensor 105"
+    ::= { leveld105 65 }
+
+sensor106 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Sensor 106"
+    ::= { allnetmsr 106 }
+
+sensorvalue106 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Value of sensor 106"
+    ::= { leveld106 65 }
+
+sensor107 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Sensor 107"
+    ::= { allnetmsr 107 }
+
+sensorvalue107 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Value of sensor 107"
+    ::= { leveld107 65 }
+
+sensor108 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Sensor 108"
+    ::= { allnetmsr 108 }
+
+sensorvalue108 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Value of sensor 108"
+    ::= { leveld108 65 }
+
+sensor109 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Sensor 109"
+    ::= { allnetmsr 109 }
+
+sensorvalue109 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Value of sensor 109"
+    ::= { leveld109 65 }
+
+sensor110 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Sensor 110"
+    ::= { allnetmsr 110 }
+
+sensorvalue110 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Value of sensor 110"
+    ::= { leveld110 65 }
+
+sensor111 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Sensor 111"
+    ::= { allnetmsr 111 }
+
+sensorvalue111 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Value of sensor 111"
+    ::= { leveld111 65 }
+
+sensor112 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Sensor 112"
+    ::= { allnetmsr 112 }
+
+sensorvalue112 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Value of sensor 112"
+    ::= { leveld112 65 }
+
+sensor113 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Sensor 113"
+    ::= { allnetmsr 113 }
+
+sensorvalue113 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Value of sensor 113"
+    ::= { leveld113 65 }
+
+sensor114 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Sensor 114"
+    ::= { allnetmsr 114 }
+
+sensorvalue114 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Value of sensor 114"
+    ::= { leveld114 65 }
+
+sensor115 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Sensor 115"
+    ::= { allnetmsr 115 }
+
+sensorvalue115 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Value of sensor 115"
+    ::= { leveld115 65 }
+
+sensor116 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Sensor 116"
+    ::= { allnetmsr 116 }
+
+sensorvalue116 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Value of sensor 116"
+    ::= { leveld116 65 }
+
+sensor117 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Sensor 117"
+    ::= { allnetmsr 117 }
+
+sensorvalue117 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Value of sensor 117"
+    ::= { leveld117 65 }
+
+sensor118 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Sensor 118"
+    ::= { allnetmsr 118 }
+
+sensorvalue118 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Value of sensor 118"
+    ::= { leveld118 65 }
+
+sensor119 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Sensor 119"
+    ::= { allnetmsr 119 }
+
+sensorvalue119 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Value of sensor 119"
+    ::= { leveld119 65 }
+
+sensor120 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Sensor 120"
+    ::= { allnetmsr 120 }
+
+sensorvalue120 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Value of sensor 120"
+    ::= { leveld120 65 }
+
+sensor121 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Sensor 121"
+    ::= { allnetmsr 121 }
+
+sensorvalue121 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Value of sensor 121"
+    ::= { leveld121 65 }
+
+sensor122 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Sensor 122"
+    ::= { allnetmsr 122 }
+
+sensorvalue122 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Value of sensor 122"
+    ::= { leveld122 65 }
+
+sensor123 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Sensor 123"
+    ::= { allnetmsr 123 }
+
+sensorvalue123 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Value of sensor 123"
+    ::= { leveld123 65 }
+
+sensor124 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Sensor 124"
+    ::= { allnetmsr 124 }
+
+sensorvalue124 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Value of sensor 124"
+    ::= { leveld124 65 }
+
+sensor125 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Sensor 125"
+    ::= { allnetmsr 125 }
+
+sensorvalue125 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Value of sensor 125"
+    ::= { leveld125 65 }
+
+sensor126 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Sensor 126"
+    ::= { allnetmsr 126 }
+
+sensorvalue126 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Value of sensor 126"
+    ::= { leveld126 65 }
+
+sensor127 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Sensor 127"
+    ::= { allnetmsr 127 }
+
+sensorvalue127 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Value of sensor 127"
+    ::= { leveld127 65 }
+
+sensor128 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Sensor 128"
+    ::= { allnetmsr 128 }
+
+sensorvalue128 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Value of sensor 128"
+    ::= { leveld128 65 }
+
+sensor129 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Sensor 129"
+    ::= { allnetmsr 129 }
+
+sensorvalue129 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Value of sensor 129"
+    ::= { leveld129 65 }
+
+sensor130 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Sensor 130"
+    ::= { allnetmsr 130 }
+
+sensorvalue130 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Value of sensor 130"
+    ::= { leveld130 65 }
+
+sensor131 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Sensor 131"
+    ::= { allnetmsr 131 }
+
+sensorvalue131 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Value of sensor 131"
+    ::= { leveld131 65 }
+
+sensor132 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Sensor 132"
+    ::= { allnetmsr 132 }
+
+sensorvalue132 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Value of sensor 132"
+    ::= { leveld132 65 }
+
+sensor133 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Sensor 133"
+    ::= { allnetmsr 133 }
+
+sensorvalue133 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Value of sensor 133"
+    ::= { leveld133 65 }
+
+sensor134 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Sensor 134"
+    ::= { allnetmsr 134 }
+
+sensorvalue134 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Value of sensor 134"
+    ::= { leveld134 65 }
+
+sensor135 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Sensor 135"
+    ::= { allnetmsr 135 }
+
+sensorvalue135 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Value of sensor 135"
+    ::= { leveld135 65 }
+
+sensor136 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Sensor 136"
+    ::= { allnetmsr 136 }
+
+sensorvalue136 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Value of sensor 136"
+    ::= { leveld136 65 }
+
+sensor137 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Sensor 137"
+    ::= { allnetmsr 137 }
+
+sensorvalue137 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Value of sensor 137"
+    ::= { leveld137 65 }
+
+sensor138 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Sensor 138"
+    ::= { allnetmsr 138 }
+
+sensorvalue138 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Value of sensor 138"
+    ::= { leveld138 65 }
+
+sensor139 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Sensor 139"
+    ::= { allnetmsr 139 }
+
+sensorvalue139 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Value of sensor 139"
+    ::= { leveld139 65 }
+
+sensor140 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Sensor 140"
+    ::= { allnetmsr 140 }
+
+sensorvalue140 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Value of sensor 140"
+    ::= { leveld140 65 }
+
+sensor141 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Sensor 141"
+    ::= { allnetmsr 141 }
+
+sensorvalue141 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Value of sensor 141"
+    ::= { leveld141 65 }
+
+sensor142 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Sensor 142"
+    ::= { allnetmsr 142 }
+
+sensorvalue142 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Value of sensor 142"
+    ::= { leveld142 65 }
+
+sensor143 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Sensor 143"
+    ::= { allnetmsr 143 }
+
+sensorvalue143 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Value of sensor 143"
+    ::= { leveld143 65 }
+
+sensor144 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Sensor 144"
+    ::= { allnetmsr 144 }
+
+sensorvalue144 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Value of sensor 144"
+    ::= { leveld144 65 }
+
+sensor145 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Sensor 145"
+    ::= { allnetmsr 145 }
+
+sensorvalue145 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Value of sensor 145"
+    ::= { leveld145 65 }
+
+sensor146 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Sensor 146"
+    ::= { allnetmsr 146 }
+
+sensorvalue146 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Value of sensor 146"
+    ::= { leveld146 65 }
+
+sensor147 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Sensor 147"
+    ::= { allnetmsr 147 }
+
+sensorvalue147 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Value of sensor 147"
+    ::= { leveld147 65 }
+
+sensor148 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Sensor 148"
+    ::= { allnetmsr 148 }
+
+sensorvalue148 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Value of sensor 148"
+    ::= { leveld148 65 }
+
+sensor149 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Sensor 149"
+    ::= { allnetmsr 149 }
+
+sensorvalue149 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Value of sensor 149"
+    ::= { leveld149 65 }
+
+sensor150 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Sensor 150"
+    ::= { allnetmsr 150 }
+
+sensorvalue150 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Value of sensor 150"
+    ::= { leveld150 65 }
+
+sensor151 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Sensor 151"
+    ::= { allnetmsr 151 }
+
+sensorvalue151 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Value of sensor 151"
+    ::= { leveld151 65 }
+
+sensor152 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Sensor 152"
+    ::= { allnetmsr 152 }
+
+sensorvalue152 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Value of sensor 152"
+    ::= { leveld152 65 }
+
+sensor153 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Sensor 153"
+    ::= { allnetmsr 153 }
+
+sensorvalue153 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Value of sensor 153"
+    ::= { leveld153 65 }
+
+sensor154 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Sensor 154"
+    ::= { allnetmsr 154 }
+
+sensorvalue154 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Value of sensor 154"
+    ::= { leveld154 65 }
+
+sensor155 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Sensor 155"
+    ::= { allnetmsr 155 }
+
+sensorvalue155 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Value of sensor 155"
+    ::= { leveld155 65 }
+
+sensor156 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Sensor 156"
+    ::= { allnetmsr 156 }
+
+sensorvalue156 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Value of sensor 156"
+    ::= { leveld156 65 }
+
+sensor157 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Sensor 157"
+    ::= { allnetmsr 157 }
+
+sensorvalue157 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Value of sensor 157"
+    ::= { leveld157 65 }
+
+sensor158 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Sensor 158"
+    ::= { allnetmsr 158 }
+
+sensorvalue158 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Value of sensor 158"
+    ::= { leveld158 65 }
+
+sensor159 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Sensor 159"
+    ::= { allnetmsr 159 }
+
+sensorvalue159 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Value of sensor 159"
+    ::= { leveld159 65 }
+
+sensor160 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Sensor 160"
+    ::= { allnetmsr 160 }
+
+sensorvalue160 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Value of sensor 160"
+    ::= { leveld160 65 }
+
+sensor161 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Sensor 161"
+    ::= { allnetmsr 161 }
+
+sensorvalue161 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Value of sensor 161"
+    ::= { leveld161 65 }
+
+sensor162 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Sensor 162"
+    ::= { allnetmsr 162 }
+
+sensorvalue162 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Value of sensor 162"
+    ::= { leveld162 65 }
+
+sensor163 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Sensor 163"
+    ::= { allnetmsr 163 }
+
+sensorvalue163 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Value of sensor 163"
+    ::= { leveld163 65 }
+
+sensor164 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Sensor 164"
+    ::= { allnetmsr 164 }
+
+sensorvalue164 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Value of sensor 164"
+    ::= { leveld164 65 }
+
+sensor165 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Sensor 165"
+    ::= { allnetmsr 165 }
+
+sensorvalue165 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Value of sensor 165"
+    ::= { leveld165 65 }
+
+sensor166 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Sensor 166"
+    ::= { allnetmsr 166 }
+
+sensorvalue166 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Value of sensor 166"
+    ::= { leveld166 65 }
+
+sensor167 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Sensor 167"
+    ::= { allnetmsr 167 }
+
+sensorvalue167 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Value of sensor 167"
+    ::= { leveld167 65 }
+
+sensor168 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Sensor 168"
+    ::= { allnetmsr 168 }
+
+sensorvalue168 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Value of sensor 168"
+    ::= { leveld168 65 }
+
+sensor169 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Sensor 169"
+    ::= { allnetmsr 169 }
+
+sensorvalue169 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Value of sensor 169"
+    ::= { leveld169 65 }
+
+sensor170 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Sensor 170"
+    ::= { allnetmsr 170 }
+
+sensorvalue170 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Value of sensor 170"
+    ::= { leveld170 65 }
+
+sensor171 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Sensor 171"
+    ::= { allnetmsr 171 }
+
+sensorvalue171 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Value of sensor 171"
+    ::= { leveld171 65 }
+
+sensor172 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Sensor 172"
+    ::= { allnetmsr 172 }
+
+sensorvalue172 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Value of sensor 172"
+    ::= { leveld172 65 }
+
+sensor173 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Sensor 173"
+    ::= { allnetmsr 173 }
+
+sensorvalue173 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Value of sensor 173"
+    ::= { leveld173 65 }
+
+sensor174 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Sensor 174"
+    ::= { allnetmsr 174 }
+
+sensorvalue174 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Value of sensor 174"
+    ::= { leveld174 65 }
+
+sensor175 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Sensor 175"
+    ::= { allnetmsr 175 }
+
+sensorvalue175 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Value of sensor 175"
+    ::= { leveld175 65 }
+
+sensor176 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Sensor 176"
+    ::= { allnetmsr 176 }
+
+sensorvalue176 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Value of sensor 176"
+    ::= { leveld176 65 }
+
+sensor177 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Sensor 177"
+    ::= { allnetmsr 177 }
+
+sensorvalue177 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Value of sensor 177"
+    ::= { leveld177 65 }
+
+sensor178 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Sensor 178"
+    ::= { allnetmsr 178 }
+
+sensorvalue178 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Value of sensor 178"
+    ::= { leveld178 65 }
+
+sensor179 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Sensor 179"
+    ::= { allnetmsr 179 }
+
+sensorvalue179 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Value of sensor 179"
+    ::= { leveld179 65 }
+
+sensor180 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Sensor 180"
+    ::= { allnetmsr 180 }
+
+sensorvalue180 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Value of sensor 180"
+    ::= { leveld180 65 }
+
+sensor181 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Sensor 181"
+    ::= { allnetmsr 181 }
+
+sensorvalue181 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Value of sensor 181"
+    ::= { leveld181 65 }
+
+sensor182 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Sensor 182"
+    ::= { allnetmsr 182 }
+
+sensorvalue182 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Value of sensor 182"
+    ::= { leveld182 65 }
+
+sensor183 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Sensor 183"
+    ::= { allnetmsr 183 }
+
+sensorvalue183 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Value of sensor 183"
+    ::= { leveld183 65 }
+
+sensor184 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Sensor 184"
+    ::= { allnetmsr 184 }
+
+sensorvalue184 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Value of sensor 184"
+    ::= { leveld184 65 }
+
+sensor185 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Sensor 185"
+    ::= { allnetmsr 185 }
+
+sensorvalue185 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Value of sensor 185"
+    ::= { leveld185 65 }
+
+sensor186 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Sensor 186"
+    ::= { allnetmsr 186 }
+
+sensorvalue186 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Value of sensor 186"
+    ::= { leveld186 65 }
+
+sensor187 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Sensor 187"
+    ::= { allnetmsr 187 }
+
+sensorvalue187 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Value of sensor 187"
+    ::= { leveld187 65 }
+
+sensor188 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Sensor 188"
+    ::= { allnetmsr 188 }
+
+sensorvalue188 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Value of sensor 188"
+    ::= { leveld188 65 }
+
+sensor189 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Sensor 189"
+    ::= { allnetmsr 189 }
+
+sensorvalue189 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Value of sensor 189"
+    ::= { leveld189 65 }
+
+sensor190 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Sensor 190"
+    ::= { allnetmsr 190 }
+
+sensorvalue190 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Value of sensor 190"
+    ::= { leveld190 65 }
+
+sensor191 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Sensor 191"
+    ::= { allnetmsr 191 }
+
+sensorvalue191 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Value of sensor 191"
+    ::= { leveld191 65 }
+
+sensor192 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Sensor 192"
+    ::= { allnetmsr 192 }
+
+sensorvalue192 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Value of sensor 192"
+    ::= { leveld192 65 }
+
+sensor193 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Sensor 193"
+    ::= { allnetmsr 193 }
+
+sensorvalue193 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Value of sensor 193"
+    ::= { leveld193 65 }
+
+sensor194 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Sensor 194"
+    ::= { allnetmsr 194 }
+
+sensorvalue194 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Value of sensor 194"
+    ::= { leveld194 65 }
+
+sensor195 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Sensor 195"
+    ::= { allnetmsr 195 }
+
+sensorvalue195 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Value of sensor 195"
+    ::= { leveld195 65 }
+
+sensor196 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Sensor 196"
+    ::= { allnetmsr 196 }
+
+sensorvalue196 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Value of sensor 196"
+    ::= { leveld196 65 }
+
+sensor197 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Sensor 197"
+    ::= { allnetmsr 197 }
+
+sensorvalue197 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Value of sensor 197"
+    ::= { leveld197 65 }
+
+sensor198 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Sensor 198"
+    ::= { allnetmsr 198 }
+
+sensorvalue198 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Value of sensor 198"
+    ::= { leveld198 65 }
+
+sensor199 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Sensor 199"
+    ::= { allnetmsr 199 }
+
+sensorvalue199 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Value of sensor 199"
+    ::= { leveld199 65 }
+
+sensor200 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Sensor 200"
+    ::= { allnetmsr 200 }
+
+sensorvalue200 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE (0..9))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Value of sensor 200"
+    ::= { leveld200 65 }
+
+END

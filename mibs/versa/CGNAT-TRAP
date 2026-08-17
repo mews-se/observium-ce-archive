@@ -1,0 +1,75 @@
+--
+-- @Description: MIB for CGNAT Traps
+-- @Date       : 2014-06-25
+--
+
+CGNAT-TRAP DEFINITIONS ::= BEGIN
+IMPORTS
+    MODULE-IDENTITY, OBJECT-TYPE, NOTIFICATION-TYPE,
+    IpAddress
+        FROM SNMPv2-SMI
+    alarmIndex, alarmType, alarmDevice, alarmObject,
+    alarmSpecificProblem, alarmEventType, alarmProbableCause,
+    alarmTime, alarmSeverity, alarmHasClear, alarmText,
+    tenantName, thresholdStatus, currentUtilization,
+    alarmClass
+        FROM TRAPS-COMMON
+    serviceNotification
+        FROM VERSA-MIB;
+
+cgnattrapMIB MODULE-IDENTITY
+    LAST-UPDATED "201406250000Z"
+    ORGANIZATION "Versa Networks"
+    CONTACT-INFO "
+        2953 Bunker Hill Lane, Suite 210
+        Santa Clara, CA - 95035 (USA)
+        Email: support@versa-networks.com"
+    DESCRIPTION  "Versa Networks' Enterprise MIB for CGNAT traps"
+    ::= { serviceNotification 2 }
+
+
+-- Root Object
+cgnatEntities OBJECT IDENTIFIER ::= { cgnattrapMIB 1 }
+cgnatNotification OBJECT IDENTIFIER ::= { cgnattrapMIB 2 }
+
+cgnatVSNId OBJECT-TYPE
+    SYNTAX      INTEGER
+    MAX-ACCESS  accessible-for-notify
+    STATUS      current
+    DESCRIPTION "VSN id"
+        ::= { cgnatEntities 1 }
+
+cgnatThreadId OBJECT-TYPE
+    SYNTAX      INTEGER
+    MAX-ACCESS  accessible-for-notify
+    STATUS      current
+    DESCRIPTION "Thread id"
+        ::= { cgnatEntities 2 }
+
+cgnatNATAddress OBJECT-TYPE
+    SYNTAX      INTEGER
+    MAX-ACCESS  accessible-for-notify
+    STATUS      current
+    DESCRIPTION "NAT Address"
+        ::= { cgnatEntities 3 }
+
+cgnatPoolName OBJECT-TYPE
+    SYNTAX      OCTET STRING
+    MAX-ACCESS  accessible-for-notify
+    STATUS      current
+    DESCRIPTION "Pool Name"
+        ::= { cgnatEntities 4 }
+
+cgnatPoolUtilization NOTIFICATION-TYPE
+    OBJECTS {
+        alarmType, alarmDevice, alarmObject, alarmSpecificProblem,
+        alarmClass, alarmEventType, alarmProbableCause, alarmTime,
+        alarmSeverity, alarmHasClear, alarmText, tenantName,
+        cgnatVSNId, cgnatThreadId, cgnatPoolName,
+        thresholdStatus, currentUtilization
+    }
+    STATUS  current
+    DESCRIPTION "Pool threshold notification"
+        ::= { cgnatNotification 1 }
+
+END

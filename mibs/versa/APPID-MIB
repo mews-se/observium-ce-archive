@@ -1,0 +1,810 @@
+APPID-MIB DEFINITIONS ::= BEGIN
+IMPORTS
+    MODULE-IDENTITY, OBJECT-TYPE,
+    Integer32, Unsigned32, Counter32, Counter64,
+    Gauge32, IpAddress
+        FROM SNMPv2-SMI
+    TEXTUAL-CONVENTION, RowStatus, DateAndTime,
+    TruthValue
+        FROM SNMPv2-TC
+    ngfw
+        FROM VERSA-MIB
+;
+
+appid MODULE-IDENTITY
+    LAST-UPDATED "201310140000Z"
+    ORGANIZATION "Versa Networks"
+    CONTACT-INFO "
+        2953 Bunker Hill Lane, Suite 210
+        Santa Clara, CA - 95035 (USA)
+        Email: support@versa-networks.com"
+    DESCRIPTION "Enterprise MIB for Versa Networks'
+Application Identification solution"
+    REVISION "201310140000Z"
+    DESCRIPTION "Initial revision"
+    ::= { ngfw 1 }
+
+UnsignedByte ::= TEXTUAL-CONVENTION
+    DISPLAY-HINT "d"
+    STATUS      current
+    DESCRIPTION "xs:unsignedByte"
+    SYNTAX      Unsigned32 (0 .. 255)
+
+UnsignedShort ::= TEXTUAL-CONVENTION
+    DISPLAY-HINT "d"
+    STATUS      current
+    DESCRIPTION "xs:unsignedShort"
+    SYNTAX      Unsigned32 (0 .. 65535)
+
+ConfdString ::= TEXTUAL-CONVENTION
+    DISPLAY-HINT "1t"
+    STATUS      current
+    DESCRIPTION "xs: and confd: types mapped to strings"
+    SYNTAX      OCTET STRING
+
+String ::= TEXTUAL-CONVENTION
+    DISPLAY-HINT "1t"
+    STATUS      current
+    DESCRIPTION "xs:string"
+    SYNTAX      OCTET STRING
+
+appidAppTable OBJECT-TYPE
+    SYNTAX      SEQUENCE OF AppidAppEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "APPID application statistics"
+    ::= { appid 1 }
+
+appidAppEntry OBJECT-TYPE
+    SYNTAX      AppidAppEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION ""
+    INDEX { appidAppOrgId, appidAppId }
+        ::= { appidAppTable 1 }
+
+AppidAppEntry ::=
+    SEQUENCE {
+        appidAppOrgId Unsigned32,
+        appidAppId UnsignedShort,
+        appidAppOrgName String,
+        appidAppName String,
+        appidAppFamily String,
+        appidAppSubfamily String,
+        appidAppProductivity UnsignedByte,
+        appidAppRisk UnsignedByte,
+        appidSessions ConfdString,
+        appidTransactions ConfdString,
+        appidTotalPktsForward ConfdString,
+        appidTotalPktsReverse ConfdString,
+        appidTotalBytesForward ConfdString,
+        appidTotalBytesReverse ConfdString,
+        appidTotalBytes ConfdString
+    }
+
+appidAppOrgId OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "Organization id"
+    ::= { appidAppEntry 1 }
+
+appidAppId OBJECT-TYPE
+    SYNTAX      UnsignedShort
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "Application id"
+    ::= { appidAppEntry 2 }
+
+appidAppOrgName OBJECT-TYPE
+    SYNTAX      String
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Organization Name"
+    ::= { appidAppEntry 3 }
+
+appidAppName OBJECT-TYPE
+    SYNTAX      String
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Application name"
+    ::= { appidAppEntry 4 }
+
+appidAppFamily OBJECT-TYPE
+    SYNTAX      String
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Category"
+    ::= { appidAppEntry 5 }
+
+appidAppSubfamily OBJECT-TYPE
+    SYNTAX      String
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Sub-Category"
+    ::= { appidAppEntry 6 }
+
+appidAppProductivity OBJECT-TYPE
+    SYNTAX      UnsignedByte
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Productivity"
+    ::= { appidAppEntry 7 }
+
+appidAppRisk OBJECT-TYPE
+    SYNTAX      UnsignedByte
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Risk"
+    ::= { appidAppEntry 8 }
+
+appidSessions OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION ""
+    ::= { appidAppEntry 9 }
+
+appidTransactions OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION ""
+    ::= { appidAppEntry 10 }
+
+appidTotalPktsForward OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION ""
+    ::= { appidAppEntry 11 }
+
+appidTotalPktsReverse OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION ""
+    ::= { appidAppEntry 12 }
+
+appidTotalBytesForward OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION ""
+    ::= { appidAppEntry 13 }
+
+appidTotalBytesReverse OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION ""
+    ::= { appidAppEntry 14 }
+
+appidTotalBytes OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION ""
+    ::= { appidAppEntry 15 }
+
+appidAppFilterTable OBJECT-TYPE
+    SYNTAX      SEQUENCE OF AppidAppFilterEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "Application filter statistics"
+    ::= { appid 3 }
+
+appidAppFilterEntry OBJECT-TYPE
+    SYNTAX      AppidAppFilterEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION ""
+    INDEX { appidAppFilterOrgId, appidAppFilterId }
+        ::= { appidAppFilterTable 1 }
+
+AppidAppFilterEntry ::=
+    SEQUENCE {
+        appidAppFilterOrgId Unsigned32,
+        appidAppFilterId UnsignedShort,
+        appidAppFilterOrgName String,
+        appidAppFilterName String,
+        appidAppFilterSessions ConfdString,
+        appidAppFilterTransactions ConfdString,
+        appidAppFilterTotalPacketsForward ConfdString,
+        appidAppFilterTotalPacketsReverse ConfdString,
+        appidAppFilterTotalBytesForward ConfdString,
+        appidAppFilterTotalBytesReverse ConfdString,
+        appidAppFilterSessionsRate ConfdString,
+        appidAppFilterTransactionsRate ConfdString,
+        appidAppFilterTotalPacketsForwardRate ConfdString,
+        appidAppFilterTotalPacketsReverseRate ConfdString,
+        appidAppFilterTotalBytesForwardRate ConfdString,
+        appidAppFilterTotalBytesReverseRate ConfdString,
+        appidAppFilterTotalBytes ConfdString
+    }
+
+appidAppFilterOrgId OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "Organization id"
+    ::= { appidAppFilterEntry 1 }
+
+appidAppFilterId OBJECT-TYPE
+    SYNTAX      UnsignedShort
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "Application filter id"
+    ::= { appidAppFilterEntry 2 }
+
+appidAppFilterOrgName OBJECT-TYPE
+    SYNTAX      String
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Organization Name"
+    ::= { appidAppFilterEntry 3 }
+
+appidAppFilterName OBJECT-TYPE
+    SYNTAX      String
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION ""
+    ::= { appidAppFilterEntry 4 }
+
+appidAppFilterSessions OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION ""
+    ::= { appidAppFilterEntry 5 }
+
+appidAppFilterTransactions OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION ""
+    ::= { appidAppFilterEntry 6 }
+
+appidAppFilterTotalPacketsForward OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION ""
+    ::= { appidAppFilterEntry 7 }
+
+appidAppFilterTotalPacketsReverse OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION ""
+    ::= { appidAppFilterEntry 8 }
+
+appidAppFilterTotalBytesForward OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION ""
+    ::= { appidAppFilterEntry 9 }
+
+appidAppFilterTotalBytesReverse OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION ""
+    ::= { appidAppFilterEntry 10 }
+
+appidAppFilterSessionsRate OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      deprecated
+    DESCRIPTION ""
+    ::= { appidAppFilterEntry 11 }
+
+appidAppFilterTransactionsRate OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      deprecated
+    DESCRIPTION ""
+    ::= { appidAppFilterEntry 12 }
+
+appidAppFilterTotalPacketsForwardRate OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      deprecated
+    DESCRIPTION ""
+    ::= { appidAppFilterEntry 13 }
+
+appidAppFilterTotalPacketsReverseRate OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      deprecated
+    DESCRIPTION ""
+    ::= { appidAppFilterEntry 14 }
+
+appidAppFilterTotalBytesForwardRate OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      deprecated
+    DESCRIPTION ""
+    ::= { appidAppFilterEntry 15 }
+
+appidAppFilterTotalBytesReverseRate OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      deprecated
+    DESCRIPTION ""
+    ::= { appidAppFilterEntry 16 }
+
+appidAppFilterTotalBytes OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION ""
+    ::= { appidAppFilterEntry 17 }
+
+appidAppGroupTable OBJECT-TYPE
+    SYNTAX      SEQUENCE OF AppidAppGroupEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "Application group statistics"
+    ::= { appid 2 }
+
+appidAppGroupEntry OBJECT-TYPE
+    SYNTAX      AppidAppGroupEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION ""
+    INDEX { appidAppGroupOrgId, appidAppGroupId }
+        ::= { appidAppGroupTable 1 }
+
+AppidAppGroupEntry ::=
+    SEQUENCE {
+        appidAppGroupOrgId Unsigned32,
+        appidAppGroupId UnsignedShort,
+        appidAppGroupOrgName String,
+        appidAppGroupName String,
+        appidAppGroupSessions ConfdString,
+        appidAppGroupTransactions ConfdString,
+        appidAppGroupTotalPacketsForward ConfdString,
+        appidAppGroupTotalPacketsReverse ConfdString,
+        appidAppGroupTotalBytesForward ConfdString,
+        appidAppGroupTotalBytesReverse ConfdString,
+        appidAppGroupSessionsRate ConfdString,
+        appidAppGroupTransactionsRate ConfdString,
+        appidAppGroupTotalPacketsForwardRate ConfdString,
+        appidAppGroupTotalPacketsReverseRate ConfdString,
+        appidAppGroupTotalBytesForwardRate ConfdString,
+        appidAppGroupTotalBytesReverseRate ConfdString,
+        appidAppGroupTotalBytes ConfdString
+    }
+
+appidAppGroupOrgId OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "Organization id"
+    ::= { appidAppGroupEntry 1 }
+
+appidAppGroupId OBJECT-TYPE
+    SYNTAX      UnsignedShort
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "Application group id"
+    ::= { appidAppGroupEntry 2 }
+
+appidAppGroupOrgName OBJECT-TYPE
+    SYNTAX      String
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Organization Name"
+    ::= { appidAppGroupEntry 3 }
+
+appidAppGroupName OBJECT-TYPE
+    SYNTAX      String
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Application group name"
+    ::= { appidAppGroupEntry 4 }
+
+appidAppGroupSessions OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION ""
+    ::= { appidAppGroupEntry 5 }
+
+appidAppGroupTransactions OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION ""
+    ::= { appidAppGroupEntry 6 }
+
+appidAppGroupTotalPacketsForward OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION ""
+    ::= { appidAppGroupEntry 7 }
+
+appidAppGroupTotalPacketsReverse OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION ""
+    ::= { appidAppGroupEntry 8 }
+
+appidAppGroupTotalBytesForward OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION ""
+    ::= { appidAppGroupEntry 9 }
+
+appidAppGroupTotalBytesReverse OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION ""
+    ::= { appidAppGroupEntry 10 }
+
+appidAppGroupSessionsRate OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      deprecated
+    DESCRIPTION ""
+    ::= { appidAppGroupEntry 11 }
+
+appidAppGroupTransactionsRate OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      deprecated
+    DESCRIPTION ""
+    ::= { appidAppGroupEntry 12 }
+
+appidAppGroupTotalPacketsForwardRate OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      deprecated
+    DESCRIPTION ""
+    ::= { appidAppGroupEntry 13 }
+
+appidAppGroupTotalPacketsReverseRate OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      deprecated
+    DESCRIPTION ""
+    ::= { appidAppGroupEntry 14 }
+
+appidAppGroupTotalBytesForwardRate OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      deprecated
+    DESCRIPTION ""
+    ::= { appidAppGroupEntry 15 }
+
+appidAppGroupTotalBytesReverseRate OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      deprecated
+    DESCRIPTION ""
+    ::= { appidAppGroupEntry 16 }
+
+appidAppGroupTotalBytes OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION ""
+    ::= { appidAppGroupEntry 17 }
+
+appidPredefinedAppFilterTable OBJECT-TYPE
+    SYNTAX      SEQUENCE OF AppidPredefinedAppFilterEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "Predefined Application filter statistics"
+    ::= { appid 5 }
+
+appidPredefinedAppFilterEntry OBJECT-TYPE
+    SYNTAX      AppidPredefinedAppFilterEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION ""
+    INDEX { appidPredefAppFilterOrgId, appidPredefAppFilterId }
+        ::= { appidPredefinedAppFilterTable 1 }
+
+AppidPredefinedAppFilterEntry ::=
+    SEQUENCE {
+        appidPredefAppFilterOrgId Unsigned32,
+        appidPredefAppFilterId UnsignedShort,
+        appidPredefAppFilterOrgName String,
+        appidPredefAppFilterName String,
+        appidPredefinedAppFilterSessions ConfdString,
+        appidPredefinedAppFilterTransactions ConfdString,
+        appidPredefinedAppFilterTotalPacketsForward ConfdString,
+        appidPredefinedAppFilterTotalPacketsReverse ConfdString,
+        appidPredefinedAppFilterTotalBytesForward ConfdString,
+        appidPredefinedAppFilterTotalBytesReverse ConfdString,
+        appidPredefinedAppFilterSessionsRate ConfdString,
+        appidPredefinedAppFilterTransactionsRate ConfdString,
+        appidPredefinedAppFilterTotalPacketsForwardRate ConfdString,
+        appidPredefinedAppFilterTotalPacketsReverseRate ConfdString,
+        appidPredefinedAppFilterTotalBytesForwardRate ConfdString,
+        appidPredefinedAppFilterTotalBytesReverseRate ConfdString,
+        appidPredefinedAppFilterTotalBytes ConfdString
+    }
+
+appidPredefAppFilterOrgId OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "Organization id"
+    ::= { appidPredefinedAppFilterEntry 1 }
+
+appidPredefAppFilterId OBJECT-TYPE
+    SYNTAX      UnsignedShort
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "Application filter id"
+    ::= { appidPredefinedAppFilterEntry 2 }
+
+appidPredefAppFilterOrgName OBJECT-TYPE
+    SYNTAX      String
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Organization Name"
+    ::= { appidPredefinedAppFilterEntry 3 }
+
+appidPredefAppFilterName OBJECT-TYPE
+    SYNTAX      String
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION ""
+    ::= { appidPredefinedAppFilterEntry 4 }
+
+appidPredefinedAppFilterSessions OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION ""
+    ::= { appidPredefinedAppFilterEntry 5 }
+
+appidPredefinedAppFilterTransactions OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION ""
+    ::= { appidPredefinedAppFilterEntry 6 }
+
+appidPredefinedAppFilterTotalPacketsForward OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION ""
+    ::= { appidPredefinedAppFilterEntry 7 }
+
+appidPredefinedAppFilterTotalPacketsReverse OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION ""
+    ::= { appidPredefinedAppFilterEntry 8 }
+
+appidPredefinedAppFilterTotalBytesForward OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION ""
+    ::= { appidPredefinedAppFilterEntry 9 }
+
+appidPredefinedAppFilterTotalBytesReverse OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION ""
+    ::= { appidPredefinedAppFilterEntry 10 }
+
+appidPredefinedAppFilterSessionsRate OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      deprecated
+    DESCRIPTION ""
+    ::= { appidPredefinedAppFilterEntry 11 }
+
+appidPredefinedAppFilterTransactionsRate OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      deprecated
+    DESCRIPTION ""
+    ::= { appidPredefinedAppFilterEntry 12 }
+
+appidPredefinedAppFilterTotalPacketsForwardRate OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      deprecated
+    DESCRIPTION ""
+    ::= { appidPredefinedAppFilterEntry 13 }
+
+appidPredefinedAppFilterTotalPacketsReverseRate OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      deprecated
+    DESCRIPTION ""
+    ::= { appidPredefinedAppFilterEntry 14 }
+
+appidPredefinedAppFilterTotalBytesForwardRate OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      deprecated
+    DESCRIPTION ""
+    ::= { appidPredefinedAppFilterEntry 15 }
+
+appidPredefinedAppFilterTotalBytesReverseRate OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      deprecated
+    DESCRIPTION ""
+    ::= { appidPredefinedAppFilterEntry 16 }
+
+appidPredefinedAppFilterTotalBytes OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION ""
+    ::= { appidPredefinedAppFilterEntry 17 }
+
+appidPredefAppGroupTable OBJECT-TYPE
+    SYNTAX      SEQUENCE OF AppidPredefAppGroupEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "Predefined Application group statistics"
+    ::= { appid 4 }
+
+appidPredefAppGroupEntry OBJECT-TYPE
+    SYNTAX      AppidPredefAppGroupEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION ""
+    INDEX { appidPredefAppGroupOrgId, appidPredefAppGroupId }
+        ::= { appidPredefAppGroupTable 1 }
+
+AppidPredefAppGroupEntry ::=
+    SEQUENCE {
+        appidPredefAppGroupOrgId Unsigned32,
+        appidPredefAppGroupId UnsignedShort,
+        appidPredefAppGroupOrgName String,
+        appidPredefAppGroupName String,
+        appidPredefAppGroupSessions ConfdString,
+        appidPredefAppGroupTransactions ConfdString,
+        appidPredefAppGroupTotalPacketsForward ConfdString,
+        appidPredefAppGroupTotalPacketsReverse ConfdString,
+        appidPredefAppGroupTotalBytesForward ConfdString,
+        appidPredefAppGroupTotalBytesReverse ConfdString,
+        appidPredefAppGroupSessionsRate ConfdString,
+        appidPredefAppGroupTransactionsRate ConfdString,
+        appidPredefAppGroupTotalPacketsForwardRate ConfdString,
+        appidPredefAppGroupTotalPacketsReverseRate ConfdString,
+        appidPredefAppGroupTotalBytesForwardRate ConfdString,
+        appidPredefAppGroupTotalBytesReverseRate ConfdString,
+        appidPredefAppGroupTotalBytes ConfdString
+    }
+
+appidPredefAppGroupOrgId OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "Organization id"
+    ::= { appidPredefAppGroupEntry 1 }
+
+appidPredefAppGroupId OBJECT-TYPE
+    SYNTAX      UnsignedShort
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "Application group id"
+    ::= { appidPredefAppGroupEntry 2 }
+
+appidPredefAppGroupOrgName OBJECT-TYPE
+    SYNTAX      String
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Organization Name"
+    ::= { appidPredefAppGroupEntry 3 }
+
+appidPredefAppGroupName OBJECT-TYPE
+    SYNTAX      String
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Application group name"
+    ::= { appidPredefAppGroupEntry 4 }
+
+appidPredefAppGroupSessions OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION ""
+    ::= { appidPredefAppGroupEntry 5 }
+
+appidPredefAppGroupTransactions OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION ""
+    ::= { appidPredefAppGroupEntry 6 }
+
+appidPredefAppGroupTotalPacketsForward OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION ""
+    ::= { appidPredefAppGroupEntry 7 }
+
+appidPredefAppGroupTotalPacketsReverse OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION ""
+    ::= { appidPredefAppGroupEntry 8 }
+
+appidPredefAppGroupTotalBytesForward OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION ""
+    ::= { appidPredefAppGroupEntry 9 }
+
+appidPredefAppGroupTotalBytesReverse OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION ""
+    ::= { appidPredefAppGroupEntry 10 }
+
+appidPredefAppGroupSessionsRate OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      deprecated
+    DESCRIPTION ""
+    ::= { appidPredefAppGroupEntry 11 }
+
+appidPredefAppGroupTransactionsRate OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      deprecated
+    DESCRIPTION ""
+    ::= { appidPredefAppGroupEntry 12 }
+
+appidPredefAppGroupTotalPacketsForwardRate OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      deprecated
+    DESCRIPTION ""
+    ::= { appidPredefAppGroupEntry 13 }
+
+appidPredefAppGroupTotalPacketsReverseRate OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      deprecated
+    DESCRIPTION ""
+    ::= { appidPredefAppGroupEntry 14 }
+
+appidPredefAppGroupTotalBytesForwardRate OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      deprecated
+    DESCRIPTION ""
+    ::= { appidPredefAppGroupEntry 15 }
+
+appidPredefAppGroupTotalBytesReverseRate OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      deprecated
+    DESCRIPTION ""
+    ::= { appidPredefAppGroupEntry 16 }
+
+appidPredefAppGroupTotalBytes OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION ""
+    ::= { appidPredefAppGroupEntry 17 }
+
+END

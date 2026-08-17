@@ -1,0 +1,274 @@
+#!/usr/bin/env perl
+#
+# Enhanced Apache monitoring script for Observium
+# Supports IPv6, SSL/TLS, configurable cache time, custom URLs, and authentication
+#
+# Original python script Copyright (C) 2009  Glen Pitt-Pladdy
+# Enhanced version with additional features
+#
+# This program is free software; you can redistribute it and/or
+# modify it under the terms of the GNU General Public License
+# as published by the Free Software Foundation; either version 2
+# of the License, or (at your option) any later version.
+
+use strict;
+use warnings;
+use LWP::UserAgent;
+use File::Basename;
+
+# Default configuration - can be overridden by config file
+my $CACHETIME = 30;  # seconds
+my $CACHEFILE = '/tmp/observium-agent-apache';
+my $CONFIG_FILE = '/opt/observium/scripts/agent-local/apache.conf';
+my @URLS = ('http://localhost/server-status?auto');
+my $TIMEOUT = 10;
+my $USER_AGENT = 'Observium-Agent/1.0';
+my $USERNAME;
+my $PASSWORD;
+my $SSL_VERIFY = 1;
+my $MAX_REDIRECT = 3;
+
+# Load configuration if available
+if (-f $CONFIG_FILE) {
+    load_config($CONFIG_FILE);
+}
+
+# Create cache file path
+$CACHEFILE = $ENV{TMPDIR} . '/observium-agent-apache' if $ENV{TMPDIR} && $ENV{TMPDIR} ne '/tmp';
+
+# Check for cache file newer than CACHETIME seconds ago
+if (-f $CACHEFILE && time - (stat($CACHEFILE))[9] < $CACHETIME) {
+    # Use cached data
+    open(my $infile, '<', $CACHEFILE) or die "Cannot open cache file $CACHEFILE: $!\n";
+    my @data = <$infile>;
+    close($infile);
+    output_data(join('', @data));
+    exit(0);
+}
+
+# Create user agent with proper configuration
+my $ua = LWP::UserAgent->new(
+    timeout => $TIMEOUT,
+    agent => $USER_AGENT,
+    max_redirect => $MAX_REDIRECT,
+    ssl_opts => { verify_hostname => $SSL_VERIFY }
+);
+
+# Set authentication if configured
+if ($USERNAME && $PASSWORD) {
+    $ua->credentials('*:*', '*', $USERNAME, $PASSWORD);
+}
+
+# Try each configured URL until one works
+my $data;
+my $success = 0;
+
+foreach my $url (@URLS) {
+    eval {
+        my $response = $ua->get($url);
+        
+        if ($response->is_success) {
+            $data = $response->decoded_content;
+            $success = 1;
+            last;
+        } else {
+            warn "Failed to fetch $url: " . $response->status_line . "\n" if @URLS == 1;
+        }
+    };
+    if ($@) {
+        warn "Error fetching $url: $@\n" if @URLS == 1;
+    }
+}
+
+unless ($success) {
+    die "Failed to fetch Apache status from any configured URL\n";
+}
+
+# Cache the successful result
+cache_data($data);
+
+# Output the processed data
+output_data($data);
+
+sub load_config {
+    my ($config_file) = @_;
+    
+    open(my $fh, '<', $config_file) or return;
+    
+    while (my $line = <$fh>) {
+        chomp $line;
+        $line =~ s/^\s+|\s+$//g;  # trim whitespace
+        next if $line =~ /^#/ || $line eq '';  # skip comments and empty lines
+        
+        if ($line =~ /^cache_time\s*=\s*(\d+)$/i) {
+            $CACHETIME = $1;
+        } elsif ($line =~ /^timeout\s*=\s*(\d+)$/i) {
+            $TIMEOUT = $1;
+        } elsif ($line =~ /^user_agent\s*=\s*(.+)$/i) {
+            $USER_AGENT = $1;
+        } elsif ($line =~ /^username\s*=\s*(.+)$/i) {
+            $USERNAME = $1;
+        } elsif ($line =~ /^password\s*=\s*(.+)$/i) {
+            $PASSWORD = $1;
+        } elsif ($line =~ /^ssl_verify\s*=\s*(0|1|false|true)$/i) {
+            $SSL_VERIFY = ($1 eq '1' || lc($1) eq 'true') ? 1 : 0;
+        } elsif ($line =~ /^max_redirect\s*=\s*(\d+)$/i) {
+            $MAX_REDIRECT = $1;
+        } elsif ($line =~ /^cache_file\s*=\s*(.+)$/i) {
+            $CACHEFILE = $1;
+        } elsif ($line =~ /^url\s*=\s*(.+)$/i) {
+            @URLS = () if @URLS && $URLS[0] eq 'http://localhost/server-status?auto';  # Clear default
+            push @URLS, $1;
+        }
+    }
+    
+    close($fh);
+}
+
+sub cache_data {
+    my ($data) = @_;
+    
+    my $tmpfile = "$CACHEFILE.TMP.$$";
+    if (open(my $outfile, '>', $tmpfile)) {
+        print $outfile $data;
+        close($outfile);
+        rename($tmpfile, $CACHEFILE) or warn "Cannot rename cache file: $!\n";
+    } else {
+        warn "Cannot write to cache file $tmpfile: $!\n";
+    }
+}
+
+sub output_data {
+    my ($raw_data) = @_;
+    
+    print "<<<apache>>>\n";
+    
+    # Parse the Apache server-status data
+    my @scoreboardkey = ('_', 'S', 'R', 'W', 'K', 'D', 'C', 'L', 'G', 'I', '.');
+    my %params = ();
+    my %states = ();
+    
+    # Initialize scoreboard states
+    foreach my $state (@scoreboardkey) {
+        $states{$state} = 0;
+    }
+    
+    foreach my $line (split(/\n/, $raw_data)) {
+        chomp $line;
+        my @fields = split(/: /, $line, 2);
+        next unless @fields == 2;
+        
+        my ($key, $value) = @fields;
+        
+        if ($key eq 'Scoreboard') {
+            # Count up the scoreboard into states
+            foreach my $state (split(//, $value)) {
+                $states{$state}++ if exists $states{$state};
+            }
+        } elsif ($key eq 'Total kBytes') {
+            # Convert to bytes (original script converts kBytes to bytes)
+            $params{$key} = int($value) * 1024;
+        } else {
+            # Store everything else as-is
+            $params{$key} = $value;
+        }
+    }
+    
+    # Output data in the expected order for compatibility with existing applications
+    my @dataorder = (
+        'Total Accesses',
+        'Total kBytes',      # Will be in bytes due to conversion above
+        'CPULoad',
+        'Uptime',
+        'ReqPerSec',
+        'BytesPerSec',
+        'BytesPerReq',
+        'BusyWorkers',       # Fixed: was 'BusyServers' in original
+        'IdleWorkers',       # Fixed: was 'IdleServers' in original
+        # Additional valuable metrics
+        'Load1',             # System load average 1 min
+        'Load5',             # System load average 5 min  
+        'Load15',            # System load average 15 min
+        'CPUUser',           # User CPU time
+        'CPUSystem',         # System CPU time
+        'CPUChildrenUser',   # Children user CPU time
+        'CPUChildrenSystem', # Children system CPU time
+        'Total Duration',    # Total request duration
+        'DurationPerReq',    # Average duration per request
+        # TLS Session Cache metrics (optional)
+        'CacheCurrentEntries',
+        'CacheIndexUsage',
+        'CacheUsage',
+        'CacheStoreCount',
+        'CacheRetrieveHitCount',
+        'CacheRetrieveMissCount'
+    );
+    
+    foreach my $param (@dataorder) {
+        if (exists $params{$param}) {
+            print $params{$param} . "\n";
+        } else {
+            # Not all Apache configurations have all stats
+            print "U\n";
+        }
+    }
+    
+    # Output the scoreboard states in order
+    foreach my $state (@scoreboardkey) {
+        print $states{$state} . "\n";
+    }
+}
+
+__END__
+
+=head1 NAME
+
+apache - Enhanced Apache monitoring script for Observium
+
+=head1 DESCRIPTION
+
+This script collects Apache server status information for monitoring by Observium.
+It supports multiple URLs, IPv6, SSL/TLS, authentication, and configurable options.
+
+=head1 CONFIGURATION
+
+Create /opt/observium/scripts/agent-local/apache.conf with:
+
+    # Cache time in seconds (default: 30)
+    cache_time = 30
+    
+    # Request timeout in seconds (default: 10) 
+    timeout = 10
+    
+    # User agent string
+    user_agent = Observium-Agent/1.0
+    
+    # HTTP authentication (optional)
+    username = monitor
+    password = secret123
+    
+    # SSL/TLS verification (default: 1)
+    ssl_verify = 1
+    
+    # Maximum redirects to follow (default: 3)
+    max_redirect = 3
+    
+    # Custom cache file location
+    cache_file = /var/tmp/observium-agent-apache
+    
+    # Multiple URLs (can specify multiple url= lines)
+    url = http://localhost/server-status?auto
+    url = https://localhost:8443/server-status?auto
+    url = http://[::1]/server-status?auto
+
+=head1 FEATURES
+
+- IPv6 support (use [::1] for IPv6 localhost)
+- SSL/TLS support with optional certificate verification
+- HTTP authentication (basic auth)
+- Multiple URL fallback
+- Configurable cache time and timeout
+- Improved error handling
+- Fixed BusyWorkers/IdleWorkers field mapping
+
+=cut

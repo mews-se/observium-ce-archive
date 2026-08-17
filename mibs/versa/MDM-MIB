@@ -1,0 +1,154 @@
+MDM-MIB DEFINITIONS ::= BEGIN
+IMPORTS
+    MODULE-IDENTITY, OBJECT-TYPE,
+    Integer32, Unsigned32, Counter32, Counter64,
+    Gauge32, IpAddress
+        FROM SNMPv2-SMI
+    TEXTUAL-CONVENTION, RowStatus, DateAndTime,
+    TruthValue
+        FROM SNMPv2-TC
+    orgServices
+        FROM VERSA-MIB
+;
+
+mdm MODULE-IDENTITY
+    LAST-UPDATED "202005290000Z"
+    ORGANIZATION "Versa Networks"
+    CONTACT-INFO "
+        2953 Bunker Hill Lane, Suite 210
+        Santa Clara, CA - 95035 (USA)
+        Email: support@versa-networks.com"
+    DESCRIPTION "Enterprise MIB for Versa Networks'
+MDM solution"
+    REVISION "202005290000Z"
+    DESCRIPTION "Initial revision"
+    ::= { orgServices 18 }
+
+ConfdString ::= TEXTUAL-CONVENTION
+    DISPLAY-HINT "1t"
+    STATUS      current
+    DESCRIPTION "xs: and confd: types mapped to strings"
+    SYNTAX      OCTET STRING
+
+String ::= TEXTUAL-CONVENTION
+    DISPLAY-HINT "1t"
+    STATUS      current
+    DESCRIPTION "xs:string"
+    SYNTAX      OCTET STRING
+
+mdmProfileTable OBJECT-TYPE
+    SYNTAX      SEQUENCE OF MdmProfileEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "MDM Profile Statistics"
+    ::= { mdm 1 }
+
+mdmProfileEntry OBJECT-TYPE
+    SYNTAX      MdmProfileEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION ""
+    INDEX { mdmOrgId, mdmProfileID }
+        ::= { mdmProfileTable 1 }
+
+MdmProfileEntry ::=
+    SEQUENCE {
+        mdmOrgId Unsigned32,
+        mdmProfileID Unsigned32,
+        mdmOrgName String,
+        mdmProfileName String,
+        mdmAccessTokenReqCnt ConfdString,
+        mdmAccesTokenRespCnt ConfdString,
+        mdmAccessTokenReqFailCnt ConfdString,
+        mdmAccessTokenNullrespCnt ConfdString,
+        mdmResourceReqCnt ConfdString,
+        mdmResourceRespCnt ConfdString,
+        mdmResourceReqFailCnt ConfdString,
+        mdmResourcenNullrespCnt ConfdString
+    }
+
+mdmOrgId OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "Organization ID"
+    ::= { mdmProfileEntry 1 }
+
+mdmProfileID OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "MDM Profile ID"
+    ::= { mdmProfileEntry 2 }
+
+mdmOrgName OBJECT-TYPE
+    SYNTAX      String
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Organization Name"
+    ::= { mdmProfileEntry 3 }
+
+mdmProfileName OBJECT-TYPE
+    SYNTAX      String
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "MDM Profile Name"
+    ::= { mdmProfileEntry 4 }
+
+mdmAccessTokenReqCnt OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Number of access token request sent"
+    ::= { mdmProfileEntry 5 }
+
+mdmAccesTokenRespCnt OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Number of access token response resolved"
+    ::= { mdmProfileEntry 6 }
+
+mdmAccessTokenReqFailCnt OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Number of access token request failed"
+    ::= { mdmProfileEntry 7 }
+
+mdmAccessTokenNullrespCnt OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Number of null response for access token"
+    ::= { mdmProfileEntry 8 }
+
+mdmResourceReqCnt OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Number of resource request sent"
+    ::= { mdmProfileEntry 9 }
+
+mdmResourceRespCnt OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Number of resource response resolved"
+    ::= { mdmProfileEntry 10 }
+
+mdmResourceReqFailCnt OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Number of resource request failed"
+    ::= { mdmProfileEntry 11 }
+
+mdmResourcenNullrespCnt OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Number of null response for resource"
+    ::= { mdmProfileEntry 12 }
+
+END

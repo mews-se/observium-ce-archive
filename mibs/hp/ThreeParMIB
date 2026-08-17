@@ -1,0 +1,2895 @@
+-- File Name : ThreeParMIB.mib
+--
+-- Date      : Sun Sept 01 12:00:00 PDT 2023
+-- Revision  : rev 1.16
+--             - Added sysName varbind to trap OBJECT list which was missed previously
+--
+-- Date      : Sun Nov 20 12:00:00 PDT 2022
+-- Revision  : rev 1.15
+--             - Added sysName varbind to alertNotify trap
+--
+-- Date      : Wed Jul 21 12:00:00 PDT 2019
+-- Revision  : rev 1.14
+--             - added 'clear' to severity, only applicable if 'nodup' or 'all' is
+--               specified for addsnmpmgr -alertclear option
+--
+-- Date      : Wed Nov 01 12:00:00 PDT 2017
+-- Revision  : rev 1.13
+--             - added managerIP OID
+--
+-- Date      : Thur Mar 16 12:00:00 PDT 2017
+-- Revision  : rev 1.12
+--              - added storeServAlerts
+--
+-- Date      : Tue Oct 25 12:00:00 PDT 2016
+-- Revision  : rev 1.11
+--              - added nodeCpuStatsTable, cpuStatsTable, and related table columns
+--
+-- Date      : Wed Aug 17 12:00:00 PDT 2016
+-- Revision  : rev 1.10
+--              - Updated timeOccurred description
+--
+-- Date      : Tue May 24 13:00:00 PDT 2016
+-- Revision  : rev 1.9
+--              - Rebranded company name from HP to HPE in Description fields
+--
+-- Date      : Tue Sep 18 10:00:00 PDT 2014
+-- Revision  : rev 1.8
+--              - added catalogKey and detailedMessage to alertTable and alertNotify
+--
+-- Date      : Tue Mar 12 11:22:00 PDT 2013
+-- Revision  : rev 1.7
+--              - added serialNumber to alertTable and alertNotify
+--
+-- Date      : Thur Aug 02 15:22:00 PDT 2012
+-- Revision  : rev 1.6
+--              - Renamed this file from 3PAR-MIB.mib to ThreeParMIB.mib
+--              - Rebranded company name from 3PAR to HP 3PAR
+--
+-- Date      : Fri Oct 04 14:45:00 PDT 2010
+-- Revision  : rev 1.5
+--              - Added new type Debug to Severity
+--
+-- Date      : Fri Oct 05 15:00:00 PDT 2007
+-- Revision  : rev 1.4
+--              - Corrected company name to 3PAR in the ORGANIZATION and CONTACT
+--
+-- Date      : Mon Dec 13 17:00:00 PDT 2004
+-- Revision  : rev 1.3
+--              - Added AGENT-CAPABILITIES statement to specify that
+--                sysName is read-only
+--
+-- Date      : Mon Dec 13 16:40:00 PDT 2004
+-- Revision  : rev 1.2
+--              - Added id, messageCode and state to alertTable and alertNotify
+--
+-- Date      : Tue June 14 15:45:00 PDT 2004
+-- Revision  : rev 1.1
+--              - 'inserv' is changed from OBJECT IDENTIFIER to
+--                 OBJECT-IDENTITY
+--              - Defined ThreeparLongDisplayString for strings
+--                longer than 255
+--              - Got rid of size specifications for DisplayString
+--              - Removed possibleCause and suggestedAction from
+--                alertNotify as they are neither used nor defined
+--
+-- Date      : Tue Jul 09 17:15:55 PDT 2002
+-- Revision  : rev 1.0
+
+ThreeParMIB        DEFINITIONS ::= BEGIN
+        IMPORTS
+                DisplayString, TEXTUAL-CONVENTION
+                        FROM SNMPv2-TC
+                AGENT-CAPABILITIES, OBJECT-GROUP, MODULE-COMPLIANCE, NOTIFICATION-GROUP
+                        FROM SNMPv2-CONF
+                enterprises, MODULE-IDENTITY, OBJECT-TYPE, NOTIFICATION-TYPE,
+                OBJECT-IDENTITY, Integer32, Unsigned32, Counter64
+                        FROM SNMPv2-SMI;
+
+        threepar        MODULE-IDENTITY
+                LAST-UPDATED   "202308240629Z"
+                ORGANIZATION   "Organization : HPE 3PAR"
+                CONTACT-INFO   "Contact-info www.hpe.com/3PAR"
+                DESCRIPTION
+                        "This file specifies management information interface for
+                        all HPE 3PAR, Primera, Alletra and GreenLake for Block Storage
+                        products. This information is normally used
+                        by any management software that utilizes SNMP as management
+                        standard.  The SNMP agent inside the device provides the
+                        specified information."
+
+                REVISION                "202309010629Z"
+                DESCRIPTION
+                        "rev 1.16
+                                - Added sysName varbind to trap OBJECT list which was missed previously
+                                - Changed checkSnmpAlert OID"
+
+                REVISION                "202211202110Z"
+                DESCRIPTION
+                        "rev 1.15
+                                - Added sysName varbind to alertNotify trap"
+
+                REVISION                "201907211200Z"
+                DESCRIPTION
+                        "rev 1.14
+                                - Added clear to severity, only applicable if nodup
+                                 or all is specified for addsnmpmgr -alertclear option"
+
+                REVISION                "201711011200Z"
+                DESCRIPTION
+                        "rev 1.13
+                                - Added managerIp OID"
+
+                REVISION                "201703161200Z"
+                DESCRIPTION
+                        "rev 1.12
+                                - Added storeServAlerts
+                                - Added compliance groups"
+
+                REVISION                "201612091200Z"
+                DESCRIPTION
+                        "rev 1.11
+                                - Added nodeCpuStatsTable and cpuStatsTable
+                                - Added tier and sparePartNumber to alertTable and alertNotify"
+
+                REVISION                "201608171200Z"
+                DESCRIPTION
+                        "rev 1.10
+                                - Updated timeOccurred description"
+
+                REVISION                "201605241300Z"
+                DESCRIPTION
+                        "rev 1.9
+                                - Rebranded company name from HP to HPE"
+
+                REVISION                "201409181000Z"
+                DESCRIPTION
+                        "rev 1.8
+                                - added catalogKey and detailedMessage to alertTable and alertNotify"
+
+                REVISION                "201303121122Z"
+                DESCRIPTION
+                        "rev 1.7
+                                - added serialNumber to alertTable and alertNotify"
+
+                REVISION                "201208021522Z"
+                DESCRIPTION
+                        "rev 1.6
+                                - Renamed this file from 3PAR-MIB.mib to ThreeParMIB.mib
+                                - Rebranded company name from 3PAR to HP 3PAR"
+
+                REVISION                "201010041445Z"
+                DESCRIPTION
+                        "rev 1.5
+                                - Added a new level to Severity"
+
+                REVISION                "200710051500Z"
+                DESCRIPTION
+                        "rev 1.4
+                                - Corrected company name to 3PAR in the ORGANIZATION
+                                 and CONTACT"
+
+                REVISION                "200412131700Z"
+                DESCRIPTION
+                        "rev 1.3
+                                - Added AGENT-CAPABILITIES statement to specify that
+                                 sysName is read-only"
+
+                REVISION                "200412131640Z"
+                DESCRIPTION
+                        "rev 1.2
+                                - Added id, messageCode and state to alertTable and
+                                 alertNotify"
+
+                REVISION                "200406141545Z"
+                DESCRIPTION
+                        "rev 1.1
+                                - 'inserv' is changed from OBJECT IDENTIFIER to
+                                 OBJECT-IDENTITY
+                                - Defined ThreeparLongDisplayString for strings
+                                 longer than 255
+                                - Got rid of size specifications for DisplayString
+                                - Removed possibleCause and suggestedAction from
+                                 alertNotify as they are neither used nor defined"
+
+                REVISION                "200204161327Z"
+                DESCRIPTION
+                        "rev 1.0"
+                ::=  {  enterprises  12925  }
+
+        ThreeparLongDisplayString ::= TEXTUAL-CONVENTION
+                STATUS       current
+                DESCRIPTION
+                    "Use this textual convention for display string that can be
+                    longer than 255 characters, since DisplayString is defined
+                    in SNMPv2-TC as having a maximum size of only 255.
+
+                    A size range will have to be specified when using this
+                    convention."
+                SYNTAX       OCTET STRING
+
+        inserv  OBJECT-IDENTITY
+                STATUS      current
+                DESCRIPTION "InServ product"
+                ::=  {  threepar  1  }
+
+        inservConf OBJECT IDENTIFIER
+                ::= {  inserv 1 }
+
+            inservGroups OBJECT IDENTIFIER
+                ::= {  inservConf 1 }
+            inservCompls OBJECT IDENTIFIER
+                ::= {  inservConf 2 }
+
+        inservEvents OBJECT IDENTIFIER
+        ::= { inserv 2 }
+
+ -- the inservGeneric group
+ -- a collection of objects common to more than one area
+    
+        inservGeneric OBJECT IDENTIFIER
+        ::= { inserv 3 }
+
+        managerIp OBJECT-TYPE
+            SYNTAX      DisplayString
+            MAX-ACCESS  accessible-for-notify
+            STATUS      current
+            DESCRIPTION
+               "The IP address of the SNMP manager from which the SNMP authentication
+                failure trap originated."
+            ::= { inservGeneric 1 }
+    
+ -- agent capabilities
+        
+        inservAgentCaps OBJECT-IDENTITY
+                STATUS      current
+                DESCRIPTION "InServ agent profile"
+                ::=  {  inserv 4  }
+
+        inservAgentCapability AGENT-CAPABILITIES
+                PRODUCT-RELEASE    "InServ Release 2.2"
+                STATUS             current
+                DESCRIPTION        "HPE 3PAR agent capability.
+
+                                    Please note that the HPE 3PAR agent supports
+                                    snmpObsoleteGroup in SNMPv2-MIB instead of snmpGroup."
+                SUPPORTS           SNMPv2-MIB
+                INCLUDES         { systemGroup }
+                VARIATION   sysName
+                ACCESS      read-only
+                DESCRIPTION "System name is not configurable"
+
+                ::= { inservAgentCaps 1 }
+
+        inservAgentCapabilityV02 AGENT-CAPABILITIES
+                PRODUCT-RELEASE    "StoreServ Release 3.3.1 MU2"
+                STATUS             current
+                DESCRIPTION        "HPE 3PAR agent capability.
+
+                                    Please note that the HPE 3PAR agent supports
+                                    snmpObsoleteGroup in SNMPv2-MIB instead of snmpGroup."
+                SUPPORTS           SNMPv2-MIB
+                INCLUDES         { systemGroup, snmpTraps }
+                VARIATION   sysName
+                ACCESS      read-only
+                DESCRIPTION "System name is not configurable"
+
+                VARIATION   authenticationFailure
+                ACCESS      read-only
+                DESCRIPTION "managerIp is included as a varbind OBJECT in the trap to
+                    show who causes the failure."
+
+                ::= { inservAgentCaps 2 }
+
+-- alertNotify
+
+        -- contains groups for compliance
+        alertNotifyGroups OBJECT IDENTIFIER ::= { inservGroups 1 }
+
+        -- contains compliances
+        alertNotifyCompliances OBJECT IDENTIFIER ::= { inservCompls 1 }
+
+        -- alertTable 
+        alertTable      OBJECT-TYPE
+                SYNTAX          SEQUENCE  OF  AlertEntry
+                MAX-ACCESS      not-accessible
+                STATUS          current
+                DESCRIPTION
+                        "Contains critical information in notifications sent to
+                        SNMP managers.  This information is translated from alerts
+                        generated by the system."
+                ::=  { inserv  7 }
+
+        alertEntry      OBJECT-TYPE
+                SYNTAX          AlertEntry
+                MAX-ACCESS      not-accessible
+                STATUS          current
+                DESCRIPTION
+                        "Row Description"
+                INDEX           {  index  }
+                ::=  { alertTable 1 }
+
+        AlertEntry  ::=  SEQUENCE {
+                index  Integer32,
+                severity  INTEGER,
+                timeOccurred  DisplayString,
+                nodeID  Unsigned32,
+                component  DisplayString,
+                details  ThreeparLongDisplayString,
+                id Unsigned32,
+                messageCode Unsigned32,
+                state INTEGER,
+                serialNumber DisplayString,
+                catalogKey DisplayString,
+                detailedMessage DisplayString,
+                tier DisplayString,
+                sparePartNumber DisplayString,
+                sysName DisplayString
+                }
+
+
+        index   OBJECT-TYPE
+                SYNTAX                  Integer32 (1)
+                MAX-ACCESS              read-only
+                STATUS                  current
+                DESCRIPTION
+                        "Index to access entries in alert table.  However, the table is
+                        empty most of the time because the entry is deleted after sending
+                        the trap"
+                ::=  {  alertEntry  1  }
+
+
+        severity        OBJECT-TYPE
+                SYNTAX   INTEGER  {
+                         fatal (0),
+                         critical (1),
+                         major (2),
+                         minor (3),
+                         degraded (4),
+                         info (5),
+                         debug (6),
+                         clear (7)
+                        }
+                MAX-ACCESS              read-only
+                STATUS                  current
+                DESCRIPTION
+                        "Severity of the alert.  The enumeration is borrowed from
+                        Common Information Model (CIM): 0 - fatal: indicates an
+                        error occurred, but it's too late to take any actions; 1 -
+                        critical: an action is needed immediately and scope of the
+                        error is broad; 2 - major: an action is needed, the
+                        situation is serious; 3 - minor: an action is needed, but
+                        the situation is not serious;  4 - degraded/warning: the
+                        user decides whether to take an action; 5 - informational:
+                        indicates state change or status change, but it's not an
+                        error; 6 - debug: information that are logged for later
+                        analysis; 7- clear: indicates that the alert is cleared
+                        either by the system or by an admin marking it acked or fixed,
+                        applicable only if addsnmpmgr -alertclear option is 'nodup'
+                        or 'all'."
+                ::=  {  alertEntry  2  }
+
+
+        timeOccurred    OBJECT-TYPE
+                SYNTAX                  DisplayString
+                MAX-ACCESS              read-only
+                STATUS                  current
+                DESCRIPTION
+                        "The local time and date when the alert occurred.  The
+                        format is '%Y-%m-%d %H:%M:%S %Z'.
+                        Where:
+                        %Y - year including century, %m - two digit month,
+                        %d - two digit day of month, %H - two digit hour,
+                        %M - two digit minute, %S - two digit second,
+                        %Z - timezone name or abbreviation or no
+                        characters if timezone cannot be determined."
+                ::=  {  alertEntry  3  }
+
+
+        nodeID  OBJECT-TYPE
+                SYNTAX                  Unsigned32  ( 0 .. 31  )
+                MAX-ACCESS              read-only
+                STATUS                  current
+                DESCRIPTION
+                        "The node the alert was posted on.  The node number starts
+                        from 0.  The maximum number of node is 32."
+                ::=  {  alertEntry  4  }
+
+
+        component       OBJECT-TYPE
+                SYNTAX                  DisplayString
+                MAX-ACCESS              read-only
+                STATUS                  current
+                DESCRIPTION
+                        "The component which the event applies to; for example,
+                        power supply, SCSI disk, BIOS, cage etc..."
+                DEFVAL                  { "1" }
+                ::=  {  alertEntry  5  }
+
+
+        details OBJECT-TYPE
+                SYNTAX                  ThreeparLongDisplayString (SIZE(0..511))
+                MAX-ACCESS              read-only
+                STATUS                  current
+                DESCRIPTION
+                        "Additional detailed description of the alert.  The detail
+                        may include things like disk number, cage number the alert
+                        applies to."
+                ::=  {  alertEntry  6  }
+
+        id      OBJECT-TYPE
+                SYNTAX                  Unsigned32 ( 1 .. 4294967295 )
+                MAX-ACCESS              read-only
+                STATUS                  current
+                DESCRIPTION
+                        "Unique ID that identifies the instance of an alert. This
+                        is a unique number that is generated each time an alert is
+                        generated by the system."
+                ::=  {  alertEntry  7  }
+
+        messageCode     OBJECT-TYPE
+                SYNTAX                  Unsigned32  ( 65537 .. 4294967295 )
+                MAX-ACCESS              read-only
+                STATUS                  current
+                DESCRIPTION
+                        "Message code is assigned to a particular event type, and is
+                        encoded as a 32-bit number in the following way:
+                        The MSB 8 bits are reserved.
+                        The next 8 bits represent a particular subsystem or component.
+                        The LSB 16 bits are the keycode id within the subsystem.
+
+                         For example, Remote Copy Target Down event has a subsystem ID
+                        of 37 (remote copy subsystem), and a keycode ID of 1, thus the
+                        message code for this event = ((37 << 16) | 1) = 0x250001 = 2424833.
+
+                         This is shown as 'Message Code' in the CLI 'showalert' display,
+                        and also shows up in the Alerts Details Pane in the GUI."
+                ::=  {  alertEntry  8  }
+
+        state   OBJECT-TYPE
+                SYNTAX  INTEGER {
+                         undefined (0),
+                         new (1),
+                         acknowledged (2),
+                         fixed (3),
+                         removed (4),
+                         autofixed (5)
+                        }
+                MAX-ACCESS              read-only
+                STATUS                  current
+                DESCRIPTION
+                        "This provides information about the state of the alert.
+                          new - new alert generated by the system
+                          acknowledged - an administrator has acknowledged the alert but may
+                                         or may not have fixed it, depending on whether remedial
+                                         action is necessary
+                          fixed - remedial action has been taken to fix the alert condition
+                          removed - the alert has been removed
+                          autofixed - the system has taken action to automatically resolve
+                                      the alert condition."
+                ::=  {  alertEntry  9  }
+
+        serialNumber    OBJECT-TYPE
+                SYNTAX                  DisplayString
+                MAX-ACCESS              read-only
+                STATUS                  current
+                DESCRIPTION
+                        "The serial-number of the HPE 3PAR InServ system"
+                ::=  {  alertEntry  10  }
+
+        catalogKey      OBJECT-TYPE
+                SYNTAX                  DisplayString
+                MAX-ACCESS              read-only
+                STATUS                  current
+                DESCRIPTION
+                        "The extension of the message code. It's used for the lookup of HPGT information."
+                ::=  {  alertEntry  11  }
+
+        detailedMessage OBJECT-TYPE
+                SYNTAX                  DisplayString
+                MAX-ACCESS              read-only
+                STATUS                  current
+                DESCRIPTION
+                        "The extension of the details. It provides more specific details of error condition."
+                ::=  {  alertEntry  12  }
+
+        tier    OBJECT-TYPE
+                SYNTAX                  DisplayString
+                MAX-ACCESS              read-only
+                STATUS                  current
+                DESCRIPTION
+                        "The event tier. It provides more details on the type of event."
+                ::=  {  alertEntry  13  }
+
+        sparePartNumber OBJECT-TYPE
+                SYNTAX                  DisplayString
+                MAX-ACCESS              read-only
+                STATUS                  current
+                DESCRIPTION
+                        "The spare part number from events in the Hardware replacement or Hardware check tiers."
+                ::=  {  alertEntry  14  }
+
+        sysName OBJECT-TYPE
+                SYNTAX                  DisplayString
+                MAX-ACCESS              read-only
+                STATUS                  current
+                DESCRIPTION
+                        "The name of the storage system."
+                ::=  {  alertEntry  15  }
+
+-- alertNofify
+
+        alertNotify     NOTIFICATION-TYPE
+                OBJECTS         { component, details, nodeID, severity, timeOccurred, id,
+                                  messageCode, state, serialNumber, catalogKey, detailedMessage,
+                                  tier, sparePartNumber, sysName }
+                STATUS          current
+                DESCRIPTION
+                        "Alert notification contains details about an event that
+                        may affect system operations and performance.  The
+                        details include all columns defined in alertTable."
+                ::=  {  inserv  8  }
+
+-- alertNotify compliance
+
+        alertNotifyGroup       OBJECT-GROUP
+                OBJECTS         { index, component, details, nodeID, severity, timeOccurred, id,
+                                  messageCode, state, serialNumber, catalogKey, detailedMessage,
+                                  tier, sparePartNumber, sysName }
+                STATUS          current
+                DESCRIPTION     "alertTable columns representing details about an event that
+                                may affect system operations and performance."
+                ::= { alertNotifyGroups 1 }
+
+        alertNotifyEventsGroup       NOTIFICATION-GROUP
+                NOTIFICATIONS   { alertNotify }
+                STATUS          current
+                DESCRIPTION     "Contains alertNotify events for system alerts."
+                ::= { alertNotifyGroups 2 }
+
+        alertNotifyCompliance   MODULE-COMPLIANCE
+                STATUS current
+                DESCRIPTION
+                        "A collection of objects providing basic notifications for
+                         a HPE 3PAR server."
+                MODULE
+                        MANDATORY-GROUPS {
+                                alertNotifyGroup,
+                                alertNotifyEventsGroup
+                        }
+                ::= { alertNotifyCompliances 1 }
+
+
+-- cpu Stats MIB
+
+        cpuStatsMIB     OBJECT IDENTIFIER ::= { inserv 9 }
+
+        -- contains cpu stat groups for compliance
+        cpuStatsComplianceGroups  OBJECT IDENTIFIER ::= { cpuStatsMIB 1 }
+
+        -- contains compliances
+        cpuStatsCompliances  OBJECT IDENTIFIER ::= { cpuStatsMIB 2 }
+
+        -- contains functional areas for cpu stats
+        cpuStatsObjs    OBJECT IDENTIFIER ::= { cpuStatsMIB 3 }
+
+-- nodeCpuStatsTable - overall CPU related statistics for each node in a StoreServe
+
+        nodeCpuStatsTable               OBJECT-TYPE
+                SYNTAX                  SEQUENCE  OF  NodeCpuStatsEntry
+                MAX-ACCESS              not-accessible
+                STATUS                  current
+                DESCRIPTION
+                        "The nodeCpuStatsTable contains overall CPU related statistics for each node in
+                         a HPE 3PAR StoreServe system."
+                ::=  { cpuStatsObjs 1 }
+
+        nodeCpuStatsEntry               OBJECT-TYPE
+                SYNTAX                  NodeCpuStatsEntry
+                MAX-ACCESS              not-accessible
+                STATUS                  current
+                DESCRIPTION
+                        "An entry in the nodeCpuStatsTable."
+                INDEX                   {  nodeCpuStatsIndex  }
+                ::=  { nodeCpuStatsTable 1 }
+
+        NodeCpuStatsEntry  ::=  SEQUENCE {
+                nodeCpuStatsIndex       Unsigned32,
+                nodeCpuStatsNs          Counter64,
+                nodeCpuStatsNumCpus     Unsigned32,
+                nodeCpuStatsInterupts   Counter64,
+                nodeCpuStatsContextSwitches   Counter64,
+                nodeCpuStatsBootTime    Counter64,
+                nodeCpuStatsProcs       Counter64
+        }
+
+-- columns from nodeCpuStatsTable
+
+        nodeCpuStatsIndex OBJECT-TYPE
+                SYNTAX                  Unsigned32
+                MAX-ACCESS              not-accessible
+                STATUS                  current
+                DESCRIPTION
+                        "3PAR Node ID plus 1."
+                ::=  {  nodeCpuStatsEntry  1  }
+
+        nodeCpuStatsNs OBJECT-TYPE
+                SYNTAX                  Counter64
+                UNITS                   "nanoseconds"
+                MAX-ACCESS              read-only
+                STATUS                  current
+                DESCRIPTION
+                        "Node nano seconds when stats were read."
+                ::=  {  nodeCpuStatsEntry  2  }
+
+        nodeCpuStatsNumCpus OBJECT-TYPE
+                SYNTAX                  Unsigned32
+                MAX-ACCESS              read-only
+                STATUS                  current
+                DESCRIPTION
+                        "Number of CPUs in the node. "
+                ::=  {  nodeCpuStatsEntry  3  }
+
+        nodeCpuStatsInterupts OBJECT-TYPE
+                SYNTAX                  Counter64
+                MAX-ACCESS              read-only
+                STATUS                  current
+                DESCRIPTION
+                        "Total number of interrupts serviced on the node since boot time."
+                ::=  {  nodeCpuStatsEntry  4  }
+
+        nodeCpuStatsContextSwitches OBJECT-TYPE
+                SYNTAX                  Counter64
+                MAX-ACCESS              read-only
+                STATUS                  current
+                DESCRIPTION
+                        "Total number of context switches across all CPUs on the node since boot time."
+                ::=  {  nodeCpuStatsEntry  5  }
+
+        nodeCpuStatsBootTime OBJECT-TYPE
+                SYNTAX                  Counter64
+                UNITS                   "seconds"
+                MAX-ACCESS              read-only
+                STATUS                  current
+                DESCRIPTION
+                        "Time in the epoch when the node was booted.
+                        The epoch started at midnight on January 1 1970 UTC."
+                ::=  {  nodeCpuStatsEntry  6  }
+
+        nodeCpuStatsProcs OBJECT-TYPE
+                SYNTAX                  Counter64
+                MAX-ACCESS              read-only
+                STATUS                  current
+                DESCRIPTION
+                        "Total number of processes created since the node was booted."
+                ::=  {  nodeCpuStatsEntry  7  }
+
+-- cpuStatsTable - statistics for each CPU in a node in a StoreServe
+
+        cpuStatsTable   OBJECT-TYPE
+                SYNTAX          SEQUENCE  OF  CpuStatsEntry
+                MAX-ACCESS      not-accessible
+                STATUS          current
+                DESCRIPTION
+                        "The cpuStatsTable contains statistics for each CPU in a node in
+                         a HPE 3PAR StoreServe system."
+                ::=  { cpuStatsObjs 2 }
+
+        cpuStatsEntry   OBJECT-TYPE
+                SYNTAX          CpuStatsEntry
+                MAX-ACCESS      not-accessible
+                STATUS          current
+                DESCRIPTION
+                        "An entry in the cpuStatsTable."
+                INDEX           {  nodeCpuStatsIndex,
+                                   cpuStatsIndex }
+                ::=  { cpuStatsTable 1 }
+
+        CpuStatsEntry  ::=  SEQUENCE {
+                cpuStatsIndex  Unsigned32,
+                cpuStatsUser   Counter64,
+                cpuStatsSys    Counter64,
+                cpuStatsIdle   Counter64,
+                cpuStatsNodeNs Counter64
+        }
+
+-- columns from cpuStatsTable
+
+        cpuStatsIndex OBJECT-TYPE
+                SYNTAX                  Unsigned32
+                MAX-ACCESS              not-accessible
+                STATUS                  current
+                DESCRIPTION
+                        "The index of the CPU starting at 1."
+                ::=  {  cpuStatsEntry  1  }
+
+        cpuStatsUser OBJECT-TYPE
+                SYNTAX                  Counter64
+                UNITS                   "ticks"
+                MAX-ACCESS              read-only
+                STATUS                  current
+                DESCRIPTION
+                        "Total time spent executing user processes on the cpu since the node booted."
+                ::=  {  cpuStatsEntry  2  }
+
+        cpuStatsSys OBJECT-TYPE
+                SYNTAX                  Counter64
+                UNITS                   "ticks"
+                MAX-ACCESS              read-only
+                STATUS                  current
+                DESCRIPTION
+                        "Total time spend executing system threads on the cpu since the node booted."
+                ::=  {  cpuStatsEntry  3  }
+
+        cpuStatsIdle OBJECT-TYPE
+                SYNTAX                  Counter64
+                UNITS                   "ticks"
+                MAX-ACCESS              read-only
+                STATUS                  current
+                DESCRIPTION
+                        "Total idle time on the cpu since the node booted."
+                ::=  {  cpuStatsEntry  4  }
+
+        cpuStatsNodeNs OBJECT-TYPE
+                SYNTAX                  Counter64
+                UNITS                   "nanoseconds"
+                MAX-ACCESS              read-only
+                STATUS                  current
+                DESCRIPTION
+                        "Node nano seconds when stats were read."
+                ::=  {  cpuStatsEntry  5  }
+
+-- cpu stats compliance
+
+        nodeCpuStatsGroup       OBJECT-GROUP
+                OBJECTS {
+                                nodeCpuStatsNs,
+                                nodeCpuStatsNumCpus,
+                                nodeCpuStatsInterupts,
+                                nodeCpuStatsContextSwitches,
+                                nodeCpuStatsBootTime,
+                                nodeCpuStatsProcs
+                }
+                STATUS          current
+                DESCRIPTION     "nodeCpuStatsTable columns representing
+                                the overall cpu statistics for each node"
+                ::= { cpuStatsComplianceGroups 1 }
+
+        cpuStatsGroup           OBJECT-GROUP
+                OBJECTS {
+                                cpuStatsUser,
+                                cpuStatsSys,
+                                cpuStatsIdle,
+                                cpuStatsNodeNs
+                }
+                STATUS          current
+                DESCRIPTION     "cpuStatsTable columns representing
+                                the statistics for each cpu in a node"
+                ::= { cpuStatsComplianceGroups 2 }
+
+        cpuStatsCompliance      MODULE-COMPLIANCE
+                STATUS current
+                DESCRIPTION
+                        "A collection of objects providing basic instrumentation for
+                         a HPE 3PAR server."
+                MODULE
+                        MANDATORY-GROUPS {
+                                nodeCpuStatsGroup,
+                                cpuStatsGroup
+                        }
+                ::= { cpuStatsCompliances 1 }
+
+-- storeServAlerts
+
+        -- contains groups for compliance
+        storeServAlertsGroups OBJECT IDENTIFIER ::= { inservGroups 2 }
+
+        -- contains compliances
+        storeServAlertsCompliances OBJECT IDENTIFIER ::= { inservCompls 2 }
+
+        -- object definitions
+        storeServAlerts OBJECT-IDENTITY
+                STATUS      current
+                DESCRIPTION "Named alerts with descriptions"
+                ::= { inservEvents 0 }
+
+        activeVlunLimitExceeded NOTIFICATION-TYPE
+                OBJECTS     { component, details, nodeID, severity, timeOccurred, id,
+                              messageCode, state, serialNumber,
+                              tier, sparePartNumber, sysName }
+                STATUS      current
+                DESCRIPTION "There are currently <num_luns> active VLUNs, which is above the supported limit of <max_luns> active VLUNs"
+                ::= { storeServAlerts 1 }
+
+        fcPortError NOTIFICATION-TYPE
+                OBJECTS     { component, details, nodeID, severity, timeOccurred, id,
+                              messageCode, state, serialNumber,
+                              tier, sparePartNumber, sysName }
+                STATUS      current
+                DESCRIPTION "Port <portnum> Failed (Shutdown Due To Too Many Firmware Cores)."
+                ::= { storeServAlerts 2 }
+
+        portDeviceCountExceeded NOTIFICATION-TYPE
+                OBJECTS     { component, details, nodeID, severity, timeOccurred, id,
+                              messageCode, state, serialNumber,
+                              tier, sparePartNumber, sysName }
+                STATUS      current
+                DESCRIPTION "[[sw_port]], supported device count exceeded for port."
+                ::= { storeServAlerts 3 }
+
+        diskPortHasExceededIoErrorThreshold NOTIFICATION-TYPE
+                OBJECTS     { component, details, nodeID, severity, timeOccurred, id,
+                              messageCode, state, serialNumber,
+                              tier, sparePartNumber, sysName }
+                STATUS      current
+                DESCRIPTION "Disk [[sw_port]] has exceeded a threshold tracking IO errors.   <count> errors have been seen in one hour."
+                ::= { storeServAlerts 4 }
+
+        componentStateChangeTargetModePortWentOffline NOTIFICATION-TYPE
+                OBJECTS     { component, details, nodeID, severity, timeOccurred, id,
+                              messageCode, state, serialNumber,
+                              tier, sparePartNumber, sysName }
+                STATUS      current
+                DESCRIPTION "Target Mode Port Went Offline; Port <node>:<slot>:<port> Degraded (<list of: State String {State Value}>)"
+                ::= { storeServAlerts 5 }
+
+        componentStateChangeTooManyInitiators NOTIFICATION-TYPE
+                OBJECTS     { component, details, nodeID, severity, timeOccurred, id,
+                              messageCode, state, serialNumber,
+                              tier, sparePartNumber, sysName }
+                STATUS      current
+                DESCRIPTION "Too many initiators; Port <node>:<slot>:<port> Degraded (<list of: State String {State Value}>)"
+                ::= { storeServAlerts 6 }
+
+        metadataInconsistencyInAVv NOTIFICATION-TYPE
+                OBJECTS     { component, details, nodeID, severity, timeOccurred, id,
+                              messageCode, state, serialNumber,
+                              tier, sparePartNumber, sysName }
+                STATUS      current
+                DESCRIPTION "[[vvol]] Volume not started due to metadata inconsistency; manual check required."
+                ::= { storeServAlerts 7 }
+
+        vlmapCountExceedsThreshold NOTIFICATION-TYPE
+                OBJECTS     { component, details, nodeID, severity, timeOccurred, id,
+                              messageCode, state, serialNumber,
+                              tier, sparePartNumber, sysName }
+                STATUS      current
+                DESCRIPTION "VV <vv_name> (<vv_id>) exceeds vlmap count threshold 80% : AR1 <count> AR5 <count> AR5_SEC <count> USR <count>"
+                ::= { storeServAlerts 8 }
+
+        flashcachePerformanceDegradation NOTIFICATION-TYPE
+                OBJECTS     { component, details, nodeID, severity, timeOccurred, id,
+                              messageCode, state, serialNumber,
+                              tier, sparePartNumber, sysName }
+                STATUS      current
+                DESCRIPTION "Flash Cache I/O times are slow on node: <node>."
+                ::= { storeServAlerts 9 }
+
+        metadataInconsistencyInADeduplicationGroup NOTIFICATION-TYPE
+                OBJECTS     { component, details, nodeID, severity, timeOccurred, id,
+                              messageCode, state, serialNumber,
+                              tier, sparePartNumber, sysName }
+                STATUS      current
+                DESCRIPTION "<cpg_name> <cpg_id> Deduplication Group not started due to metadata inconsistency; manual check required."
+                ::= { storeServAlerts 10 }
+
+        vvUnrecoveredDifError NOTIFICATION-TYPE
+                OBJECTS     { component, details, nodeID, severity, timeOccurred, id,
+                              messageCode, state, serialNumber,
+                              tier, sparePartNumber, sysName }
+                STATUS      current
+                DESCRIPTION "Data Integrity Field (DIF) detected inconsistency for [[vvol]]"
+                ::= { storeServAlerts 11 }
+
+        componentStateChangeMaintenanceCheckRequired NOTIFICATION-TYPE
+                OBJECTS     { component, details, nodeID, severity, timeOccurred, id,
+                              messageCode, state, serialNumber,
+                              tier, sparePartNumber, sysName }
+                STATUS      current
+                DESCRIPTION "Maintenance Check Required; Virtual Volume <vv_id>(<vv_name>) Degraded (<list of: State String {State Value}>)"
+                ::= { storeServAlerts 12 }
+
+        componentStateChangeLdsNotStarted NOTIFICATION-TYPE
+                OBJECTS     { component, details, nodeID, severity, timeOccurred, id,
+                              messageCode, state, serialNumber,
+                              tier, sparePartNumber, sysName }
+                STATUS      current
+                DESCRIPTION "LDs Not Started; Virtual Volume <vv_id>(<vv_name>) Failed (<list of: State String {State Value}>)"
+                ::= { storeServAlerts 13 }
+
+        componentStateChangeCopyFailed NOTIFICATION-TYPE
+                OBJECTS     { component, details, nodeID, severity, timeOccurred, id,
+                              messageCode, state, serialNumber,
+                              tier, sparePartNumber, sysName }
+                STATUS      current
+                DESCRIPTION "Copy Failed; Virtual Volume <vv_id>(<vv_name>) Failed (<list of: State String {State Value}>)"
+                ::= { storeServAlerts 14 }
+
+        componentStateChangeSnapdataInvalid NOTIFICATION-TYPE
+                OBJECTS     { component, details, nodeID, severity, timeOccurred, id,
+                              messageCode, state, serialNumber,
+                              tier, sparePartNumber, sysName }
+                STATUS      current
+                DESCRIPTION "Snapdata Invalid; Virtual Volume <vv_id>(<vv_name>) Failed (<list of: State String {State Value}>)"
+                ::= { storeServAlerts 15 }
+
+        componentStateChangeInternalConsistencyError NOTIFICATION-TYPE
+                OBJECTS     { component, details, nodeID, severity, timeOccurred, id,
+                              messageCode, state, serialNumber,
+                              tier, sparePartNumber, sysName }
+                STATUS      current
+                DESCRIPTION "Internal Consistency Error; Virtual Volume <vv_id>(<vv_name>) Failed (<list of: State String {State Value}>)"
+                ::= { storeServAlerts 16 }
+
+        componentStateChangeNeedsToBeChecked NOTIFICATION-TYPE
+                OBJECTS     { component, details, nodeID, severity, timeOccurred, id,
+                              messageCode, state, serialNumber,
+                              tier, sparePartNumber, sysName }
+                STATUS      current
+                DESCRIPTION "Needs To Be Checked; Virtual Volume <vv_id>(<vv_name>) Failed (<list of: State String {State Value}>)"
+                ::= { storeServAlerts 17 }
+
+        componentStateChangePreserved NOTIFICATION-TYPE
+                OBJECTS     { component, details, nodeID, severity, timeOccurred, id,
+                              messageCode, state, serialNumber,
+                              tier, sparePartNumber, sysName }
+                STATUS      current
+                DESCRIPTION "Preserved; Virtual Volume <vv_id>(<vv_name>) Failed (<list of: State String {State Value}>)"
+                ::= { storeServAlerts 18 }
+
+        componentStateChangeInvalid NOTIFICATION-TYPE
+                OBJECTS     { component, details, nodeID, severity, timeOccurred, id,
+                              messageCode, state, serialNumber,
+                              tier, sparePartNumber, sysName }
+                STATUS      current
+                DESCRIPTION "Invalid; Virtual Volume <vv_id>(<vv_name>) Failed (<list of: State String {State Value}>)"
+                ::= { storeServAlerts 19 }
+
+        componentStateChangeStale NOTIFICATION-TYPE
+                OBJECTS     { component, details, nodeID, severity, timeOccurred, id,
+                              messageCode, state, serialNumber,
+                              tier, sparePartNumber, sysName }
+                STATUS      current
+                DESCRIPTION "Stale; Virtual Volume <vv_id>(<vv_name>) Failed (<list of: State String {State Value}>)"
+                ::= { storeServAlerts 20 }
+
+        ldskHasFailedSet NOTIFICATION-TYPE
+                OBJECTS     { component, details, nodeID, severity, timeOccurred, id,
+                              messageCode, state, serialNumber,
+                              tier, sparePartNumber, sysName }
+                STATUS      current
+                DESCRIPTION "LD <ld_id>(<ld_name>) row <ld_row> set <ld_set> failed. Internal reason <reason>."
+                ::= { storeServAlerts 21 }
+
+        ldAvailabilityHasReduced NOTIFICATION-TYPE
+                OBJECTS     { component, details, nodeID, severity, timeOccurred, id,
+                              messageCode, state, serialNumber,
+                              tier, sparePartNumber, sysName }
+                STATUS      current
+                DESCRIPTION "Some Logical Disks (LDs) in the system are running with reduced availability."
+                ::= { storeServAlerts 22 }
+
+        logLdRaidSetFailure NOTIFICATION-TYPE
+                OBJECTS     { component, details, nodeID, severity, timeOccurred, id,
+                              messageCode, state, serialNumber,
+                              tier, sparePartNumber, sysName }
+                STATUS      current
+                DESCRIPTION "Log [[ld]] has a failed raid set: <set_num>. Reason <reason>."
+                ::= { storeServAlerts 23 }
+
+        diskMonitorStopped NOTIFICATION-TYPE
+                OBJECTS     { component, details, nodeID, severity, timeOccurred, id,
+                              messageCode, state, serialNumber,
+                              tier, sparePartNumber, sysName }
+                STATUS      current
+                DESCRIPTION "pd wwn <pd_wwn> has failed for too long. Disk monitoring has stopped on this disk."
+                ::= { storeServAlerts 24 }
+
+        systemReporterPdPerformanceMajorAlert NOTIFICATION-TYPE
+                OBJECTS     { component, details, nodeID, severity, timeOccurred, id,
+                              messageCode, state, serialNumber,
+                              tier, sparePartNumber, sysName }
+                STATUS      current
+                DESCRIPTION "System Reporter threshold alert <pd_str_data> with condition <pd_valstr1> has been satisfied by pd <pd_valstr0> with value(s) <pd_valstr2>."
+                ::= { storeServAlerts 25 }
+
+        systemOvertemp NOTIFICATION-TYPE
+                OBJECTS     { component, details, nodeID, severity, timeOccurred, id,
+                              messageCode, state, serialNumber,
+                              tier, sparePartNumber, sysName }
+                STATUS      current
+                DESCRIPTION "System shutdown for over temp PDs, TOC quorum loss - <num> TOC drives are at or above their spin down temperatures."
+                ::= { storeServAlerts 26 }
+
+        diskOvertempButNotSpundown NOTIFICATION-TYPE
+                OBJECTS     { component, details, nodeID, severity, timeOccurred, id,
+                              messageCode, state, serialNumber,
+                              tier, sparePartNumber, sysName }
+                STATUS      current
+                DESCRIPTION "Physical Disk (PD) <pd_id> with World Wide Name (WWN) <pd_wwn> has exceeded its temperature threshold (<disk_temp> C, limit <thres_temp> C) but it could not be spundown. Location (<cageid>:<magid>:<driveid>)."
+                ::= { storeServAlerts 27 }
+
+        diskOvertempAndSpundown NOTIFICATION-TYPE
+                OBJECTS     { component, details, nodeID, severity, timeOccurred, id,
+                              messageCode, state, serialNumber,
+                              tier, sparePartNumber, sysName }
+                STATUS      current
+                DESCRIPTION "Physical Disk (PD) <pd_id> with World Wide Name (WWN) <pd_wwn> has exceeded its temperature threshold (<disk_temp> C, limit <thres_temp> C) and it has been spundown. Location (<cageid>:<magid>:<driveid>)."
+                ::= { storeServAlerts 28 }
+
+        diskOvertempButNotSpundownNoDsk NOTIFICATION-TYPE
+                OBJECTS     { component, details, nodeID, severity, timeOccurred, id,
+                              messageCode, state, serialNumber,
+                              tier, sparePartNumber, sysName }
+                STATUS      current
+                DESCRIPTION "Physical Disk with World Wide Name (WWN) <pd_wwn> has exceeded its temperature threshold (<disk_temp> C, limit <thres_temp> C) but it could not be spundown. Location (<cageid>:<magid>:<driveid>)."
+                ::= { storeServAlerts 29 }
+
+        diskOvertempAndSpundownNoDsk NOTIFICATION-TYPE
+                OBJECTS     { component, details, nodeID, severity, timeOccurred, id,
+                              messageCode, state, serialNumber,
+                              tier, sparePartNumber, sysName }
+                STATUS      current
+                DESCRIPTION "Physical Disk with World Wide Name (WWN) <pd_wwn> has exceeded its temperature threshold (<disk_temp> C, limit <thres_temp> C) and it has been spundown. Location (<cageid>:<magid>:<driveid>)."
+                ::= { storeServAlerts 30 }
+
+        componentStateChangeFailedHardware0x00600deX153 NOTIFICATION-TYPE
+                OBJECTS     { component, details, nodeID, severity, timeOccurred, id,
+                              messageCode, state, serialNumber,
+                              tier, sparePartNumber, sysName }
+                STATUS      current
+                DESCRIPTION "Failed Hardware; Magazine <mag_id> Physical Disk <pd_id> Degraded (<list of: State String {State Value}>)"
+                ::= { storeServAlerts 31 }
+
+        componentStateChangeMediaFailed0x00600deX156 NOTIFICATION-TYPE
+                OBJECTS     { component, details, nodeID, severity, timeOccurred, id,
+                              messageCode, state, serialNumber,
+                              tier, sparePartNumber, sysName }
+                STATUS      current
+                DESCRIPTION "Media Failed; Magazine <mag_id> Physical Disk <pd_id> Degraded (<list of: State String {State Value}>)"
+                ::= { storeServAlerts 32 }
+
+        componentStateChangeFailedHardware0x00600faX153 NOTIFICATION-TYPE
+                OBJECTS     { component, details, nodeID, severity, timeOccurred, id,
+                              messageCode, state, serialNumber,
+                              tier, sparePartNumber, sysName }
+                STATUS      current
+                DESCRIPTION "Failed Hardware; Magazine <mag_id> Physical Disk <pd_id> Failed (<list of: State String {State Value}>)"
+                ::= { storeServAlerts 33 }
+
+        componentStateChangeMediaFailed0x00600faX156 NOTIFICATION-TYPE
+                OBJECTS     { component, details, nodeID, severity, timeOccurred, id,
+                              messageCode, state, serialNumber,
+                              tier, sparePartNumber, sysName }
+                STATUS      current
+                DESCRIPTION "Media Failed; Magazine <mag_id> Physical Disk <pd_id> Failed (<list of: State String {State Value}>)"
+                ::= { storeServAlerts 34 }
+
+        componentStateChangeReplaceDrive0x00600faX70 NOTIFICATION-TYPE
+                OBJECTS     { component, details, nodeID, severity, timeOccurred, id,
+                              messageCode, state, serialNumber,
+                              tier, sparePartNumber, sysName }
+                STATUS      current
+                DESCRIPTION "Replace Drive; Magazine <mag_id> Physical Disk <pd_id> Failed (<list of: State String {State Value}>)"
+                ::= { storeServAlerts 35 }
+
+        doubleNodeFailure NOTIFICATION-TYPE
+                OBJECTS     { component, details, nodeID, severity, timeOccurred, id,
+                              messageCode, state, serialNumber,
+                              tier, sparePartNumber, sysName }
+                STATUS      current
+                DESCRIPTION "System is not able to recover from double node failure."
+                ::= { storeServAlerts 36 }
+
+        nodeRecoveryPowerfailEvent NOTIFICATION-TYPE
+                OBJECTS     { component, details, nodeID, severity, timeOccurred, id,
+                              messageCode, state, serialNumber,
+                              tier, sparePartNumber, sysName }
+                STATUS      current
+                DESCRIPTION "Node recovery requires a powerfail to continue"
+                ::= { storeServAlerts 37 }
+
+        licenseKeyUsageLicenseExpired NOTIFICATION-TYPE
+                OBJECTS     { component, details, nodeID, severity, timeOccurred, id,
+                              messageCode, state, serialNumber,
+                              tier, sparePartNumber, sysName }
+                STATUS      current
+                DESCRIPTION "License feature <feature_name> has expired.  You are in violation of your
+3PAR License Agreement."
+                ::= { storeServAlerts 38 }
+
+        systemRecoveryNotificationAboutBadVolume NOTIFICATION-TYPE
+                OBJECTS     { component, details, nodeID, severity, timeOccurred, id,
+                              messageCode, state, serialNumber,
+                              tier, sparePartNumber, sysName }
+                STATUS      current
+                DESCRIPTION "Powerfail recovery could not be performed for volume <prb_vname> with id <prb_vvid>. This may have caused loss of data for that volume. Use checkvv to check and fix the volume metadata consistency."
+                ::= { storeServAlerts 39 }
+
+        batteryStates NOTIFICATION-TYPE
+                OBJECTS     { component, details, nodeID, severity, timeOccurred, id,
+                              messageCode, state, serialNumber,
+                              tier, sparePartNumber, sysName }
+                STATUS      current
+                DESCRIPTION "Battery states could not be read from the configuration file. System cache is disabled."
+                ::= { storeServAlerts 40 }
+
+        systemRecoveryStalledDueToUnstartedVvs NOTIFICATION-TYPE
+                OBJECTS     { component, details, nodeID, severity, timeOccurred, id,
+                              messageCode, state, serialNumber,
+                              tier, sparePartNumber, sysName }
+                STATUS      current
+                DESCRIPTION "System recovery stalled due to unstarted vvs. Num vvs: <pfs_num_vvs>."
+                ::= { storeServAlerts 41 }
+
+        unexpectedEncryptionStateOnNodeDrive NOTIFICATION-TYPE
+                OBJECTS     { component, details, nodeID, severity, timeOccurred, id,
+                              messageCode, state, serialNumber,
+                              tier, sparePartNumber, sysName }
+                STATUS      current
+                DESCRIPTION "System is waiting for the encryption state of nodes <wait_nodes> to become valid. If this state persists, check existing alerts for more information."
+                ::= { storeServAlerts 42 }
+
+        ideDiskErrorNodeShutdown NOTIFICATION-TYPE
+                OBJECTS     { component, details, nodeID, severity, timeOccurred, id,
+                              messageCode, state, serialNumber,
+                              tier, sparePartNumber, sysName }
+                STATUS      current
+                DESCRIPTION "Node <nid> is being shutdown by the system because it had internal drive errors."
+                ::= { storeServAlerts 43 }
+
+        ideDiskErrorNodeNotShutdown NOTIFICATION-TYPE
+                OBJECTS     { component, details, nodeID, severity, timeOccurred, id,
+                              messageCode, state, serialNumber,
+                              tier, sparePartNumber, sysName }
+                STATUS      current
+                DESCRIPTION "Node <nid> is not being shutdown by the system even though there are internal drive errors because it is the last node left alive."
+                ::= { storeServAlerts 44 }
+
+        ideDiskErrorNodeNotShutdownLdsCannotBeServed NOTIFICATION-TYPE
+                OBJECTS     { component, details, nodeID, severity, timeOccurred, id,
+                              messageCode, state, serialNumber,
+                              tier, sparePartNumber, sysName }
+                STATUS      current
+                DESCRIPTION "Node <nid> is not being shutdown by the system even though there are internal drive errors because some LDs cannot be served by the remaining nodes."
+                ::= { storeServAlerts 45 }
+
+        ideDiskErrorNodeReboot NOTIFICATION-TYPE
+                OBJECTS     { component, details, nodeID, severity, timeOccurred, id,
+                              messageCode, state, serialNumber,
+                              tier, sparePartNumber, sysName }
+                STATUS      current
+                DESCRIPTION "Node <nid> is being rebooted by the system because it had internal drive errors."
+                ::= { storeServAlerts 46 }
+
+        authenticationFailure NOTIFICATION-TYPE
+                OBJECTS     { component, details, nodeID, severity, timeOccurred, id,
+                              messageCode, state, serialNumber,
+                              tier, sparePartNumber, sysName }
+                STATUS      current
+                DESCRIPTION "<number of fails> authentication failures in <n> secs"
+                ::= { storeServAlerts 47 }
+
+        nodeIsOffline NOTIFICATION-TYPE
+                OBJECTS     { component, details, nodeID, severity, timeOccurred, id,
+                              messageCode, state, serialNumber,
+                              tier, sparePartNumber, sysName }
+                STATUS      current
+                DESCRIPTION "Node <node_id> is offline"
+                ::= { storeServAlerts 48 }
+
+        memoryUsageInformation NOTIFICATION-TYPE
+                OBJECTS     { component, details, nodeID, severity, timeOccurred, id,
+                              messageCode, state, serialNumber,
+                              tier, sparePartNumber, sysName }
+                STATUS      current
+                DESCRIPTION "Memory usage critical: MemTotal: <memtotal>K MemFree: <memfree>K Buffers: <buffers>K Cached: <cached>K SwapCached: <swapcached>K Active: <active>K Inactive: <inactive>K SwapTotal: <swaptotal>K SwapFree: <swapfree>K Dirty: <dirty>K Writeback: <writeback>K AnonPages: <anonpages>K Mapped: <mapped>K Slab: <slab>K PageTables: <pagetables>K VmallocTotal: <vmalloctotal>K VmallocUsed: <vmallocused>K VmallocChunk: <vmallocchunk>K NFS_Unstable: <nfs_unstable>K Bounce: <bounce>K CommitLimit: <commitlimit>K Commited_AS: <commited_as>K."
+                ::= { storeServAlerts 49 }
+
+        clusterThermalShutdown NOTIFICATION-TYPE
+                OBJECTS     { component, details, nodeID, severity, timeOccurred, id,
+                              messageCode, state, serialNumber,
+                              tier, sparePartNumber, sysName }
+                STATUS      current
+                DESCRIPTION "Node <Node_ID>, due to high temperature conditions, the storage system is being shutdown."
+                ::= { storeServAlerts 50 }
+
+        nodeNeedsToShutdown NOTIFICATION-TYPE
+                OBJECTS     { component, details, nodeID, severity, timeOccurred, id,
+                              messageCode, state, serialNumber,
+                              tier, sparePartNumber, sysName }
+                STATUS      current
+                DESCRIPTION "THERMAL SHUTDOWN, node: <node_id>"
+                ::= { storeServAlerts 51 }
+
+        slabMemoryUsageOverLimit NOTIFICATION-TYPE
+                OBJECTS     { component, details, nodeID, severity, timeOccurred, id,
+                              messageCode, state, serialNumber,
+                              tier, sparePartNumber, sysName }
+                STATUS      current
+                DESCRIPTION "SlabUsage:: critical status=<report_status> Totals:: memory=<slab_tot_mem_kb>KB count=<slab_tot_ct> activeCount=<slab_tot_active_ct> largestUseSlabs(count=<slab_entry_ct>)::<slab_usage_entries>."
+                ::= { storeServAlerts 52 }
+
+        systemReporterCmpPerformanceMajorAlert NOTIFICATION-TYPE
+                OBJECTS     { component, details, nodeID, severity, timeOccurred, id,
+                              messageCode, state, serialNumber,
+                              tier, sparePartNumber, sysName }
+                STATUS      current
+                DESCRIPTION "System Reporter threshold alert <cmp_str_data> with condition <cmp_valstr1> has been satisfied by cmp on node <cmp_valstr0> with value(s) <cmp_valstr2>."
+                ::= { storeServAlerts 53 }
+
+        systemReporterCpuPerformanceMajorAlert NOTIFICATION-TYPE
+                OBJECTS     { component, details, nodeID, severity, timeOccurred, id,
+                              messageCode, state, serialNumber,
+                              tier, sparePartNumber, sysName }
+                STATUS      current
+                DESCRIPTION "System Reporter threshold alert <cpu_str_data> with condition <cpu_valstr1> has been satisfied by cpu on node <cpu_valstr0> with value(s) <cpu_valstr2>."
+                ::= { storeServAlerts 54 }
+
+        systemReporterLinkPerformanceMajorAlert NOTIFICATION-TYPE
+                OBJECTS     { component, details, nodeID, severity, timeOccurred, id,
+                              messageCode, state, serialNumber,
+                              tier, sparePartNumber, sysName }
+                STATUS      current
+                DESCRIPTION "System Reporter threshold alert <link_str_data> with condition <link_valstr1> has been satisfied by link on node <link_valstr0> with value(s) <link_valstr2>."
+                ::= { storeServAlerts 55 }
+
+        cmpThreshold NOTIFICATION-TYPE
+                OBJECTS     { component, details, nodeID, severity, timeOccurred, id,
+                              messageCode, state, serialNumber,
+                              tier, sparePartNumber, sysName }
+                STATUS      current
+                DESCRIPTION "CMP usage on node [[hw_node]] has exceeded <threshold>%."
+                ::= { storeServAlerts 56 }
+
+        systemReporterCachePerformanceMajorAlert NOTIFICATION-TYPE
+                OBJECTS     { component, details, nodeID, severity, timeOccurred, id,
+                              messageCode, state, serialNumber,
+                              tier, sparePartNumber, sysName }
+                STATUS      current
+                DESCRIPTION "System Reporter threshold alert <cache_str_data> with condition <cache_valstr1> has been satisfied by cache on node <cache_valstr0> with value(s) <cache_valstr2>."
+                ::= { storeServAlerts 57 }
+
+        componentStateChangeTimeOfDayBatteryFailure NOTIFICATION-TYPE
+                OBJECTS     { component, details, nodeID, severity, timeOccurred, id,
+                              messageCode, state, serialNumber,
+                              tier, sparePartNumber, sysName }
+                STATUS      current
+                DESCRIPTION "Time-Of-Day Battery Failure; Node <node_id> Degraded (<list of: State String {State Value}>)"
+                ::= { storeServAlerts 58 }
+
+        componentStateChangeCpuOverheating NOTIFICATION-TYPE
+                OBJECTS     { component, details, nodeID, severity, timeOccurred, id,
+                              messageCode, state, serialNumber,
+                              tier, sparePartNumber, sysName }
+                STATUS      current
+                DESCRIPTION "CPU Overheating; Node <node_id> Degraded (<list of: State String {State Value}>)"
+                ::= { storeServAlerts 59 }
+
+        componentStateChangeNodeOfflineDueToFailure0x01a00deX13 NOTIFICATION-TYPE
+                OBJECTS     { component, details, nodeID, severity, timeOccurred, id,
+                              messageCode, state, serialNumber,
+                              tier, sparePartNumber, sysName }
+                STATUS      current
+                DESCRIPTION "Node Offline Due to Failure; Node <node_id> Degraded (<list of: State String {State Value}>)"
+                ::= { storeServAlerts 60 }
+
+        componentStateChangeCpuDead0x01a00deX19 NOTIFICATION-TYPE
+                OBJECTS     { component, details, nodeID, severity, timeOccurred, id,
+                              messageCode, state, serialNumber,
+                              tier, sparePartNumber, sysName }
+                STATUS      current
+                DESCRIPTION "CPU Dead; Node <node_id> Degraded (<list of: State String {State Value}>)"
+                ::= { storeServAlerts 61 }
+
+        componentStateChangeNodeFanModule0Failed0x01a00deX25 NOTIFICATION-TYPE
+                OBJECTS     { component, details, nodeID, severity, timeOccurred, id,
+                              messageCode, state, serialNumber,
+                              tier, sparePartNumber, sysName }
+                STATUS      current
+                DESCRIPTION "Node Fan Module 0 Failed; Node <node_id> Degraded (<list of: State String {State Value}>)"
+                ::= { storeServAlerts 62 }
+
+        componentStateChangeNodeFanModule0PowerFault0x01a00deX28 NOTIFICATION-TYPE
+                OBJECTS     { component, details, nodeID, severity, timeOccurred, id,
+                              messageCode, state, serialNumber,
+                              tier, sparePartNumber, sysName }
+                STATUS      current
+                DESCRIPTION "Node Fan Module 0 Power Fault; Node <node_id> Degraded (<list of: State String {State Value}>)"
+                ::= { storeServAlerts 63 }
+
+        componentStateChangeNodeFanModule0UnderLimit NOTIFICATION-TYPE
+                OBJECTS     { component, details, nodeID, severity, timeOccurred, id,
+                              messageCode, state, serialNumber,
+                              tier, sparePartNumber, sysName }
+                STATUS      current
+                DESCRIPTION "Node Fan Module 0 Under Limit; Node <node_id> Degraded (<list of: State String {State Value}>)"
+                ::= { storeServAlerts 64 }
+
+        componentStateChangeNodeThermalState NOTIFICATION-TYPE
+                OBJECTS     { component, details, nodeID, severity, timeOccurred, id,
+                              messageCode, state, serialNumber,
+                              tier, sparePartNumber, sysName }
+                STATUS      current
+                DESCRIPTION "Node Thermal State; Node <node_id> Degraded (<list of: State String {State Value}>)"
+                ::= { storeServAlerts 65 }
+
+        componentStateChangeNodeFanModule1Failed0x01a00deX33 NOTIFICATION-TYPE
+                OBJECTS     { component, details, nodeID, severity, timeOccurred, id,
+                              messageCode, state, serialNumber,
+                              tier, sparePartNumber, sysName }
+                STATUS      current
+                DESCRIPTION "Node Fan Module 1 Failed; Node <node_id> Degraded (<list of: State String {State Value}>)"
+                ::= { storeServAlerts 66 }
+
+        componentStateChangeNodeFanModule1PowerFault0x01a00deX35 NOTIFICATION-TYPE
+                OBJECTS     { component, details, nodeID, severity, timeOccurred, id,
+                              messageCode, state, serialNumber,
+                              tier, sparePartNumber, sysName }
+                STATUS      current
+                DESCRIPTION "Node Fan Module 1 Power Fault; Node <node_id> Degraded (<list of: State String {State Value}>)"
+                ::= { storeServAlerts 67 }
+
+        componentStateChangeNodeOfflineDueToFailure0x01a00faX13 NOTIFICATION-TYPE
+                OBJECTS     { component, details, nodeID, severity, timeOccurred, id,
+                              messageCode, state, serialNumber,
+                              tier, sparePartNumber, sysName }
+                STATUS      current
+                DESCRIPTION "Node Offline Due to Failure; Node <node_id> Failed (<list of: State String {State Value}>)"
+                ::= { storeServAlerts 68 }
+
+        componentStateChangeCpuDead0x01a00faX19 NOTIFICATION-TYPE
+                OBJECTS     { component, details, nodeID, severity, timeOccurred, id,
+                              messageCode, state, serialNumber,
+                              tier, sparePartNumber, sysName }
+                STATUS      current
+                DESCRIPTION "CPU Dead; Node <node_id> Failed (<list of: State String {State Value}>)"
+                ::= { storeServAlerts 69 }
+
+        componentStateChangeNodeFanModule0Failed0x01a00faX25 NOTIFICATION-TYPE
+                OBJECTS     { component, details, nodeID, severity, timeOccurred, id,
+                              messageCode, state, serialNumber,
+                              tier, sparePartNumber, sysName }
+                STATUS      current
+                DESCRIPTION "Node Fan Module 0 Failed; Node <node_id> Failed (<list of: State String {State Value}>)"
+                ::= { storeServAlerts 70 }
+
+        componentStateChangeNodeFanModule0PowerFault0x01a00faX28 NOTIFICATION-TYPE
+                OBJECTS     { component, details, nodeID, severity, timeOccurred, id,
+                              messageCode, state, serialNumber,
+                              tier, sparePartNumber, sysName }
+                STATUS      current
+                DESCRIPTION "Node Fan Module 0 Power Fault; Node <node_id> Failed (<list of: State String {State Value}>)"
+                ::= { storeServAlerts 71 }
+
+        componentStateChangeUncorrectableMemoryError NOTIFICATION-TYPE
+                OBJECTS     { component, details, nodeID, severity, timeOccurred, id,
+                              messageCode, state, serialNumber,
+                              tier, sparePartNumber, sysName }
+                STATUS      current
+                DESCRIPTION "Uncorrectable Memory Error; Node <node_id> Failed (<list of: State String {State Value}>)"
+                ::= { storeServAlerts 72 }
+
+        componentStateChangeNodeThermalShutdown NOTIFICATION-TYPE
+                OBJECTS     { component, details, nodeID, severity, timeOccurred, id,
+                              messageCode, state, serialNumber,
+                              tier, sparePartNumber, sysName }
+                STATUS      current
+                DESCRIPTION "Node Thermal Shutdown; Node <node_id> Failed (<list of: State String {State Value}>)"
+                ::= { storeServAlerts 73 }
+
+        componentStateChangeNodeFanModule1Failed0x01a00faX33 NOTIFICATION-TYPE
+                OBJECTS     { component, details, nodeID, severity, timeOccurred, id,
+                              messageCode, state, serialNumber,
+                              tier, sparePartNumber, sysName }
+                STATUS      current
+                DESCRIPTION "Node Fan Module 1 Failed; Node <node_id> Failed (<list of: State String {State Value}>)"
+                ::= { storeServAlerts 74 }
+
+        componentStateChangeNodeFanModule1PowerFault0x01a00faX35 NOTIFICATION-TYPE
+                OBJECTS     { component, details, nodeID, severity, timeOccurred, id,
+                              messageCode, state, serialNumber,
+                              tier, sparePartNumber, sysName }
+                STATUS      current
+                DESCRIPTION "Node Fan Module 1 Power Fault; Node <node_id> Failed (<list of: State String {State Value}>)"
+                ::= { storeServAlerts 75 }
+
+        componentStateChangeMultipleUncorrectableMemoryError NOTIFICATION-TYPE
+                OBJECTS     { component, details, nodeID, severity, timeOccurred, id,
+                              messageCode, state, serialNumber,
+                              tier, sparePartNumber, sysName }
+                STATUS      current
+                DESCRIPTION "Multiple Uncorrectable Memory Error; Node <node_id> Failed (<list of: State String {State Value}>)"
+                ::= { storeServAlerts 76 }
+
+        componentStateChangeDcFailed0x01b00faX1 NOTIFICATION-TYPE
+                OBJECTS     { component, details, nodeID, severity, timeOccurred, id,
+                              messageCode, state, serialNumber,
+                              tier, sparePartNumber, sysName }
+                STATUS      current
+                DESCRIPTION "DC Failed; Node <node_id> Power Supply <power_supply_id> Failed (<list of: State String {State Value}>)"
+                ::= { storeServAlerts 77 }
+
+        componentStateChangeOverTemperature NOTIFICATION-TYPE
+                OBJECTS     { component, details, nodeID, severity, timeOccurred, id,
+                              messageCode, state, serialNumber,
+                              tier, sparePartNumber, sysName }
+                STATUS      current
+                DESCRIPTION "Over Temperature; Node <node_id> Power Supply <power_supply_id> Failed (<list of: State String {State Value}>)"
+                ::= { storeServAlerts 78 }
+
+        componentStateChangeAcFailed NOTIFICATION-TYPE
+                OBJECTS     { component, details, nodeID, severity, timeOccurred, id,
+                              messageCode, state, serialNumber,
+                              tier, sparePartNumber, sysName }
+                STATUS      current
+                DESCRIPTION "AC Failed; Node <node_id> Power Supply <power_supply_id> Failed (<list of: State String {State Value}>)"
+                ::= { storeServAlerts 79 }
+
+        componentStateChangeFanFailed0x01b00faX3 NOTIFICATION-TYPE
+                OBJECTS     { component, details, nodeID, severity, timeOccurred, id,
+                              messageCode, state, serialNumber,
+                              tier, sparePartNumber, sysName }
+                STATUS      current
+                DESCRIPTION "Fan Failed; Node <node_id> Power Supply <power_supply_id> Failed (<list of: State String {State Value}>)"
+                ::= { storeServAlerts 80 }
+
+        componentStateChangeTemperatureUnderWarningThreshold0x01e00deX1 NOTIFICATION-TYPE
+                OBJECTS     { component, details, nodeID, severity, timeOccurred, id,
+                              messageCode, state, serialNumber,
+                              tier, sparePartNumber, sysName }
+                STATUS      current
+                DESCRIPTION "Temperature Under Warning Threshold; Cage <cage_id> Degraded (<list of: State String {State Value}>)"
+                ::= { storeServAlerts 81 }
+
+        componentStateChangeOperatorsPanelFailed NOTIFICATION-TYPE
+                OBJECTS     { component, details, nodeID, severity, timeOccurred, id,
+                              messageCode, state, serialNumber,
+                              tier, sparePartNumber, sysName }
+                STATUS      current
+                DESCRIPTION "Operators Panel Failed; Cage <cage_id> Degraded (<list of: State String {State Value}>)"
+                ::= { storeServAlerts 82 }
+
+        componentStateChangeOperatorsPanelWarning NOTIFICATION-TYPE
+                OBJECTS     { component, details, nodeID, severity, timeOccurred, id,
+                              messageCode, state, serialNumber,
+                              tier, sparePartNumber, sysName }
+                STATUS      current
+                DESCRIPTION "Operators Panel Warning; Cage <cage_id> Degraded (<list of: State String {State Value}>)"
+                ::= { storeServAlerts 83 }
+
+        componentStateChangeUnsupportedCage NOTIFICATION-TYPE
+                OBJECTS     { component, details, nodeID, severity, timeOccurred, id,
+                              messageCode, state, serialNumber,
+                              tier, sparePartNumber, sysName }
+                STATUS      current
+                DESCRIPTION "Unsupported Cage; Cage <cage_id> Degraded (<list of: State String {State Value}>)"
+                ::= { storeServAlerts 84 }
+
+        componentStateChangeTemperatureUnderWarningThreshold0x01e00faX1 NOTIFICATION-TYPE
+                OBJECTS     { component, details, nodeID, severity, timeOccurred, id,
+                              messageCode, state, serialNumber,
+                              tier, sparePartNumber, sysName }
+                STATUS      current
+                DESCRIPTION "Temperature Under Warning Threshold; Cage <cage_id> Failed (<list of: State String {State Value}>)"
+                ::= { storeServAlerts 85 }
+
+        componentStateChangeTemperatureUnderFailureThreshold NOTIFICATION-TYPE
+                OBJECTS     { component, details, nodeID, severity, timeOccurred, id,
+                              messageCode, state, serialNumber,
+                              tier, sparePartNumber, sysName }
+                STATUS      current
+                DESCRIPTION "Temperature Under Failure Threshold; Cage <cage_id> Failed (<list of: State String {State Value}>)"
+                ::= { storeServAlerts 86 }
+
+        componentStateChangeTemperatureOverWarningThreshold NOTIFICATION-TYPE
+                OBJECTS     { component, details, nodeID, severity, timeOccurred, id,
+                              messageCode, state, serialNumber,
+                              tier, sparePartNumber, sysName }
+                STATUS      current
+                DESCRIPTION "Temperature Over Warning Threshold; Cage <cage_id> Failed (<list of: State String {State Value}>)"
+                ::= { storeServAlerts 87 }
+
+        componentStateChangeInaccessible NOTIFICATION-TYPE
+                OBJECTS     { component, details, nodeID, severity, timeOccurred, id,
+                              messageCode, state, serialNumber,
+                              tier, sparePartNumber, sysName }
+                STATUS      current
+                DESCRIPTION "Inaccessible; Cage <cage_id> Failed (<list of: State String {State Value}>)"
+                ::= { storeServAlerts 88 }
+
+        componentStateChangeTemperatureOverFailureThreshold NOTIFICATION-TYPE
+                OBJECTS     { component, details, nodeID, severity, timeOccurred, id,
+                              messageCode, state, serialNumber,
+                              tier, sparePartNumber, sysName }
+                STATUS      current
+                DESCRIPTION "Temperature Over Failure Threshold; Cage <cage_id> Failed (<list of: State String {State Value}>)"
+                ::= { storeServAlerts 89 }
+
+        componentStateChangePortBypassed NOTIFICATION-TYPE
+                OBJECTS     { component, details, nodeID, severity, timeOccurred, id,
+                              messageCode, state, serialNumber,
+                              tier, sparePartNumber, sysName }
+                STATUS      current
+                DESCRIPTION "Port Bypassed; Disk <wwn_id> Degraded (<list of: State String {State Value}>)"
+                ::= { storeServAlerts 90 }
+
+        componentStateChangeNotready NOTIFICATION-TYPE
+                OBJECTS     { component, details, nodeID, severity, timeOccurred, id,
+                              messageCode, state, serialNumber,
+                              tier, sparePartNumber, sysName }
+                STATUS      current
+                DESCRIPTION "Notready; Disk <wwn_id> Degraded (<list of: State String {State Value}>)"
+                ::= { storeServAlerts 91 }
+
+        componentStateChangeMissing0x01f00deX129 NOTIFICATION-TYPE
+                OBJECTS     { component, details, nodeID, severity, timeOccurred, id,
+                              messageCode, state, serialNumber,
+                              tier, sparePartNumber, sysName }
+                STATUS      current
+                DESCRIPTION "Missing; Disk <wwn_id> Degraded (<list of: State String {State Value}>)"
+                ::= { storeServAlerts 92 }
+
+        componentStateChangeInvalidConnections NOTIFICATION-TYPE
+                OBJECTS     { component, details, nodeID, severity, timeOccurred, id,
+                              messageCode, state, serialNumber,
+                              tier, sparePartNumber, sysName }
+                STATUS      current
+                DESCRIPTION "Invalid connections; Disk <wwn_id> Degraded (<list of: State String {State Value}>)"
+                ::= { storeServAlerts 93 }
+
+        componentStateChangeNotAvailableForAllocations NOTIFICATION-TYPE
+                OBJECTS     { component, details, nodeID, severity, timeOccurred, id,
+                              messageCode, state, serialNumber,
+                              tier, sparePartNumber, sysName }
+                STATUS      current
+                DESCRIPTION "Not Available For Allocations; Disk <wwn_id> Degraded (<list of: State String {State Value}>)"
+                ::= { storeServAlerts 94 }
+
+        componentStateChangeOldFirmware NOTIFICATION-TYPE
+                OBJECTS     { component, details, nodeID, severity, timeOccurred, id,
+                              messageCode, state, serialNumber,
+                              tier, sparePartNumber, sysName }
+                STATUS      current
+                DESCRIPTION "Old Firmware; Disk <wwn_id> Degraded (<list of: State String {State Value}>)"
+                ::= { storeServAlerts 95 }
+
+        componentStateChangeDisabledAPort NOTIFICATION-TYPE
+                OBJECTS     { component, details, nodeID, severity, timeOccurred, id,
+                              messageCode, state, serialNumber,
+                              tier, sparePartNumber, sysName }
+                STATUS      current
+                DESCRIPTION "Disabled A Port; Disk <wwn_id> Degraded (<list of: State String {State Value}>)"
+                ::= { storeServAlerts 96 }
+
+        componentStateChangeMissingAPort NOTIFICATION-TYPE
+                OBJECTS     { component, details, nodeID, severity, timeOccurred, id,
+                              messageCode, state, serialNumber,
+                              tier, sparePartNumber, sysName }
+                STATUS      current
+                DESCRIPTION "Missing A Port; Disk <wwn_id> Degraded (<list of: State String {State Value}>)"
+                ::= { storeServAlerts 97 }
+
+        componentStateChangeErrorsOnAPort NOTIFICATION-TYPE
+                OBJECTS     { component, details, nodeID, severity, timeOccurred, id,
+                              messageCode, state, serialNumber,
+                              tier, sparePartNumber, sysName }
+                STATUS      current
+                DESCRIPTION "Errors on A Port; Disk <wwn_id> Degraded (<list of: State String {State Value}>)"
+                ::= { storeServAlerts 98 }
+
+        componentStateChangeProlongedMissingAPort NOTIFICATION-TYPE
+                OBJECTS     { component, details, nodeID, severity, timeOccurred, id,
+                              messageCode, state, serialNumber,
+                              tier, sparePartNumber, sysName }
+                STATUS      current
+                DESCRIPTION "Prolonged Missing A Port; Disk <wwn_id> Degraded (<list of: State String {State Value}>)"
+                ::= { storeServAlerts 99 }
+
+        componentStateChangeDisabledBPort NOTIFICATION-TYPE
+                OBJECTS     { component, details, nodeID, severity, timeOccurred, id,
+                              messageCode, state, serialNumber,
+                              tier, sparePartNumber, sysName }
+                STATUS      current
+                DESCRIPTION "Disabled B Port; Disk <wwn_id> Degraded (<list of: State String {State Value}>)"
+                ::= { storeServAlerts 100 }
+
+        componentStateChangeMissingBPort NOTIFICATION-TYPE
+                OBJECTS     { component, details, nodeID, severity, timeOccurred, id,
+                              messageCode, state, serialNumber,
+                              tier, sparePartNumber, sysName }
+                STATUS      current
+                DESCRIPTION "Missing B Port; Disk <wwn_id> Degraded (<list of: State String {State Value}>)"
+                ::= { storeServAlerts 101 }
+
+        componentStateChangeErrorsOnBPort NOTIFICATION-TYPE
+                OBJECTS     { component, details, nodeID, severity, timeOccurred, id,
+                              messageCode, state, serialNumber,
+                              tier, sparePartNumber, sysName }
+                STATUS      current
+                DESCRIPTION "Errors on B Port; Disk <wwn_id> Degraded (<list of: State String {State Value}>)"
+                ::= { storeServAlerts 102 }
+
+        componentStateChangeProlongedMissingBPort NOTIFICATION-TYPE
+                OBJECTS     { component, details, nodeID, severity, timeOccurred, id,
+                              messageCode, state, serialNumber,
+                              tier, sparePartNumber, sysName }
+                STATUS      current
+                DESCRIPTION "Prolonged Missing B Port; Disk <wwn_id> Degraded (<list of: State String {State Value}>)"
+                ::= { storeServAlerts 103 }
+
+        componentStateChangeOverTemperatureWarning NOTIFICATION-TYPE
+                OBJECTS     { component, details, nodeID, severity, timeOccurred, id,
+                              messageCode, state, serialNumber,
+                              tier, sparePartNumber, sysName }
+                STATUS      current
+                DESCRIPTION "Over Temperature Warning; Disk <wwn_id> Degraded (<list of: State String {State Value}>)"
+                ::= { storeServAlerts 104 }
+
+        componentStateChangeOverTemperatureAlert NOTIFICATION-TYPE
+                OBJECTS     { component, details, nodeID, severity, timeOccurred, id,
+                              messageCode, state, serialNumber,
+                              tier, sparePartNumber, sysName }
+                STATUS      current
+                DESCRIPTION "Over Temperature Alert; Disk <wwn_id> Degraded (<list of: State String {State Value}>)"
+                ::= { storeServAlerts 105 }
+
+        componentStateChangeInvalidMedia NOTIFICATION-TYPE
+                OBJECTS     { component, details, nodeID, severity, timeOccurred, id,
+                              messageCode, state, serialNumber,
+                              tier, sparePartNumber, sysName }
+                STATUS      current
+                DESCRIPTION "Invalid Media; Disk <wwn_id> Degraded (<list of: State String {State Value}>)"
+                ::= { storeServAlerts 106 }
+
+        componentStateChangeFailedHardware0x01f00deX153 NOTIFICATION-TYPE
+                OBJECTS     { component, details, nodeID, severity, timeOccurred, id,
+                              messageCode, state, serialNumber,
+                              tier, sparePartNumber, sysName }
+                STATUS      current
+                DESCRIPTION "Failed Hardware; Disk <wwn_id> Degraded (<list of: State String {State Value}>)"
+                ::= { storeServAlerts 107 }
+
+        componentStateChangeSmartThresholdExceeded NOTIFICATION-TYPE
+                OBJECTS     { component, details, nodeID, severity, timeOccurred, id,
+                              messageCode, state, serialNumber,
+                              tier, sparePartNumber, sysName }
+                STATUS      current
+                DESCRIPTION "Smart Threshold Exceeded; Disk <wwn_id> Degraded (<list of: State String {State Value}>)"
+                ::= { storeServAlerts 108 }
+
+        componentStateChangeMultipleChunkletsMediaBad NOTIFICATION-TYPE
+                OBJECTS     { component, details, nodeID, severity, timeOccurred, id,
+                              messageCode, state, serialNumber,
+                              tier, sparePartNumber, sysName }
+                STATUS      current
+                DESCRIPTION "Multiple Chunklets Media Bad; Disk <wwn_id> Degraded (<list of: State String {State Value}>)"
+                ::= { storeServAlerts 109 }
+
+        componentStateChangeMediaFailed0x01f00deX156 NOTIFICATION-TYPE
+                OBJECTS     { component, details, nodeID, severity, timeOccurred, id,
+                              messageCode, state, serialNumber,
+                              tier, sparePartNumber, sysName }
+                STATUS      current
+                DESCRIPTION "Media Failed; Disk <wwn_id> Degraded (<list of: State String {State Value}>)"
+                ::= { storeServAlerts 110 }
+
+        componentStateChangeIncreasedErrorCount NOTIFICATION-TYPE
+                OBJECTS     { component, details, nodeID, severity, timeOccurred, id,
+                              messageCode, state, serialNumber,
+                              tier, sparePartNumber, sysName }
+                STATUS      current
+                DESCRIPTION "Increased Error Count; Disk <wwn_id> Degraded (<list of: State String {State Value}>)"
+                ::= { storeServAlerts 111 }
+
+        componentStateChangeDifThresholdExceeded NOTIFICATION-TYPE
+                OBJECTS     { component, details, nodeID, severity, timeOccurred, id,
+                              messageCode, state, serialNumber,
+                              tier, sparePartNumber, sysName }
+                STATUS      current
+                DESCRIPTION "DIF Threshold Exceeded; Disk <wwn_id> Degraded (<list of: State String {State Value}>)"
+                ::= { storeServAlerts 112 }
+
+        componentStateChangeProlongedNotReady NOTIFICATION-TYPE
+                OBJECTS     { component, details, nodeID, severity, timeOccurred, id,
+                              messageCode, state, serialNumber,
+                              tier, sparePartNumber, sysName }
+                STATUS      current
+                DESCRIPTION "Prolonged Not Ready; Disk <wwn_id> Degraded (<list of: State String {State Value}>)"
+                ::= { storeServAlerts 113 }
+
+        componentStateChangeNoValidPorts NOTIFICATION-TYPE
+                OBJECTS     { component, details, nodeID, severity, timeOccurred, id,
+                              messageCode, state, serialNumber,
+                              tier, sparePartNumber, sysName }
+                STATUS      current
+                DESCRIPTION "No Valid Ports; Disk <wwn_id> Degraded (<list of: State String {State Value}>)"
+                ::= { storeServAlerts 114 }
+
+        componentStateChangeInquiryFailed NOTIFICATION-TYPE
+                OBJECTS     { component, details, nodeID, severity, timeOccurred, id,
+                              messageCode, state, serialNumber,
+                              tier, sparePartNumber, sysName }
+                STATUS      current
+                DESCRIPTION "Inquiry Failed; Disk <wwn_id> Degraded (<list of: State String {State Value}>)"
+                ::= { storeServAlerts 115 }
+
+        componentStateChangeUnitReadyFailed NOTIFICATION-TYPE
+                OBJECTS     { component, details, nodeID, severity, timeOccurred, id,
+                              messageCode, state, serialNumber,
+                              tier, sparePartNumber, sysName }
+                STATUS      current
+                DESCRIPTION "Unit Ready Failed; Disk <wwn_id> Degraded (<list of: State String {State Value}>)"
+                ::= { storeServAlerts 116 }
+
+        componentStateChangeReadCapacityFailed NOTIFICATION-TYPE
+                OBJECTS     { component, details, nodeID, severity, timeOccurred, id,
+                              messageCode, state, serialNumber,
+                              tier, sparePartNumber, sysName }
+                STATUS      current
+                DESCRIPTION "Read Capacity Failed; Disk <wwn_id> Degraded (<list of: State String {State Value}>)"
+                ::= { storeServAlerts 117 }
+
+        componentStateChangeWriteLabelFailed NOTIFICATION-TYPE
+                OBJECTS     { component, details, nodeID, severity, timeOccurred, id,
+                              messageCode, state, serialNumber,
+                              tier, sparePartNumber, sysName }
+                STATUS      current
+                DESCRIPTION "Write Label Failed; Disk <wwn_id> Degraded (<list of: State String {State Value}>)"
+                ::= { storeServAlerts 118 }
+
+        componentStateChangeModePageUpdateFailed NOTIFICATION-TYPE
+                OBJECTS     { component, details, nodeID, severity, timeOccurred, id,
+                              messageCode, state, serialNumber,
+                              tier, sparePartNumber, sysName }
+                STATUS      current
+                DESCRIPTION "Mode Page Update Failed; Magazine <mag_id> Physical Disk <pd_id> Degraded (<list of: State String {State Value}>)"
+                ::= { storeServAlerts 119 }
+
+        componentStateChangeReadLabelFailed NOTIFICATION-TYPE
+                OBJECTS     { component, details, nodeID, severity, timeOccurred, id,
+                              messageCode, state, serialNumber,
+                              tier, sparePartNumber, sysName }
+                STATUS      current
+                DESCRIPTION "Read Label Failed; Disk <wwn_id> Degraded (<list of: State String {State Value}>)"
+                ::= { storeServAlerts 120 }
+
+        componentStateChangeMediumFormatCorrupted NOTIFICATION-TYPE
+                OBJECTS     { component, details, nodeID, severity, timeOccurred, id,
+                              messageCode, state, serialNumber,
+                              tier, sparePartNumber, sysName }
+                STATUS      current
+                DESCRIPTION "Medium Format Corrupted; Disk <wwn_id> Degraded (<list of: State String {State Value}>)"
+                ::= { storeServAlerts 121 }
+
+        componentStateChangeLowWearLevelRemaining NOTIFICATION-TYPE
+                OBJECTS     { component, details, nodeID, severity, timeOccurred, id,
+                              messageCode, state, serialNumber,
+                              tier, sparePartNumber, sysName }
+                STATUS      current
+                DESCRIPTION "Low Wear Level Remaining; Disk <wwn_id> Degraded (<list of: State String {State Value}>)"
+                ::= { storeServAlerts 122 }
+
+        componentStateChangeMiscompare NOTIFICATION-TYPE
+                OBJECTS     { component, details, nodeID, severity, timeOccurred, id,
+                              messageCode, state, serialNumber,
+                              tier, sparePartNumber, sysName }
+                STATUS      current
+                DESCRIPTION "Miscompare; Disk <wwn_id> Degraded (<list of: State String {State Value}>)"
+                ::= { storeServAlerts 123 }
+
+        componentStateChangeInvalidCage NOTIFICATION-TYPE
+                OBJECTS     { component, details, nodeID, severity, timeOccurred, id,
+                              messageCode, state, serialNumber,
+                              tier, sparePartNumber, sysName }
+                STATUS      current
+                DESCRIPTION "Invalid Cage; Disk <wwn_id> Degraded (<list of: State String {State Value}>)"
+                ::= { storeServAlerts 124 }
+
+        componentStateChangeSlowDrive NOTIFICATION-TYPE
+                OBJECTS     { component, details, nodeID, severity, timeOccurred, id,
+                              messageCode, state, serialNumber,
+                              tier, sparePartNumber, sysName }
+                STATUS      current
+                DESCRIPTION "Slow Drive; Disk <wwn_id> Degraded (<list of: State String {State Value}>)"
+                ::= { storeServAlerts 125 }
+
+        componentStateChangeServicing NOTIFICATION-TYPE
+                OBJECTS     { component, details, nodeID, severity, timeOccurred, id,
+                              messageCode, state, serialNumber,
+                              tier, sparePartNumber, sysName }
+                STATUS      current
+                DESCRIPTION "Servicing; Disk <wwn_id> Degraded (<list of: State String {State Value}>)"
+                ::= { storeServAlerts 126 }
+
+        componentStateChangeDriveErrorBitSet NOTIFICATION-TYPE
+                OBJECTS     { component, details, nodeID, severity, timeOccurred, id,
+                              messageCode, state, serialNumber,
+                              tier, sparePartNumber, sysName }
+                STATUS      current
+                DESCRIPTION "Drive Error Bit Set; Disk <wwn_id> Degraded (<list of: State String {State Value}>)"
+                ::= { storeServAlerts 127 }
+
+        componentStateChangeFailedHardware0x01f00faX153 NOTIFICATION-TYPE
+                OBJECTS     { component, details, nodeID, severity, timeOccurred, id,
+                              messageCode, state, serialNumber,
+                              tier, sparePartNumber, sysName }
+                STATUS      current
+                DESCRIPTION "Failed Hardware; Disk <wwn_id> Failed (<list of: State String {State Value}>)"
+                ::= { storeServAlerts 128 }
+
+        componentStateChangeMediaFailed0x01f00faX156 NOTIFICATION-TYPE
+                OBJECTS     { component, details, nodeID, severity, timeOccurred, id,
+                              messageCode, state, serialNumber,
+                              tier, sparePartNumber, sysName }
+                STATUS      current
+                DESCRIPTION "Media Failed; Disk <wwn_id> Failed (<list of: State String {State Value}>)"
+                ::= { storeServAlerts 129 }
+
+        componentStateChangeReplaceDrive0x01f00faX70 NOTIFICATION-TYPE
+                OBJECTS     { component, details, nodeID, severity, timeOccurred, id,
+                              messageCode, state, serialNumber,
+                              tier, sparePartNumber, sysName }
+                STATUS      current
+                DESCRIPTION "Replace Drive; Disk <wwn_id> Failed (<list of: State String {State Value}>)"
+                ::= { storeServAlerts 130 }
+
+        internalErrorInAuthenticationLibrary NOTIFICATION-TYPE
+                OBJECTS     { component, details, nodeID, severity, timeOccurred, id,
+                              messageCode, state, serialNumber,
+                              tier, sparePartNumber, sysName }
+                STATUS      current
+                DESCRIPTION "Authentication internal error. Client address <IPaddr> port <port>"
+                ::= { storeServAlerts 131 }
+
+        assertBatteryFail NOTIFICATION-TYPE
+                OBJECTS     { component, details, nodeID, severity, timeOccurred, id,
+                              messageCode, state, serialNumber,
+                              tier, sparePartNumber, sysName }
+                STATUS      current
+                DESCRIPTION "Node <node_id> PS <power_supply_id> Battery <battery_id>: Battery Failed during battery test."
+                ::= { storeServAlerts 132 }
+
+        componentStateChangeExpired NOTIFICATION-TYPE
+                OBJECTS     { component, details, nodeID, severity, timeOccurred, id,
+                              messageCode, state, serialNumber,
+                              tier, sparePartNumber, sysName }
+                STATUS      current
+                DESCRIPTION "Expired; Node <node_id> [Power Supply <power_supply_id>] Battery <battery_id> Degraded (<list of: State String {State Value}>)"
+                ::= { storeServAlerts 133 }
+
+        componentStateChangeChargingFailed NOTIFICATION-TYPE
+                OBJECTS     { component, details, nodeID, severity, timeOccurred, id,
+                              messageCode, state, serialNumber,
+                              tier, sparePartNumber, sysName }
+                STATUS      current
+                DESCRIPTION "Charging Failed; Node <node_id> [Power Supply <power_supply_id>] Battery <battery_id> Degraded (<list of: State String {State Value}>)"
+                ::= { storeServAlerts 134 }
+
+        componentStateChangeInternalError NOTIFICATION-TYPE
+                OBJECTS     { component, details, nodeID, severity, timeOccurred, id,
+                              messageCode, state, serialNumber,
+                              tier, sparePartNumber, sysName }
+                STATUS      current
+                DESCRIPTION "Internal Error; Node <node_id> [Power Supply <power_supply_id>] Battery <battery_id> Degraded (<list of: State String {State Value}>)"
+                ::= { storeServAlerts 135 }
+
+        componentStateChangeLoadSharingFailed NOTIFICATION-TYPE
+                OBJECTS     { component, details, nodeID, severity, timeOccurred, id,
+                              messageCode, state, serialNumber,
+                              tier, sparePartNumber, sysName }
+                STATUS      current
+                DESCRIPTION "Load Sharing Failed; Node <node_id> [Power Supply <power_supply_id>] Battery <battery_id> Degraded (<list of: State String {State Value}>)"
+                ::= { storeServAlerts 136 }
+
+        componentStateChangeFanFailed0x02200deX6 NOTIFICATION-TYPE
+                OBJECTS     { component, details, nodeID, severity, timeOccurred, id,
+                              messageCode, state, serialNumber,
+                              tier, sparePartNumber, sysName }
+                STATUS      current
+                DESCRIPTION "Fan Failed; Node <node_id> [Power Supply <power_supply_id>] Battery <battery_id> Degraded (<list of: State String {State Value}>)"
+                ::= { storeServAlerts 137 }
+
+        componentStateChangeDcFailed0x02200deX7 NOTIFICATION-TYPE
+                OBJECTS     { component, details, nodeID, severity, timeOccurred, id,
+                              messageCode, state, serialNumber,
+                              tier, sparePartNumber, sysName }
+                STATUS      current
+                DESCRIPTION "DC Failed; Node <node_id> [Power Supply <power_supply_id>] Battery <battery_id> Degraded (<list of: State String {State Value}>)"
+                ::= { storeServAlerts 138 }
+
+        componentStateChangeChargerFailed NOTIFICATION-TYPE
+                OBJECTS     { component, details, nodeID, severity, timeOccurred, id,
+                              messageCode, state, serialNumber,
+                              tier, sparePartNumber, sysName }
+                STATUS      current
+                DESCRIPTION "Charger Failed; Node <node_id> [Power Supply <power_supply_id>] Battery <battery_id> Degraded (<list of: State String {State Value}>)"
+                ::= { storeServAlerts 139 }
+
+        componentStateChangeFailed NOTIFICATION-TYPE
+                OBJECTS     { component, details, nodeID, severity, timeOccurred, id,
+                              messageCode, state, serialNumber,
+                              tier, sparePartNumber, sysName }
+                STATUS      current
+                DESCRIPTION "Failed; Node <node_id> [Power Supply <power_supply_id>] Battery <battery_id> Failed (<list of: State String {State Value}>)"
+                ::= { storeServAlerts 140 }
+
+        portShutdownOnFatalError NOTIFICATION-TYPE
+                OBJECTS     { component, details, nodeID, severity, timeOccurred, id,
+                              messageCode, state, serialNumber,
+                              tier, sparePartNumber, sysName }
+                STATUS      current
+                DESCRIPTION "Port <port_id> shut down: <time_shutdown>"
+                ::= { storeServAlerts 141 }
+
+        hostPortIsDown NOTIFICATION-TYPE
+                OBJECTS     { component, details, nodeID, severity, timeOccurred, id,
+                              messageCode, state, serialNumber,
+                              tier, sparePartNumber, sysName }
+                STATUS      current
+                DESCRIPTION "Host port (<node>:<slot>:<port>) is down (<reason>)"
+                ::= { storeServAlerts 142 }
+
+        remoteCopyLinkStatus NOTIFICATION-TYPE
+                OBJECTS     { component, details, nodeID, severity, timeOccurred, id,
+                              messageCode, state, serialNumber,
+                              tier, sparePartNumber, sysName }
+                STATUS      current
+                DESCRIPTION "The Remote Copy link <remote_copy_link_process_name> has changed its status to <status>"
+                ::= { storeServAlerts 143 }
+
+        replicationResourceUsageExceededGroupLogging NOTIFICATION-TYPE
+                OBJECTS     { component, details, nodeID, severity, timeOccurred, id,
+                              messageCode, state, serialNumber,
+                              tier, sparePartNumber, sysName }
+                STATUS      current
+                DESCRIPTION "Remote copy group <rm_grp_name> with ID <rm_grp_id> has transitioned to logging mode due to resource limitations."
+                ::= { storeServAlerts 144 }
+
+        replicationResourceUsageExceededGroupStopped NOTIFICATION-TYPE
+                OBJECTS     { component, details, nodeID, severity, timeOccurred, id,
+                              messageCode, state, serialNumber,
+                              tier, sparePartNumber, sysName }
+                STATUS      current
+                DESCRIPTION "Remote copy group <rm_grp_name> with ID <rm_grp_id> has been stopped due to resource limitations."
+                ::= { storeServAlerts 145 }
+
+        replicationResourcesRestoredGroupTransitionFromLoggingFailur NOTIFICATION-TYPE
+                OBJECTS     { component, details, nodeID, severity, timeOccurred, id,
+                              messageCode, state, serialNumber,
+                              tier, sparePartNumber, sysName }
+                STATUS      current
+                DESCRIPTION "Remote copy group <rm_grp_name> with ID <rm_grp_id> could not transition out of logging state when replication
+resources became available, retrying."
+                ::= { storeServAlerts 146 }
+
+        noAdminNetworkInterfaceDiscovered NOTIFICATION-TYPE
+                OBJECTS     { component, details, nodeID, severity, timeOccurred, id,
+                              messageCode, state, serialNumber,
+                              tier, sparePartNumber, sysName }
+                STATUS      current
+                DESCRIPTION "The administrative network interface has failed on node [[hw_node]]. The system cannot be managed from this node."
+                ::= { storeServAlerts 147 }
+
+        tpVvAllocationSizeLimit NOTIFICATION-TYPE
+                OBJECTS     { component, details, nodeID, severity, timeOccurred, id,
+                              messageCode, state, serialNumber,
+                              tier, sparePartNumber, sysName }
+                STATUS      current
+                DESCRIPTION "Thin provisioned VV <name> has reached reserved allocation <limit> of <XX>G (<yy>% of <ZZ>G)"
+                ::= { storeServAlerts 148 }
+
+        snapshotSpaceAllocationSizeLimit NOTIFICATION-TYPE
+                OBJECTS     { component, details, nodeID, severity, timeOccurred, id,
+                              messageCode, state, serialNumber,
+                              tier, sparePartNumber, sysName }
+                STATUS      current
+                DESCRIPTION "Reserved snapshot space for VV <name> has reached allocation <limit> of <XX>G (<yy>% of <ZZ>G)"
+                ::= { storeServAlerts 149 }
+
+        cpgGrowthLimit NOTIFICATION-TYPE
+                OBJECTS     { component, details, nodeID, severity, timeOccurred, id,
+                              messageCode, state, serialNumber,
+                              tier, sparePartNumber, sysName }
+                STATUS      current
+                DESCRIPTION "CPG <cpg name> SA space has reached allocation <limit> of <XX>G."
+                ::= { storeServAlerts 150 }
+
+        tpVvAllocationFailure NOTIFICATION-TYPE
+                OBJECTS     { component, details, nodeID, severity, timeOccurred, id,
+                              messageCode, state, serialNumber,
+                              tier, sparePartNumber, sysName }
+                STATUS      current
+                DESCRIPTION "Thin provisioned VV <name> <unable to> allocate <SA or SD or SD_2> space from CPG <cpg name>"
+                ::= { storeServAlerts 151 }
+
+        snapshotSpaceAllocationFailure NOTIFICATION-TYPE
+                OBJECTS     { component, details, nodeID, severity, timeOccurred, id,
+                              messageCode, state, serialNumber,
+                              tier, sparePartNumber, sysName }
+                STATUS      current
+                DESCRIPTION "Snapshot space for VV <VV name> <unable to> allocate <SA or SD or SD_2> space from CPG <cpg name>"
+                ::= { storeServAlerts 152 }
+
+        fcRawSpaceAllocation75Alert NOTIFICATION-TYPE
+                OBJECTS     { component, details, nodeID, severity, timeOccurred, id,
+                              messageCode, state, serialNumber,
+                              tier, sparePartNumber, sysName }
+                STATUS      current
+                DESCRIPTION "Total <FC> raw space usage at <ZZ> (above <75>% of total <total>)"
+                ::= { storeServAlerts 153 }
+
+        fcRawSpaceAllocation85Alert NOTIFICATION-TYPE
+                OBJECTS     { component, details, nodeID, severity, timeOccurred, id,
+                              messageCode, state, serialNumber,
+                              tier, sparePartNumber, sysName }
+                STATUS      current
+                DESCRIPTION "Total <FC> raw space usage at <ZZ> (above <85>% of total <total>)"
+                ::= { storeServAlerts 154 }
+
+        fcRawSpaceAllocation95Alert NOTIFICATION-TYPE
+                OBJECTS     { component, details, nodeID, severity, timeOccurred, id,
+                              messageCode, state, serialNumber,
+                              tier, sparePartNumber, sysName }
+                STATUS      current
+                DESCRIPTION "Total <FC> raw space usage at <ZZ> (above <95>% of total <total>)"
+                ::= { storeServAlerts 155 }
+
+        nlRawSpaceAllocation75Alert NOTIFICATION-TYPE
+                OBJECTS     { component, details, nodeID, severity, timeOccurred, id,
+                              messageCode, state, serialNumber,
+                              tier, sparePartNumber, sysName }
+                STATUS      current
+                DESCRIPTION "Total <NL> raw space usage at <space used> (above <75>% of total <total space>)"
+                ::= { storeServAlerts 156 }
+
+        nlRawSpaceAllocation85Alert NOTIFICATION-TYPE
+                OBJECTS     { component, details, nodeID, severity, timeOccurred, id,
+                              messageCode, state, serialNumber,
+                              tier, sparePartNumber, sysName }
+                STATUS      current
+                DESCRIPTION "Total <NL> raw space usage at <ZZ> (above <85>% of total <total>)"
+                ::= { storeServAlerts 157 }
+
+        nlRawSpaceAllocation95Alert NOTIFICATION-TYPE
+                OBJECTS     { component, details, nodeID, severity, timeOccurred, id,
+                              messageCode, state, serialNumber,
+                              tier, sparePartNumber, sysName }
+                STATUS      current
+                DESCRIPTION "Total <NL> raw space usage at <ZZ> (above <95>% of total <total>)"
+                ::= { storeServAlerts 158 }
+
+        ssdRawSpaceAllocation75Alert NOTIFICATION-TYPE
+                OBJECTS     { component, details, nodeID, severity, timeOccurred, id,
+                              messageCode, state, serialNumber,
+                              tier, sparePartNumber, sysName }
+                STATUS      current
+                DESCRIPTION "Total <SSD> raw space usage at <ZZ> (above <75>% of total <total>)"
+                ::= { storeServAlerts 159 }
+
+        ssdRawSpaceAllocation85Alert NOTIFICATION-TYPE
+                OBJECTS     { component, details, nodeID, severity, timeOccurred, id,
+                              messageCode, state, serialNumber,
+                              tier, sparePartNumber, sysName }
+                STATUS      current
+                DESCRIPTION "Total <SSD> raw space usage at <space used> (above <85>% of total <total space>)"
+                ::= { storeServAlerts 160 }
+
+        ssdRawSpaceAllocation95Alert NOTIFICATION-TYPE
+                OBJECTS     { component, details, nodeID, severity, timeOccurred, id,
+                              messageCode, state, serialNumber,
+                              tier, sparePartNumber, sysName }
+                STATUS      current
+                DESCRIPTION "Total <SSD> raw space usage at <ZZ> (above <95>% of total <total>)"
+                ::= { storeServAlerts 161 }
+
+        preservedDataLdsAreFull NOTIFICATION-TYPE
+                OBJECTS     { component, details, nodeID, severity, timeOccurred, id,
+                              messageCode, state, serialNumber,
+                              tier, sparePartNumber, sysName }
+                STATUS      current
+                DESCRIPTION "Preserved data LDs are full.  No more preserved data can be handled."
+                ::= { storeServAlerts 162 }
+
+        componentStateChangePowerSupplyFanWarning NOTIFICATION-TYPE
+                OBJECTS     { component, details, nodeID, severity, timeOccurred, id,
+                              messageCode, state, serialNumber,
+                              tier, sparePartNumber, sysName }
+                STATUS      current
+                DESCRIPTION "Power Supply Fan Warning; Cage <cage_id> Power Supply <power_supply_id> Degraded (<list of: State String {State Value}>)"
+                ::= { storeServAlerts 163 }
+
+        componentStateChangePowerSupplyOff NOTIFICATION-TYPE
+                OBJECTS     { component, details, nodeID, severity, timeOccurred, id,
+                              messageCode, state, serialNumber,
+                              tier, sparePartNumber, sysName }
+                STATUS      current
+                DESCRIPTION "Power Supply Off; Cage <cage_id> Power Supply <power_supply_id> Degraded (<list of: State String {State Value}>)"
+                ::= { storeServAlerts 164 }
+
+        componentStateChangePowerSupplyFailed0x02b00faX1 NOTIFICATION-TYPE
+                OBJECTS     { component, details, nodeID, severity, timeOccurred, id,
+                              messageCode, state, serialNumber,
+                              tier, sparePartNumber, sysName }
+                STATUS      current
+                DESCRIPTION "Power Supply Failed; Cage <cage_id> Power Supply <power_supply_id> Failed (<list of: State String {State Value}>)"
+                ::= { storeServAlerts 165 }
+
+        componentStateChangePowerSupplyFailed0x02b00faX1026 NOTIFICATION-TYPE
+                OBJECTS     { component, details, nodeID, severity, timeOccurred, id,
+                              messageCode, state, serialNumber,
+                              tier, sparePartNumber, sysName }
+                STATUS      current
+                DESCRIPTION "Power Supply Failed; Cage <cage_id> Power Supply <power_supply_id> Failed (<list of: State String {State Value}>)"
+                ::= { storeServAlerts 166 }
+
+        componentStateChangePowerSupplyWarning NOTIFICATION-TYPE
+                OBJECTS     { component, details, nodeID, severity, timeOccurred, id,
+                              messageCode, state, serialNumber,
+                              tier, sparePartNumber, sysName }
+                STATUS      current
+                DESCRIPTION "Power Supply Warning; Cage <cage_id> Power Supply <power_supply_id> Failed (<list of: State String {State Value}>)"
+                ::= { storeServAlerts 167 }
+
+        componentStateChangePowerSupplyFanNotPresent NOTIFICATION-TYPE
+                OBJECTS     { component, details, nodeID, severity, timeOccurred, id,
+                              messageCode, state, serialNumber,
+                              tier, sparePartNumber, sysName }
+                STATUS      current
+                DESCRIPTION "Power Supply Fan Not Present; Cage <cage_id> Power Supply <power_supply_id> Failed (<list of: State String {State Value}>)"
+                ::= { storeServAlerts 168 }
+
+        componentStateChangePowerSupplyFanNotAvailable NOTIFICATION-TYPE
+                OBJECTS     { component, details, nodeID, severity, timeOccurred, id,
+                              messageCode, state, serialNumber,
+                              tier, sparePartNumber, sysName }
+                STATUS      current
+                DESCRIPTION "Power Supply Fan Not Available; Cage <cage_id> Power Supply <power_supply_id> Failed (<list of: State String {State Value}>)"
+                ::= { storeServAlerts 169 }
+
+        componentStateChangePowerSupplyNotAvailable NOTIFICATION-TYPE
+                OBJECTS     { component, details, nodeID, severity, timeOccurred, id,
+                              messageCode, state, serialNumber,
+                              tier, sparePartNumber, sysName }
+                STATUS      current
+                DESCRIPTION "Power Supply Not Available; Cage <cage_id> Power Supply <power_supply_id> Failed (<list of: State String {State Value}>)"
+                ::= { storeServAlerts 170 }
+
+        componentStateChangePowerSupplyAcFailed NOTIFICATION-TYPE
+                OBJECTS     { component, details, nodeID, severity, timeOccurred, id,
+                              messageCode, state, serialNumber,
+                              tier, sparePartNumber, sysName }
+                STATUS      current
+                DESCRIPTION "Power Supply AC Failed; Cage <cage_id> Power Supply <power_supply_id> Failed (<list of: State String {State Value}>)"
+                ::= { storeServAlerts 171 }
+
+        componentStateChangeInterfaceCardFailed0x02d00deX1026 NOTIFICATION-TYPE
+                OBJECTS     { component, details, nodeID, severity, timeOccurred, id,
+                              messageCode, state, serialNumber,
+                              tier, sparePartNumber, sysName }
+                STATUS      current
+                DESCRIPTION "Interface Card Failed; Cage <cage_id> Interface Card <interface_card_id> Degraded (<list of: State String {State Value}>)"
+                ::= { storeServAlerts 172 }
+
+        componentStateChangeCpuFirmwareNotCurrent NOTIFICATION-TYPE
+                OBJECTS     { component, details, nodeID, severity, timeOccurred, id,
+                              messageCode, state, serialNumber,
+                              tier, sparePartNumber, sysName }
+                STATUS      current
+                DESCRIPTION "CPU Firmware Not Current; Cage <cage_id> Interface Card <interface_card_id> Failed (<list of: State String {State Value}>)"
+                ::= { storeServAlerts 173 }
+
+        componentStateChangeInterfaceCardFailed0x02d00faX1026 NOTIFICATION-TYPE
+                OBJECTS     { component, details, nodeID, severity, timeOccurred, id,
+                              messageCode, state, serialNumber,
+                              tier, sparePartNumber, sysName }
+                STATUS      current
+                DESCRIPTION "Interface Card Failed; Cage <cage_id> Interface Card <interface_card_id> Failed (<list of: State String {State Value}>)"
+                ::= { storeServAlerts 174 }
+
+        componentStateChangeInterfaceCardWarning NOTIFICATION-TYPE
+                OBJECTS     { component, details, nodeID, severity, timeOccurred, id,
+                              messageCode, state, serialNumber,
+                              tier, sparePartNumber, sysName }
+                STATUS      current
+                DESCRIPTION "Interface Card Warning; Cage <cage_id> Interface Card <interface_card_id> Failed (<list of: State String {State Value}>)"
+                ::= { storeServAlerts 175 }
+
+        componentStateChangeMissing0x03500faX1 NOTIFICATION-TYPE
+                OBJECTS     { component, details, nodeID, severity, timeOccurred, id,
+                              messageCode, state, serialNumber,
+                              tier, sparePartNumber, sysName }
+                STATUS      current
+                DESCRIPTION "Missing; Cage <cage_id> Magazine <mag_id> Failed (<list of: State String {State Value}>)"
+                ::= { storeServAlerts 176 }
+
+        componentStateChangeOffloopPowerSupplyFailure NOTIFICATION-TYPE
+                OBJECTS     { component, details, nodeID, severity, timeOccurred, id,
+                              messageCode, state, serialNumber,
+                              tier, sparePartNumber, sysName }
+                STATUS      current
+                DESCRIPTION "Offloop, Power Supply Failure; Cage <cage_id> Magazine <mag_id> Failed (<list of: State String {State Value}>)"
+                ::= { storeServAlerts 177 }
+
+        writeCacheAvailability NOTIFICATION-TYPE
+                OBJECTS     { component, details, nodeID, severity, timeOccurred, id,
+                              messageCode, state, serialNumber,
+                              tier, sparePartNumber, sysName }
+                STATUS      current
+                DESCRIPTION "System write cache availability is degraded."
+                ::= { storeServAlerts 178 }
+
+        componentStateChangeVolumeUnsyncedRequiresAFullResyncSinceLd NOTIFICATION-TYPE
+                OBJECTS     { component, details, nodeID, severity, timeOccurred, id,
+                              messageCode, state, serialNumber,
+                              tier, sparePartNumber, sysName }
+                STATUS      current
+                DESCRIPTION "Volume Unsynced - requires a full resync since ldck is in progress; Remote Copy Volume <volume_id>(<volume_name>) Degraded (<list of: State String {State Value}>)"
+                ::= { storeServAlerts 179 }
+
+        componentStateChangeResyncSnapshotBecameStaleFullSyncRequire NOTIFICATION-TYPE
+                OBJECTS     { component, details, nodeID, severity, timeOccurred, id,
+                              messageCode, state, serialNumber,
+                              tier, sparePartNumber, sysName }
+                STATUS      current
+                DESCRIPTION "Resync Snapshot Became Stale - full sync required; Remote Copy Volume <volume_id>(<volume_name>) Degraded (<list of: State String {State Value}>)"
+                ::= { storeServAlerts 180 }
+
+        componentStateChangeVolumeGroupUnsyncedDidNotTakeSnapshotsWh NOTIFICATION-TYPE
+                OBJECTS     { component, details, nodeID, severity, timeOccurred, id,
+                              messageCode, state, serialNumber,
+                              tier, sparePartNumber, sysName }
+                STATUS      current
+                DESCRIPTION "Volume Group Unsynced - did not take snapshots while stopping group; Remote Copy Volume <volume_id>(<volume_name>) Degraded (<list of: State String {State Value}>)"
+                ::= { storeServAlerts 181 }
+
+        componentStateChangeVolumeUnsyncedSecondaryVolumeWasNotMarke NOTIFICATION-TYPE
+                OBJECTS     { component, details, nodeID, severity, timeOccurred, id,
+                              messageCode, state, serialNumber,
+                              tier, sparePartNumber, sysName }
+                STATUS      current
+                DESCRIPTION "Volume Unsynced - secondary volume was not marked as in-sync; Remote Copy Volume <volume_id>(<volume_name>) Degraded (<list of: State String {State Value}>)"
+                ::= { storeServAlerts 182 }
+
+        componentStateChangeVolumeUnsyncedVolumeWasUnavailableWhenGr NOTIFICATION-TYPE
+                OBJECTS     { component, details, nodeID, severity, timeOccurred, id,
+                              messageCode, state, serialNumber,
+                              tier, sparePartNumber, sysName }
+                STATUS      current
+                DESCRIPTION "Volume Unsynced - volume was unavailable when group was stopped; Remote Copy Volume <volume_id>(<volume_name>) Degraded (<list of: State String {State Value}>)"
+                ::= { storeServAlerts 183 }
+
+        componentStateChangeVolumeUnsyncedNodeOrSysmgrFailure NOTIFICATION-TYPE
+                OBJECTS     { component, details, nodeID, severity, timeOccurred, id,
+                              messageCode, state, serialNumber,
+                              tier, sparePartNumber, sysName }
+                STATUS      current
+                DESCRIPTION "Volume Unsynced - node or sysmgr failure; Remote Copy Volume <volume_id>(<volume_name>) Degraded (<list of: State String {State Value}>)"
+                ::= { storeServAlerts 184 }
+
+        componentStateChangeVolumeUnsyncedPromoteOfSnapshotFailed NOTIFICATION-TYPE
+                OBJECTS     { component, details, nodeID, severity, timeOccurred, id,
+                              messageCode, state, serialNumber,
+                              tier, sparePartNumber, sysName }
+                STATUS      current
+                DESCRIPTION "Volume Unsynced - promote of snapshot failed; Remote Copy Volume <volume_id>(<volume_name>) Degraded (<list of: State String {State Value}>)"
+                ::= { storeServAlerts 185 }
+
+        componentStateChangeVolumeUnsyncedCouldNotTakeSnapshotDuring NOTIFICATION-TYPE
+                OBJECTS     { component, details, nodeID, severity, timeOccurred, id,
+                              messageCode, state, serialNumber,
+                              tier, sparePartNumber, sysName }
+                STATUS      current
+                DESCRIPTION "Volume Unsynced - could not take snapshot during sysmgr startup; Remote Copy Volume <volume_id>(<volume_name>) Degraded (<list of: State String {State Value}>)"
+                ::= { storeServAlerts 186 }
+
+        componentStateChangeWriteToSecondaryVolumeFailed NOTIFICATION-TYPE
+                OBJECTS     { component, details, nodeID, severity, timeOccurred, id,
+                              messageCode, state, serialNumber,
+                              tier, sparePartNumber, sysName }
+                STATUS      current
+                DESCRIPTION "Write To Secondary Volume Failed; Remote Copy Volume <volume_id>(<volume_name>) Failed (<list of: State String {State Value}>)"
+                ::= { storeServAlerts 187 }
+
+        componentStateChangeSyncFailed NOTIFICATION-TYPE
+                OBJECTS     { component, details, nodeID, severity, timeOccurred, id,
+                              messageCode, state, serialNumber,
+                              tier, sparePartNumber, sysName }
+                STATUS      current
+                DESCRIPTION "Sync Failed; Remote Copy Volume <volume_id>(<volume_name>) Failed (<list of: State String {State Value}>)"
+                ::= { storeServAlerts 188 }
+
+        componentStateChangeSyncFailedCouldNotTakeLocalSnapshots NOTIFICATION-TYPE
+                OBJECTS     { component, details, nodeID, severity, timeOccurred, id,
+                              messageCode, state, serialNumber,
+                              tier, sparePartNumber, sysName }
+                STATUS      current
+                DESCRIPTION "Sync Failed - could not take local snapshots; Remote Copy Volume Group <group_id>(<group_name>) Degraded (<list of: State String {State Value}>)"
+                ::= { storeServAlerts 189 }
+
+        componentStateChangeSyncFailedCouldNotTakeRemoteSnapshots NOTIFICATION-TYPE
+                OBJECTS     { component, details, nodeID, severity, timeOccurred, id,
+                              messageCode, state, serialNumber,
+                              tier, sparePartNumber, sysName }
+                STATUS      current
+                DESCRIPTION "Sync Failed - could not take remote snapshots; Remote Copy Volume Group <group_id>(<group_name>) Degraded (<list of: State String {State Value}>)"
+                ::= { storeServAlerts 190 }
+
+        componentStateChangeSyncFailedCouldNotCommunicateWithTarget NOTIFICATION-TYPE
+                OBJECTS     { component, details, nodeID, severity, timeOccurred, id,
+                              messageCode, state, serialNumber,
+                              tier, sparePartNumber, sysName }
+                STATUS      current
+                DESCRIPTION "Sync Failed - could not communicate with target; Remote Copy Volume Group <group_id>(<group_name>) Degraded (<list of: State String {State Value}>)"
+                ::= { storeServAlerts 191 }
+
+        componentStateChangeSyncFailedSynchronizationSnapshotHasBeen NOTIFICATION-TYPE
+                OBJECTS     { component, details, nodeID, severity, timeOccurred, id,
+                              messageCode, state, serialNumber,
+                              tier, sparePartNumber, sysName }
+                STATUS      current
+                DESCRIPTION "Sync Failed - synchronization snapshot has been deleted; Remote Copy Volume Group <group_id>(<group_name>) Degraded (<list of: State String {State Value}>)"
+                ::= { storeServAlerts 192 }
+
+        componentStateChangeResyncFailedResynchronizationSnapshotHas NOTIFICATION-TYPE
+                OBJECTS     { component, details, nodeID, severity, timeOccurred, id,
+                              messageCode, state, serialNumber,
+                              tier, sparePartNumber, sysName }
+                STATUS      current
+                DESCRIPTION "Resync Failed - resynchronization snapshot has been deleted; Remote Copy Volume Group <group_id>(<group_name>) Degraded (<list of: State String {State Value}>)"
+                ::= { storeServAlerts 193 }
+
+        componentStateChangeNotAllVolumesInGroupAreInSync NOTIFICATION-TYPE
+                OBJECTS     { component, details, nodeID, severity, timeOccurred, id,
+                              messageCode, state, serialNumber,
+                              tier, sparePartNumber, sysName }
+                STATUS      current
+                DESCRIPTION "Not All Volumes In Group Are In Sync; Remote Copy Volume Group <group_id>(<group_name>) Degraded (<list of: State String {State Value}>)"
+                ::= { storeServAlerts 194 }
+
+        componentStateChangeResyncFailedVolumeIsCurrentlySyncing NOTIFICATION-TYPE
+                OBJECTS     { component, details, nodeID, severity, timeOccurred, id,
+                              messageCode, state, serialNumber,
+                              tier, sparePartNumber, sysName }
+                STATUS      current
+                DESCRIPTION "Resync Failed - volume is currently syncing; Remote Copy Volume Group <group_id>(<group_name>) Degraded (<list of: State String {State Value}>)"
+                ::= { storeServAlerts 195 }
+
+        componentStateChangeAllLinksToTargetAreDown NOTIFICATION-TYPE
+                OBJECTS     { component, details, nodeID, severity, timeOccurred, id,
+                              messageCode, state, serialNumber,
+                              tier, sparePartNumber, sysName }
+                STATUS      current
+                DESCRIPTION "All Links To Target Are Down; Remote Copy Target <target_id>(<target_name>) Failed (<list of: State String {State Value}>)"
+                ::= { storeServAlerts 196 }
+
+        componentStateChangeNotAllConnectionsAreUp NOTIFICATION-TYPE
+                OBJECTS     { component, details, nodeID, severity, timeOccurred, id,
+                              messageCode, state, serialNumber,
+                              tier, sparePartNumber, sysName }
+                STATUS      current
+                DESCRIPTION "Not All Connections Are Up; Remote Copy Link <link_id>(<link_name>) Degraded (<list of: State String {State Value}>)"
+                ::= { storeServAlerts 197 }
+
+        componentStateChangeDownDueToSendErrorOrMissingHeartbeat NOTIFICATION-TYPE
+                OBJECTS     { component, details, nodeID, severity, timeOccurred, id,
+                              messageCode, state, serialNumber,
+                              tier, sparePartNumber, sysName }
+                STATUS      current
+                DESCRIPTION "Down Due To Send Error Or Missing Heartbeat; Remote Copy Link <link_id>(<link_name>) Failed (<list of: State String {State Value}>)"
+                ::= { storeServAlerts 198 }
+
+        componentStateChangeMultipleLinkDownErrorsWithin24Hours NOTIFICATION-TYPE
+                OBJECTS     { component, details, nodeID, severity, timeOccurred, id,
+                              messageCode, state, serialNumber,
+                              tier, sparePartNumber, sysName }
+                STATUS      current
+                DESCRIPTION "Multiple Link Down Errors Within 24 Hours; Remote Copy Link <link_id>(<link_name>) Failed (<list of: State String {State Value}>)"
+                ::= { storeServAlerts 199 }
+
+        componentStateChangeLinkHasBeenDownForMoreThan4Hours NOTIFICATION-TYPE
+                OBJECTS     { component, details, nodeID, severity, timeOccurred, id,
+                              messageCode, state, serialNumber,
+                              tier, sparePartNumber, sysName }
+                STATUS      current
+                DESCRIPTION "Link Has Been Down For More Than 4 Hours; Remote Copy Link <link_id>(<link_name>) Failed (<list of: State String {State Value}>)"
+                ::= { storeServAlerts 200 }
+
+        freeNodeDiskSpaceLow NOTIFICATION-TYPE
+                OBJECTS     { component, details, nodeID, severity, timeOccurred, id,
+                              messageCode, state, serialNumber,
+                              tier, sparePartNumber, sysName }
+                STATUS      current
+                DESCRIPTION "Node <nid> free disk space is below acceptable limits: root <free_space>MB altroot <alt_space>MB common <comm_space>MB."
+                ::= { storeServAlerts 201 }
+
+        nodeDriveIsEncryptedButEncryptionIsNotEnabledOnTheSystem NOTIFICATION-TYPE
+                OBJECTS     { component, details, nodeID, severity, timeOccurred, id,
+                              messageCode, state, serialNumber,
+                              tier, sparePartNumber, sysName }
+                STATUS      current
+                DESCRIPTION "Node drive for node <hw_node> drive <driveid> with WWN <sw_wwn> has encryption enabled, but encryption is not enabled on the system."
+                ::= { storeServAlerts 202 }
+
+        encryptionIsEnabledOnTheSystemButTheNodeDriveIsNotEncrypted NOTIFICATION-TYPE
+                OBJECTS     { component, details, nodeID, severity, timeOccurred, id,
+                              messageCode, state, serialNumber,
+                              tier, sparePartNumber, sysName }
+                STATUS      current
+                DESCRIPTION "Node drive for node <hw_node> drive <driveid> with WWN <sw_wwn> is not encrypted, but encryption is enabled on the system."
+                ::= { storeServAlerts 203 }
+
+        unableToDoIOToTheNodeDrive NOTIFICATION-TYPE
+                OBJECTS     { component, details, nodeID, severity, timeOccurred, id,
+                              messageCode, state, serialNumber,
+                              tier, sparePartNumber, sysName }
+                STATUS      current
+                DESCRIPTION "Unable to do I/O to the node drive for node <hw_node> drive <driveid> with WWN <sw_wwn>."
+                ::= { storeServAlerts 204 }
+
+        syslogNodeDriveFailureMessageMonitoring NOTIFICATION-TYPE
+                OBJECTS     { component, details, nodeID, severity, timeOccurred, id,
+                              messageCode, state, serialNumber,
+                              tier, sparePartNumber, sysName }
+                STATUS      current
+                DESCRIPTION "[[hw_node]] syslog received dual boot drive failure message.  Problem exists on device: <nodedrivesdxdev_name>, on sata port: <nodedrivesataport_name>"
+                ::= { storeServAlerts 205 }
+
+        periodicProcMdstatMonitoringDetectedDegradedNodeDriveRaid NOTIFICATION-TYPE
+                OBJECTS     { component, details, nodeID, severity, timeOccurred, id,
+                              messageCode, state, serialNumber,
+                              tier, sparePartNumber, sysName }
+                STATUS      current
+                DESCRIPTION "[[hw_node]] /proc/mdstat detected degraded node drive raid.  Problem exists on device: <nodedrivesdxdev_name>, on sata port: <nodedrivesataport_name>"
+                ::= { storeServAlerts 206 }
+
+        processNameAppearsUnresponsive NOTIFICATION-TYPE
+                OBJECTS     { component, details, nodeID, severity, timeOccurred, id,
+                              messageCode, state, serialNumber,
+                              tier, sparePartNumber, sysName }
+                STATUS      current
+                DESCRIPTION "<name> appears to be unresponsive."
+                ::= { storeServAlerts 207 }
+
+        processEventHandlingAppearsUnresponsive NOTIFICATION-TYPE
+                OBJECTS     { component, details, nodeID, severity, timeOccurred, id,
+                              messageCode, state, serialNumber,
+                              tier, sparePartNumber, sysName }
+                STATUS      current
+                DESCRIPTION "<name> event handling appears to be unresponsive."
+                ::= { storeServAlerts 208 }
+
+        patrolDataCacheDimmUerr NOTIFICATION-TYPE
+                OBJECTS     { component, details, nodeID, severity, timeOccurred, id,
+                              messageCode, state, serialNumber,
+                              tier, sparePartNumber, sysName }
+                STATUS      current
+                DESCRIPTION "Node <node_id>, Data Cache DIMM <dimm_id> is failing. Uncorrectable Error."
+                ::= { storeServAlerts 209 }
+
+        controlCacheDimmTemperature NOTIFICATION-TYPE
+                OBJECTS     { component, details, nodeID, severity, timeOccurred, id,
+                              messageCode, state, serialNumber,
+                              tier, sparePartNumber, sysName }
+                STATUS      current
+                DESCRIPTION "Node <node_id> Control Cache DIMM <dimm_id> overheating (<temp> C)."
+                ::= { storeServAlerts 210 }
+
+        componentStateChangeCageBatteryEndOfLife NOTIFICATION-TYPE
+                OBJECTS     { component, details, nodeID, severity, timeOccurred, id,
+                              messageCode, state, serialNumber,
+                              tier, sparePartNumber, sysName }
+                STATUS      current
+                DESCRIPTION "Cage Battery End of Life; Cage <cage_id> Cage Battery <battery_id> Degraded (<list of: State String {State Value}>)"
+                ::= { storeServAlerts 211 }
+
+        componentStateChangeCageBatteryFailed NOTIFICATION-TYPE
+                OBJECTS     { component, details, nodeID, severity, timeOccurred, id,
+                              messageCode, state, serialNumber,
+                              tier, sparePartNumber, sysName }
+                STATUS      current
+                DESCRIPTION "Cage Battery Failed; Cage <cage_id> Cage Battery <battery_id> Failed (<list of: State String {State Value}>)"
+                ::= { storeServAlerts 212 }
+
+        componentStateChangeCageBatteryNotPresent NOTIFICATION-TYPE
+                OBJECTS     { component, details, nodeID, severity, timeOccurred, id,
+                              messageCode, state, serialNumber,
+                              tier, sparePartNumber, sysName }
+                STATUS      current
+                DESCRIPTION "Cage Battery Not Present; Cage <cage_id> Cage Battery <battery_id> Failed (<list of: State String {State Value}>)"
+                ::= { storeServAlerts 213 }
+
+        componentStateChangeNodeControlCacheDimmFailure NOTIFICATION-TYPE
+                OBJECTS     { component, details, nodeID, severity, timeOccurred, id,
+                              messageCode, state, serialNumber,
+                              tier, sparePartNumber, sysName }
+                STATUS      current
+                DESCRIPTION "Node Control Cache DIMM Failure; Node <node_id>, Contol_Cache_DIMM failed, <DIMM_INFO> (<list of: State String {State Value}>)"
+                ::= { storeServAlerts 214 }
+
+        componentStateChangeNodeDataCacheDimmFailure NOTIFICATION-TYPE
+                OBJECTS     { component, details, nodeID, severity, timeOccurred, id,
+                              messageCode, state, serialNumber,
+                              tier, sparePartNumber, sysName }
+                STATUS      current
+                DESCRIPTION "Node Data Cache DIMM Failure; Node <node_id>, Data_Cache_DIMM failed, <DIMM_INFO> (<list of: State String {State Value}>)"
+                ::= { storeServAlerts 215 }
+
+        componentStateChangeNodeIdeDriveFailure NOTIFICATION-TYPE
+                OBJECTS     { component, details, nodeID, severity, timeOccurred, id,
+                              messageCode, state, serialNumber,
+                              tier, sparePartNumber, sysName }
+                STATUS      current
+                DESCRIPTION "Node IDE Drive Failure; Node <node_id>, IDE_DRIVE failed, Instance: <dev_num> (<list of: State String {State Value}>)"
+                ::= { storeServAlerts 216 }
+
+        componentStateChangeNodeHbaFailure NOTIFICATION-TYPE
+                OBJECTS     { component, details, nodeID, severity, timeOccurred, id,
+                              messageCode, state, serialNumber,
+                              tier, sparePartNumber, sysName }
+                STATUS      current
+                DESCRIPTION "Node HBA Failure; Node <node_id>, HBA failed, Instance: <dev_num> (<list of: State String {State Value}>)"
+                ::= { storeServAlerts 217 }
+
+        sedIsFromTheWrongSystem NOTIFICATION-TYPE
+                OBJECTS     { component, details, nodeID, severity, timeOccurred, id,
+                              messageCode, state, serialNumber,
+                              tier, sparePartNumber, sysName }
+                STATUS      current
+                DESCRIPTION "A self-encrypting drive with WWN <sw_wwn> belongs to another system: <name>"
+                ::= { storeServAlerts 218 }
+
+        sedHasTheWrongKey NOTIFICATION-TYPE
+                OBJECTS     { component, details, nodeID, severity, timeOccurred, id,
+                              messageCode, state, serialNumber,
+                              tier, sparePartNumber, sysName }
+                STATUS      current
+                DESCRIPTION "A self-encrypting drive with WWN <sw_wwn> has an unrecognized encryption key"
+                ::= { storeServAlerts 219 }
+
+        sedIsPresentButEncryptionIsNotEnabled NOTIFICATION-TYPE
+                OBJECTS     { component, details, nodeID, severity, timeOccurred, id,
+                              messageCode, state, serialNumber,
+                              tier, sparePartNumber, sysName }
+                STATUS      current
+                DESCRIPTION "A self-encrypting drive with WWN <sw_wwn> is encrypted, but encryption is not enabled on the system."
+                ::= { storeServAlerts 220 }
+
+        lkmIsInAnUnknownState NOTIFICATION-TYPE
+                OBJECTS     { component, details, nodeID, severity, timeOccurred, id,
+                              messageCode, state, serialNumber,
+                              tier, sparePartNumber, sysName }
+                STATUS      current
+                DESCRIPTION "The local Key Manager is in an invalid state"
+                ::= { storeServAlerts 221 }
+
+        nodesvrUnresponsiveDuringDarsvrStartup NOTIFICATION-TYPE
+                OBJECTS     { component, details, nodeID, severity, timeOccurred, id,
+                              messageCode, state, serialNumber,
+                              tier, sparePartNumber, sysName }
+                STATUS      current
+                DESCRIPTION "The encryption management service is unavailable due to excessive failures getting encryption status from nodesvr during darsvr startup. If encryption is enabled on this system, drive replacement is prevented and the system will not be able to recover from power failure."
+                ::= { storeServAlerts 222 }
+
+        nodesvrUnresponsiveDuringFipsvrStartup NOTIFICATION-TYPE
+                OBJECTS     { component, details, nodeID, severity, timeOccurred, id,
+                              messageCode, state, serialNumber,
+                              tier, sparePartNumber, sysName }
+                STATUS      current
+                DESCRIPTION "The encryption management service is unavailable due to excessive failures getting encryption status from nodesvr during fipsvr startup. If encryption is enabled on this system, drive replacement is prevented and the system will not be able to recover from power failure."
+                ::= { storeServAlerts 223 }
+
+        fipsvrUnableToStartInFipsMode NOTIFICATION-TYPE
+                OBJECTS     { component, details, nodeID, severity, timeOccurred, id,
+                              messageCode, state, serialNumber,
+                              tier, sparePartNumber, sysName }
+                STATUS      current
+                DESCRIPTION "The encryption management service is unavailable because fipsvr failed to start up in FIPS mode. If encryption is enabled on this system, drive replacement is prevented and the system will not be able to recover from power failure."
+                ::= { storeServAlerts 224 }
+
+        failedToSuccessfullyCommunicateWithEkmAtStartup NOTIFICATION-TYPE
+                OBJECTS     { component, details, nodeID, severity, timeOccurred, id,
+                              messageCode, state, serialNumber,
+                              tier, sparePartNumber, sysName }
+                STATUS      current
+                DESCRIPTION "The encryption management service is unavailable because communication failed to the External Key Manager during startup. If encryption is enabled on this system, drive replacement is prevented and the system will not be able to recover from power failure"
+                ::= { storeServAlerts 225 }
+
+        checkSnmpAlert NOTIFICATION-TYPE
+                OBJECTS     { component, details, nodeID, severity, timeOccurred, id,
+                              messageCode, state, serialNumber,
+                              tier, sparePartNumber, sysName }
+                STATUS      current
+                DESCRIPTION "check snmp test alert"
+                ::= { storeServAlerts 9999 }
+
+
+         -- storeServAlerts compliance
+
+
+        storeServAlertsGroup       OBJECT-GROUP
+                OBJECTS                 { index, component, details, nodeID, severity, timeOccurred, id,
+                                          messageCode, state, serialNumber,
+                                          tier, sparePartNumber, sysName }
+                STATUS          current
+                DESCRIPTION     "alertTable columns representing details about an event that
+                                may affect system operations and performance."
+                ::= { storeServAlertsGroups 1 }
+
+
+         storeServAlertsEvents    NOTIFICATION-GROUP
+                 NOTIFICATIONS {
+                         activeVlunLimitExceeded,
+                         fcPortError,
+                         portDeviceCountExceeded,
+                         diskPortHasExceededIoErrorThreshold,
+                         componentStateChangeTargetModePortWentOffline,
+                         componentStateChangeTooManyInitiators,
+                         metadataInconsistencyInAVv,
+                         vlmapCountExceedsThreshold,
+                         flashcachePerformanceDegradation,
+                         metadataInconsistencyInADeduplicationGroup,
+                         vvUnrecoveredDifError,
+                         componentStateChangeMaintenanceCheckRequired,
+                         componentStateChangeLdsNotStarted,
+                         componentStateChangeCopyFailed,
+                         componentStateChangeSnapdataInvalid,
+                         componentStateChangeInternalConsistencyError,
+                         componentStateChangeNeedsToBeChecked,
+                         componentStateChangePreserved,
+                         componentStateChangeInvalid,
+                         componentStateChangeStale,
+                         ldskHasFailedSet,
+                         ldAvailabilityHasReduced,
+                         logLdRaidSetFailure,
+                         diskMonitorStopped,
+                         systemReporterPdPerformanceMajorAlert,
+                         systemOvertemp,
+                         diskOvertempButNotSpundown,
+                         diskOvertempAndSpundown,
+                         diskOvertempButNotSpundownNoDsk,
+                         diskOvertempAndSpundownNoDsk,
+                         componentStateChangeFailedHardware0x00600deX153,
+                         componentStateChangeMediaFailed0x00600deX156,
+                         componentStateChangeFailedHardware0x00600faX153,
+                         componentStateChangeMediaFailed0x00600faX156,
+                         componentStateChangeReplaceDrive0x00600faX70,
+                         doubleNodeFailure,
+                         nodeRecoveryPowerfailEvent,
+                         licenseKeyUsageLicenseExpired,
+                         systemRecoveryNotificationAboutBadVolume,
+                         batteryStates,
+                         systemRecoveryStalledDueToUnstartedVvs,
+                         unexpectedEncryptionStateOnNodeDrive,
+                         ideDiskErrorNodeShutdown,
+                         ideDiskErrorNodeNotShutdown,
+                         ideDiskErrorNodeNotShutdownLdsCannotBeServed,
+                         ideDiskErrorNodeReboot,
+                         authenticationFailure,
+                         nodeIsOffline,
+                         memoryUsageInformation,
+                         clusterThermalShutdown,
+                         nodeNeedsToShutdown,
+                         slabMemoryUsageOverLimit,
+                         systemReporterCmpPerformanceMajorAlert,
+                         systemReporterCpuPerformanceMajorAlert,
+                         systemReporterLinkPerformanceMajorAlert,
+                         cmpThreshold,
+                         systemReporterCachePerformanceMajorAlert,
+                         componentStateChangeTimeOfDayBatteryFailure,
+                         componentStateChangeCpuOverheating,
+                         componentStateChangeNodeOfflineDueToFailure0x01a00deX13,
+                         componentStateChangeCpuDead0x01a00deX19,
+                         componentStateChangeNodeFanModule0Failed0x01a00deX25,
+                         componentStateChangeNodeFanModule0PowerFault0x01a00deX28,
+                         componentStateChangeNodeFanModule0UnderLimit,
+                         componentStateChangeNodeThermalState,
+                         componentStateChangeNodeFanModule1Failed0x01a00deX33,
+                         componentStateChangeNodeFanModule1PowerFault0x01a00deX35,
+                         componentStateChangeNodeOfflineDueToFailure0x01a00faX13,
+                         componentStateChangeCpuDead0x01a00faX19,
+                         componentStateChangeNodeFanModule0Failed0x01a00faX25,
+                         componentStateChangeNodeFanModule0PowerFault0x01a00faX28,
+                         componentStateChangeUncorrectableMemoryError,
+                         componentStateChangeNodeThermalShutdown,
+                         componentStateChangeNodeFanModule1Failed0x01a00faX33,
+                         componentStateChangeNodeFanModule1PowerFault0x01a00faX35,
+                         componentStateChangeMultipleUncorrectableMemoryError,
+                         componentStateChangeDcFailed0x01b00faX1,
+                         componentStateChangeOverTemperature,
+                         componentStateChangeAcFailed,
+                         componentStateChangeFanFailed0x01b00faX3,
+                         componentStateChangeTemperatureUnderWarningThreshold0x01e00deX1,
+                         componentStateChangeOperatorsPanelFailed,
+                         componentStateChangeOperatorsPanelWarning,
+                         componentStateChangeUnsupportedCage,
+                         componentStateChangeTemperatureUnderWarningThreshold0x01e00faX1,
+                         componentStateChangeTemperatureUnderFailureThreshold,
+                         componentStateChangeTemperatureOverWarningThreshold,
+                         componentStateChangeInaccessible,
+                         componentStateChangeTemperatureOverFailureThreshold,
+                         componentStateChangePortBypassed,
+                         componentStateChangeNotready,
+                         componentStateChangeMissing0x01f00deX129,
+                         componentStateChangeInvalidConnections,
+                         componentStateChangeNotAvailableForAllocations,
+                         componentStateChangeOldFirmware,
+                         componentStateChangeDisabledAPort,
+                         componentStateChangeMissingAPort,
+                         componentStateChangeErrorsOnAPort,
+                         componentStateChangeProlongedMissingAPort,
+                         componentStateChangeDisabledBPort,
+                         componentStateChangeMissingBPort,
+                         componentStateChangeErrorsOnBPort,
+                         componentStateChangeProlongedMissingBPort,
+                         componentStateChangeOverTemperatureWarning,
+                         componentStateChangeOverTemperatureAlert,
+                         componentStateChangeInvalidMedia,
+                         componentStateChangeFailedHardware0x01f00deX153,
+                         componentStateChangeSmartThresholdExceeded,
+                         componentStateChangeMultipleChunkletsMediaBad,
+                         componentStateChangeMediaFailed0x01f00deX156,
+                         componentStateChangeIncreasedErrorCount,
+                         componentStateChangeDifThresholdExceeded,
+                         componentStateChangeProlongedNotReady,
+                         componentStateChangeNoValidPorts,
+                         componentStateChangeInquiryFailed,
+                         componentStateChangeUnitReadyFailed,
+                         componentStateChangeReadCapacityFailed,
+                         componentStateChangeWriteLabelFailed,
+                         componentStateChangeModePageUpdateFailed,
+                         componentStateChangeReadLabelFailed,
+                         componentStateChangeMediumFormatCorrupted,
+                         componentStateChangeLowWearLevelRemaining,
+                         componentStateChangeMiscompare,
+                         componentStateChangeInvalidCage,
+                         componentStateChangeSlowDrive,
+                         componentStateChangeServicing,
+                         componentStateChangeDriveErrorBitSet,
+                         componentStateChangeFailedHardware0x01f00faX153,
+                         componentStateChangeMediaFailed0x01f00faX156,
+                         componentStateChangeReplaceDrive0x01f00faX70,
+                         internalErrorInAuthenticationLibrary,
+                         assertBatteryFail,
+                         componentStateChangeExpired,
+                         componentStateChangeChargingFailed,
+                         componentStateChangeInternalError,
+                         componentStateChangeLoadSharingFailed,
+                         componentStateChangeFanFailed0x02200deX6,
+                         componentStateChangeDcFailed0x02200deX7,
+                         componentStateChangeChargerFailed,
+                         componentStateChangeFailed,
+                         portShutdownOnFatalError,
+                         hostPortIsDown,
+                         remoteCopyLinkStatus,
+                         replicationResourceUsageExceededGroupLogging,
+                         replicationResourceUsageExceededGroupStopped,
+                         replicationResourcesRestoredGroupTransitionFromLoggingFailur,
+                         noAdminNetworkInterfaceDiscovered,
+                         tpVvAllocationSizeLimit,
+                         snapshotSpaceAllocationSizeLimit,
+                         cpgGrowthLimit,
+                         tpVvAllocationFailure,
+                         snapshotSpaceAllocationFailure,
+                         fcRawSpaceAllocation75Alert,
+                         fcRawSpaceAllocation85Alert,
+                         fcRawSpaceAllocation95Alert,
+                         nlRawSpaceAllocation75Alert,
+                         nlRawSpaceAllocation85Alert,
+                         nlRawSpaceAllocation95Alert,
+                         ssdRawSpaceAllocation75Alert,
+                         ssdRawSpaceAllocation85Alert,
+                         ssdRawSpaceAllocation95Alert,
+                         preservedDataLdsAreFull,
+                         componentStateChangePowerSupplyFanWarning,
+                         componentStateChangePowerSupplyOff,
+                         componentStateChangePowerSupplyFailed0x02b00faX1,
+                         componentStateChangePowerSupplyFailed0x02b00faX1026,
+                         componentStateChangePowerSupplyWarning,
+                         componentStateChangePowerSupplyFanNotPresent,
+                         componentStateChangePowerSupplyFanNotAvailable,
+                         componentStateChangePowerSupplyNotAvailable,
+                         componentStateChangePowerSupplyAcFailed,
+                         componentStateChangeInterfaceCardFailed0x02d00deX1026,
+                         componentStateChangeCpuFirmwareNotCurrent,
+                         componentStateChangeInterfaceCardFailed0x02d00faX1026,
+                         componentStateChangeInterfaceCardWarning,
+                         componentStateChangeMissing0x03500faX1,
+                         componentStateChangeOffloopPowerSupplyFailure,
+                         writeCacheAvailability,
+                         componentStateChangeVolumeUnsyncedRequiresAFullResyncSinceLd,
+                         componentStateChangeResyncSnapshotBecameStaleFullSyncRequire,
+                         componentStateChangeVolumeGroupUnsyncedDidNotTakeSnapshotsWh,
+                         componentStateChangeVolumeUnsyncedSecondaryVolumeWasNotMarke,
+                         componentStateChangeVolumeUnsyncedVolumeWasUnavailableWhenGr,
+                         componentStateChangeVolumeUnsyncedNodeOrSysmgrFailure,
+                         componentStateChangeVolumeUnsyncedPromoteOfSnapshotFailed,
+                         componentStateChangeVolumeUnsyncedCouldNotTakeSnapshotDuring,
+                         componentStateChangeWriteToSecondaryVolumeFailed,
+                         componentStateChangeSyncFailed,
+                         componentStateChangeSyncFailedCouldNotTakeLocalSnapshots,
+                         componentStateChangeSyncFailedCouldNotTakeRemoteSnapshots,
+                         componentStateChangeSyncFailedCouldNotCommunicateWithTarget,
+                         componentStateChangeSyncFailedSynchronizationSnapshotHasBeen,
+                         componentStateChangeResyncFailedResynchronizationSnapshotHas,
+                         componentStateChangeNotAllVolumesInGroupAreInSync,
+                         componentStateChangeResyncFailedVolumeIsCurrentlySyncing,
+                         componentStateChangeAllLinksToTargetAreDown,
+                         componentStateChangeNotAllConnectionsAreUp,
+                         componentStateChangeDownDueToSendErrorOrMissingHeartbeat,
+                         componentStateChangeMultipleLinkDownErrorsWithin24Hours,
+                         componentStateChangeLinkHasBeenDownForMoreThan4Hours,
+                         freeNodeDiskSpaceLow,
+                         nodeDriveIsEncryptedButEncryptionIsNotEnabledOnTheSystem,
+                         encryptionIsEnabledOnTheSystemButTheNodeDriveIsNotEncrypted,
+                         unableToDoIOToTheNodeDrive,
+                         syslogNodeDriveFailureMessageMonitoring,
+                         periodicProcMdstatMonitoringDetectedDegradedNodeDriveRaid,
+                         processNameAppearsUnresponsive,
+                         processEventHandlingAppearsUnresponsive,
+                         patrolDataCacheDimmUerr,
+                         controlCacheDimmTemperature,
+                         componentStateChangeCageBatteryEndOfLife,
+                         componentStateChangeCageBatteryFailed,
+                         componentStateChangeCageBatteryNotPresent,
+                         componentStateChangeNodeControlCacheDimmFailure,
+                         componentStateChangeNodeDataCacheDimmFailure,
+                         componentStateChangeNodeIdeDriveFailure,
+                         componentStateChangeNodeHbaFailure,
+                         sedIsFromTheWrongSystem,
+                         sedHasTheWrongKey,
+                         sedIsPresentButEncryptionIsNotEnabled,
+                         lkmIsInAnUnknownState,
+                         nodesvrUnresponsiveDuringDarsvrStartup,
+                         nodesvrUnresponsiveDuringFipsvrStartup,
+                         fipsvrUnableToStartInFipsMode,
+                         failedToSuccessfullyCommunicateWithEkmAtStartup,
+                         checkSnmpAlert
+                }
+                STATUS current
+                DESCRIPTION "A collection of events for storeServAlerts"
+                ::= { storeServAlertsGroups 2 }
+
+        storeServAlertsCompliance      MODULE-COMPLIANCE
+                STATUS current
+                DESCRIPTION
+                        "A collection of objects providing basic instrumentation for
+                         a HPE 3PAR server."
+                MODULE
+                MANDATORY-GROUPS {
+                storeServAlertsGroup,
+                storeServAlertsEvents
+                }
+                ::= { storeServAlertsCompliances 1 }
+
+        -- snmp v2c trap extension compliances --
+        snmpv2TrapExtensionGroups OBJECT IDENTIFIER ::= { inservGroups 3 }
+            
+        snmpv2TrapExtensionCompliances OBJECT IDENTIFIER ::= { inservCompls 3 }
+
+        snmpv2TrapExtensionObjectsGroup OBJECT-GROUP
+                OBJECTS { managerIp }
+                STATUS  current
+                DESCRIPTION "The extra object bindings extending selected standard 
+                    SNMPv2 traps: managerIP extends the authenticationFailure trap."
+                ::= { snmpv2TrapExtensionGroups 1 }
+
+        snmpv2TrapExtensionEventsGroup NOTIFICATION-GROUP
+                NOTIFICATIONS { authenticationFailure }
+                STATUS current
+                DESCRIPTION "SNMPv2 traps extended with extra object bindings by HPE 3PAR."
+                ::= { snmpv2TrapExtensionGroups 2 }
+
+        snmpv2TrapExtensionCompliance      MODULE-COMPLIANCE
+                STATUS current
+                DESCRIPTION
+                        "Compliance for SNMPv2 standard
+                        traps that are extended by HPE 3PAR."
+                MODULE
+                MANDATORY-GROUPS {
+                        snmpv2TrapExtensionObjectsGroup,
+                        snmpv2TrapExtensionEventsGroup
+                }
+                ::= { snmpv2TrapExtensionCompliances 1 }
+
+END

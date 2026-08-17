@@ -1,0 +1,266 @@
+TLS-LIVEWIRE-MIB DEFINITIONS ::= BEGIN
+
+IMPORTS
+    OBJECT-TYPE, Integer32,
+    MODULE-IDENTITY                       FROM SNMPv2-SMI
+    TEXTUAL-CONVENTION, 
+    DisplayString, TruthValue             FROM SNMPv2-TC
+    livewire                              FROM TLS-SMI;
+
+tlsLivewireMIB MODULE-IDENTITY
+    LAST-UPDATED  "201404280000Z"
+    ORGANIZATION  "Telos Alliance"
+    CONTACT-INFO  "postal:   The Telos Alliance
+                             1241 Superior Avenue
+                             Cleveland, OH 44114
+                   email:    support@axiaaudio.com"
+    DESCRIPTION   "Livewire Audio over IP routing control
+                  and configuration."
+    REVISION      "201403310000Z"
+    DESCRIPTION   "Initial revision"
+    ::= { livewire 1 }
+
+tlsLivewireMIBObjects    OBJECT IDENTIFIER ::= { livewire 2 }
+
+tlsLivewireDestinations  OBJECT IDENTIFIER ::= { tlsLivewireMIBObjects 1 }
+tlsLivewireSources       OBJECT IDENTIFIER ::= { tlsLivewireMIBObjects 2 }
+
+-- LWRPortIndex contains the semantics of dstIndex and should be used
+-- for any objects defined in other MIB modules that need these semantics.
+
+LWRPortIndex ::= TEXTUAL-CONVENTION
+    DISPLAY-HINT "d"
+    STATUS       current
+    DESCRIPTION
+            "A unique value, greater than zero, for each port or
+            interface sub-layer in the managed system.  It is
+            recommended that values are assigned contiguously starting
+            from 1.  The value for each port sub-layer must remain
+            constant at least from one re-initialization of the entity's
+            network management system to the next re-initialization."
+    SYNTAX       Integer32 (1..2147483647)
+
+LWRGainValue ::= TEXTUAL-CONVENTION
+    DISPLAY-HINT "d-1"
+    STATUS       current
+    DESCRIPTION
+            "A value of audio gain in range from -80.0dB to +12.0dB"
+    SYNTAX       Integer32 (-1000..120)
+
+LWRVMODValue ::= TEXTUAL-CONVENTION
+    STATUS       current
+    DESCRIPTION
+            "Represents an output channel mode value."
+    SYNTAX       INTEGER { pass(1), left(2), right(3), sum(4) }
+
+-- Livewire Destinations (network receive ports)
+
+dstTable OBJECT-TYPE
+    SYNTAX      SEQUENCE OF DstEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION 
+            "A list of Livewire destination entries"
+    ::= { tlsLivewireDestinations 1 }
+
+dstEntry OBJECT-TYPE
+    SYNTAX      DstEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION
+            "An entry containing management information applicable to a
+            particular destination."
+    INDEX   { dstIndex }
+    ::= { dstTable 1 }
+
+DstEntry ::=
+    SEQUENCE {
+        dstIndex                LWRPortIndex,
+        dstName                 DisplayString,
+	dstMediaAddress         DisplayString,
+	dstAudioGain            LWRGainValue
+    }
+
+dstIndex OBJECT-TYPE
+    SYNTAX      LWRPortIndex
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+            "A unique value, greater than zero, for each destination.  It
+            is recommended that values are assigned contiguously
+            starting from 1.  The value for each port sub-layer
+            must remain constant at least from one re-initialization of
+            the entity's network management system to the next re-
+            initialization."
+    ::= { dstEntry 1 }
+
+dstName OBJECT-TYPE
+    SYNTAX      DisplayString (SIZE (0..12))
+    MAX-ACCESS  read-write
+    STATUS      current
+    DESCRIPTION
+            "A textual string containing label of the destination port."
+    ::= { dstEntry 2 }
+
+dstMediaAddress OBJECT-TYPE
+    SYNTAX      DisplayString (SIZE (0..255))
+    MAX-ACCESS  read-write
+    STATUS      current
+    DESCRIPTION
+            "A textual string containing the media address (URI)."
+    ::= { dstEntry 3 }
+
+dstAudioGain OBJECT-TYPE
+    SYNTAX      LWRGainValue
+    MAX-ACCESS  read-write
+    STATUS      current
+    DESCRIPTION
+            "Audio gain/attenuation trim [dB]."
+    ::= { dstEntry 4 }
+
+dstNumberOfChannels OBJECT-TYPE
+    SYNTAX      Integer32 (0..8)
+    MAX-ACCESS  read-write
+    STATUS      current
+    DESCRIPTION
+            "A number of audio channels. 
+            Which values are accepted depends on the other port configuration.
+	    Some ports are bundled as stereo or surround groups.
+
+                 0 - port not available
+                 1 - mono
+                 2 - stereo
+                 8 - 8-channel surround (5.1 + stereo)"
+    ::= { dstEntry 5 }
+
+dstOutputMode OBJECT-TYPE
+    SYNTAX      LWRVMODValue
+    MAX-ACCESS  read-write
+    STATUS      current
+    DESCRIPTION
+            "Channel ouput mode.
+            Default mode is apassing all channels.
+            Mono destinations can be left-only, right-only or left+righ sum."
+    ::= { dstEntry 6 }
+
+-- Livewire Sources (network send ports)
+
+srcTable OBJECT-TYPE
+    SYNTAX      SEQUENCE OF SrcEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION 
+            "A list of Livewire source entries"
+    ::= { tlsLivewireSources 1 }
+
+srcEntry OBJECT-TYPE
+    SYNTAX      SrcEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION
+            "An entry containing management information applicable to a
+            particular source port."
+    INDEX   { srcIndex }
+    ::= { srcTable 1 }
+
+SrcEntry ::=
+    SEQUENCE {
+        srcIndex                LWRPortIndex,
+        srcName                 DisplayString,
+	srcEnable               TruthValue,
+	srcMediaAddress         DisplayString,
+        srcPacketSize           Integer32,
+	srcAudioGain            LWRGainValue
+    }
+
+srcIndex OBJECT-TYPE
+    SYNTAX      LWRPortIndex
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+            "A unique value, greater than zero, for each destination.  It
+            is recommended that values are assigned contiguously
+            starting from 1.  The value for each port sub-layer
+            must remain constant at least from one re-initialization of
+            the entity's network management system to the next re-
+            initialization."
+    ::= { srcEntry 1 }
+
+srcName OBJECT-TYPE
+    SYNTAX      DisplayString (SIZE (0..12))
+    MAX-ACCESS  read-write
+    STATUS      current
+    DESCRIPTION
+            "A textual string containing label of the destination port."
+    ::= { srcEntry 2 }
+
+srcEnable OBJECT-TYPE
+    SYNTAX      TruthValue
+    MAX-ACCESS  read-write
+    STATUS      current
+    DESCRIPTION
+            "This object has a value of false(2) if this port is disabled.
+            This object has a value of true(1) when the source port is 
+            enabled. 
+
+            Source port needs to be enabled in order to transmit multicast
+            stream or accept unicast connections."
+    ::= { srcEntry 3 }
+
+srcMediaAddress OBJECT-TYPE
+    SYNTAX      IpAddress
+    MAX-ACCESS  read-write
+    STATUS      current
+    DESCRIPTION
+            "IPv4 multicast destination address for the RTP media stream,
+            or empty (0.0.0.0) for unicast-only ports."
+    ::= { srcEntry 4 }
+
+srcMediaPort OBJECT-TYPE
+    SYNTAX      Integer32 (0..65535)
+    MAX-ACCESS  read-write
+    STATUS      current
+    DESCRIPTION
+            "UDP port number the RTP media stream is sent to.
+            Used for multicast streaming only. 
+              0 - use RTP default port 5004."
+    ::= { srcEntry 5 }
+
+srcPacketSize OBJECT-TYPE
+    SYNTAX      Integer32 (12..240)
+    MAX-ACCESS  read-write
+    STATUS      current
+    DESCRIPTION
+            "A numeric value for number of samples per each RTP media packet.
+
+            Common values are:
+                12 - Livewire Livestreams (channels with mininum latency)
+                48 - AES67 1ms packet (low-latency, best interoperability)
+               240 - Livewire Standard Streams (least resource intensive)"
+    ::= { srcEntry 6 }
+
+srcAudioGain OBJECT-TYPE
+    SYNTAX      LWRGainValue
+    MAX-ACCESS  read-write
+    STATUS      current
+    DESCRIPTION
+            "Audio gain/attenuation trim [dB]."
+    ::= { srcEntry 7 }
+
+srcNumberOfChannels OBJECT-TYPE
+    SYNTAX      Integer32 (0..8)
+    MAX-ACCESS  read-write
+    STATUS      current
+    DESCRIPTION
+            "A number of audio channels. 
+            Which values are accepted depends on the other port configuration.
+	    Some ports are bundled as stereo or surround groups.
+
+                 0 - port not available
+                 1 - mono (left or right only)
+                 2 - stereo
+                 8 - 8-channel surround (5.1 + stereo)"
+    ::= { srcEntry 8 }
+
+END
+

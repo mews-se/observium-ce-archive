@@ -1,0 +1,52 @@
+<?php
+
+/**
+ * Observium
+ *
+ *   This file is part of Observium.
+ *
+ * @package        observium
+ * @subpackage     poller
+ * @copyright  (C) Adam Armstrong
+ *
+ */
+
+// UCD-SNMP-MIB
+echo(' UCD-SNMP-MIB: ');
+
+$ucd_oids = [];
+if ($storage['storage_hc']) {
+    if ($cache_storage['ucd-snmp-mib-walked']['storage_hc'] !== TRUE) // Hack for real caching
+    {
+        $ucd_oids                                           = ['dskTotalHigh', 'dskTotalLow', 'dskUsedHigh', 'dskUsedLow', 'dskAvailHigh', 'dskAvailLow'];
+        $cache_storage['ucd-snmp-mib-walked']['storage_hc'] = TRUE;
+    }
+} else {
+    if ($cache_storage['ucd-snmp-mib-walked']['storage'] !== TRUE) // Hack for real caching
+    {
+        $ucd_oids                                        = ['dskTotal', 'dskUsed', 'dskAvail'];
+        $cache_storage['ucd-snmp-mib-walked']['storage'] = TRUE;
+    }
+}
+
+$index            = $storage['storage_index'];
+$storage['units'] = 1024; // Hardcode units.
+
+foreach ($ucd_oids as $oid) {
+    $cache_storage['ucd-snmp-mib'] = snmpwalk_cache_oid($device, $oid, $cache_storage['ucd-snmp-mib'], 'UCD-SNMP-MIB');
+}
+
+foreach (['size' => 'dskTotal', 'used' => 'dskUsed', 'free' => 'dskAvail'] as $param => $oid) {
+    if ($storage['storage_hc']) {
+        $storage[$param] = snmp_size64_high_low($cache_storage['ucd-snmp-mib'][$index][$oid . 'High'], $cache_storage['ucd-snmp-mib'][$index][$oid . 'Low']);
+        $storage[$param] *= $storage['units'];
+    } else {
+        $storage[$param] = $cache_storage['ucd-snmp-mib'][$index][$oid] * $storage['units'];
+    }
+}
+
+if ($storage['storage_hc'] && ($storage['size'] - $storage['used'] - $storage['free']) > 100) {
+    $storage['used'] = $storage['size'] - $storage['free'];
+} // F.u. BSNMPd
+
+// EOF

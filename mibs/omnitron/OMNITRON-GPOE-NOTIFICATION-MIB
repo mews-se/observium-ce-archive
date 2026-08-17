@@ -1,0 +1,899 @@
+OMNITRON-GPOE-NOTIFICATION-MIB DEFINITIONS ::= BEGIN
+
+IMPORTS
+    MODULE-IDENTITY, OBJECT-TYPE, NOTIFICATION-TYPE, Unsigned32
+        FROM SNMPv2-SMI           -- RFC-2578
+    DisplayString
+        FROM SNMPv2-TC            -- RFC-2579
+    MODULE-COMPLIANCE, OBJECT-GROUP, NOTIFICATION-GROUP
+        FROM SNMPv2-CONF          -- RFC-2580
+    omnitron
+        FROM OMNITRON-TC-MIB;     -- Omnitron Textual Convention MIB
+
+omnitronGpoeNotificationMib MODULE-IDENTITY
+    LAST-UPDATED "201812111200Z"  --December 11, 2018
+    ORGANIZATION "Omnitron Systems Technology, Inc."
+    CONTACT-INFO "Omnitron Systems Technology, Inc.
+                  38 Tesla
+                  Irvine, CA 92618-4670
+                  USA
+
+             Tel: (949) 250 6510
+             Fax: (949) 250 6514
+          E-mail: info@omnitron-systems.com
+   International: +1 949 250 6510
+
+                  Technical Support and Customer Service
+             Tel: (800) 675 8410
+          E-mail: support@omnitron-systems.com
+   International: +1 949 250 6510"
+
+    DESCRIPTION
+            "Omnitron GPoE Notification MIB for use with v2.0 GPoE and GHPoE
+             and NetOutlook
+
+             Copyright 2018 Omnitron Systems Technology, Inc.
+             All rights reserved
+            "
+
+    REVISION    "201812111200Z"  --December 11, 2018
+    DESCRIPTION "Added PoE status and SFP operating condition notifications
+                "
+
+    REVISION    "201808311200Z"  -- August 31, 2018
+    DESCRIPTION "Initial version of GPoE v2.0 Notification MIB
+                "
+    ::= { omnitron 100 }
+
+
+-- -----------------------------------------------------------------------------
+-- GPoE Notification Objects
+-- -----------------------------------------------------------------------------
+
+ostGpoeNotificationObjects  OBJECT IDENTIFIER ::= { omnitronGpoeNotificationMib 1 }
+
+gpoeTrapCode    OBJECT-TYPE
+    SYNTAX      DisplayString (SIZE(0..32))
+    MAX-ACCESS  accessible-for-notify
+    STATUS      current
+    DESCRIPTION
+       "The notification modifier. This can be a port number, input pin, etc."
+    ::= { ostGpoeNotificationObjects 1 }
+
+gpoeTrapIpString    OBJECT-TYPE
+    SYNTAX      DisplayString (SIZE(0..40))
+    MAX-ACCESS  accessible-for-notify
+    STATUS      current
+    DESCRIPTION
+       "IPv6 or IPv4 address of the module trap source. If no address is
+        configured the value returned is 0.0.0.0 or 255.255.255.255."
+    ::= { ostGpoeNotificationObjects 2 }
+
+gpoeTrapModuleDescription  OBJECT-TYPE
+    SYNTAX      DisplayString (SIZE(0..64))
+    MAX-ACCESS  accessible-for-notify
+    STATUS      current
+    DESCRIPTION
+       "The module description"
+    ::= { ostGpoeNotificationObjects 3 }
+
+gpoeSourceIpString    OBJECT-TYPE
+    SYNTAX      DisplayString (SIZE(0..40))
+    MAX-ACCESS  accessible-for-notify
+    STATUS      current
+    DESCRIPTION
+       "IPv6 or IPv4 address of device accessing the GPoE module."
+    ::= { ostGpoeNotificationObjects 4 }
+
+gpoeUsername  OBJECT-TYPE
+    SYNTAX      DisplayString (SIZE(1..32))
+    MAX-ACCESS  accessible-for-notify
+    STATUS      current
+    DESCRIPTION
+       "The session user name"
+    ::= { ostGpoeNotificationObjects 5 }
+
+gpoePoeStatus  OBJECT-TYPE
+    SYNTAX      BITS {
+                     bNoPdDetected(0),
+                     bIllegalClassification(1),
+                     bOverCurrent(2),
+                     bBrownOut(3),
+                     bInsufficientPower(4),
+                     bHeartbeatLost(5)
+                }
+    MAX-ACCESS  accessible-for-notify
+    STATUS      current
+    DESCRIPTION
+       "A vector of bits that indicates the PoE PD Status
+
+        A bit set to '1' indicates the specific errored condition. A bit set to
+        '0' indicates the specific errored condition is not present
+
+
+        bNoPdDetected(0)            No PD device found for a PSE enabled port
+
+        bIllegalClassification(1)   PD device classification is illegal or
+                                    unrecognized
+
+        bOverCurrent(2)             PD device requesting more power than
+                                    was determined during classification
+
+        bBrownOut(3)                PD device are experiencing brown-out since
+                                    PSE cannot source requested power
+
+        bInsufficientPower(4)       PD device is not powered since power
+                                    classification cannot be met
+
+        bHeartbeatLost(5)           PD device with heartbeat enabled is not
+                                    responding with heartbeat
+      "
+    ::= { ostGpoeNotificationObjects 6 }
+
+
+-- -----------------------------------------------------------------------------
+-- Gpoe Notification Global Objects
+-- -----------------------------------------------------------------------------
+
+ostGpoeNotificationGlobalObjects  OBJECT IDENTIFIER ::= { omnitronGpoeNotificationMib 2 }
+
+
+ostGpoeNotificationCfgSetClearAll OBJECT-TYPE
+    SYNTAX      INTEGER {
+        setAllTrapsNoFilters(1),
+        setAllTrapsFilter(2)
+    }
+    MAX-ACCESS  read-write
+    STATUS      current
+    DESCRIPTION
+       "This object when written performs the configured options for all
+        possible SNMP notifications.
+
+
+        When object is written:
+        setAllTrapsNoFilters(1)  All traps are configured to not filtered,
+                                 meaning the product can generate all traps.
+
+        setAllTrapsFilter(2)     All traps are configured to filtered,
+                                 meaning the product cannot generate any trap.
+
+        This object can read or written at any time.
+       "
+    DEFVAL { 1 }
+    ::= { ostGpoeNotificationGlobalObjects 1 }
+
+
+-- -----------------------------------------------------------------------------
+-- Gpoe Notification Configuration Table
+-- -----------------------------------------------------------------------------
+
+ostGpoeNotificationCfgTable OBJECT-TYPE
+    SYNTAX      SEQUENCE OF OstGpoeNotificationCfgEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION
+       "This table supports the configuration and source filtering of SNMP
+        notifications generated by Omnitron management modules."
+    ::= { omnitronGpoeNotificationMib 3 }
+
+ostGpoeNotificationCfgEntry OBJECT-TYPE
+    SYNTAX      OstGpoeNotificationCfgEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION
+       "This is a Notification Filtering configuration table entry."
+    INDEX { gpoeNotificationCfgTrapNum }
+    ::= { ostGpoeNotificationCfgTable 1 }
+
+OstGpoeNotificationCfgEntry ::= SEQUENCE {
+    gpoeNotificationCfgTrapNum           Unsigned32,
+    gpoeNotificationCfgFilteringEnable   INTEGER
+    }
+
+gpoeNotificationCfgTrapNum OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION
+       "An index to the GPoE Notification Configuration table. The entry (index) corresponds
+        to the 'trapcode' object indicating a specific trap code for an SNMP
+        notification.
+
+        Standard GPoE Omnitron traps are listed as 1 through 9999
+
+        Rows are automatically created based upon which notifications can be
+        configured by the user.
+       "
+    ::= { ostGpoeNotificationCfgEntry 1 }
+
+gpoeNotificationCfgFilteringEnable OBJECT-TYPE
+    SYNTAX      INTEGER {
+        noFiltering (1),
+        filtering(2)
+    }
+    MAX-ACCESS  read-write
+    STATUS      current
+    DESCRIPTION
+       "This object selects whether the notification indicated by the
+        gpoeNotificationCfgTrapNum object is filtered or is generated when
+        the specific condition is encountered.
+
+        noFiltering (1)   Notification is generated when condition is met
+        filtering(2)      Notification is generated when condition is met
+
+        This object can be read or written at any time.
+       "
+    DEFVAL { 1 }
+    ::= { ostGpoeNotificationCfgEntry 2 }
+
+
+
+-- -----------------------------------------------------------------------------
+-- Specific Notification Types
+-- -----------------------------------------------------------------------------
+
+ostGpoeNotificationCodes  OBJECT IDENTIFIER ::= { omnitronGpoeNotificationMib 0 }
+
+gpoeModuleColdStart NOTIFICATION-TYPE
+    OBJECTS   { gpoeTrapCode, gpoeTrapIpString, gpoeTrapModuleDescription }
+    STATUS      current
+    DESCRIPTION
+       "Module cold start - A module has completed power on testing after
+        initial power up, where gpoeTrapCode = 0.
+       "
+    ::= { ostGpoeNotificationCodes 1 }
+
+gpoeModuleReset NOTIFICATION-TYPE
+    OBJECTS   { gpoeTrapCode, gpoeTrapIpString, gpoeTrapModuleDescription }
+    STATUS      current
+    DESCRIPTION
+       "Module reset - a module completed power on testing after receiving
+        a reset command via user intervention, where gpoeTrapCode = 0.
+       "
+    ::= { ostGpoeNotificationCodes 2 }
+
+gpoeModulePowerRemoved  NOTIFICATION-TYPE
+    OBJECTS   { gpoeTrapCode, gpoeTrapIpString, gpoeTrapModuleDescription }
+    STATUS      current
+    DESCRIPTION
+       "Module power removed - The module has detected that incoming voltage
+        has been removed from a power input or has dropped to zero and is not
+        generated again unless the module first detects a safe operating
+        voltage for more than 1 sec, where gpoeTrapCode indicates
+        the power input.
+       "
+    ::= { ostGpoeNotificationCodes 4 }
+
+gpoeModulePowerApplied NOTIFICATION-TYPE
+    OBJECTS   { gpoeTrapCode, gpoeTrapIpString, gpoeTrapModuleDescription }
+    STATUS      current
+    DESCRIPTION
+       "Module power applied - The module has detected that incoming voltage
+        has been applied to a power input and is not generated again unless
+        the module first detects that the power has been removed for more
+        than 1 sec, where gpoeTrapCode indicates the power input.
+       "
+    ::= { ostGpoeNotificationCodes 5 }
+
+gpoeLinkDown NOTIFICATION-TYPE
+    OBJECTS   { gpoeTrapCode, gpoeTrapIpString, gpoeTrapModuleDescription }
+    STATUS      current
+    DESCRIPTION
+       "Link down - A port on the module has lost link, where gpoeTrapCode
+        indicates the port number.
+       "
+    ::= { ostGpoeNotificationCodes 6 }
+
+gpoeLinkUp   NOTIFICATION-TYPE
+    OBJECTS   { gpoeTrapCode, gpoeTrapIpString, gpoeTrapModuleDescription }
+    STATUS      current
+    DESCRIPTION
+       "Link up - A port on the module has gained link, where gpoeTrapCode
+        indicates the port number.
+       "
+    ::= { ostGpoeNotificationCodes 7 }
+
+gpoePrimaryLinkUp   NOTIFICATION-TYPE
+    OBJECTS   { gpoeTrapCode, gpoeTrapIpString, gpoeTrapModuleDescription }
+    STATUS      current
+    DESCRIPTION
+       "Primary link up - Primary redundant link port is active, where
+        gpoeTrapCode indicates the port number.
+       "
+    ::= { ostGpoeNotificationCodes 8 }
+
+gpoePrimaryLinkDown   NOTIFICATION-TYPE
+    OBJECTS   { gpoeTrapCode, gpoeTrapIpString, gpoeTrapModuleDescription }
+    STATUS      current
+    DESCRIPTION
+       "Primary link down - Primary redundant link port is down, where
+        gpoeTrapCode indicates the port number.
+       "
+    ::= { ostGpoeNotificationCodes 9 }
+
+gpoeSecondaryLinkUp   NOTIFICATION-TYPE
+    OBJECTS   { gpoeTrapCode, gpoeTrapIpString, gpoeTrapModuleDescription }
+    STATUS      current
+    DESCRIPTION
+       "Secondary link up - Secondary or backup redundant link port is active,
+        where gpoeTrapCode indicates the port number.
+       "
+    ::= { ostGpoeNotificationCodes 10 }
+
+gpoeSecondaryLinkDown   NOTIFICATION-TYPE
+    OBJECTS   { gpoeTrapCode, gpoeTrapIpString, gpoeTrapModuleDescription }
+    STATUS      current
+    DESCRIPTION
+       "Secondary link down - Secondary or backup redundant link port is down,
+        where gpoeTrapCode indicates the port number.
+       "
+    ::= { ostGpoeNotificationCodes 11 }
+
+gpoeStandbyLinkUp   NOTIFICATION-TYPE
+    OBJECTS   { gpoeTrapCode, gpoeTrapIpString, gpoeTrapModuleDescription }
+    STATUS      current
+    DESCRIPTION
+       "Standby link up - Standby redundant link port is up and can become an
+        active link if the primary link goes down, where gpoeTrapCode
+        indicates the port number.
+       "
+    ::= { ostGpoeNotificationCodes 12 }
+
+gpoeStandbyLinkDown   NOTIFICATION-TYPE
+    OBJECTS   { gpoeTrapCode, gpoeTrapIpString, gpoeTrapModuleDescription }
+    STATUS      current
+    DESCRIPTION
+       "Standby link down - Standby redundant link port is down and cannot
+        become an active link if the primary link goes down, where
+        gpoeTrapCode indicates the port number.
+       "
+    ::= { ostGpoeNotificationCodes 13 }
+
+gpoeLoopPreventionBlock   NOTIFICATION-TYPE
+    OBJECTS   { gpoeTrapCode, gpoeTrapIpString, gpoeTrapModuleDescription }
+    STATUS      current
+    DESCRIPTION
+       "Loop prevention block - Loop prevention block on a port has occurred
+        (RSTP block), where gpoeTrapCode indicates the port number.
+       "
+    ::= { ostGpoeNotificationCodes 14 }
+
+gpoeLoopPreventionClear   NOTIFICATION-TYPE
+    OBJECTS   { gpoeTrapCode, gpoeTrapIpString, gpoeTrapModuleDescription }
+    STATUS      current
+    DESCRIPTION
+       "Loop prevention clear - Loop prevention block on a port has been
+       removed (RSTP forward), where gpoeTrapCode indicates the port number.
+       "
+    ::= { ostGpoeNotificationCodes 15 }
+
+gpoeHardwareDipSwitchChanged   NOTIFICATION-TYPE
+    OBJECTS   { gpoeTrapCode, gpoeTrapIpString, gpoeTrapModuleDescription }
+    STATUS      current
+    DESCRIPTION
+       "Hardware DIP switch changed - Hardware DIP switch on the module has
+        changed state, where gpoeTrapCode indicates the switch number.
+       "
+    ::= { ostGpoeNotificationCodes 16 }
+
+gpoeSoftwareDipSwitchChanged   NOTIFICATION-TYPE
+    OBJECTS   { gpoeTrapCode, gpoeTrapIpString, gpoeTrapModuleDescription }
+    STATUS      current
+    DESCRIPTION
+       "Software DIP switch changed - Software DIP switch on the module has
+        changed state, where gpoeTrapCode indicates the switch number.
+       "
+    ::= { ostGpoeNotificationCodes 17 }
+
+gpoeOutputRelay   NOTIFICATION-TYPE
+    OBJECTS   { gpoeTrapCode, gpoeTrapIpString, gpoeTrapModuleDescription }
+    STATUS      current
+    DESCRIPTION
+       "Output relay - Output relay changed state, either from activated
+        to not activated or not activated to activated, where
+        gpoeTrapCode indicates the relay state:
+          1 = not activated,
+          2 = activated
+       "
+    ::= { ostGpoeNotificationCodes 18 }
+
+gpoeInputPinStatus   NOTIFICATION-TYPE
+    OBJECTS   { gpoeTrapCode, gpoeTrapIpString, gpoeTrapModuleDescription }
+    STATUS      current
+    DESCRIPTION
+       "Input pin status - Input pin changed state, either open to closed
+        or closed to open, where gpoeTrapCode indicates the relay state:
+          1 = open,
+          2 = closed
+       "
+    ::= { ostGpoeNotificationCodes 19 }
+
+gpoeModuleConfigurationChange   NOTIFICATION-TYPE
+    OBJECTS   { gpoeTrapCode, gpoeTrapIpString, gpoeTrapModuleDescription }
+    STATUS      current
+    DESCRIPTION
+       "Module configuration change - A configuration change has been committed
+        to flash, where gpoeTrapCode = 0.
+       "
+    ::= { ostGpoeNotificationCodes 20 }
+
+gpoeModuleOverTemperature   NOTIFICATION-TYPE
+    OBJECTS   { gpoeTrapCode, gpoeTrapIpString, gpoeTrapModuleDescription }
+    STATUS      current
+    DESCRIPTION
+       "Module over temperature - The module has detected that the module
+        temperature has risen above the safe operating temperature, which is 5
+        degrees less than the maximum temperature supported and is not
+        generated again unless the module first detects an operating
+        temperature five degrees below the over temperature threshold, where
+        gpoeTrapCode = 0.
+       "
+    ::= { ostGpoeNotificationCodes 21 }
+
+gpoeModuleNormalTemperature   NOTIFICATION-TYPE
+    OBJECTS   { gpoeTrapCode, gpoeTrapIpString, gpoeTrapModuleDescription }
+    STATUS      current
+    DESCRIPTION
+       "Module normal temperature - The module has detected a normal operating
+        temperature range after a temperature out of range (low or high), where
+        gpoeTrapCode = 0.
+       "
+    ::= { ostGpoeNotificationCodes 22 }
+
+gpoeModuleVoltageOutOfRange   NOTIFICATION-TYPE
+    OBJECTS   { gpoeTrapCode, gpoeTrapIpString, gpoeTrapModuleDescription }
+    STATUS      current
+    DESCRIPTION
+       "Module voltage out of range - The module has detected that the internal
+        operating voltage is greater than 5% or less than 5% of nominal
+        internal voltage and the event is not generated again unless the module
+        first detects a safe operating voltage for more than 1 sec, where
+        gpoeTrapCode = 0.
+       "
+    ::= { ostGpoeNotificationCodes 23 }
+
+gpoeModuleVoltageRangeNormal   NOTIFICATION-TYPE
+    OBJECTS   { gpoeTrapCode, gpoeTrapIpString, gpoeTrapModuleDescription }
+    STATUS      current
+    DESCRIPTION
+       "Module voltage range normal - The module has detected a normal voltage
+        range after a voltage out of range (low or high), where
+        gpoeTrapCode = 0.
+       "
+    ::= { ostGpoeNotificationCodes 24 }
+
+gpoePoePdStatusError   NOTIFICATION-TYPE
+    OBJECTS   { gpoeTrapCode, gpoeTrapIpString, gpoeTrapModuleDescription,
+                gpoePoeStatus }
+    STATUS      current
+    DESCRIPTION
+       "PoE PD status error - A port on the module has detected a PoE PD
+        error, where gpoePoeStatus indicates the specific PoE PD error and
+        gpoeTrapCode indicates the port number.
+       "
+    ::= { ostGpoeNotificationCodes 25 }
+
+gpoePoePdStatusNormal   NOTIFICATION-TYPE
+    OBJECTS   { gpoeTrapCode, gpoeTrapIpString, gpoeTrapModuleDescription,
+                gpoePoeStatus }
+    STATUS      current
+    DESCRIPTION
+       "PoE PD status normal - A port on the module has detected no PoE PD
+        errors on a port where previously there had been one or more errors,
+        where gpoeTrapCode indicates the port number.
+       "
+    ::= { ostGpoeNotificationCodes 26 }
+
+gpoeAclAccessDenied   NOTIFICATION-TYPE
+    OBJECTS   { gpoeTrapCode, gpoeTrapIpString, gpoeTrapModuleDescription,
+                gpoeSourceIpString }
+    STATUS      current
+    DESCRIPTION
+       "ACL access denied - The module has detected that access to the
+        management has been denied using a configured or default ACL, where
+        gpoeSourceIpString indicates the source IP address of the access, and
+        gpoeTrapCode = 0.
+       "
+    ::= { ostGpoeNotificationCodes 27 }
+
+gpoeTelnetAuthenticationFailure   NOTIFICATION-TYPE
+    OBJECTS   { gpoeTrapCode, gpoeTrapIpString, gpoeTrapModuleDescription,
+                gpoeSourceIpString, gpoeUsername }
+    STATUS      current
+    DESCRIPTION
+       "Telnet authentication failure - The module has detected a Telnet
+        authentication login failure, where gpoeSourceIpString indicates the
+        source IP address of the access, gpoeUsername indicates the username,
+        and gpoeTrapCode = 0.
+       "
+    ::= { ostGpoeNotificationCodes 28 }
+
+gpoeTelnetSessionStarted   NOTIFICATION-TYPE
+    OBJECTS   { gpoeTrapCode, gpoeTrapIpString, gpoeTrapModuleDescription,
+                gpoeSourceIpString, gpoeUsername }
+    STATUS      current
+    DESCRIPTION
+       "Telnet session started - The module has detected that a Telnet session
+        has started, where gpoeSourceIpString indicates the source IP address
+        of the access, gpoeUsername indicates the username,
+        and gpoeTrapCode = 0.
+       "
+    ::= { ostGpoeNotificationCodes 29 }
+
+gpoeTelnetSessionStopped   NOTIFICATION-TYPE
+    OBJECTS   { gpoeTrapCode, gpoeTrapIpString, gpoeTrapModuleDescription,
+                gpoeSourceIpString, gpoeUsername }
+    STATUS      current
+    DESCRIPTION
+       "Telnet session stopped - The module has detected that a Telnet session
+        has stopped, where gpoeSourceIpString indicates the source IP address
+        of the access, gpoeUsername indicates the username,
+        and gpoeTrapCode = 0.
+       "
+    ::= { ostGpoeNotificationCodes 30 }
+
+gpoeFtpAuthenticationFailure   NOTIFICATION-TYPE
+    OBJECTS   { gpoeTrapCode, gpoeTrapIpString, gpoeTrapModuleDescription,
+                gpoeSourceIpString, gpoeUsername }
+    STATUS      current
+    DESCRIPTION
+       "FTP authentication failure - The module has detected an FTP
+        authentication login failure, where gpoeSourceIpString indicates the
+        source IP address of the access, gpoeUsername indicates the username,
+        and gpoeTrapCode = 0.
+       "
+    ::= { ostGpoeNotificationCodes 31 }
+
+gpoeFtpSessionStarted   NOTIFICATION-TYPE
+    OBJECTS   { gpoeTrapCode, gpoeTrapIpString, gpoeTrapModuleDescription,
+                gpoeSourceIpString, gpoeUsername }
+    STATUS      current
+    DESCRIPTION
+       "FTP session started - The module has detected that a FTP session
+        has started, where gpoeSourceIpString indicates the source IP address
+        of the access, gpoeUsername indicates the username,
+        and gpoeTrapCode = 0.
+       "
+    ::= { ostGpoeNotificationCodes 32 }
+
+gpoeFtpSessionStopped   NOTIFICATION-TYPE
+    OBJECTS   { gpoeTrapCode, gpoeTrapIpString, gpoeTrapModuleDescription,
+                gpoeSourceIpString, gpoeUsername }
+    STATUS      current
+    DESCRIPTION
+       "FTP session stopped - The module has detected that a FTP session
+        has stopped, where gpoeSourceIpString indicates the source IP address
+        of the access, gpoeUsername indicates the username,
+        and gpoeTrapCode = 0.
+       "
+    ::= { ostGpoeNotificationCodes 33 }
+
+gpoeSerialConsoleSessionStarted   NOTIFICATION-TYPE
+    OBJECTS   { gpoeTrapCode, gpoeTrapIpString, gpoeTrapModuleDescription,
+                gpoeUsername }
+    STATUS      current
+    DESCRIPTION
+       "Serial console port session started - The module has detected that a
+        serial console session has started, where gpoeUsername indicates the
+        username and gpoeTrapCode = 0.
+       "
+    ::= { ostGpoeNotificationCodes 34 }
+
+gpoeSerialConsoleSessionStopped   NOTIFICATION-TYPE
+    OBJECTS   { gpoeTrapCode, gpoeTrapIpString, gpoeTrapModuleDescription,
+                gpoeUsername }
+    STATUS      current
+    DESCRIPTION
+       "Serial console port session stopped - The module has detected that a
+        serial console session has stopped, where gpoeUsername indicates the
+        username and gpoeTrapCode = 0.
+       "
+    ::= { ostGpoeNotificationCodes 35 }
+
+gpoeSshAuthenticationFailure   NOTIFICATION-TYPE
+    OBJECTS   { gpoeTrapCode, gpoeTrapIpString, gpoeTrapModuleDescription,
+                gpoeSourceIpString, gpoeUsername }
+    STATUS      current
+    DESCRIPTION
+       "SSH authentication failure - Wrong SSH authentication type or password
+        is used, where gpoeSourceIpString indicates the source IP address,
+        gpoeUsername indicates the username, and gpoeTrapCode = 0.
+       "
+    ::= { ostGpoeNotificationCodes 36 }
+
+gpoeSshSessionStarted   NOTIFICATION-TYPE
+    OBJECTS   { gpoeTrapCode, gpoeTrapIpString, gpoeTrapModuleDescription,
+                gpoeSourceIpString, gpoeUsername }
+    STATUS      current
+    DESCRIPTION
+       "SSH session started - SSH session for a user has started, where
+        gpoeSourceIpString indicates the source IP address, gpoeUsername
+        indicates the username, and gpoeTrapCode = 0.
+       "
+    ::= { ostGpoeNotificationCodes 37 }
+
+gpoeSshSessionStopped   NOTIFICATION-TYPE
+    OBJECTS   { gpoeTrapCode, gpoeTrapIpString, gpoeTrapModuleDescription,
+                gpoeSourceIpString, gpoeUsername }
+    STATUS      current
+    DESCRIPTION
+       "SSH session stopped - SSH session for a user has stopped, where
+        gpoeSourceIpString indicates the source IP address, gpoeUsername
+        indicates the username, and gpoeTrapCode = 0.
+       "
+    ::= { ostGpoeNotificationCodes 38 }
+
+gpoeWrongPasswordCountExceeded   NOTIFICATION-TYPE
+    OBJECTS   { gpoeTrapCode, gpoeTrapIpString, gpoeTrapModuleDescription,
+                gpoeSourceIpString, gpoeUsername }
+    STATUS      current
+    DESCRIPTION
+       "Wrong password count exceeded - The module has detected too many wrong
+        password attempts (5) and will not validate any password attempts until
+        the device times out (5 minutes) or a session is aborted/closed by the
+        user. This is applicable for Serial port (Console), Telnet, FTP, and
+        SSH passwords, where gpoeSourceIpString indicates the source IP address,
+        gpoeUsername indicates the username, and gpoeTrapCode = 0.
+       "
+    ::= { ostGpoeNotificationCodes 39 }
+
+gpoeSfpInserted   NOTIFICATION-TYPE
+    OBJECTS   { gpoeTrapCode, gpoeTrapIpString, gpoeTrapModuleDescription }
+    STATUS      current
+    DESCRIPTION
+       "SFP inserted - SFP has been inserted into a port, where
+        gpoeTrapCode indicates the port number.
+       "
+    ::= { ostGpoeNotificationCodes 40 }
+
+gpoeSfpRemoved   NOTIFICATION-TYPE
+    OBJECTS   { gpoeTrapCode, gpoeTrapIpString, gpoeTrapModuleDescription }
+    STATUS      current
+    DESCRIPTION
+       "SFP removed - SFP has been removed from a port, where gpoeTrapCode
+        indicates the port number.
+       "
+    ::= { ostGpoeNotificationCodes 41 }
+
+gpoeSfpTxLowThreshold   NOTIFICATION-TYPE
+    OBJECTS   { gpoeTrapCode, gpoeTrapIpString, gpoeTrapModuleDescription }
+    STATUS      current
+    DESCRIPTION
+       "SFP transmit low threshold - SFP has detected that the transmission
+        power on a port is less than the configured threshold warning and
+        is not generated again unless the module first detects a normal
+        operating value, where gpoeTrapCode indicates the port number.
+       "
+    ::= { ostGpoeNotificationCodes 42 }
+
+gpoeSfpTxHighThreshold   NOTIFICATION-TYPE
+    OBJECTS   { gpoeTrapCode, gpoeTrapIpString, gpoeTrapModuleDescription }
+    STATUS      current
+    DESCRIPTION
+       "SFP transmit high threshold - SFP has detected that the transmission
+        power on a port is greater than the configured threshold warning and
+        is not generated again unless the module first detects a normal
+        operating value, where gpoeTrapCode indicates the port number.
+       "
+    ::= { ostGpoeNotificationCodes 43 }
+
+gpoeSfpCurrentBiasLowThreshold   NOTIFICATION-TYPE
+    OBJECTS   { gpoeTrapCode, gpoeTrapIpString, gpoeTrapModuleDescription }
+    STATUS      current
+    DESCRIPTION
+       "SFP current bias low threshold - SFP has detected that the current
+        bias on a port is less than the configured threshold warning and
+        is not generated again unless the module first detects a normal
+        operating value, where gpoeTrapCode indicates the port number.
+       "
+    ::= { ostGpoeNotificationCodes 44 }
+
+gpoeSfpCurrentBiasHighThreshold   NOTIFICATION-TYPE
+    OBJECTS   { gpoeTrapCode, gpoeTrapIpString, gpoeTrapModuleDescription }
+    STATUS      current
+    DESCRIPTION
+       "SFP current bias high threshold - SFP has detected that the current
+        bias on a port is greater than the configured threshold warning and
+        is not generated again unless the module first detects a normal
+        operating value, where gpoeTrapCode indicates the port number.
+       "
+    ::= { ostGpoeNotificationCodes 45 }
+
+gpoeSfp33VLowThreshold   NOTIFICATION-TYPE
+    OBJECTS   { gpoeTrapCode, gpoeTrapIpString, gpoeTrapModuleDescription }
+    STATUS      current
+    DESCRIPTION
+       "SFP 3.3V low threshold - SFP has detected that the 3.3V source
+        voltage on a port is less than the configured threshold warning and
+        is not generated again unless the module first detects a normal
+        operating value, where gpoeTrapCode indicates the port number.
+       "
+    ::= { ostGpoeNotificationCodes 46 }
+
+gpoeSfp33VHighThreshold   NOTIFICATION-TYPE
+    OBJECTS   { gpoeTrapCode, gpoeTrapIpString, gpoeTrapModuleDescription }
+    STATUS      current
+    DESCRIPTION
+       "SFP 3.3V high threshold - SFP has detected that the 3.3V source
+        voltage on a port is higher than the configured threshold warning and
+        is not generated again unless the module first detects a normal
+        operating value, where gpoeTrapCode indicates the port number.
+       "
+    ::= { ostGpoeNotificationCodes 47 }
+
+gpoeSfpTempLowThreshold   NOTIFICATION-TYPE
+    OBJECTS   { gpoeTrapCode, gpoeTrapIpString, gpoeTrapModuleDescription }
+    STATUS      current
+    DESCRIPTION
+       "SFP low temperature threshold - SFP has detected that the low
+        temperature on a port is less than the configured threshold warning and
+        is not generated again unless the module first detects a normal
+        operating value, where gpoeTrapCode indicates the port number.
+       "
+    ::= { ostGpoeNotificationCodes 48 }
+
+gpoeSfpTempHighThreshold   NOTIFICATION-TYPE
+    OBJECTS   { gpoeTrapCode, gpoeTrapIpString, gpoeTrapModuleDescription }
+    STATUS      current
+    DESCRIPTION
+       "SFP high temperature threshold - SFP has detected that the high
+        temperature on a port is less than the configured threshold warning and
+        is not generated again unless the module first detects a normal
+        operating value, where gpoeTrapCode indicates the port number.
+       "
+    ::= { ostGpoeNotificationCodes 49 }
+
+gpoeSfpRxLowThreshold   NOTIFICATION-TYPE
+    OBJECTS   { gpoeTrapCode, gpoeTrapIpString, gpoeTrapModuleDescription }
+    STATUS      current
+    DESCRIPTION
+       "SFP receive low threshold - SFP has detected that the receive
+        power on a port is less than the configured threshold warning and
+        is not generated again unless the module first detects a normal
+        operating value, where gpoeTrapCode indicates the port number.
+       "
+    ::= { ostGpoeNotificationCodes 50 }
+
+gpoeSfpRxHighThreshold   NOTIFICATION-TYPE
+    OBJECTS   { gpoeTrapCode, gpoeTrapIpString, gpoeTrapModuleDescription }
+    STATUS      current
+    DESCRIPTION
+       "SFP receive high threshold - SFP has detected that the receive
+        power on a port is greater than the configured threshold warning and
+        is not generated again unless the module first detects a normal
+        operating value, where gpoeTrapCode indicates the port number.
+       "
+    ::= { ostGpoeNotificationCodes 51 }
+
+gpoeSfpNormal   NOTIFICATION-TYPE
+    OBJECTS   { gpoeTrapCode, gpoeTrapIpString, gpoeTrapModuleDescription }
+    STATUS      current
+    DESCRIPTION
+       "SFP normal - SFP has detected normal operating conditions for the
+        port, where gpoeTrapCode indicates the port number.
+       "
+    ::= { ostGpoeNotificationCodes 52 }
+
+
+gpoeModuleConfigurationFileCorrupted  NOTIFICATION-TYPE
+    OBJECTS   { gpoeTrapCode, gpoeTrapIpString, gpoeTrapModuleDescription }
+    STATUS      current
+    DESCRIPTION
+       "Module configuration file corrupted - The management module has
+        detected a corrupted configuration file, where gpoeTrapCode = 0.
+       "
+    ::= { ostGpoeNotificationCodes 53 }
+
+
+-- -----------------------------------------------------------------------------
+-- Conformance
+-- -----------------------------------------------------------------------------
+
+ostGpoeNotificationCompliances      OBJECT IDENTIFIER ::= { omnitronGpoeNotificationMib 4 }
+ostGpoeNotificationGroups           OBJECT IDENTIFIER ::= { omnitronGpoeNotificationMib 5 }
+
+
+-- -----------------------------------------------------------------------------
+-- Omnitron GPoE/GHPoE Trap MIB Units of conformance
+-- -----------------------------------------------------------------------------
+
+ostGpoeNotificationGroup NOTIFICATION-GROUP
+    NOTIFICATIONS {
+        gpoeModuleColdStart,
+        gpoeModuleReset,
+        gpoeModulePowerRemoved,
+        gpoeModulePowerApplied,
+        gpoeLinkDown,
+        gpoeLinkUp,
+        gpoePrimaryLinkUp,
+        gpoePrimaryLinkDown,
+        gpoeSecondaryLinkUp,
+        gpoeSecondaryLinkDown,
+        gpoeStandbyLinkUp,
+        gpoeStandbyLinkDown,
+        gpoeLoopPreventionBlock,
+        gpoeLoopPreventionClear,
+        gpoeHardwareDipSwitchChanged,
+        gpoeSoftwareDipSwitchChanged,
+        gpoeOutputRelay,
+        gpoeInputPinStatus,
+        gpoeModuleConfigurationChange,
+        gpoeModuleOverTemperature,
+        gpoeModuleNormalTemperature,
+        gpoeModuleVoltageOutOfRange,
+        gpoeModuleVoltageRangeNormal,
+        gpoePoePdStatusError,
+        gpoePoePdStatusNormal,
+        gpoeAclAccessDenied,
+        gpoeTelnetAuthenticationFailure,
+        gpoeTelnetSessionStarted,
+        gpoeTelnetSessionStopped,
+        gpoeFtpAuthenticationFailure,
+        gpoeFtpSessionStarted,
+        gpoeFtpSessionStopped,
+        gpoeSerialConsoleSessionStarted,
+        gpoeSerialConsoleSessionStopped,
+        gpoeSshAuthenticationFailure,
+        gpoeSshSessionStarted,
+        gpoeSshSessionStopped,
+        gpoeWrongPasswordCountExceeded,
+        gpoeSfpInserted,
+        gpoeSfpRemoved,
+        gpoeSfpTxLowThreshold,
+        gpoeSfpTxHighThreshold,
+        gpoeSfpCurrentBiasLowThreshold,
+        gpoeSfpCurrentBiasHighThreshold,
+        gpoeSfp33VLowThreshold,
+        gpoeSfp33VHighThreshold,
+        gpoeSfpTempLowThreshold,
+        gpoeSfpTempHighThreshold,
+        gpoeSfpRxLowThreshold,
+        gpoeSfpRxHighThreshold,
+        gpoeSfpNormal,
+        gpoeModuleConfigurationFileCorrupted
+    }
+    STATUS       current
+    DESCRIPTION
+       "A collection of Omnitron GPoE notifications."
+    ::= { ostGpoeNotificationGroups 1 }
+
+
+ostGpoeNotificationObjectGroup OBJECT-GROUP
+    OBJECTS {
+        gpoeNotificationCfgFilteringEnable,
+
+        gpoeTrapCode,
+        gpoeTrapIpString,
+        gpoeTrapModuleDescription,
+        gpoeSourceIpString,
+        gpoeUsername,
+        gpoePoeStatus,
+
+        ostGpoeNotificationCfgSetClearAll
+
+    }
+    STATUS       current
+    DESCRIPTION
+       "A collection of Omnitron GPoE notification objects."
+    ::= { ostGpoeNotificationGroups 2 }
+
+
+-- -----------------------------------------------------------------------------
+-- Omnitron GPoE/GHPoE Trap MIB Compliance statements
+-- -----------------------------------------------------------------------------
+
+ostGpoeTrapCompliance MODULE-COMPLIANCE
+    STATUS       current
+    DESCRIPTION
+       "The compliance statement for the Omnitron Protocol MIB."
+    MODULE
+        MANDATORY-GROUPS {
+            ostGpoeNotificationGroup,
+            ostGpoeNotificationObjectGroup
+        }
+    ::= { ostGpoeNotificationCompliances 1 }
+
+
+END
+
+

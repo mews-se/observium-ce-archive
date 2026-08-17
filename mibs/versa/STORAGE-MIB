@@ -1,0 +1,422 @@
+STORAGE-MIB DEFINITIONS ::= BEGIN
+IMPORTS
+    MODULE-IDENTITY, OBJECT-TYPE,
+    Integer32, Unsigned32, Counter32, Counter64,
+    Gauge32, IpAddress
+        FROM SNMPv2-SMI
+    TEXTUAL-CONVENTION, RowStatus, DateAndTime,
+    TruthValue
+        FROM SNMPv2-TC
+    ngfw
+        FROM VERSA-MIB
+;
+
+storage MODULE-IDENTITY
+    LAST-UPDATED "201908050000Z"
+    ORGANIZATION "Versa Networks"
+    CONTACT-INFO "
+        2953 Bunker Hill Lane, Suite 210
+        Santa Clara, CA - 95035 (USA)
+        Email: support@versa-networks.com"
+    DESCRIPTION "Storage MIB"
+    REVISION "201908050000Z"
+    DESCRIPTION "Initial revision"
+    ::= { ngfw 14 }
+
+ConfdString ::= TEXTUAL-CONVENTION
+    DISPLAY-HINT "1t"
+    STATUS      current
+    DESCRIPTION "xs: and confd: types mapped to strings"
+    SYNTAX      OCTET STRING
+
+String ::= TEXTUAL-CONVENTION
+    DISPLAY-HINT "1t"
+    STATUS      current
+    DESCRIPTION "xs:string"
+    SYNTAX      OCTET STRING
+
+storageProfileStatsTable OBJECT-TYPE
+    SYNTAX      SEQUENCE OF StorageProfileStatsEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "Storage profile statistics"
+    ::= { storage 1 }
+
+storageProfileStatsEntry OBJECT-TYPE
+    SYNTAX      StorageProfileStatsEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION ""
+    INDEX { storageProfileOrgId, storageProfileId }
+        ::= { storageProfileStatsTable 1 }
+
+StorageProfileStatsEntry ::=
+    SEQUENCE {
+        storageProfileOrgId Unsigned32,
+        storageProfileId Unsigned32,
+        storageProfileOrgName String,
+        storageProfileName String,
+        storageProfileFileOpenCount ConfdString,
+        storageProfileFileCloseCount ConfdString,
+        storageProfileFileOpenFailCount ConfdString,
+        storageProfileFileWriteCount ConfdString,
+        storageProfileFileReadCount ConfdString,
+        storageProfileFileAsyncWriteCount ConfdString,
+        storageProfileFileAsyncReadCount ConfdString,
+        storageProfileAvailableHardDiskSize ConfdString,
+        storageProfileUsedHardDiskSize ConfdString,
+        storageProfileUsedHardDiskCommonPoolSize ConfdString,
+        storageProfileHardDiskAllocationCount ConfdString,
+        storageProfileHardDiskCmnPoolAllocationCount ConfdString,
+        storageProfileHardDiskAllocationFailCount ConfdString,
+        storageProfileAvailableRamDiskSize ConfdString,
+        storageProfileUsedRamDiskSize ConfdString,
+        storageProfileUsedRamDiskCommonPoolSize ConfdString,
+        storageProfileRamDiskAllocationCount ConfdString,
+        storageProfileRamDiskCmnPoolAllocationCount ConfdString,
+        storageProfileRamDiskAllocationFailCount ConfdString
+    }
+
+storageProfileOrgId OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "Organization ID"
+    ::= { storageProfileStatsEntry 1 }
+
+storageProfileId OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "Profile ID"
+    ::= { storageProfileStatsEntry 2 }
+
+storageProfileOrgName OBJECT-TYPE
+    SYNTAX      String
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Organization Name"
+    ::= { storageProfileStatsEntry 3 }
+
+storageProfileName OBJECT-TYPE
+    SYNTAX      String
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Profile Name"
+    ::= { storageProfileStatsEntry 4 }
+
+storageProfileFileOpenCount OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Number of times file opened"
+    ::= { storageProfileStatsEntry 5 }
+
+storageProfileFileCloseCount OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Number of times file closed"
+    ::= { storageProfileStatsEntry 6 }
+
+storageProfileFileOpenFailCount OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Number of times file open operation failed"
+    ::= { storageProfileStatsEntry 7 }
+
+storageProfileFileWriteCount OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Number of times file written"
+    ::= { storageProfileStatsEntry 8 }
+
+storageProfileFileReadCount OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Number of times file read"
+    ::= { storageProfileStatsEntry 9 }
+
+storageProfileFileAsyncWriteCount OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Number of times asynchronous write invoked"
+    ::= { storageProfileStatsEntry 10 }
+
+storageProfileFileAsyncReadCount OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Number of times asynchronous read invoked"
+    ::= { storageProfileStatsEntry 11 }
+
+storageProfileAvailableHardDiskSize OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Size of available hard disk, in bytes"
+    ::= { storageProfileStatsEntry 12 }
+
+storageProfileUsedHardDiskSize OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Size of hard disk used, in bytes"
+    ::= { storageProfileStatsEntry 13 }
+
+storageProfileUsedHardDiskCommonPoolSize OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Size of common pool hard disk used, in bytes"
+    ::= { storageProfileStatsEntry 14 }
+
+storageProfileHardDiskAllocationCount OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Number of times file allocation from hard disk was
+successful"
+    ::= { storageProfileStatsEntry 15 }
+
+storageProfileHardDiskCmnPoolAllocationCount OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Number of times file allocation from common pool hard
+disk was successful"
+    ::= { storageProfileStatsEntry 16 }
+
+storageProfileHardDiskAllocationFailCount OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Number of times file allocation from hard disk and
+common pool hard disk failed"
+    ::= { storageProfileStatsEntry 17 }
+
+storageProfileAvailableRamDiskSize OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Size of available RAM disk, in bytes"
+    ::= { storageProfileStatsEntry 18 }
+
+storageProfileUsedRamDiskSize OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Size of RAM disk used, in bytes"
+    ::= { storageProfileStatsEntry 19 }
+
+storageProfileUsedRamDiskCommonPoolSize OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Size of common pool RAM disk used, in bytes"
+    ::= { storageProfileStatsEntry 20 }
+
+storageProfileRamDiskAllocationCount OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Number of times file allocation from RAM disk was
+successful"
+    ::= { storageProfileStatsEntry 21 }
+
+storageProfileRamDiskCmnPoolAllocationCount OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Number of times file allocation from common pool RAM
+disk was successful"
+    ::= { storageProfileStatsEntry 22 }
+
+storageProfileRamDiskAllocationFailCount OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Number of times file allocation from RAM disk and
+common pool RAM disk failed"
+    ::= { storageProfileStatsEntry 23 }
+
+storageGlobalProfileStatsTable OBJECT-TYPE
+    SYNTAX      SEQUENCE OF StorageGlobalProfileStatsEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "Storage global profile statistics"
+    ::= { storage 2 }
+
+storageGlobalProfileStatsEntry OBJECT-TYPE
+    SYNTAX      StorageGlobalProfileStatsEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION ""
+    INDEX { storageGlobalProfileOrgId, storageGlobalProfileId }
+        ::= { storageGlobalProfileStatsTable 1 }
+
+StorageGlobalProfileStatsEntry ::=
+    SEQUENCE {
+        storageGlobalProfileOrgId Unsigned32,
+        storageGlobalProfileId Unsigned32,
+        storageGlobalProfileOrgName String,
+        storageGlobalProfileName String,
+        storageGlobalProfileFileOpenCount ConfdString,
+        storageGlobalProfileFileCloseCount ConfdString,
+        storageGlobalProfileFileOpenFailCount ConfdString,
+        storageGlobalProfileFileWriteCount ConfdString,
+        storageGlobalProfileFileReadCount ConfdString,
+        storageGlobalProfileFileAsyncWriteCount ConfdString,
+        storageGlobalProfileFileAsyncReadCount ConfdString,
+        storageGlobalProfileAvailableHardDiskSize ConfdString,
+        storageGlobalProfileUsedHardDiskSize ConfdString,
+        storageGlobalProfileHardDiskAllocationCount ConfdString,
+        storageGlobalProfileHardDiskAllocationFailCount ConfdString,
+        storageGlobalProfileAvailableRamDiskSize ConfdString,
+        storageGlobalProfileUsedRamDiskSize ConfdString,
+        storageGlobalProfileRamDiskAllocationCount ConfdString,
+        storageGlobalProfileRamDiskAllocationFailCount ConfdString
+    }
+
+storageGlobalProfileOrgId OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "Organization ID"
+    ::= { storageGlobalProfileStatsEntry 1 }
+
+storageGlobalProfileId OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "Profile ID"
+    ::= { storageGlobalProfileStatsEntry 2 }
+
+storageGlobalProfileOrgName OBJECT-TYPE
+    SYNTAX      String
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Organization Name"
+    ::= { storageGlobalProfileStatsEntry 3 }
+
+storageGlobalProfileName OBJECT-TYPE
+    SYNTAX      String
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Profile Name"
+    ::= { storageGlobalProfileStatsEntry 4 }
+
+storageGlobalProfileFileOpenCount OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Number of times file opened"
+    ::= { storageGlobalProfileStatsEntry 5 }
+
+storageGlobalProfileFileCloseCount OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Number of times file closed"
+    ::= { storageGlobalProfileStatsEntry 6 }
+
+storageGlobalProfileFileOpenFailCount OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Number of times file open operation failed"
+    ::= { storageGlobalProfileStatsEntry 7 }
+
+storageGlobalProfileFileWriteCount OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Number of times file written"
+    ::= { storageGlobalProfileStatsEntry 8 }
+
+storageGlobalProfileFileReadCount OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Number of times file read"
+    ::= { storageGlobalProfileStatsEntry 9 }
+
+storageGlobalProfileFileAsyncWriteCount OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Number of times asynchronous write invoked"
+    ::= { storageGlobalProfileStatsEntry 10 }
+
+storageGlobalProfileFileAsyncReadCount OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Number of times asynchronous read invoked"
+    ::= { storageGlobalProfileStatsEntry 11 }
+
+storageGlobalProfileAvailableHardDiskSize OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Size of available hard disk, in bytes"
+    ::= { storageGlobalProfileStatsEntry 12 }
+
+storageGlobalProfileUsedHardDiskSize OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Size of hard disk used, in bytes"
+    ::= { storageGlobalProfileStatsEntry 13 }
+
+storageGlobalProfileHardDiskAllocationCount OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Number of times file allocation from hard disk was
+successful"
+    ::= { storageGlobalProfileStatsEntry 14 }
+
+storageGlobalProfileHardDiskAllocationFailCount OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Number of times file allocation from hard disk
+failed"
+    ::= { storageGlobalProfileStatsEntry 15 }
+
+storageGlobalProfileAvailableRamDiskSize OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Size of available RAM disk, in bytes"
+    ::= { storageGlobalProfileStatsEntry 16 }
+
+storageGlobalProfileUsedRamDiskSize OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Size of RAM disk used, in bytes"
+    ::= { storageGlobalProfileStatsEntry 17 }
+
+storageGlobalProfileRamDiskAllocationCount OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Number of times file allocation from RAM disk was
+successful"
+    ::= { storageGlobalProfileStatsEntry 18 }
+
+storageGlobalProfileRamDiskAllocationFailCount OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Number of times file allocation from RAM disk
+failed"
+    ::= { storageGlobalProfileStatsEntry 19 }
+
+END

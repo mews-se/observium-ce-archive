@@ -1,0 +1,387 @@
+OMNITRON-ACL-MIB DEFINITIONS ::= BEGIN
+
+IMPORTS
+    MODULE-IDENTITY, OBJECT-TYPE, Integer32, Unsigned32, IpAddress
+        FROM SNMPv2-SMI           -- RFC-2578
+    RowStatus, TruthValue
+        FROM SNMPv2-TC            -- RFC-2579
+    MODULE-COMPLIANCE, OBJECT-GROUP
+        FROM SNMPv2-CONF          -- RFC-2580
+    omnitron,  OstIndexIntegerNextFree, OstAccessibiltyType, OstIpAddr
+        FROM OMNITRON-TC-MIB;     -- Omnitron Textual Convention MIB
+        
+omnitronAclMib MODULE-IDENTITY
+    LAST-UPDATED "201603171200Z"  -- March 17, 2016
+    ORGANIZATION "Omnitron Systems Technology, Inc."
+    CONTACT-INFO "Omnitron Systems Technology, Inc.
+                  38 Tesla
+                  Irvine, CA 92618-4670
+                  USA
+
+             Tel: (949) 250 6510
+             Fax: (949) 250 6514
+          E-mail: info@omnitron-systems.com
+   International: +1 949 250 6510
+
+                  Technical Support and Customer Service
+             Tel: (800) 675 8410
+          E-mail: support@omnitron-systems.com
+   International: +1 949 250 6510"
+
+    DESCRIPTION
+            "Omnitron Access Control List (ACL) MIB for use with iConverter
+             Management Modules v5.3 and NetOutlook.
+
+             Copyright 2016 Omnitron Systems Technology, Inc.
+             All rights reserved.
+            "
+
+    REVISION    "201603171200Z"  -- March 17, 2016
+    DESCRIPTION "Initial version of v5.3 MIB.
+                   Added ostAclCfgIpSourceAddrString
+                   Added ostAclCfgIpSourceAddrString
+                "
+    ::= { omnitron 16 }
+
+
+--------------------------------------------------------------------------------
+-- Access Control List (ACL) Global Configuration Table
+--------------------------------------------------------------------------------
+
+ostAclGlobalCfgTable  OBJECT IDENTIFIER ::= { omnitronAclMib 1 }
+
+ostAclGlobalCfgAclEnable OBJECT-TYPE
+    SYNTAX      TruthValue
+    MAX-ACCESS  read-write
+    STATUS      current
+    DESCRIPTION
+       "This object specifies whether the ACL function is enabled.
+
+        The value 'true' indicates that ACL is enabled.
+
+        The value 'false' indicates that ACL is disabled.
+       "
+    DEFVAL { false }
+    ::= { ostAclGlobalCfgTable 1 }
+
+ostAclGlobalCfgAclDefault OBJECT-TYPE
+    SYNTAX      OstAccessibiltyType
+    MAX-ACCESS  read-write
+    STATUS      current
+    DESCRIPTION
+       "This object specifies the access type default value is set
+        to if the particular Ethernet IP access is not defined in
+        the ACL table.
+       "
+    DEFVAL { permit }
+    ::= { ostAclGlobalCfgTable 2 }
+
+ostAclGlobalCfgAclInstanceNextIndex OBJECT-TYPE
+    SYNTAX      OstIndexIntegerNextFree
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+       "This object contains an unused value for next ACL instance
+        on a module that can be used to implement ACL, or a zero to
+        indicate that none exist.
+
+        This value needs to be read in order to find an available index for
+        row-creation of a ACL instance and then used when a row is created.
+        This value is automatically updated by the SNMP Agent after the row
+        is created.
+       "
+    ::= { ostAclGlobalCfgTable 3 }
+
+
+--------------------------------------------------------------------------------
+-- Access Control List (ACL) Configuration Table
+--------------------------------------------------------------------------------
+
+ostAclCfgTable OBJECT-TYPE
+    SYNTAX      SEQUENCE OF OstAclCfgEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION
+       "This table supports the ACL configurations."
+    ::= { omnitronAclMib 2 }
+
+ostAclCfgEntry OBJECT-TYPE
+    SYNTAX      OstAclCfgEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION
+       "This is a ACL configuration table entry. Each row in the table
+        indicates a specific ACL that is used to match an Ethernet frame
+        sent to the management port. A matching criteria is then implemented
+        based upon the ostAclCfgAccessbility object.
+
+        Its primary purpose is allow access by only allowed source IP
+        addresses and specified protocols, i.e. ARP, TCP/UDP. Accessibilty by
+        Layer 2 only protocols, i.e. Link OAM or CFM, are not limited by this
+        mechanism.
+
+        The entries in the table are processed in the order based upon the
+        index number, smallest to largest. The first match that is selected
+        applies the associated ostAclCfgAccessibility option. This means that
+        a more specific match could be applied first, i.e. 'permit' and then
+        the less specific match could be applied separately, i.e. 'deny'.
+       "
+    INDEX { ostAclCfgIndex }
+    ::= { ostAclCfgTable 1 }
+
+OstAclCfgEntry ::= SEQUENCE {
+    ostAclCfgIndex                       Unsigned32,
+    ostAclCfgRowStatus                   RowStatus,
+    ostAclCfgAccessibility               OstAccessibiltyType,
+    ostAclCfgProtocol                    INTEGER,
+    ostAclCfgIpSourceAddr                IpAddress,
+    ostAclCfgIpSourceAddrEnd             IpAddress,
+    ostAclCfgDstPort                     Integer32,
+    ostAclCfgSrcPort                     Integer32,
+    ostAclCfgMgtPort                     INTEGER,
+    ostAclCfgIpSourceAddrString          OstIpAddr,
+    ostAclCfgIpSourceAddrEndString       OstIpAddr
+    }
+
+ostAclCfgIndex OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION
+       "An index that is used to identify a specific ACL instance."
+    ::= { ostAclCfgEntry 1 }
+
+ostAclCfgRowStatus OBJECT-TYPE
+    SYNTAX      RowStatus
+    MAX-ACCESS  read-create
+    STATUS      current
+    DESCRIPTION
+       "The status of the row.
+
+        The writable columns in a row cannot be changed if the row
+        is active. All columns must have a valid value before a row
+        can be activated.
+       "
+   ::= { ostAclCfgEntry 2 }
+
+ostAclCfgAccessibility OBJECT-TYPE
+    SYNTAX      OstAccessibiltyType
+    MAX-ACCESS  read-create
+    STATUS      current
+    DESCRIPTION
+       "The accessibility option for the specific ACL instance configured
+        for the row.
+
+        A value of 'deny' indicates that the Ethernet frame that matches
+        the ACL is NOT acted on by the management port, but is discarded.
+        A value of 'permit' indicates the Ethernet frame that matches
+        the ACL IS acted on by the management port.
+       "
+    DEFVAL { permit }
+   ::= { ostAclCfgEntry 3 }
+
+ostAclCfgProtocol OBJECT-TYPE
+    SYNTAX      INTEGER {
+        arp       (1),
+        icmp      (2),
+        ip        (3),
+        tcp       (4),
+        udp       (5)
+    }
+    MAX-ACCESS  read-create
+    STATUS      current
+    DESCRIPTION
+       "This object indicates the matching protocol type for the ACL instance
+        configured for the row.
+
+        arp(1)        ARP protocol specified
+        icmp(2)       ICMP protocol specfied
+        ip(3)         IP protocol specified
+        tcp(4)        IP/TCP protocol specified
+        udp(5)        IP/UDP protocol specified
+       "
+    DEFVAL { ip }
+    ::= { ostAclCfgEntry 4 }
+
+ostAclCfgIpSourceAddr OBJECT-TYPE
+    SYNTAX      IpAddress
+    MAX-ACCESS  read-create
+    STATUS      current
+    DESCRIPTION
+       "This object indicates the source IPv4 address for the ACL instance
+        configured for the row.
+
+        For ARP it is the 'Send IP address'.
+
+        A value of 0.0.0.0 indicates there is no matching IPv4 address
+        required. If the value is not 0.0.0.0 then the value indicates
+        the ACL includes matching the IPv4 address. If ostAclCfgIpSourceAddrEnd
+        is not 0.0.0.0 then this object indicates the starting IPv4 address.
+        
+        Setting this object also impacts the ostAclCfgIpSourceAddrString
+        returned value. If an IPv4 address is written to this object the
+        two objects return the same value. If ostAclCfgIpSourceAddrString
+        is set with an IPv6 address then this object returns an all zeros
+        value.
+       "
+    DEFVAL { '00000000'H  }
+    ::= { ostAclCfgEntry 5 }
+
+ostAclCfgIpSourceAddrEnd OBJECT-TYPE
+    SYNTAX      IpAddress
+    MAX-ACCESS  read-create
+    STATUS      current
+    DESCRIPTION
+       "This object indicates the source IPv4 address for the ACL instance
+        configured for the row.
+
+        A value of 0.0.0.0 indicates there is no matching ending IPv4 address
+        and ostAclCfgIpSourceAddr a single matching address. If this value
+        is not 0.0.0.0 then it indicates the ending Source IPv4 address if
+        greater than the ostAclCfgIpSourceAddr value.
+        
+        Setting this object also impacts the ostAclCfgIpSourceAddrEndString
+        returned value. If an IPv4 address is written to this object the
+        two objects return the same value. If ostAclCfgIpSourceAddrEndString
+        is set with an IPv6 address then this object returns an all zeros
+        value.
+       "
+    DEFVAL { '00000000'H  }
+    ::= { ostAclCfgEntry 6 }
+
+ostAclCfgDstPort OBJECT-TYPE
+    SYNTAX      Integer32 (-1..65535)
+    MAX-ACCESS  read-create
+    STATUS      current
+    DESCRIPTION
+       "This object indicates the destination UDP/TCP port for the ACL
+        instance configured for the row.
+
+        This object is only valid if ostAclCfgProtocol is 'udp' or 'tcp'. It
+        is ignored otherwise. A value of '-1' indicates that there is no
+        ACL match criteria for the destination port field.
+       "
+    DEFVAL { -1 }
+    ::= { ostAclCfgEntry 7 }
+
+ostAclCfgSrcPort OBJECT-TYPE
+    SYNTAX      Integer32 (-1..65535)
+    MAX-ACCESS  read-create
+    STATUS      current
+    DESCRIPTION
+       "This object indicates the source UDP/TCP port for the ACL
+        instance configured for the row.
+
+        This object is only valid if ostAclCfgProtocol is 'udp' or 'tcp'. It
+        is ignored otherwise. A value of '-1' indicates that there is no
+        ACL match criteria for the source port field.
+       "
+    DEFVAL { -1 }
+    ::= { ostAclCfgEntry 8 }
+
+ostAclCfgMgtPort OBJECT-TYPE
+    SYNTAX      INTEGER {
+        anyMgtPort (0),
+        mgt1Port   (1),
+        mgt2Port   (2)
+    }
+    MAX-ACCESS  read-create
+    STATUS      current
+    DESCRIPTION
+       "This object indicates the matching destination management port for
+        the ACL instance configured for the row.
+
+        anyMgtPort(0)  Any of the management ports
+        mgt1Port(1)    Management Port 1 (mgt1)
+        mgt2Port(2)    Management Port 2 (mgt2)
+
+        For the XM5 the only valid selection is anyMgtPort.
+       "
+    DEFVAL { anyMgtPort }
+    ::= { ostAclCfgEntry 9 }
+
+ostAclCfgIpSourceAddrString OBJECT-TYPE
+    SYNTAX      OstIpAddr
+    MAX-ACCESS  read-write
+    STATUS      current
+    DESCRIPTION
+       "This object specifies a specific ACL source IPv4 or IPv6 address.
+        If the User IPv4 address has been set via ostAclCfgIpSourceAddr
+        then this object reflects the same value.
+
+        An IPv4 written to this object will update ostAclCfgIpSourceAddr 
+        with the address. An IPv6 written to this object will update
+        ostAclCfgIpSourceAddr to zeros.        
+       "
+    DEFVAL { "::"  }
+    ::= { ostAclCfgEntry 10 }
+    
+ostAclCfgIpSourceAddrEndString OBJECT-TYPE
+    SYNTAX      OstIpAddr
+    MAX-ACCESS  read-write
+    STATUS      current
+    DESCRIPTION
+       "This object specifies a specific ACL source IPv4 or IPv6 address.
+        If the User IPv4 address has been set via ostAclCfgIpSourceAddr
+        then this object reflects the same value.
+        
+        A value of '::' or 0.0.0.0 indicates there is no matching ending IPv4
+        or IPv6 address and ostAclCfgIpSourceAddrString a single matching 
+        address. If this value is not '::' or 0.0.0.0 then it indicates the 
+        ending Source IPv4/IPv6 address if greater than the 
+        ostAclCfgIpSourceAddrEndString value.
+        
+        An IPv4 written to this object will update ostAclCfgIpSourceAddrEnd 
+        with the address. An IPv6 written to this object will update
+        ostAclCfgIpSourceAddrEnd to zeros.
+       "
+    DEFVAL { "::"  }
+    ::= { ostAclCfgEntry 11 }
+
+--------------------------------------------------------------------------------
+-- Conformance Information
+--------------------------------------------------------------------------------
+ostAclCompliances       OBJECT IDENTIFIER ::= { omnitronAclMib 4 }
+ostAclGroups            OBJECT IDENTIFIER ::= { omnitronAclMib 5 }
+
+
+--------------------------------------------------------------------------------
+-- Omnitron ACL MIB Units of conformance
+--------------------------------------------------------------------------------
+ostAclGroup OBJECT-GROUP
+    OBJECTS {
+        ostAclGlobalCfgAclEnable,
+        ostAclGlobalCfgAclDefault,
+        ostAclGlobalCfgAclInstanceNextIndex,
+        ostAclCfgRowStatus,
+        ostAclCfgAccessibility,
+        ostAclCfgProtocol,
+        ostAclCfgIpSourceAddr,
+        ostAclCfgIpSourceAddrEnd,
+        ostAclCfgDstPort,
+        ostAclCfgSrcPort,
+        ostAclCfgMgtPort,
+        ostAclCfgIpSourceAddrString,
+        ostAclCfgIpSourceAddrEndString
+    }
+    STATUS      current
+    DESCRIPTION
+       "Mandatory objects for the ACL functional group."
+    ::= { ostAclGroups 1 }
+
+
+--------------------------------------------------------------------------------
+-- Omnitron ACL MIB Compliance statements
+-------------------------------------------------------------------------------
+ostAclCompliance MODULE-COMPLIANCE
+    STATUS       current
+    DESCRIPTION "The compliance statement for the Omnitron ACL MIB."
+    MODULE
+        MANDATORY-GROUPS {
+            ostAclGroup
+        }
+    ::= { ostAclCompliances 2 }
+
+
+END
+

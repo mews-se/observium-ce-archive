@@ -1,0 +1,627 @@
+OMNITRON-GPOE-MIB DEFINITIONS ::= BEGIN
+
+IMPORTS
+    MODULE-IDENTITY, OBJECT-TYPE, Unsigned32
+        FROM SNMPv2-SMI           -- RFC-2578
+    DisplayString, MacAddress
+        FROM SNMPv2-TC            -- RFC-2579
+    MODULE-COMPLIANCE, OBJECT-GROUP
+        FROM SNMPv2-CONF          -- RFC-2580
+    omnitron
+        FROM OMNITRON-TC-MIB;     -- Omnitron Textual Convention MIB
+
+omnitronGpoeMib MODULE-IDENTITY
+    LAST-UPDATED "201902251200Z"  -- February 25, 2019
+    ORGANIZATION "Omnitron Systems Technology, Inc."
+    CONTACT-INFO "Omnitron Systems Technology, Inc.
+                  38 Tesla
+                  Irvine, CA 92618-4670
+                  USA
+
+             Tel: (949) 250 6510
+             Fax: (949) 250 6514
+          E-mail: info@omnitron-systems.com
+   International: +1 949 250 6510
+
+                  Technical Support and Customer Service
+             Tel: (800) 675 8410
+          E-mail: support@omnitron-systems.com
+   International: +1 949 250 6510"
+
+    DESCRIPTION
+        "Omnitron GPoE MIB for use with v2.0 GPoE and GHPoE
+
+         Copyright 2018 Omnitron Systems Technology, Inc.
+         All rights reserved
+        "
+
+    REVISION    "201902251200Z"  -- February 25, 2019
+    DESCRIPTION
+        "Changed gpoeModuleDipSwitchEnable object to read-write
+        "
+
+    REVISION    "201902071200Z"  -- February 7, 2019
+    DESCRIPTION
+        "Added gpoeMacAddr object
+        "
+
+    REVISION    "201809201200Z"  -- September 20, 2018
+    DESCRIPTION
+        "Corrected spelling typos
+         Added enumeration to gpoeLedBlink for activity blinking
+         Corrected syntax for gpoeModuleSaveConfiguration
+        "
+
+    REVISION    "201808301200Z"  -- August 30, 2018
+    DESCRIPTION
+        "Initial version of GPoE v2.0 MIB
+        "
+    ::= { omnitron 101 }
+
+
+-- -----------------------------------------------------------------------------
+-- GPoE Manufacturing Objects
+-- -----------------------------------------------------------------------------
+
+ostGpoeMfgObjects  OBJECT IDENTIFIER ::= { omnitronGpoeMib 1 }
+
+gpoeProductType OBJECT-TYPE
+    SYNTAX        Unsigned32
+    MAX-ACCESS    read-only
+    STATUS        current
+    DESCRIPTION
+        "This object indicates the product type of the module."
+    ::= { ostGpoeMfgObjects 1 }
+
+gpoePartNumber OBJECT-TYPE
+    SYNTAX        DisplayString (SIZE(1..32))
+    MAX-ACCESS    read-only
+    STATUS        current
+    DESCRIPTION
+        "This object indicates the part number of the module."
+    ::= { ostGpoeMfgObjects 2 }
+
+gpoeSerialNumber OBJECT-TYPE
+    SYNTAX        DisplayString (SIZE(1..16))
+    MAX-ACCESS    read-only
+    STATUS        current
+    DESCRIPTION
+        "This object indicates the serial number of the module."
+    ::= { ostGpoeMfgObjects 3 }
+
+gpoeMfgDate OBJECT-TYPE
+    SYNTAX        DisplayString (SIZE(8))
+    MAX-ACCESS    read-only
+    STATUS        current
+    DESCRIPTION
+        "This object indicates the date the module was manufactured in the
+         form YYYYMMDD.
+        "
+    ::= { ostGpoeMfgObjects 4 }
+
+gpoeFirmwareRev OBJECT-TYPE
+    SYNTAX        DisplayString (SIZE(1..16))
+    MAX-ACCESS    read-only
+    STATUS        current
+    DESCRIPTION
+        "This object indicates the firwmare revision of the module."
+    ::= { ostGpoeMfgObjects 5 }
+
+gpoeFirmwareDate OBJECT-TYPE
+    SYNTAX        DisplayString (SIZE(1..32))
+    MAX-ACCESS    read-only
+    STATUS        current
+    DESCRIPTION
+        "This object indicates the firwmare build date and time of the module."
+    ::= { ostGpoeMfgObjects 6 }
+
+gpoeBootstrapRev OBJECT-TYPE
+    SYNTAX        DisplayString (SIZE(1..16))
+    MAX-ACCESS    read-only
+    STATUS        current
+    DESCRIPTION
+        "This object indicates the bootstrap revision of the module."
+    ::= { ostGpoeMfgObjects 7 }
+
+gpoeProductRev OBJECT-TYPE
+    SYNTAX        DisplayString (SIZE(1..16))
+    MAX-ACCESS    read-only
+    STATUS        current
+    DESCRIPTION
+        "This object indicates the product revision of the module."
+    ::= { ostGpoeMfgObjects 8 }
+
+gpoePcbRev OBJECT-TYPE
+    SYNTAX        DisplayString (SIZE(1..16))
+    MAX-ACCESS    read-only
+    STATUS        current
+    DESCRIPTION
+        "This object indicatest the PCB revision of the module."
+    ::= { ostGpoeMfgObjects 9 }
+
+gpoeCapsBits OBJECT-TYPE
+    SYNTAX        DisplayString (SIZE(1..16))
+    MAX-ACCESS    read-only
+    STATUS        current
+    DESCRIPTION
+        "This object indicates the capability bits of the module."
+    ::= { ostGpoeMfgObjects 10 }
+
+gpoeNumPorts OBJECT-TYPE
+    SYNTAX        Unsigned32
+    MAX-ACCESS    read-only
+    STATUS        current
+    DESCRIPTION
+        "This object indicates the number of Ethernet customer facing ports
+         of the module.
+        "
+    ::= { ostGpoeMfgObjects 11 }
+
+gpoeNumLeds OBJECT-TYPE
+    SYNTAX        Unsigned32
+    MAX-ACCESS    read-only
+    STATUS        current
+    DESCRIPTION
+        "This object indicates the number of LEDs supported on the module."
+    ::= { ostGpoeMfgObjects 12 }
+
+gpoeMacAddr OBJECT-TYPE
+    SYNTAX      MacAddress
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+       "This object indicates the base MAC address of the module and is
+        used by the management port and associated protocols.
+       "
+    ::= { ostGpoeMfgObjects 13 }
+
+
+-- -----------------------------------------------------------------------------
+-- GPoE LEDs Status Table
+-- -----------------------------------------------------------------------------
+
+ostGpoeLedTable OBJECT-TYPE
+    SYNTAX      SEQUENCE OF OstGpoeLedEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION
+       "This table indicates the state of each of the LEDs on the module."
+    ::= { omnitronGpoeMib 2 }
+
+ostGpoeLedEntry OBJECT-TYPE
+    SYNTAX      OstGpoeLedEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION
+       "This is a LED table entry. Each row in the table indicates a specific
+        LED in the module.
+
+        Each row in this table is created automatically based upon the number
+        of LEDs installed in the module.
+       "
+    INDEX { gpoeLedIndex }
+    ::= { ostGpoeLedTable 1 }
+
+OstGpoeLedEntry ::= SEQUENCE {
+    gpoeLedIndex      Unsigned32,
+    gpoeLedColor      INTEGER,
+    gpoeLedBlink      INTEGER,
+    gpoeLedLabel      DisplayString
+    }
+
+gpoeLedIndex OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION
+       "This object indicates the LED index number."
+    ::= { ostGpoeLedEntry 1 }
+
+gpoeLedColor OBJECT-TYPE
+    SYNTAX      INTEGER {
+        off       (0),
+        amber     (1),
+        green     (2),
+        red       (3)
+    }
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+       "This object indicates the specific LED color.
+
+        off(0)          LED is off
+        amber(1)        LED is amber
+        green(2)        LED is green
+        red(3)          LED is red
+       "
+    ::= { ostGpoeLedEntry 2 }
+
+gpoeLedBlink OBJECT-TYPE
+    SYNTAX      INTEGER {
+        solid     (1),
+        activity  (2),
+        blink10   (3),
+        blink5    (4),
+        blink2    (5),
+        blink1    (6),
+        blink12   (7)
+    }
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+       "This object indicates the specific LED blink state.
+
+        solid(1)        LED is solid (not blinking)
+        activity(2)     LED is blinking due to activity
+        blink10(3)      LED is blinking at 10 Hz
+        blink5(4)       LED is blinking at 5 Hz
+        blink2(5)       LED is blinking at 2 Hz
+        blink1(6)       LED is blinking at 1 Hz
+        blink12(7)      LED is blinking at 1/2 Hz
+       "
+    ::= { ostGpoeLedEntry 3 }
+
+gpoeLedLabel  OBJECT-TYPE
+    SYNTAX        DisplayString (SIZE(1..16))
+    MAX-ACCESS    read-only
+    STATUS        current
+    DESCRIPTION
+        "This object indicates the function of the specific LED."
+    ::= { ostGpoeLedEntry 4 }
+
+
+-- -----------------------------------------------------------------------------
+-- GPoE Save Objects
+-- -----------------------------------------------------------------------------
+
+ostGpoeSaveObjects  OBJECT IDENTIFIER ::= { omnitronGpoeMib 3 }
+
+gpoeSaveStatus OBJECT-TYPE
+    SYNTAX      INTEGER {
+        allSaved  (1),
+        notSaved  (2)
+    }
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+       "This object indicates the save status of the module.
+
+        allSaved(1)     All configuration parameters have been saved into
+                          persistent memory
+        notSaved(2)     Some configuration parameters have NOT been saved into
+                          persistent memory
+
+       "
+    ::= { ostGpoeSaveObjects 1 }
+
+gpoeSaveCount OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+       "This object indicates the number of times that the configuration
+        settings have been changed since a restart of the module.
+
+        The initial value of this object is '0' after restart.
+       "
+    ::= { ostGpoeSaveObjects 2 }
+
+gpoeSnmpErrorCount OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+       "This object indicates the number of times there there has been an SNMP
+        error detected since a restart of the module.
+
+        The initial value of this object is '0' after restart.
+       "
+    ::= { ostGpoeSaveObjects 3 }
+
+gpoeSnmpErrorMessage OBJECT-TYPE
+    SYNTAX      DisplayString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+       "This object is a textual string that indicates the reason why the last
+        detected SNMP error was generated for the gpoeSnmpErrorCount change.
+
+
+        The initial value of this object is an empty string after restart.
+       "
+    ::= { ostGpoeSaveObjects 4 }
+
+
+-- -----------------------------------------------------------------------------
+-- GPoE ModuleConfigurable Objects
+-- -----------------------------------------------------------------------------
+
+ostGpoeModuleObjects OBJECT IDENTIFIER ::= { omnitronGpoeMib 4 }
+
+gpoeModuleIdentification OBJECT-TYPE
+    SYNTAX      DisplayString (SIZE(1..255))
+    MAX-ACCESS  read-write
+    STATUS      current
+    DESCRIPTION
+       "This object specifies the module identification (name). The name is
+        reported in SNMP notifications. Changing the name value does not impact
+        module operation.
+       "
+    ::= { ostGpoeModuleObjects 1 }
+
+gpoeModuleLocation OBJECT-TYPE
+    SYNTAX      DisplayString (SIZE(1..255))
+    MAX-ACCESS  read-write
+    STATUS      current
+    DESCRIPTION
+       "This object specifies the module location. Changing the location value
+        does not impact module operation.
+       "
+    ::= { ostGpoeModuleObjects 2 }
+
+gpoeModuleRestart OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  read-write
+    STATUS      current
+    DESCRIPTION
+       "Writing this object restarts the module.  This variable is write only.
+
+        Writing a zero (0) will reboot the module to the current working
+        application image.
+
+        Writing a one (1) will reboot the module to the backup application
+        image if available, otherwise the current working application image
+        is loaded.
+       "
+    ::= { ostGpoeModuleObjects 3 }
+
+gpoeModuleRestoreFactoryDefaults OBJECT-TYPE
+    SYNTAX      INTEGER {
+        factoryDefaults        (1),
+        localDefaults          (2),
+        previousCfg            (3),
+        factoryDefaultKeepIp   (4),
+        localDefaultsKeepIp    (5),
+        previousCfgKeepIp      (6)
+    }
+    MAX-ACCESS  read-write
+    STATUS      current
+    DESCRIPTION
+       "Writing this object restores the module to a previous version of
+        a saved configuration as indicated below. This object is write only.
+
+        factoryDefaults(1)             Restores factory defaults
+                                         including IP address
+        localDefaults(2),              Restores defaults from local file
+                                         including IP address
+        previousCfg(3)                 Restores defaults from previously saved
+                                         configuration including IP address
+        factoryDefaultKeepIp(4),       Restores factory defaults
+                                         keeping the current IP address
+        localDefaultsKeepIp(5),        Restores defaults from local file
+                                         keeping the current IP address
+        previousCfgKeepIp(6)           Restores defaults from previously saved
+                                         keeping the current IP address
+       "
+    ::= { ostGpoeModuleObjects 4 }
+
+gpoeModuleSaveConfiguration OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  read-write
+    STATUS      current
+    DESCRIPTION
+       "Writing this object makes the temporary configuration changes permanent
+        by saving the changes to persistent storage. This variable is write
+        only.
+       "
+    ::= { ostGpoeModuleObjects 5 }
+
+gpoeModuleBaudRate OBJECT-TYPE
+    SYNTAX      Unsigned32 (1..9)
+    MAX-ACCESS  read-write
+    STATUS      current
+    DESCRIPTION
+       "This object indicates the serial console port baud rate
+
+        Where:
+        1 = 300 bps
+        2 = 1200 bps
+        3 = 2400 bps
+        4 = 4800 bps
+        5 = 9600 bps
+        6 = 19200 bps
+        7 = 38400 bps
+        8 = 57600 bps
+        9 = 115200 bps
+       "
+    ::= { ostGpoeModuleObjects 6 }
+
+gpoeModulePrompt OBJECT-TYPE
+    SYNTAX      DisplayString (SIZE(0..32))
+    MAX-ACCESS  read-write
+    STATUS      current
+    DESCRIPTION
+       "This object specifies the module CLI prompt.
+       Changing the location value
+        does not impact module operation.
+       "
+    ::= { ostGpoeModuleObjects 7 }
+
+gpoeModuleDipSwitchEnable OBJECT-TYPE
+    SYNTAX      INTEGER {
+        off       (1),
+        on        (2)
+    }
+    MAX-ACCESS  read-write
+    STATUS      current
+    DESCRIPTION
+       "This object indicates the global state of the physical DIP switches
+        enable.
+
+        When physical DIP switches are disabled (ignored) the software DIP
+        switch configurations are enabled.
+
+        When physical DIP switches are enabled the software DIP switch
+        configurations are disabled (ignored).
+
+        off(1)       Physical DIP switches are off (disabled)
+        on(2)        Physical DIP switches are on (enabled)
+       "
+    ::= { ostGpoeModuleObjects 8 }
+
+
+-- -----------------------------------------------------------------------------
+-- GPoE DIP Switch Configration Table
+-- -----------------------------------------------------------------------------
+
+ostGpoeDipSwTable OBJECT-TYPE
+    SYNTAX      SEQUENCE OF OstGpoeDipSwEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION
+       "This table indicates the configuraion of each of the DIP switches on
+        the module.
+       "
+    ::= { omnitronGpoeMib 5 }
+
+ostGpoeDipSwEntry OBJECT-TYPE
+    SYNTAX      OstGpoeDipSwEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION
+       "This is a DIP switch table entry. Each row in the table indicates a
+        specific DIP swtich in the module.
+
+        Each row in this table is created automatically based upon the number
+        of DIP switches installed in the module.
+       "
+    INDEX { gpoeDipSwIndex }
+    ::= { ostGpoeDipSwTable 1 }
+
+OstGpoeDipSwEntry ::= SEQUENCE {
+    gpoeDipSwIndex      Unsigned32,
+    gpoeDipSwPhysical   INTEGER,
+    gpoeDipSwSoftware   INTEGER,
+    gpoeDipSwLabel      DisplayString
+    }
+
+gpoeDipSwIndex OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION
+       "This object indicates the DIP switch index number."
+    ::= { ostGpoeDipSwEntry 1 }
+
+gpoeDipSwPhysical OBJECT-TYPE
+    SYNTAX      INTEGER {
+        off       (1),
+        on        (2)
+    }
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+       "This object indicates the specific physical DIP switch setting.
+
+        off(1)       Physical DIP switch is off (down)
+        on(2)        Physical DIP switch is on (up)
+       "
+    ::= { ostGpoeDipSwEntry 2 }
+
+gpoeDipSwSoftware OBJECT-TYPE
+    SYNTAX      INTEGER {
+        off       (1),
+        on        (2)
+    }
+    MAX-ACCESS  read-write
+    STATUS      current
+    DESCRIPTION
+       "This object indicates the specific software DIP switch setting.
+
+        off(1)       Software DIP switch is off
+        on(2)        Software DIP switch is on
+       "
+    ::= { ostGpoeDipSwEntry 3 }
+
+gpoeDipSwLabel  OBJECT-TYPE
+    SYNTAX        DisplayString (SIZE(1..16))
+    MAX-ACCESS    read-only
+    STATUS        current
+    DESCRIPTION
+        "This object indicates the function of the specific DIP switch."
+    ::= { ostGpoeDipSwEntry 4 }
+
+
+-- -----------------------------------------------------------------------------
+-- Conformance
+-- -----------------------------------------------------------------------------
+
+ostGpoeCompliances OBJECT IDENTIFIER ::= { omnitronGpoeMib 6 }
+ostGpoeGroups      OBJECT IDENTIFIER ::= { omnitronGpoeMib 7 }
+
+
+-- -----------------------------------------------------------------------------
+-- Omnitron GPoE/GHPoE MIB Units of conformance
+-- -----------------------------------------------------------------------------
+
+ostGpoeGroup OBJECT-GROUP
+    OBJECTS {
+        gpoeProductType,
+        gpoePartNumber,
+        gpoeSerialNumber,
+        gpoeMfgDate,
+        gpoeFirmwareRev,
+        gpoeFirmwareDate,
+        gpoeBootstrapRev,
+        gpoeProductRev,
+        gpoePcbRev,
+        gpoeCapsBits,
+        gpoeNumPorts,
+        gpoeNumLeds,
+        gpoeMacAddr,
+
+        gpoeLedColor,
+        gpoeLedBlink,
+        gpoeLedLabel,
+
+        gpoeSaveStatus,
+        gpoeSaveCount,
+        gpoeSnmpErrorCount,
+        gpoeSnmpErrorMessage,
+
+        gpoeModuleIdentification,
+        gpoeModuleLocation,
+        gpoeModuleRestart,
+        gpoeModuleRestoreFactoryDefaults,
+        gpoeModuleSaveConfiguration,
+        gpoeModuleBaudRate,
+        gpoeModulePrompt,
+        gpoeModuleDipSwitchEnable,
+
+        gpoeDipSwPhysical,
+        gpoeDipSwSoftware,
+        gpoeDipSwLabel
+    }
+    STATUS      current
+    DESCRIPTION
+       "Mandatory objects for the GpoE functional group."
+    ::= { ostGpoeGroups 1 }
+
+
+-- -----------------------------------------------------------------------------
+-- Omnitron GPoE/GHPoE MIB Compliance statements
+-- -----------------------------------------------------------------------------
+
+ostGpoeCompliance MODULE-COMPLIANCE
+    STATUS       current
+    DESCRIPTION
+       "The compliance statement for the Omnitron GPoE/GHPoE MIB."
+    MODULE
+        MANDATORY-GROUPS {
+            ostGpoeGroup
+        }
+    ::= { ostGpoeCompliances 1 }
+
+
+END
+

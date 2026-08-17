@@ -1,0 +1,500 @@
+OMNITRON-IP-MIB DEFINITIONS ::= BEGIN
+
+IMPORTS
+    MODULE-IDENTITY, OBJECT-TYPE, Unsigned32
+        FROM SNMPv2-SMI           -- RFC-2578
+    TruthValue
+        FROM SNMPv2-TC            -- RFC-2579
+    MODULE-COMPLIANCE, OBJECT-GROUP
+        FROM SNMPv2-CONF          -- RFC-2580
+    omnitron, OstIpAddr, OstPortNumber
+        FROM OMNITRON-TC-MIB;     -- Omnitron Textual Convention MIB
+
+omnitronIpMib MODULE-IDENTITY
+    LAST-UPDATED "201604081200Z"     -- April 8, 2016
+    ORGANIZATION "Omnitron Systems Technology, Inc."
+    CONTACT-INFO "Omnitron Systems Technology, Inc.
+                  38 Tesla
+                  Irvine, CA 92618-4670
+                  USA
+
+             Tel: (949) 250 6510
+             Fax: (949) 250 6514
+          E-mail: info@omnitron-systems.com
+   International: +1 949 250 6510
+
+                  Technical Support and Customer Service
+             Tel: (800) 675 8410
+          E-mail: support@omnitron-systems.com
+   International: +1 949 250 6510"
+
+    DESCRIPTION
+            "Omnitron IP MIB for use with iConverter Management Modules v5.3
+             and NetOutlook.
+
+             Copyright 2016 Omnitron Systems Technology, Inc.
+             All rights reserved.
+            "
+
+    REVISION    "201604081200Z"     -- April 8, 2016
+    DESCRIPTION "Modified ostIpStatusStatus enumeration values.
+                "
+                
+    REVISION    "201603241200Z"     -- March 24, 2016
+    DESCRIPTION "Initial version of v5.3 MIB.
+                "
+    ::= { omnitron 21 }
+
+
+--------------------------------------------------------------------------------
+-- Internet Protocol (IP) Global Configuration Table
+--------------------------------------------------------------------------------
+
+ostIpGlobalCfgTable  OBJECT IDENTIFIER ::= { omnitronIpMib 1 }
+
+ostIpGlobalCfgIpv6Enable OBJECT-TYPE
+    SYNTAX      TruthValue
+    MAX-ACCESS  read-write
+    STATUS      current
+    DESCRIPTION
+       "This object specifies whether the IPv6 function is enabled.
+
+        The value 'true' indicates that IPv6 is enabled.
+
+        The value 'false' indicates that IPv6 is disabled.
+       "
+    DEFVAL { false }
+    ::= { ostIpGlobalCfgTable 1 }
+
+ostIpGlobalCfgIpv4Enable OBJECT-TYPE
+    SYNTAX      TruthValue
+    MAX-ACCESS  read-write
+    STATUS      current
+    DESCRIPTION
+       "This object specifies whether the IPv4 function is enabled.
+
+        The value 'true' indicates that IPv4 is enabled.
+
+        The value 'false' indicates that IPv4 is disabled.
+       "
+    DEFVAL { true }
+    ::= { ostIpGlobalCfgTable 2 }
+    
+tftpServerIpAddressString OBJECT-TYPE
+    SYNTAX      OstIpAddr
+    MAX-ACCESS  read-write
+    STATUS      current
+    DESCRIPTION
+        "TFTP server IPv4 or IPv6 address.
+
+        Setting this object also impacts the tftpServerIpAddress
+        returned value. If an IPv4 address is written to this object the
+        two objects return the same value. If this object is set with an IPv6
+        address then tftpServerIpAddress returns an all zeros value.
+
+        "
+    ::= { ostIpGlobalCfgTable 3 }
+
+dhcptftpServerIpAddressString OBJECT-TYPE
+    SYNTAX      OstIpAddr
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+        "TFTP Server IPv4 or IPv6 address as assigned by a DHCP Server.
+        "
+    ::= { ostIpGlobalCfgTable 4 }
+
+
+
+--------------------------------------------------------------------------------
+-- IP Configuration Table
+--------------------------------------------------------------------------------
+
+ostIpCfgTable OBJECT-TYPE
+    SYNTAX      SEQUENCE OF OstIpCfgEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION
+       "This table supports IPv6 configuration. Rows in this table are
+        automatically created, one for each possible configurable IPv6 address
+        on an interface.
+        
+        The first entry for an interface is always reserved for the Link Local
+        type and is automatically created by the SNMP Agent.
+        
+        Only one IPv6 of each type is allowed per interface.
+       "
+    ::= { omnitronIpMib 2 }
+    
+
+ostIpCfgEntry OBJECT-TYPE
+    SYNTAX      OstIpCfgEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION
+       "This is a IP configuration table entry."
+    INDEX { ostIpCfgIndex }
+    ::= { ostIpCfgTable 1 }
+    
+OstIpCfgEntry ::= SEQUENCE {
+    ostIpCfgIndex                       OstPortNumber,
+    ostIpCfgInterfaceType               INTEGER,
+    ostIpCfgStatefulAddress             OstIpAddr,
+    ostIpCfgStatefulPrefixLength        Unsigned32,
+    ostIpCfgGatewayAddress              OstIpAddr,
+    ostIpCfgLinkLocalAddress            OstIpAddr
+    }
+
+ostIpCfgIndex OBJECT-TYPE
+    SYNTAX      OstPortNumber
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION
+       "An index that is used to identify the specific interface that the IP
+        is configured on."
+    ::= { ostIpCfgEntry 1 }
+    
+ostIpCfgInterfaceType OBJECT-TYPE
+    SYNTAX      INTEGER {
+        stateless    (1),
+        stateful     (2)
+    }
+    MAX-ACCESS  read-write
+    STATUS      current
+    DESCRIPTION
+       "This object indicates the specific interface type of IPv6 address.
+
+        stateless(1)   Stateless (automatic) IPv6 interface type
+        statefull(2)   Stateful (manual) IPv6 interface type
+       "
+    DEFVAL { stateful }
+    ::= { ostIpCfgEntry 2 }
+
+ostIpCfgStatefulAddress OBJECT-TYPE
+    SYNTAX      OstIpAddr
+    MAX-ACCESS  read-write
+    STATUS      current
+    DESCRIPTION
+       "This object indicates the IPv6 stateful address for an interface.
+       "
+    DEFVAL { "::" }
+    ::= { ostIpCfgEntry 3 }
+
+ostIpCfgStatefulPrefixLength OBJECT-TYPE
+    SYNTAX      Unsigned32 (1..128)
+    MAX-ACCESS  read-write
+    STATUS      current
+    DESCRIPTION
+       "This object configures the IPv6 stateful address prefix length.
+       "
+    DEFVAL { 64 }
+    ::= { ostIpCfgEntry 4 }
+    
+ostIpCfgGatewayAddress OBJECT-TYPE
+    SYNTAX      OstIpAddr
+    MAX-ACCESS  read-write
+    STATUS      current
+    DESCRIPTION
+       "This object indicates the IPv6 gateway address.  
+       "
+    DEFVAL { "fe80::1" }       
+    ::= { ostIpCfgEntry 5 }
+
+ostIpCfgLinkLocalAddress OBJECT-TYPE
+    SYNTAX      OstIpAddr
+    MAX-ACCESS  read-write
+    STATUS      current
+    DESCRIPTION
+       "This object indicates the link local IPv6 address for an interface. The
+        default value is the based upon the MAC address of the interface:
+        'fe80::<MAC address>'
+       "
+    ::= { ostIpCfgEntry 6 }
+    
+    
+--------------------------------------------------------------------------------
+-- IP Status Table
+--------------------------------------------------------------------------------
+
+ostIpStatusTable OBJECT-TYPE
+    SYNTAX      SEQUENCE OF OstIpStatusEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION
+       "This table supports IPv6 status. Rows in this table are
+        automatically created, one for each possible configurable IPv6 address
+        on an interface.
+        
+        The first entry for an interface is always reserved for the Link Local
+        type and is automatically created by the SNMP Agent.
+        
+        Only one IPv6 of each type is allowed per interface.
+       "
+    ::= { omnitronIpMib 3 }
+
+ostIpStatusEntry OBJECT-TYPE
+    SYNTAX      OstIpStatusEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION
+       "This is a IP status table entry."
+    INDEX { ostIpStatusIndex, ostIpStatusInstance }
+    ::= { ostIpStatusTable 1 }
+
+OstIpStatusEntry ::= SEQUENCE {
+    ostIpStatusIndex                       OstPortNumber,
+    ostIpStatusInstance                    Unsigned32,
+    ostIpStatusAddressType                 INTEGER,
+    ostIpStatusStatus                      INTEGER,
+    ostIpStatusAddress                     OstIpAddr,
+    ostIpStatusPrefixLength                Unsigned32,
+    ostIpStatusGatewayAddress              OstIpAddr
+    }
+
+ostIpStatusIndex OBJECT-TYPE
+    SYNTAX      OstPortNumber
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION
+       "An index that is used to identify the specific interface that the IP
+        is configured on."
+    ::= { ostIpStatusEntry 1 }
+
+ostIpStatusInstance OBJECT-TYPE
+    SYNTAX      Unsigned32 (1..4)
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION
+       "This object specifies specific instance of IPv6 address on an 
+        interface. Instance 1 is reserved for linkLocal type.
+       "
+    ::= { ostIpStatusEntry 2 }
+
+ostIpStatusAddressType OBJECT-TYPE
+    SYNTAX      INTEGER {
+        linkLocal    (0),
+        stateless    (1),
+        stateful     (2)
+    }
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+       "This object indicates the address type of the IPv6 address.
+
+        linkLocal(0)   Link Local address (static) IPv6 address type
+        stateless(1)   Stateless (automatic) IPv6 address type
+        statefull(2)   Stateful (manual) IPv6 address type
+       "
+    ::= { ostIpStatusEntry 3 }
+
+ostIpStatusStatus OBJECT-TYPE
+    SYNTAX      INTEGER {
+        notApplicable   (1),
+        addressValid    (2),
+        autoInProcess   (3),
+        autoSuccessful  (4)
+    }
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+       "This object indicates the status of the IPv6 host (interface)
+
+        notApplicable(1)  IPv6 address is not available or not enabled for 
+                          this entry
+        addressValid(2)   IPv6 address (stateful or Link Local) is valid and can
+                          be used
+        autoInProcess(3)  IPv6 stateless address acquisition is in process
+        autoSuccessful(4) IPv6 stateless address acquisition is complete and
+                          the address can be used
+       "
+    DEFVAL { notApplicable }
+    ::= { ostIpStatusEntry 4 }
+
+ostIpStatusAddress OBJECT-TYPE
+    SYNTAX      OstIpAddr
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+       "This object indicates the IPv6 address for an interface.
+       "
+    ::= { ostIpStatusEntry 5 }
+
+ostIpStatusPrefixLength OBJECT-TYPE
+    SYNTAX      Unsigned32 (1..128)
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+       "This object indicates the IPv6 address prefix length.
+       "
+    DEFVAL { 64 }
+    ::= { ostIpStatusEntry 6 }
+
+ostIpStatusGatewayAddress OBJECT-TYPE
+    SYNTAX      OstIpAddr
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+       "This object indicates the IPv6 gateway address. The default
+        value is the Link Local address.
+       "
+    DEFVAL { "fe80::1" }       
+    ::= { ostIpStatusEntry 7 }
+    
+
+--------------------------------------------------------------------------------
+-- IP Traphost Configuration Table
+--------------------------------------------------------------------------------
+
+ostIpTraphostCfgTable OBJECT-TYPE
+    SYNTAX      SEQUENCE OF OstIpTraphostCfgEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION
+       "This table supports the IPv6 Traphost configurations. Rows in this
+        table are automatically created, one for each possible configurable
+        traphost.
+
+       "
+    ::= { omnitronIpMib 4 }
+
+ostIpTraphostCfgEntry OBJECT-TYPE
+    SYNTAX      OstIpTraphostCfgEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION
+       "This is a IP traphost configuration table entry."
+    INDEX { ostIpTraphostCfgIndex }
+    ::= { ostIpTraphostCfgTable 1 }
+
+OstIpTraphostCfgEntry ::= SEQUENCE {
+    ostIpTraphostCfgIndex                Unsigned32,
+    ostIpTraphostCfgIpAddress            OstIpAddr,
+    ostIpTraphostCfgIpSource             INTEGER,
+    ostIpTraphostCfgUdpPort              Unsigned32
+    }
+
+ostIpTraphostCfgIndex OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION
+       "An index that is used to identify a specific IP traphost."
+    ::= { ostIpTraphostCfgEntry 1 }
+
+ostIpTraphostCfgIpAddress OBJECT-TYPE
+    SYNTAX      OstIpAddr
+    MAX-ACCESS  read-write
+    STATUS      current
+    DESCRIPTION
+       "IPv4 or IPv6 Notification destination address.
+
+        A value of 0 indicates no trap host address is configured
+        via this object.
+
+        Setting this object also impacts the traphostx
+        returned value. If an IPv4 address is written to this object the
+        two objects return the same value. If this object is set with an IPv6
+        address then traphost1 returns an all zeros value.
+       "
+    DEFVAL { "::" }
+    ::= { ostIpTraphostCfgEntry 2 }
+
+ostIpTraphostCfgIpSource OBJECT-TYPE
+    SYNTAX      INTEGER {
+        global          (0),
+        ip1             (1),
+        ip2             (2)
+    }
+    MAX-ACCESS  read-write
+    STATUS      current
+    DESCRIPTION
+       "This object configures the SNMP notification source IP address. It is
+        used to configure an SNMP notification that is generated by the
+        indicated traphost.
+
+        global (0)  No specific traphost value, the global object
+                    trapSrcIpSelect specifies the notification source IP
+                    address (default) for the indicated traphost
+
+        ip1 (1)     Selects management address 1 as the specific notification
+                    source IP address for the indicated traphost
+
+        ip (2)      Selects management address 2 as the specific notification
+                    source IP address for the indicated traphost
+       "
+    DEFVAL { global }
+    ::= { ostIpTraphostCfgEntry 3 }
+
+ostIpTraphostCfgUdpPort OBJECT-TYPE
+    SYNTAX      Unsigned32 (0..65535)
+    MAX-ACCESS  read-write
+    STATUS      current
+    DESCRIPTION
+       "This object configures the SNMP notification UDP port number for the
+        indicated traphost when an SNMP notification is generated from the
+        traphost.
+
+        A value of '0' indicates the global object ostSnmpTrapPortNum selects the
+        UDP port number for the SNMP notification for the indicated traphost.
+
+        None of the standard UDP port numbers should be configured as there may
+        be undesirable consequences.
+       "
+    DEFVAL { 0 }
+    ::= { ostIpTraphostCfgEntry 4 }
+
+
+--------------------------------------------------------------------------------
+-- Conformance Information
+--------------------------------------------------------------------------------
+ostIpCompliances        OBJECT IDENTIFIER ::= { omnitronIpMib 5 }
+ostIpGroups             OBJECT IDENTIFIER ::= { omnitronIpMib 6 }
+
+
+--------------------------------------------------------------------------------
+-- Omnitron IP MIB Units of conformance
+--------------------------------------------------------------------------------
+ostIpGroup OBJECT-GROUP
+    OBJECTS {
+        ostIpGlobalCfgIpv6Enable,
+        ostIpGlobalCfgIpv4Enable,
+        tftpServerIpAddressString,
+        dhcptftpServerIpAddressString,
+
+        ostIpCfgInterfaceType,
+        ostIpCfgStatefulAddress,
+        ostIpCfgStatefulPrefixLength,
+        ostIpCfgGatewayAddress,
+        ostIpCfgLinkLocalAddress,   
+        
+        ostIpStatusAddressType,
+        ostIpStatusStatus,
+        ostIpStatusAddress,
+        ostIpStatusPrefixLength,
+        ostIpStatusGatewayAddress,
+
+        ostIpTraphostCfgIpAddress,
+        ostIpTraphostCfgIpSource,
+        ostIpTraphostCfgUdpPort
+    }
+    STATUS      current
+    DESCRIPTION
+       "Mandatory objects for the IP functional group."
+    ::= { ostIpGroups 1 }
+
+
+--------------------------------------------------------------------------------
+-- Omnitron IP MIB Compliance statements
+-------------------------------------------------------------------------------
+ostIpCompliance MODULE-COMPLIANCE
+    STATUS       current
+    DESCRIPTION "The compliance statement for the Omnitron IP MIB."
+    MODULE
+        MANDATORY-GROUPS {
+            ostIpGroup
+        }
+    ::= { ostIpCompliances 2 }
+
+
+END
+

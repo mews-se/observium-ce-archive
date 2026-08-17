@@ -1,0 +1,250 @@
+ECI-FLOW-ACCOUNTING-MIB DEFINITIONS ::= BEGIN
+
+IMPORTS
+    MODULE-IDENTITY, OBJECT-TYPE, Counter32, Counter64
+	FROM SNMPv2-SMI
+    entPhysicalIndex
+	FROM ENTITY-MIB
+    SnmpAdminString
+	FROM SNMP-FRAMEWORK-MIB
+    eciMibs
+	FROM ECI-SMI;
+
+eciFlowAccountingMIB                                    MODULE-IDENTITY
+    LAST-UPDATED "0707170000Z"            -- 17 July 2007
+    ORGANIZATION "ECI Telecom"
+    CONTACT-INFO
+	"ECI Telecom, Ltd.
+	 Postal: 30 Hasivim Street
+	         Petach Tikva 49157, Israel 
+	 Tel: +972-3-9266000
+	 Fax: +972-3-9266370
+	 email: on.support@ecitele.com"
+    DESCRIPTION
+	"This module defines ECI Flow MIB for traffic flow
+	 configurations and statistics."
+
+    ::= { eciMibs 5 }
+
+eciFlowAcctObjects                                         OBJECT IDENTIFIER
+    ::= {eciFlowAccountingMIB 1}
+
+eciFlowConfigsObjects                                      OBJECT IDENTIFIER
+    ::= {eciFlowAcctObjects 1}
+
+eciFlowSliceObjects                                        OBJECT IDENTIFIER
+    ::= {eciFlowAcctObjects 2}
+
+-------------------------------------------------------------------------------
+--
+-- eciFlowConfigsTable
+--
+-------------------------------------------------------------------------------
+eciFlowConfigsTable                                        OBJECT-TYPE
+    SYNTAX         SEQUENCE OF EciFlowConfigsEntry
+    MAX-ACCESS     not-accessible
+    STATUS         current
+    DESCRIPTION
+	"This table provides flow sampling configuration."
+    ::= { eciFlowConfigsObjects 1 }
+
+eciFlowConfigsEntry                                        OBJECT-TYPE
+    SYNTAX         EciFlowConfigsEntry
+    MAX-ACCESS     not-accessible
+    STATUS         current
+    DESCRIPTION
+	"ECI-Flow and Sampling configuration per entity."
+    INDEX { entPhysicalIndex }
+    ::= { eciFlowConfigsTable 1 }
+
+EciFlowConfigsEntry                                        ::= SEQUENCE
+{
+    eciFlowConfigEntityName                   SnmpAdminString,
+    eciFlowConfigSamplingRate                 Counter32,
+    eciFlowConfigSamplingRunLength            Counter32,
+    eciFlowConfigAggregateFlowExportInterval  Counter32,
+    eciFlowConfigActiveFlowExportInterval     Counter32,
+    eciFlowConfigInactiveFlowExportInterval   Counter32
+}
+
+eciFlowConfigEntityName                                    OBJECT-TYPE
+    SYNTAX      SnmpAdminString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Name of the entity supplying the flow configuration"
+    ::= { eciFlowConfigsEntry 1 }
+
+eciFlowConfigSamplingRate                                  OBJECT-TYPE
+    SYNTAX      Counter32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Sampling rate of the entity supplying the flow configuration"
+    ::= { eciFlowConfigsEntry 2 }
+
+eciFlowConfigSamplingRunLength                             OBJECT-TYPE
+    SYNTAX      Counter32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Run-length of the entity supplying the flow configuration"
+    ::= { eciFlowConfigsEntry 3 }
+
+eciFlowConfigAggregateFlowExportInterval                   OBJECT-TYPE
+    SYNTAX      Counter32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "V8 export interval for aggregated flows"
+    ::= { eciFlowConfigsEntry 4 }
+
+eciFlowConfigActiveFlowExportInterval                      OBJECT-TYPE
+    SYNTAX      Counter32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "V5 export interval for active flows"
+    ::= { eciFlowConfigsEntry 5 }
+
+eciFlowConfigInactiveFlowExportInterval                    OBJECT-TYPE
+    SYNTAX      Counter32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "V5 export interval for idle flows"
+    ::= { eciFlowConfigsEntry 6 }
+
+-------------------------------------------------------------------------------
+--
+-- eciFlowStatisticsTable
+--
+-------------------------------------------------------------------------------
+eciFlowStatisticsTable                                     OBJECT-TYPE
+    SYNTAX         SEQUENCE OF EciFlowStatisticsEntry
+    MAX-ACCESS     not-accessible
+    STATUS         current
+    DESCRIPTION
+	"This table provides flow statistics per applicable entity."
+    ::= { eciFlowSliceObjects 1 }
+
+eciFlowStatisticsEntry                                     OBJECT-TYPE
+    SYNTAX         EciFlowStatisticsEntry
+    MAX-ACCESS     not-accessible
+    STATUS         current
+    DESCRIPTION
+	"Flow statistics on a given applicable entity."
+    INDEX { entPhysicalIndex }
+    ::= { eciFlowStatisticsTable 1 }
+
+EciFlowStatisticsEntry                                     ::= SEQUENCE
+{
+    eciFlowStatsEntityName                  SnmpAdminString,
+    eciFlowStatsSampledPacketCount          Counter64,
+    eciFlowStatsSampledOctetCount           Counter64,
+    eciFlowStatsSampledPktRate10Sec         Counter64,
+    eciFlowStatsSampledOctRate10Sec         Counter64,
+    eciFlowStatsCurrentFlowCount            Counter64,
+    eciFlowStatsCumulativeFlowCount         Counter64,
+    eciFlowStatsExpiredIdleFlowCount        Counter64,
+    eciFlowStatsExpiredActiveFlowCount      Counter64,
+    eciFlowStatsExpiredFinishedFlowCount    Counter64,
+    eciFlowStatsTotalExpiredFlowCount       Counter64,
+    eciFlowStatsErrNotIpv4PktCnt            Counter64,
+    eciFlowStatsErrBadHdrPktCnt             Counter64,
+    eciFlowStatsErrResourceFailurePktCnt    Counter64
+}
+
+eciFlowStatsEntityName                                     OBJECT-TYPE
+    SYNTAX      SnmpAdminString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Name of the entity supplying the flow statistics"
+    ::= { eciFlowStatisticsEntry 1 }
+
+eciFlowStatsSampledPacketCount                             OBJECT-TYPE
+    SYNTAX      Counter64
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Number of sampled packets"
+    ::= { eciFlowStatisticsEntry 2 }
+
+eciFlowStatsSampledOctetCount                              OBJECT-TYPE
+    SYNTAX      Counter64
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Number of sampled octets"
+    ::= { eciFlowStatisticsEntry 3 }
+
+eciFlowStatsSampledPktRate10Sec                            OBJECT-TYPE
+    SYNTAX      Counter64
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "10-second rate of sampled packets"
+    ::= { eciFlowStatisticsEntry 4 }
+
+eciFlowStatsSampledOctRate10Sec                            OBJECT-TYPE
+    SYNTAX      Counter64
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "10-second rate of sampled octets"
+    ::= { eciFlowStatisticsEntry 5 }
+
+eciFlowStatsCurrentFlowCount                               OBJECT-TYPE
+    SYNTAX      Counter64
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Current flow count"
+    ::= { eciFlowStatisticsEntry 6 }
+
+eciFlowStatsCumulativeFlowCount                            OBJECT-TYPE
+    SYNTAX      Counter64
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Cumulative flow count"
+    ::= { eciFlowStatisticsEntry 7 }
+
+eciFlowStatsExpiredIdleFlowCount                           OBJECT-TYPE
+    SYNTAX      Counter64
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Expired Idle flow count"
+    ::= { eciFlowStatisticsEntry 8 }
+
+eciFlowStatsExpiredActiveFlowCount                         OBJECT-TYPE
+    SYNTAX      Counter64
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Expired Active flow count"
+    ::= { eciFlowStatisticsEntry 9 }
+
+eciFlowStatsExpiredFinishedFlowCount                       OBJECT-TYPE
+    SYNTAX      Counter64
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Expired Finished flow count"
+    ::= { eciFlowStatisticsEntry 10 }
+
+eciFlowStatsTotalExpiredFlowCount                          OBJECT-TYPE
+    SYNTAX      Counter64
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total expired flow count"
+    ::= { eciFlowStatisticsEntry 11 }
+
+eciFlowStatsErrNotIpv4PktCnt                               OBJECT-TYPE
+    SYNTAX      Counter64
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Not IPv4 error packet count"
+    ::= { eciFlowStatisticsEntry 12 }
+
+eciFlowStatsErrBadHdrPktCnt                                OBJECT-TYPE
+    SYNTAX      Counter64
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Bad IPv4 header error packet count"
+    ::= { eciFlowStatisticsEntry 13 }
+
+eciFlowStatsErrResourceFailurePktCnt                       OBJECT-TYPE
+    SYNTAX      Counter64
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Resource failures error packet count"
+    ::= { eciFlowStatisticsEntry 14 }
+
+END

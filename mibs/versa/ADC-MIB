@@ -1,0 +1,867 @@
+ADC-MIB DEFINITIONS ::= BEGIN
+IMPORTS
+    MODULE-IDENTITY, OBJECT-TYPE,
+    Integer32, Unsigned32, Counter32, Counter64,
+    Gauge32, IpAddress
+        FROM SNMPv2-SMI
+    TEXTUAL-CONVENTION, RowStatus, DateAndTime,
+    TruthValue
+        FROM SNMPv2-TC
+    orgServices
+        FROM VERSA-MIB
+;
+
+adc MODULE-IDENTITY
+    LAST-UPDATED "201511220000Z"
+    ORGANIZATION "Versa Networks"
+    CONTACT-INFO "
+        2953 Bunker Hill Lane, Suite 210
+        Santa Clara, CA - 95035 (USA)
+        Email: support@versa-networks.com"
+    DESCRIPTION "Enterprise MIB for Versa Networks'
+Application Delivery Controller solution"
+    REVISION "201511220000Z"
+    DESCRIPTION "Initial revision"
+    ::= { orgServices 1 }
+
+ConfdString ::= TEXTUAL-CONVENTION
+    DISPLAY-HINT "1t"
+    STATUS      current
+    DESCRIPTION "xs: and confd: types mapped to strings"
+    SYNTAX      OCTET STRING
+
+String ::= TEXTUAL-CONVENTION
+    DISPLAY-HINT "1t"
+    STATUS      current
+    DESCRIPTION "xs:string"
+    SYNTAX      OCTET STRING
+
+adcServerTable OBJECT-TYPE
+    SYNTAX      SEQUENCE OF AdcServerEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "Display information about a server"
+    ::= { adc 1 }
+
+adcServerEntry OBJECT-TYPE
+    SYNTAX      AdcServerEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION ""
+    INDEX { adcServerOrgId, adcServerId }
+        ::= { adcServerTable 1 }
+
+AdcServerEntry ::=
+    SEQUENCE {
+        adcServerOrgId Unsigned32,
+        adcServerId Unsigned32,
+        adcServerOrgName String,
+        adcServerName String,
+        adcServerOperState INTEGER,
+        adcServerPktsIn ConfdString,
+        adcServerPktsOut ConfdString,
+        adcServerBytesIn ConfdString,
+        adcServerBytesOut ConfdString,
+        adcServerRequests ConfdString,
+        adcServerResponses ConfdString,
+        adcServerConnections ConfdString,
+        adcServerReuseLookup ConfdString,
+        adcServerReuseInsert ConfdString,
+        adcServerReuseFound ConfdString,
+        adcServerRawSessions ConfdString,
+        adcServerCurrConnections ConfdString,
+        adcServerCurrWaiting ConfdString,
+        adcServerCurrReuse ConfdString,
+        adcServerMaxConnections ConfdString,
+        adcServerTimeToFirstByte ConfdString,
+        adcServerTimeToLastByte ConfdString,
+        adcServerAdminState INTEGER,
+        adcServerSessionResetCount ConfdString
+    }
+
+adcServerOrgId OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "Organization id"
+    ::= { adcServerEntry 1 }
+
+adcServerId OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "ADC server id"
+    ::= { adcServerEntry 2 }
+
+adcServerOrgName OBJECT-TYPE
+    SYNTAX      String
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Organization name"
+    ::= { adcServerEntry 3 }
+
+adcServerName OBJECT-TYPE
+    SYNTAX      String
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Name of the server"
+    ::= { adcServerEntry 4 }
+
+adcServerOperState OBJECT-TYPE
+    SYNTAX      INTEGER {down(0),up(1)}
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Operational state of the server"
+    ::= { adcServerEntry 5 }
+
+adcServerPktsIn OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total packets received"
+    ::= { adcServerEntry 6 }
+
+adcServerPktsOut OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total packets sent"
+    ::= { adcServerEntry 7 }
+
+adcServerBytesIn OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total bytes received"
+    ::= { adcServerEntry 8 }
+
+adcServerBytesOut OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total bytes sent"
+    ::= { adcServerEntry 9 }
+
+adcServerRequests OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total requests"
+    ::= { adcServerEntry 10 }
+
+adcServerResponses OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total responses"
+    ::= { adcServerEntry 11 }
+
+adcServerConnections OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total connections"
+    ::= { adcServerEntry 12 }
+
+adcServerReuseLookup OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total reuse connection lookup"
+    ::= { adcServerEntry 13 }
+
+adcServerReuseInsert OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total reuse connection insert"
+    ::= { adcServerEntry 14 }
+
+adcServerReuseFound OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total reuse connection lookup success"
+    ::= { adcServerEntry 15 }
+
+adcServerRawSessions OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total non-TCP session"
+    ::= { adcServerEntry 16 }
+
+adcServerCurrConnections OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Current active connection"
+    ::= { adcServerEntry 17 }
+
+adcServerCurrWaiting OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Current waiting connection"
+    ::= { adcServerEntry 18 }
+
+adcServerCurrReuse OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Current reusable connection"
+    ::= { adcServerEntry 19 }
+
+adcServerMaxConnections OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Maximum active connection"
+    ::= { adcServerEntry 20 }
+
+adcServerTimeToFirstByte OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Time to first byte"
+    ::= { adcServerEntry 21 }
+
+adcServerTimeToLastByte OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Time to last byte"
+    ::= { adcServerEntry 22 }
+
+adcServerAdminState OBJECT-TYPE
+    SYNTAX      INTEGER {disabled(0),enabled(1)}
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Admin state of the server"
+    ::= { adcServerEntry 23 }
+
+adcServerSessionResetCount OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total session reset sent"
+    ::= { adcServerEntry 24 }
+
+adcVirtualServiceTable OBJECT-TYPE
+    SYNTAX      SEQUENCE OF AdcVirtualServiceEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "Display information about a virtual-service"
+    ::= { adc 2 }
+
+adcVirtualServiceEntry OBJECT-TYPE
+    SYNTAX      AdcVirtualServiceEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION ""
+    INDEX { adcVserviceOrgId, adcVsrviceId }
+        ::= { adcVirtualServiceTable 1 }
+
+AdcVirtualServiceEntry ::=
+    SEQUENCE {
+        adcVserviceOrgId Unsigned32,
+        adcVsrviceId Unsigned32,
+        adcVserviceOrgName String,
+        adcVserviceName String,
+        adcVserviceOperState INTEGER,
+        adcVservicePktsIn ConfdString,
+        adcVservicePktsOut ConfdString,
+        adcVserviceBytesIn ConfdString,
+        adcVserviceBytesOut ConfdString,
+        adcVserviceRequests ConfdString,
+        adcVserviceResponses ConfdString,
+        adcVserviceCmpInBytes ConfdString,
+        adcVserviceCmpOutBytes ConfdString,
+        adcVserviceConnections ConfdString,
+        adcVserviceHDOSResponses ConfdString,
+        adcVservice1xxResponses ConfdString,
+        adcVservice2xxResponses ConfdString,
+        adcVservice3xxResponses ConfdString,
+        adcVservice4xxResponses ConfdString,
+        adcVservice5xxResponses ConfdString,
+        adcVserviceUxxResponses ConfdString,
+        adcVserviceCurrConnections ConfdString,
+        adcVserviceCurrWaiting ConfdString,
+        adcVserviceAdminState INTEGER
+    }
+
+adcVserviceOrgId OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "Organization id"
+    ::= { adcVirtualServiceEntry 1 }
+
+adcVsrviceId OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "ADC virtual-service id"
+    ::= { adcVirtualServiceEntry 2 }
+
+adcVserviceOrgName OBJECT-TYPE
+    SYNTAX      String
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Organization name"
+    ::= { adcVirtualServiceEntry 3 }
+
+adcVserviceName OBJECT-TYPE
+    SYNTAX      String
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "ADC virtual-service name"
+    ::= { adcVirtualServiceEntry 4 }
+
+adcVserviceOperState OBJECT-TYPE
+    SYNTAX      INTEGER {down(0),up(1)}
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Operational state of the virtual-service"
+    ::= { adcVirtualServiceEntry 5 }
+
+adcVservicePktsIn OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total packets received"
+    ::= { adcVirtualServiceEntry 6 }
+
+adcVservicePktsOut OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total packets sent"
+    ::= { adcVirtualServiceEntry 7 }
+
+adcVserviceBytesIn OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total bytes received"
+    ::= { adcVirtualServiceEntry 8 }
+
+adcVserviceBytesOut OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total bytes sent"
+    ::= { adcVirtualServiceEntry 9 }
+
+adcVserviceRequests OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total requests"
+    ::= { adcVirtualServiceEntry 10 }
+
+adcVserviceResponses OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total responses"
+    ::= { adcVirtualServiceEntry 11 }
+
+adcVserviceCmpInBytes OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total compressed bytes received"
+    ::= { adcVirtualServiceEntry 12 }
+
+adcVserviceCmpOutBytes OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total compressed bytes sent"
+    ::= { adcVirtualServiceEntry 13 }
+
+adcVserviceConnections OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total connections"
+    ::= { adcVirtualServiceEntry 14 }
+
+adcVserviceHDOSResponses OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total HTTP DOS response"
+    ::= { adcVirtualServiceEntry 15 }
+
+adcVservice1xxResponses OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total 1xx response"
+    ::= { adcVirtualServiceEntry 16 }
+
+adcVservice2xxResponses OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total 2xx response"
+    ::= { adcVirtualServiceEntry 17 }
+
+adcVservice3xxResponses OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total 3xx response"
+    ::= { adcVirtualServiceEntry 18 }
+
+adcVservice4xxResponses OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total 4xx response"
+    ::= { adcVirtualServiceEntry 19 }
+
+adcVservice5xxResponses OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total 5xx response"
+    ::= { adcVirtualServiceEntry 20 }
+
+adcVserviceUxxResponses OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total unknown response"
+    ::= { adcVirtualServiceEntry 21 }
+
+adcVserviceCurrConnections OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Current active connection"
+    ::= { adcVirtualServiceEntry 22 }
+
+adcVserviceCurrWaiting OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Current waiting connection"
+    ::= { adcVirtualServiceEntry 23 }
+
+adcVserviceAdminState OBJECT-TYPE
+    SYNTAX      INTEGER {disabled(0),enabled(1)}
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Admin state of the virtual-service"
+    ::= { adcVirtualServiceEntry 24 }
+
+adcSslProxyTable OBJECT-TYPE
+    SYNTAX      SEQUENCE OF AdcSslProxyEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "Display information about ADC SSL Proxy"
+    ::= { adc 4 }
+
+adcSslProxyEntry OBJECT-TYPE
+    SYNTAX      AdcSslProxyEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION ""
+    INDEX { adcSslProxyOrgId, adcSslProxyId }
+        ::= { adcSslProxyTable 1 }
+
+AdcSslProxyEntry ::=
+    SEQUENCE {
+        adcSslProxyOrgId Unsigned32,
+        adcSslProxyId Unsigned32,
+        adcSslProxyOrgName String,
+        adcSslProxyName String,
+        adcSslCreate ConfdString,
+        adcSslClose ConfdString,
+        adcSslEncrypt ConfdString,
+        adcSslDecrypt ConfdString,
+        adcSslError ConfdString,
+        adcSslCliCloseNotify ConfdString,
+        adcSslCliUnexpectedMsg ConfdString,
+        adcSslCliBadRecord ConfdString,
+        adcSslCliDecryptFail ConfdString,
+        adcSslCliRecOverflow ConfdString,
+        adcSslCliDecompressFail ConfdString,
+        adcSslCliHandshakeFail ConfdString,
+        adcSslCliNoCert ConfdString,
+        adcSslCliBadCert ConfdString,
+        adcSslCliUnsupportedCert ConfdString,
+        adcSslCliRevokedCert ConfdString,
+        adcSslCliCertExpired ConfdString,
+        adcSslCliCertUnknown ConfdString,
+        adcSslCliIllegalParam ConfdString,
+        adcSslCliUnknownCa ConfdString,
+        adcSslCliAccessDenied ConfdString,
+        adcSslCliDecodeError ConfdString,
+        adcSslCliDecryptError ConfdString,
+        adcSslCliProtoVersion ConfdString,
+        adcSslCliInsufficientSecurity ConfdString,
+        adcSslCliInternalError ConfdString,
+        adcSslCliNoRenegotiation ConfdString,
+        adcSslCliUnsupportedExtn ConfdString,
+        adcSslCliUnknownName ConfdString,
+        adcSslCliUnknown ConfdString,
+        adcSslCliBadCertResponse ConfdString,
+        adcSslCliInappropriateFallback ConfdString,
+        adcSslCliNoAppProto ConfdString,
+        adcSslCliUnknownPsk ConfdString
+    }
+
+adcSslProxyOrgId OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "Organization id"
+    ::= { adcSslProxyEntry 1 }
+
+adcSslProxyId OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "ADC virtual-service id"
+    ::= { adcSslProxyEntry 2 }
+
+adcSslProxyOrgName OBJECT-TYPE
+    SYNTAX      String
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Organization name"
+    ::= { adcSslProxyEntry 3 }
+
+adcSslProxyName OBJECT-TYPE
+    SYNTAX      String
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "ADC virtual-service name"
+    ::= { adcSslProxyEntry 4 }
+
+adcSslCreate OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "SSL Create "
+    ::= { adcSslProxyEntry 5 }
+
+adcSslClose OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "SSL close"
+    ::= { adcSslProxyEntry 6 }
+
+adcSslEncrypt OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "SSL Encrypt"
+    ::= { adcSslProxyEntry 7 }
+
+adcSslDecrypt OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "SSL Decrypt"
+    ::= { adcSslProxyEntry 8 }
+
+adcSslError OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "SSL Error"
+    ::= { adcSslProxyEntry 9 }
+
+adcSslCliCloseNotify OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "SSl Client close notify"
+    ::= { adcSslProxyEntry 10 }
+
+adcSslCliUnexpectedMsg OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "SSL Client Unexpected Message "
+    ::= { adcSslProxyEntry 11 }
+
+adcSslCliBadRecord OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "SSL Client Bad Record"
+    ::= { adcSslProxyEntry 12 }
+
+adcSslCliDecryptFail OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "SSL Client Decrypt Fail"
+    ::= { adcSslProxyEntry 13 }
+
+adcSslCliRecOverflow OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "SSL Client Record Overflow"
+    ::= { adcSslProxyEntry 14 }
+
+adcSslCliDecompressFail OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "SSL Client Decompression Failure"
+    ::= { adcSslProxyEntry 15 }
+
+adcSslCliHandshakeFail OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "SSL Client Handshake Failure"
+    ::= { adcSslProxyEntry 16 }
+
+adcSslCliNoCert OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "SSL Client No Certificate"
+    ::= { adcSslProxyEntry 17 }
+
+adcSslCliBadCert OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "SSL Client Bad Certificate"
+    ::= { adcSslProxyEntry 18 }
+
+adcSslCliUnsupportedCert OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "SSL Client Unsupported Certificate"
+    ::= { adcSslProxyEntry 19 }
+
+adcSslCliRevokedCert OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "SSL Client Certificate Revoked"
+    ::= { adcSslProxyEntry 20 }
+
+adcSslCliCertExpired OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "SSL Client Certificate Expired"
+    ::= { adcSslProxyEntry 21 }
+
+adcSslCliCertUnknown OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "SSL Client Unknown"
+    ::= { adcSslProxyEntry 22 }
+
+adcSslCliIllegalParam OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "SSL Client Illegal Parameter"
+    ::= { adcSslProxyEntry 23 }
+
+adcSslCliUnknownCa OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "SSL Client Unknown CA"
+    ::= { adcSslProxyEntry 24 }
+
+adcSslCliAccessDenied OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "SSL Client Access Denied"
+    ::= { adcSslProxyEntry 25 }
+
+adcSslCliDecodeError OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "SSL Client Decode Error"
+    ::= { adcSslProxyEntry 26 }
+
+adcSslCliDecryptError OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "SSL Client Decrypt Error"
+    ::= { adcSslProxyEntry 27 }
+
+adcSslCliProtoVersion OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "SSL Client Alert Protocol Version"
+    ::= { adcSslProxyEntry 28 }
+
+adcSslCliInsufficientSecurity OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "SSL Client Insufficient Security"
+    ::= { adcSslProxyEntry 29 }
+
+adcSslCliInternalError OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "SSL Client Internal Error"
+    ::= { adcSslProxyEntry 30 }
+
+adcSslCliNoRenegotiation OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "SSL Client No Renegotiation"
+    ::= { adcSslProxyEntry 31 }
+
+adcSslCliUnsupportedExtn OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "SSL Client Unsupported Extension"
+    ::= { adcSslProxyEntry 32 }
+
+adcSslCliUnknownName OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "SSL Client Unknown Name"
+    ::= { adcSslProxyEntry 33 }
+
+adcSslCliUnknown OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "SSL Client Alert Unknown"
+    ::= { adcSslProxyEntry 34 }
+
+adcSslCliBadCertResponse OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "SSL Client Bad Certificate Response"
+    ::= { adcSslProxyEntry 35 }
+
+adcSslCliInappropriateFallback OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "SSL Client Inappropriate Fallback"
+    ::= { adcSslProxyEntry 36 }
+
+adcSslCliNoAppProto OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "SSL Client No App Proto"
+    ::= { adcSslProxyEntry 37 }
+
+adcSslCliUnknownPsk OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "SSL Client Unknown Psk"
+    ::= { adcSslProxyEntry 38 }
+
+adcMonitorTable OBJECT-TYPE
+    SYNTAX      SEQUENCE OF AdcMonitorEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "Display monitor statistics"
+    ::= { adc 3 }
+
+adcMonitorEntry OBJECT-TYPE
+    SYNTAX      AdcMonitorEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION ""
+    INDEX { adcMonitorOrgId, adcMonitorId }
+        ::= { adcMonitorTable 1 }
+
+AdcMonitorEntry ::=
+    SEQUENCE {
+        adcMonitorOrgId Unsigned32,
+        adcMonitorId Unsigned32,
+        adcMonitorOrgName String,
+        adcMonitorName String,
+        adcMonitorCurrBindings ConfdString,
+        adcMonitorProbes ConfdString,
+        adcMonitorProbeSuccess ConfdString,
+        adcMonitorProbeFailure ConfdString
+    }
+
+adcMonitorOrgId OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "Organization id"
+    ::= { adcMonitorEntry 1 }
+
+adcMonitorId OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "ADC monitor id"
+    ::= { adcMonitorEntry 2 }
+
+adcMonitorOrgName OBJECT-TYPE
+    SYNTAX      String
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Organization name"
+    ::= { adcMonitorEntry 3 }
+
+adcMonitorName OBJECT-TYPE
+    SYNTAX      String
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "ADC monitor name"
+    ::= { adcMonitorEntry 4 }
+
+adcMonitorCurrBindings OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Current monitor bindings"
+    ::= { adcMonitorEntry 5 }
+
+adcMonitorProbes OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total probes sent"
+    ::= { adcMonitorEntry 6 }
+
+adcMonitorProbeSuccess OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total successful probes"
+    ::= { adcMonitorEntry 7 }
+
+adcMonitorProbeFailure OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total unsuccessful probes"
+    ::= { adcMonitorEntry 8 }
+
+END

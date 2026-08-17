@@ -1,0 +1,277 @@
+DNSPROXY-MIB DEFINITIONS ::= BEGIN
+IMPORTS
+    MODULE-IDENTITY, OBJECT-TYPE,
+    Integer32, Unsigned32, Counter32, Counter64,
+    Gauge32, IpAddress
+        FROM SNMPv2-SMI
+    TEXTUAL-CONVENTION, RowStatus, DateAndTime,
+    TruthValue
+        FROM SNMPv2-TC
+    orgServices
+        FROM VERSA-MIB
+;
+
+dnsproxy MODULE-IDENTITY
+    LAST-UPDATED "201802040000Z"
+    ORGANIZATION "Versa Networks"
+    CONTACT-INFO "
+        2953 Bunker Hill Lane, Suite 210
+        Santa Clara, CA - 95035 (USA)
+        Email: support@versa-networks.com"
+    DESCRIPTION "Enterprise MIB for Versa Networks'
+DNSProxy solution"
+    REVISION "201802040000Z"
+    DESCRIPTION "Initial revision"
+    ::= { orgServices 16 }
+
+ConfdString ::= TEXTUAL-CONVENTION
+    DISPLAY-HINT "1t"
+    STATUS      current
+    DESCRIPTION "xs: and confd: types mapped to strings"
+    SYNTAX      OCTET STRING
+
+String ::= TEXTUAL-CONVENTION
+    DISPLAY-HINT "1t"
+    STATUS      current
+    DESCRIPTION "xs:string"
+    SYNTAX      OCTET STRING
+
+dnsproxyMibProfilesTable OBJECT-TYPE
+    SYNTAX      SEQUENCE OF DnsproxyMibProfilesEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "DNSproxy profile statistics"
+    ::= { dnsproxy 1 }
+
+dnsproxyMibProfilesEntry OBJECT-TYPE
+    SYNTAX      DnsproxyMibProfilesEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION ""
+    INDEX { dpProfilesOrgId, dpProfilesProfileId }
+        ::= { dnsproxyMibProfilesTable 1 }
+
+DnsproxyMibProfilesEntry ::=
+    SEQUENCE {
+        dpProfilesOrgId Unsigned32,
+        dpProfilesProfileId Unsigned32,
+        dpProfilesOrgName String,
+        dpProfilesProfileName String,
+        dpProfileSuccessfulSess ConfdString,
+        dpProfileFailedSess ConfdString,
+        dpProfileFailedSessNoDestServer ConfdString,
+        dpProfileFailedSessNoMem ConfdString,
+        dpProfileFailedSessNoSnat ConfdString,
+        dpProfileFailedSessServerFail ConfdString,
+        dpProfileTotalPktSent ConfdString,
+        dpProfileTotalBytesSent ConfdString,
+        dpProfileTotalPktRcvd ConfdString,
+        dpProfileTotalBytesRcvd ConfdString
+    }
+
+dpProfilesOrgId OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "Organization id"
+    ::= { dnsproxyMibProfilesEntry 1 }
+
+dpProfilesProfileId OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "DNSProxy Profile Id"
+    ::= { dnsproxyMibProfilesEntry 2 }
+
+dpProfilesOrgName OBJECT-TYPE
+    SYNTAX      String
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Organization Name"
+    ::= { dnsproxyMibProfilesEntry 3 }
+
+dpProfilesProfileName OBJECT-TYPE
+    SYNTAX      String
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "DNSProxy Profile Name"
+    ::= { dnsproxyMibProfilesEntry 4 }
+
+dpProfileSuccessfulSess OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "DNS proxy profile successful sessions"
+    ::= { dnsproxyMibProfilesEntry 5 }
+
+dpProfileFailedSess OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "DNS proxy profile failed sessions"
+    ::= { dnsproxyMibProfilesEntry 6 }
+
+dpProfileFailedSessNoDestServer OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "DNS proxy profile failed sessions due to no dns server ip present"
+    ::= { dnsproxyMibProfilesEntry 7 }
+
+dpProfileFailedSessNoMem OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "DNS proxy profile failed sessions due to no memory"
+    ::= { dnsproxyMibProfilesEntry 8 }
+
+dpProfileFailedSessNoSnat OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "DNS proxy profile failed sessions due to snat failure"
+    ::= { dnsproxyMibProfilesEntry 9 }
+
+dpProfileFailedSessServerFail OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "DNS proxy profile failed sessions due to server failure"
+    ::= { dnsproxyMibProfilesEntry 10 }
+
+dpProfileTotalPktSent OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "DNS proxy profile num of total packets sent"
+    ::= { dnsproxyMibProfilesEntry 11 }
+
+dpProfileTotalBytesSent OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "DNS proxy profile num of total bytes sent"
+    ::= { dnsproxyMibProfilesEntry 12 }
+
+dpProfileTotalPktRcvd OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "DNS proxy profile num of total packets received"
+    ::= { dnsproxyMibProfilesEntry 13 }
+
+dpProfileTotalBytesRcvd OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "DNS proxy profile num of total bytes received"
+    ::= { dnsproxyMibProfilesEntry 14 }
+
+dnsproxyMibRedirectionRulesTable OBJECT-TYPE
+    SYNTAX      SEQUENCE OF DnsproxyMibRedirectionRulesEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "DNSproxy redirection rules statistics"
+    ::= { dnsproxy 2 }
+
+dnsproxyMibRedirectionRulesEntry OBJECT-TYPE
+    SYNTAX      DnsproxyMibRedirectionRulesEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION ""
+    INDEX { dpRROrgId, dpRRPolicyId, dpRRRuleId }
+        ::= { dnsproxyMibRedirectionRulesTable 1 }
+
+DnsproxyMibRedirectionRulesEntry ::=
+    SEQUENCE {
+        dpRROrgId Unsigned32,
+        dpRRPolicyId Unsigned32,
+        dpRRRuleId Unsigned32,
+        dpRROrgName String,
+        dpRRPolicyName String,
+        dpRRRuleName String,
+        dpRRHitCount ConfdString,
+        dpRRTcpHitCount ConfdString,
+        dpRRUdpHitCount ConfdString,
+        dpRRPbfHonoured ConfdString,
+        dpRRCacheHit ConfdString
+    }
+
+dpRROrgId OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "Organization id"
+    ::= { dnsproxyMibRedirectionRulesEntry 1 }
+
+dpRRPolicyId OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "DNSProxy redirection policy id"
+    ::= { dnsproxyMibRedirectionRulesEntry 2 }
+
+dpRRRuleId OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "DNSProxy redirection rule id"
+    ::= { dnsproxyMibRedirectionRulesEntry 3 }
+
+dpRROrgName OBJECT-TYPE
+    SYNTAX      String
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Organization Name"
+    ::= { dnsproxyMibRedirectionRulesEntry 4 }
+
+dpRRPolicyName OBJECT-TYPE
+    SYNTAX      String
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "DNSProxy redirection Policy name"
+    ::= { dnsproxyMibRedirectionRulesEntry 5 }
+
+dpRRRuleName OBJECT-TYPE
+    SYNTAX      String
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "DNSProxy redirection rule name"
+    ::= { dnsproxyMibRedirectionRulesEntry 6 }
+
+dpRRHitCount OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "DNSproxy redirection rule hit count"
+    ::= { dnsproxyMibRedirectionRulesEntry 7 }
+
+dpRRTcpHitCount OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "DNSproxy redirection rule hit count for tcp sessions"
+    ::= { dnsproxyMibRedirectionRulesEntry 8 }
+
+dpRRUdpHitCount OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "DNSproxy redirection rule hit count for udp sessions"
+    ::= { dnsproxyMibRedirectionRulesEntry 9 }
+
+dpRRPbfHonoured OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "DNSproxy pbf based link selection count"
+    ::= { dnsproxyMibRedirectionRulesEntry 10 }
+
+dpRRCacheHit OBJECT-TYPE
+    SYNTAX      ConfdString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "DNSproxy cache hist count"
+    ::= { dnsproxyMibRedirectionRulesEntry 11 }
+
+END

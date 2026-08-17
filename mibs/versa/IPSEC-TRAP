@@ -1,0 +1,118 @@
+--
+-- @Description: MIB for IPSEC Traps
+-- @Date       : 2014-10-14
+--
+
+IPSEC-TRAP DEFINITIONS ::= BEGIN
+IMPORTS
+    MODULE-IDENTITY, OBJECT-TYPE, NOTIFICATION-TYPE,
+    IpAddress
+        FROM SNMPv2-SMI
+    alarmIndex, alarmType, alarmDevice, alarmObjectOID,
+    alarmSpecificProblem, alarmEventType, alarmProbableCause,
+    alarmTime, alarmSeverity, alarmHasClear, alarmText,
+    tenantName, alarmClass, alarmKey
+        FROM TRAPS-COMMON
+    serviceNotification
+        FROM VERSA-MIB;
+
+ipsectrapMIB MODULE-IDENTITY
+    LAST-UPDATED "201406250000Z"
+    ORGANIZATION "Versa Networks"
+    CONTACT-INFO "
+        2953 Bunker Hill Lane, Suite 210
+        Santa Clara, CA - 95035 (USA)
+        Email: support@versa-networks.com"
+    DESCRIPTION  "Versa Networks' Enterprise MIB for IPSEC traps"
+    ::= { serviceNotification 4 }
+
+
+-- Root Object
+ipsecEntities OBJECT IDENTIFIER ::= { ipsectrapMIB 1 }
+ipsecNotification OBJECT IDENTIFIER ::= { ipsectrapMIB 2 }
+
+ipsecVSNId OBJECT-TYPE
+    SYNTAX      INTEGER
+    MAX-ACCESS  accessible-for-notify
+    STATUS      current
+    DESCRIPTION "VSN id"
+        ::= { ipsecEntities 1 }
+
+ipsecThreadId OBJECT-TYPE
+    SYNTAX      INTEGER
+    MAX-ACCESS  accessible-for-notify
+    STATUS      current
+    DESCRIPTION "Thread id"
+        ::= { ipsecEntities 2 }
+
+ipsecProfileName OBJECT-TYPE
+    SYNTAX      OCTET STRING
+    MAX-ACCESS  accessible-for-notify
+    STATUS      current
+    DESCRIPTION "Profile Name"
+        ::= { ipsecEntities 3 }
+
+ipsecPeerAddress OBJECT-TYPE
+    SYNTAX      OCTET STRING
+    MAX-ACCESS  accessible-for-notify
+    STATUS      current
+    DESCRIPTION "Peer Address"
+        ::= { ipsecEntities 4 }
+
+ipsecTunnelUp NOTIFICATION-TYPE
+    OBJECTS {
+        alarmType,            alarmDevice,        alarmSpecificProblem,
+        alarmClass,           alarmProbableCause, alarmTime,
+        alarmSeverity,        alarmHasClear,      alarmText,
+        alarmKey,
+        tenantName,
+        ipsecVSNId,           ipsecThreadId,      ipsecProfileName,
+        ipsecPeerAddress
+    }
+    STATUS  current
+    DESCRIPTION "IPSEC tunnel state changed to UP"
+        ::= { ipsecNotification 1 }
+
+ipsecTunnelDown NOTIFICATION-TYPE
+    OBJECTS {
+        alarmType,            alarmDevice,        alarmSpecificProblem,
+        alarmClass,           alarmProbableCause, alarmTime,
+        alarmSeverity,        alarmHasClear,      alarmText,
+        alarmKey,
+        tenantName,
+        ipsecVSNId,           ipsecThreadId,      ipsecProfileName,
+        ipsecPeerAddress
+    }
+    STATUS  current
+    DESCRIPTION "IPSEC tunnel state changed to DOWN"
+        ::= { ipsecNotification 2 }
+
+ipsecIkeUp NOTIFICATION-TYPE
+    OBJECTS {
+        alarmType,            alarmDevice,        alarmSpecificProblem,
+        alarmClass,           alarmProbableCause, alarmTime,
+        alarmSeverity,        alarmHasClear,      alarmText,
+        alarmKey,
+        tenantName,
+        ipsecVSNId,           ipsecThreadId,      ipsecProfileName,
+        ipsecPeerAddress
+    }
+    STATUS  current
+    DESCRIPTION "IKE state changed to UP"
+        ::= { ipsecNotification 3 }
+
+ipsecIkeDown NOTIFICATION-TYPE
+    OBJECTS {
+        alarmType,            alarmDevice,        alarmSpecificProblem,
+        alarmClass,           alarmProbableCause, alarmTime,
+        alarmSeverity,        alarmHasClear,      alarmText,
+        alarmKey,
+        tenantName,
+        ipsecVSNId,           ipsecThreadId,      ipsecProfileName,
+        ipsecPeerAddress
+    }
+    STATUS  current
+    DESCRIPTION "IKE state changed to DOWN"
+        ::= { ipsecNotification 4 }
+
+END

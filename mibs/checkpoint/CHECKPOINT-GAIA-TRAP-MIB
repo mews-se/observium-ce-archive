@@ -1,0 +1,384 @@
+-- ***************************************************************************
+-- ***************************************************************************
+--
+-- File         : chkpnt-gaia-traps.mib
+-- Description  : Check Point traps
+--
+--
+--
+-- ***************************************************************************
+-- ***************************************************************************
+
+CHECKPOINT-GAIA-TRAP-MIB DEFINITIONS ::= BEGIN
+
+        -- SUBTREE: 1.3.6.1.4.1.2620.1
+        -- iso.org.dod.internet.private.enterprises.checkpoint.products
+
+		IMPORTS
+			MODULE-IDENTITY, OBJECT-TYPE, NOTIFICATION-TYPE, Integer32, enterprises
+				FROM SNMPv2-SMI
+      MODULE-COMPLIANCE, OBJECT-GROUP, NOTIFICATION-GROUP
+        FROM SNMPv2-CONF
+			DisplayString
+				FROM SNMPv2-TC
+			tempertureSensorName,tempertureSensorValue,fanSpeedSensorName,fanSpeedSensorValue,voltageSensorName,voltageSensorValue, powerSupplyIndex, powerSupplyStatus
+				FROM CHECKPOINT-MIB
+			raidVolumeState,raidVolumeFlags
+				FROM CHECKPOINT-MIB;
+chkpntGaiaTrapMibModule MODULE-IDENTITY
+LAST-UPDATED "201005101431Z"
+ORGANIZATION
+	"Check Point"
+CONTACT-INFO
+	"Check Point"
+DESCRIPTION
+	"Check Point GAIA SMIv2 Traps"
+REVISION "201005101431Z"
+DESCRIPTION
+	"The initial version"
+::= { chkpntGaiaTrapInfo 0 }
+
+
+-- ******************************************
+-- Compliance statements
+-- ******************************************
+          chkpntGaiaTrapBasicCompliance MODULE-COMPLIANCE
+              STATUS current
+              DESCRIPTION 
+              " The compliance statement for check point entities which implement the chkpnt MIB."
+              MODULE -- this module
+                  GROUP chkpntGaiaTrapGroup
+                  DESCRIPTION 
+                  "This group is for checkpoint Gaia traps" 
+                  GROUP chkpntGaiaNotificationGroup
+                  DESCRIPTION 
+                  "This group is for chkpnt Gaia notifications" 
+                  ::= { chkpntGaiaTrapMIBCompliances 1 }
+       
+-- ******************************************
+-- Units of conformance
+-- ******************************************
+
+
+          chkpntGaiaTrapGroup  OBJECT-GROUP
+              OBJECTS
+                    {
+                    chkpntGaiaTrapOID,
+                    chkpntGaiaTrapMsgText,
+                    chkpntGaiaTrapChassisId,
+                    chkpntGaiaTrapBladeId,
+                    tempertureSensorName,
+                    tempertureSensorValue,
+                    fanSpeedSensorName,
+                    fanSpeedSensorValue,
+                    voltageSensorName,
+                    voltageSensorValue,
+                    powerSupplyIndex,
+                    powerSupplyStatus,
+                    raidVolumeState,
+                    raidVolumeFlags
+                    }
+              STATUS current 
+              DESCRIPTION
+              "A collection of managed objects that provide information about CheckPoint Gaia objects"
+              ::= { chkpntGaiaTrapMIBGroups 1 }
+          
+
+
+
+-- OBJECT-TYPE 
+            
+
+        chkpntGaiaTrapOID  OBJECT-TYPE   
+                       SYNTAX  DisplayString
+                       MAX-ACCESS  read-only
+                       STATUS  current
+                       DESCRIPTION
+                       "The trap OID that triggered this event."
+                       ::= { chkpntGaiaTrapInfo 10 } 
+
+        chkpntGaiaTrapMsgText  OBJECT-TYPE
+                       SYNTAX  DisplayString
+                       MAX-ACCESS  read-only
+                       STATUS  current
+                       DESCRIPTION
+                       "Alert Message Text"
+                       ::= { chkpntGaiaTrapInfo 12 }
+                       
+        chkpntGaiaTrapChassisId  OBJECT-TYPE
+                       SYNTAX  Integer32(1..65535)
+                       MAX-ACCESS  read-only
+                       STATUS  current
+                       DESCRIPTION
+                       "Scalable Platform Chassis Identifier"
+                       ::= { chkpntGaiaTrapInfo 15 }
+
+        chkpntGaiaTrapBladeId  OBJECT-TYPE
+                       SYNTAX  Integer32(1..65535)
+                       MAX-ACCESS  read-only
+                       STATUS  current
+                       DESCRIPTION
+                       "Scalable Platform Blade Identifier"
+                       ::= { chkpntGaiaTrapInfo 16 }
+                       
+        tempertureSensorName  OBJECT-TYPE
+                       SYNTAX  DisplayString
+                       MAX-ACCESS  read-only
+                       STATUS  current
+                       DESCRIPTION
+                       "Temperature sensor name"
+                       ::= { tempertureSensorEntry 2 }
+					   
+        tempertureSensorValue  OBJECT-TYPE
+                       SYNTAX  DisplayString
+                       MAX-ACCESS  read-only
+                       STATUS  current
+                       DESCRIPTION
+                       "Temperature sensor value"
+                       ::= { tempertureSensorEntry 3 }
+			
+        fanSpeedSensorName  OBJECT-TYPE   
+                       SYNTAX  DisplayString
+                       MAX-ACCESS  read-only
+                       STATUS  current
+                       DESCRIPTION
+                       "Fan sensor name."
+                       ::= { fanSpeedSensorEntry 2 }
+ 
+        fanSpeedSensorValue  OBJECT-TYPE
+                       SYNTAX  DisplayString
+                       MAX-ACCESS  read-only
+                       STATUS  current
+                       DESCRIPTION
+                       "Fan sensor value."
+                       ::= { fanSpeedSensorEntry 3 }
+
+		voltageSensorName  OBJECT-TYPE   
+                       SYNTAX  DisplayString
+                       MAX-ACCESS  read-only
+                       STATUS  current
+                       DESCRIPTION
+                       "Voltage sensor name."
+                       ::= { voltageSensorEntry 2 } 
+
+        voltageSensorValue  OBJECT-TYPE
+                       SYNTAX  DisplayString
+                       MAX-ACCESS  read-only
+                       STATUS  current
+                       DESCRIPTION
+                       "Voltage sensor value."
+                       ::= { voltageSensorEntry 3 }
+					  
+		powerSupplyIndex  OBJECT-TYPE   
+                       SYNTAX  DisplayString
+                       MAX-ACCESS  read-only
+                       STATUS  current
+                       DESCRIPTION
+                       "Power supply sensor name."
+                       ::= { powerSupplyEntry 2 } 
+
+        powerSupplyStatus  OBJECT-TYPE
+                       SYNTAX  DisplayString
+                       MAX-ACCESS  read-only
+                       STATUS  current
+                       DESCRIPTION
+                       "Power supply sensor value."
+                       ::= { powerSupplyEntry 3 }					  
+					  
+        raidVolumeState  OBJECT-TYPE   
+                       SYNTAX  DisplayString
+                       MAX-ACCESS  read-only
+                       STATUS  current
+                       DESCRIPTION
+                       "RAID volume state for this event."
+                       ::= { raidVolumeEntry 6 } 
+
+        raidVolumeFlags  OBJECT-TYPE
+                       SYNTAX  DisplayString
+                       MAX-ACCESS  read-only
+                       STATUS  current
+                       DESCRIPTION
+                       "RAID volume flags for this event."
+                       ::= { raidVolumeEntry 7 }
+ 
+        -- textual conventions
+
+        -- DisplayString ::=
+        --   OCTET STRING
+        -- This data type is used to model textual information taken
+        -- from the NVT ASCII character set.  By convention, objects
+        -- with this syntax are declared as having
+        --
+        --      SIZE (0..255)
+
+checkpoint      	OBJECT IDENTIFIER ::= { enterprises 2620 }
+        products        	OBJECT IDENTIFIER ::= { checkpoint 1 }
+        chkpntGaiaTrap         	OBJECT IDENTIFIER ::= { products 3000 } 
+	chkpntGaiaTrapInfo		OBJECT IDENTIFIER ::= { chkpntGaiaTrap 0 } 
+chkpntGaiaTrapHWSensor		OBJECT IDENTIFIER ::= { chkpntGaiaTrap 5 }
+	chkpntGaiaTrapConfiguration		OBJECT IDENTIFIER ::= { chkpntGaiaTrap 10 }
+	chkpntBios		OBJECT IDENTIFIER ::= { chkpntGaiaTrap 20 }
+	chkpntGaiaTrapDisk		OBJECT IDENTIFIER ::= { chkpntGaiaTrap 2 }
+	svn					OBJECT IDENTIFIER ::= { products 6 } 
+	svnPerf				OBJECT IDENTIFIER ::= { svn 7 }
+	sensorInfo			OBJECT IDENTIFIER ::= { svnPerf 8 }
+	tempertureSensorTable	OBJECT IDENTIFIER ::= { sensorInfo 1 }
+	tempertureSensorEntry	OBJECT IDENTIFIER ::= { tempertureSensorTable 1 }
+	fanSpeedSensorTable	OBJECT IDENTIFIER ::= { sensorInfo 2 }
+	fanSpeedSensorEntry	OBJECT IDENTIFIER ::= { fanSpeedSensorTable 1 }
+	voltageSensorTable	OBJECT IDENTIFIER ::= { sensorInfo 3 }
+	voltageSensorEntry	OBJECT IDENTIFIER ::= { voltageSensorTable 1 }
+	powerSupplyInfo		OBJECT IDENTIFIER ::= { svnPerf 9 }
+	powerSupplyTable	OBJECT IDENTIFIER ::= { powerSupplyInfo 1 }
+	powerSupplyEntry	OBJECT IDENTIFIER ::= { powerSupplyTable 1 }
+	raidInfo			OBJECT IDENTIFIER ::= { svnPerf 6 }
+	raidVolumeTable		OBJECT IDENTIFIER ::= { raidInfo 1 }
+	raidVolumeEntry		OBJECT IDENTIFIER ::= { raidVolumeTable 1 }
+	chkpntGaiaTrapMIBConformance OBJECT IDENTIFIER ::= { checkpoint 2 }
+	chkpntGaiaTrapMIBCompliances OBJECT IDENTIFIER ::= { chkpntGaiaTrapMIBConformance 1 }
+	chkpntGaiaTrapMIBGroups OBJECT IDENTIFIER ::= { chkpntGaiaTrapMIBConformance 2 }
+	chkpntGaiaNotificationGroups OBJECT IDENTIFIER ::= { chkpntGaiaTrapMIBConformance 3 }
+  
+                        			   
+-- ******************************************
+-- Notification Groups
+-- ******************************************
+          chkpntGaiaNotificationGroup NOTIFICATION-GROUP
+                    NOTIFICATIONS 
+                          {
+                          chkpntTempertureTrap,
+                          chkpntFanSpeedTrap,
+                          chkpntVoltageTrap,
+                          chkpntPowerSupplyTrap,
+                          chkpntSystemConfigurationChangeTrap,
+                          chkpntSystemConfigurationSaveTrap,
+                          chkpntBiosTrap,
+                          chkpntRAIDVolumeStateTrap
+                          }
+                    STATUS current
+                    DESCRIPTION "This is a group of notifications"              
+                    ::= { chkpntGaiaNotificationGroups 1 }
+          
+
+-- ******************************************
+-- HW Sensor Traps
+-- ******************************************
+    chkpntGaiaTrapTempertureSensor	OBJECT IDENTIFIER ::= { chkpntGaiaTrapHWSensor 1 }
+    chkpntGaiaTrapFanSpeedSensor	OBJECT IDENTIFIER ::= { chkpntGaiaTrapHWSensor 2 }
+    chkpntGaiaTrapVoltageSensor		OBJECT IDENTIFIER ::= { chkpntGaiaTrapHWSensor 3 }	
+	chkpntGaiaTrapPowerSupplySensor	OBJECT IDENTIFIER ::= { chkpntGaiaTrapHWSensor 4 }	
+        	
+        	
+          chkpntTempertureTrap NOTIFICATION-TYPE
+                          OBJECTS
+                                {
+                                chkpntGaiaTrapOID,
+                                chkpntGaiaTrapMsgText,
+                                tempertureSensorName,
+                                tempertureSensorValue
+                                }
+                          STATUS        current 
+                          DESCRIPTION
+                          "Temperture sensor alert (Sensor name provided in trap)"
+                          ::= { chkpntGaiaTrapTempertureSensor 1 }
+          
+
+          chkpntFanSpeedTrap NOTIFICATION-TYPE
+                          OBJECTS
+                                {
+                                chkpntGaiaTrapOID,
+                                chkpntGaiaTrapMsgText,
+                                fanSpeedSensorName,
+                                fanSpeedSensorValue
+                                }
+                          STATUS        current 
+                          DESCRIPTION
+                          "Fan speed sensor alert (Sensor name provided in trap)"
+                          ::= { chkpntGaiaTrapFanSpeedSensor 1 }
+                          
+          chkpntVoltageTrap NOTIFICATION-TYPE
+                          OBJECTS
+                                {
+                                chkpntGaiaTrapOID,
+                                chkpntGaiaTrapMsgText,
+                                voltageSensorName,
+                                voltageSensorValue
+                                }
+                          STATUS        current 
+                          DESCRIPTION
+                          "Voltage sensor alert (Sensor name provided in trap)"
+                          ::= { chkpntGaiaTrapVoltageSensor 1 }
+            
+	    chkpntPowerSupplyTrap NOTIFICATION-TYPE
+                          OBJECTS
+                                {
+                                chkpntGaiaTrapOID,
+                                chkpntGaiaTrapMsgText,
+                                powerSupplyIndex,
+                                powerSupplyStatus
+                                }
+                          STATUS        current 
+                          DESCRIPTION
+                          "Power supply sensor alert (Sensor index provided in trap)"
+                          ::= { chkpntGaiaTrapPowerSupplySensor 1 }
+            
+
+-- ******************************************
+-- System Configuration Traps
+-- ******************************************
+          chkpntGaiaTrapSystemConfiguration		OBJECT IDENTIFIER ::= { chkpntGaiaTrapConfiguration 1 }
+
+	  chkpntSystemConfigurationChangeTrap NOTIFICATION-TYPE
+                          OBJECTS
+                                {
+                                chkpntGaiaTrapOID,
+                                chkpntGaiaTrapMsgText
+                                }
+                          STATUS        current 
+                          DESCRIPTION
+                          "System configuration was changed"
+                          ::= { chkpntGaiaTrapSystemConfiguration 1 }
+	
+	  chkpntSystemConfigurationSaveTrap NOTIFICATION-TYPE
+                          OBJECTS
+                                {
+                                chkpntGaiaTrapOID,
+                                chkpntGaiaTrapMsgText
+                                }
+                          STATUS        current 
+                          DESCRIPTION
+                          "System configuration was saved"
+                          ::= { chkpntGaiaTrapSystemConfiguration 2 }
+	
+-- ******************************************
+-- Bios Trap
+-- ******************************************	
+
+	  chkpntBiosTrap NOTIFICATION-TYPE
+                          OBJECTS
+                                {
+                                chkpntGaiaTrapMsgText
+                                }
+                          STATUS        current 
+                          DESCRIPTION
+                          "BIOS status"
+                          ::= { chkpntBios 1 }
+	
+-- ******************************************
+-- RAID Traps
+-- ******************************************
+          chkpntGaiaTrapRAID		OBJECT IDENTIFIER ::= { chkpntGaiaTrapDisk 1 }
+                           
+	  chkpntRAIDVolumeStateTrap NOTIFICATION-TYPE
+                          OBJECTS
+                                {
+                                chkpntGaiaTrapOID,
+                                chkpntGaiaTrapMsgText,
+				raidVolumeState,
+				raidVolumeFlags
+                                }
+                          STATUS        current 
+                          DESCRIPTION
+                          "The RAID volume state is not optimal. Volume state, volume flags, disk state and disk flags are included."
+                          ::= { chkpntGaiaTrapRAID 1 }
+END

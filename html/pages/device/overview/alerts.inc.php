@@ -1,0 +1,29 @@
+<?php
+
+/**
+ * Observium Network Management and Monitoring System
+ * Copyright (C) 2006-2015, Adam Armstrong - http://www.observium.org
+ *
+ * @package        observium
+ * @subpackage     webui
+ * @author         Adam Armstrong <adama@observium.org>
+ * @copyright  (C) Adam Armstrong
+ *
+ */
+
+?>
+    <div class="box box-solid">
+        <div class="box-header ">
+            <a href="<?php echo(generate_url(['page' => 'device', 'device' => $device['device_id'], 'tab' => 'logs', 'section' => 'syslog'])); ?>">
+                <i class="<?php echo $config['icon']['alert']; ?>"></i>
+                <h3 class="box-title">Alerts</h3>
+            </a>
+        </div>
+        <div class="box-body no-padding">
+            <?php print_alert_table(['device' => $device['device_id'], 'short' => TRUE, 'pagesize' => 10, 'status' => 'failed', 'no_header' => TRUE]); ?>
+        </div>
+    </div>
+
+<?php
+
+// EOF

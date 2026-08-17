@@ -1,0 +1,357 @@
+COMMAND-EXECUTION-MIB DEFINITIONS ::= BEGIN
+
+IMPORTS
+        StorageType,
+        RowStatus,
+        DisplayString,
+        TEXTUAL-CONVENTION
+FROM SNMPv2-TC
+        OBJECT-GROUP,
+        MODULE-COMPLIANCE
+FROM SNMPv2-CONF
+        agentppExpr
+FROM AGENTPP-GLOBAL-REG
+        experimental,
+        MODULE-IDENTITY,
+        OBJECT-TYPE,
+        Integer32,
+        TimeTicks
+FROM SNMPv2-SMI;
+
+cmdExecutionModule MODULE-IDENTITY
+        LAST-UPDATED "200105172310Z"    -- May 17, 2001 11:10:00 PM
+        ORGANIZATION "AGENT++"
+        CONTACT-INFO
+                "fock@agentpp.com"
+        DESCRIPTION
+                "Managed objects allowing the execution of some UNIX shell
+                commands"
+        REVISION "200105172310Z"        -- May 17, 2001 11:10:00 PM
+        DESCRIPTION
+                "Added compliance statement."
+        REVISION "9905080000Z"  -- May 8, 1999 12:00:00 AM
+        DESCRIPTION
+                "The initial version."
+        REVISION "9911020000Z"  -- Nov 2, 1999 12:00:00 AM
+        DESCRIPTION
+                "Changed registration to the AGENT++ enterprise
+                sub-tree."
+        REVISION "0004070000Z"  -- Apr 7, 1900 12:00:00 AM
+        DESCRIPTION
+                "Changed syntax Timeticks ot TimeTicks and added
+                object groups."
+ -- 1.3.6.1.4.1.4976.6.1 --  ::= { agentppExpr 1 }
+
+
+-- The Textual Conventions defined below are organized
+-- alphabetically
+
+CommandName ::= TEXTUAL-CONVENTION
+        STATUS current
+        DESCRIPTION
+                "An unique identifier for a command."
+        SYNTAX OCTET STRING (SIZE (0..40))
+
+
+cmdExecutionConfs OBJECT IDENTIFIER 
+ -- 1.3.6.1.4.1.4976.6.1.1 --  ::= { cmdExecutionModule 1 }
+
+-- **************************
+--
+-- Groups 
+--
+-- **************************
+
+cmdExecutionGroups OBJECT IDENTIFIER 
+ -- 1.3.6.1.4.1.4976.6.1.1.1 --  ::= { cmdExecutionConfs 1 }
+
+cmdExecutionDefGroup OBJECT-GROUP
+        OBJECTS {
+                cmdExecutionCmdConfigLine,
+                cmdExecutionCmdConfigStorage,
+                cmdExecutionCmdConfigRowStatus }
+        STATUS current
+        DESCRIPTION
+                "The group of command definition objects."
+ -- 1.3.6.1.4.1.4976.6.1.1.1.1 --  ::= { cmdExecutionGroups 1 }
+
+cmdExecutionGenGroup OBJECT-GROUP
+        OBJECTS {
+                cmdExecutionCmdNextIndex,
+                cmdExecutionCmdName,
+                cmdExecutionCmdStatus,
+                cmdExecutionCmdRunTime,
+                cmdExecutionCmdRowStatus }
+        STATUS current
+        DESCRIPTION
+                "The group of general execution control objects."
+ -- 1.3.6.1.4.1.4976.6.1.1.1.2 --  ::= { cmdExecutionGroups 2 }
+
+cmdExecutionOutputGroup OBJECT-GROUP
+        OBJECTS {
+                cmdExecutionOutputLine }
+        STATUS current
+        DESCRIPTION
+                "The group of output objects."
+ -- 1.3.6.1.4.1.4976.6.1.1.1.3 --  ::= { cmdExecutionGroups 3 }
+
+
+cmdExecutionCompliance MODULE-COMPLIANCE
+        STATUS current
+        DESCRIPTION
+                "Basic set of objects needed for a compliant implementation."
+
+        MODULE 
+        MANDATORY-GROUPS {
+                        cmdExecutionDefGroup,
+                        cmdExecutionGenGroup,
+                        cmdExecutionOutputGroup }
+
+ -- 1.3.6.1.4.1.4976.6.1.1.2 --  ::= { cmdExecutionConfs 2 }
+
+cmdExecutionObjs OBJECT IDENTIFIER 
+ -- 1.3.6.1.4.1.4976.6.1.2 --  ::= { cmdExecutionModule 2 }
+
+-- MIB groups
+
+cmdExecutionConfig OBJECT IDENTIFIER 
+ -- 1.3.6.1.4.1.4976.6.1.2.1 --  ::= { cmdExecutionObjs 1 }
+
+-- **************************
+--
+-- CMD-Execution Definitions 
+--
+-- **************************
+
+cmdExecutionCmdConfigTable OBJECT-TYPE
+        SYNTAX SEQUENCE OF CmdExecutionCmdConfigEntry
+        MAX-ACCESS not-accessible
+        STATUS current
+        DESCRIPTION
+                "The list of available commands"
+ -- 1.3.6.1.4.1.4976.6.1.2.1.1 --  ::= { cmdExecutionConfig 1 }
+
+
+cmdExecutionCmdConfigEntry OBJECT-TYPE
+        SYNTAX CmdExecutionCmdConfigEntry
+        MAX-ACCESS not-accessible
+        STATUS current
+        DESCRIPTION
+                "An entry in the available command table."
+        INDEX {
+                cmdExecutionCmdConfigName }
+ -- 1.3.6.1.4.1.4976.6.1.2.1.1.1 --  ::= { cmdExecutionCmdConfigTable 1 }
+
+
+CmdExecutionCmdConfigEntry ::= SEQUENCE {
+        cmdExecutionCmdConfigName      CommandName,
+        cmdExecutionCmdConfigLine      DisplayString,
+        cmdExecutionCmdConfigStorage   StorageType,
+        cmdExecutionCmdConfigRowStatus RowStatus }
+
+
+cmdExecutionCmdConfigName OBJECT-TYPE
+        SYNTAX CommandName
+        MAX-ACCESS not-accessible
+        STATUS current
+        DESCRIPTION
+                "The name of the command."
+ -- 1.3.6.1.4.1.4976.6.1.2.1.1.1.1 --  ::= { cmdExecutionCmdConfigEntry 1 }
+
+
+cmdExecutionCmdConfigLine OBJECT-TYPE
+        SYNTAX DisplayString
+        MAX-ACCESS read-create
+        STATUS current
+        DESCRIPTION
+                "The command's command line. On UNIX systems the
+                command line would be like typed in on the sh or ksh
+                shell."
+ -- 1.3.6.1.4.1.4976.6.1.2.1.1.1.2 --  ::= { cmdExecutionCmdConfigEntry 2 }
+
+
+cmdExecutionCmdConfigStorage OBJECT-TYPE
+        SYNTAX StorageType
+        MAX-ACCESS read-create
+        STATUS current
+        DESCRIPTION
+                "The command's storage type."
+        DEFVAL { nonVolatile }
+ -- 1.3.6.1.4.1.4976.6.1.2.1.1.1.3 --  ::= { cmdExecutionCmdConfigEntry 3 }
+
+
+cmdExecutionCmdConfigRowStatus OBJECT-TYPE
+        SYNTAX RowStatus
+        MAX-ACCESS read-create
+        STATUS current
+        DESCRIPTION
+                "The row status. In order to activate a new row at
+                least cmdExecutionCmdConfigLine must be given."
+ -- 1.3.6.1.4.1.4976.6.1.2.1.1.1.4 --  ::= { cmdExecutionCmdConfigEntry 4 }
+
+
+cmdExecutionGeneral OBJECT IDENTIFIER 
+ -- 1.3.6.1.4.1.4976.6.1.2.2 --  ::= { cmdExecutionObjs 2 }
+
+-- **************************
+--
+-- CMD-Execution General 
+--
+-- **************************
+
+cmdExecutionCmdNextIndex OBJECT-TYPE
+        SYNTAX Integer32 (0..65535)
+        MAX-ACCESS read-only
+        STATUS current
+        DESCRIPTION
+                "Identifies a hint for the next value of
+                cmdExecutionCmdIndex to be used in a row creation 
+                attempt for the cmdExecutionCmdTable table. If new rows 
+                can not be created, this object will have a value of 0"
+ -- 1.3.6.1.4.1.4976.6.1.2.2.1 --  ::= { cmdExecutionGeneral 1 }
+
+
+cmdExecutionCmdTable OBJECT-TYPE
+        SYNTAX SEQUENCE OF CmdExecutionCmdEntry
+        MAX-ACCESS not-accessible
+        STATUS current
+        DESCRIPTION
+                "The list of executing commands"
+ -- 1.3.6.1.4.1.4976.6.1.2.2.2 --  ::= { cmdExecutionGeneral 2 }
+
+
+cmdExecutionCmdEntry OBJECT-TYPE
+        SYNTAX CmdExecutionCmdEntry
+        MAX-ACCESS not-accessible
+        STATUS current
+        DESCRIPTION
+                "An entry in the command execution table. Each row contains
+                information about an UNIX command that 
+                              (a) should be executed
+                    (rowStatus is notInService and status is idle(1))
+                (b) is executing 
+                                  (rowStatus is active and status is running(2)) 
+                              (c) has been executed 
+                                  (rowStatus is notInService and status is finished(3))."
+        INDEX {
+                cmdExecutionCmdIndex }
+ -- 1.3.6.1.4.1.4976.6.1.2.2.2.1 --  ::= { cmdExecutionCmdTable 1 }
+
+
+CmdExecutionCmdEntry ::= SEQUENCE {
+        cmdExecutionCmdIndex     Integer32,
+        cmdExecutionCmdName      CommandName,
+        cmdExecutionCmdStatus    INTEGER,
+        cmdExecutionCmdRunTime   TimeTicks,
+        cmdExecutionCmdRowStatus RowStatus }
+
+
+cmdExecutionCmdIndex OBJECT-TYPE
+        SYNTAX Integer32 (0..65535)
+        MAX-ACCESS not-accessible
+        STATUS current
+        DESCRIPTION
+                "The index for the command."
+ -- 1.3.6.1.4.1.4976.6.1.2.2.2.1.1 --  ::= { cmdExecutionCmdEntry 1 }
+
+
+cmdExecutionCmdName OBJECT-TYPE
+        SYNTAX CommandName
+        MAX-ACCESS read-create
+        STATUS current
+        DESCRIPTION
+                "The name of the command in cmdExecutionCmdConfigTable
+                to be executed."
+ -- 1.3.6.1.4.1.4976.6.1.2.2.2.1.2 --  ::= { cmdExecutionCmdEntry 2 }
+
+
+cmdExecutionCmdStatus OBJECT-TYPE
+        SYNTAX INTEGER {
+                        idle(1),
+                        running(2),
+                        finished(3),
+                        error(4) }
+        MAX-ACCESS read-only
+        STATUS current
+        DESCRIPTION
+                "The status of the command."
+ -- 1.3.6.1.4.1.4976.6.1.2.2.2.1.3 --  ::= { cmdExecutionCmdEntry 3 }
+
+
+cmdExecutionCmdRunTime OBJECT-TYPE
+        SYNTAX TimeTicks
+        MAX-ACCESS read-only
+        STATUS current
+        DESCRIPTION
+                "The execution time of the command."
+ -- 1.3.6.1.4.1.4976.6.1.2.2.2.1.4 --  ::= { cmdExecutionCmdEntry 4 }
+
+
+cmdExecutionCmdRowStatus OBJECT-TYPE
+        SYNTAX RowStatus
+        MAX-ACCESS read-create
+        STATUS current
+        DESCRIPTION
+                "The row status of this conceptual row. When this row
+                        is activated the specified command is executed. After
+                execution the row status is notInService."
+ -- 1.3.6.1.4.1.4976.6.1.2.2.2.1.5 --  ::= { cmdExecutionCmdEntry 5 }
+
+
+cmdExecutionOutput OBJECT IDENTIFIER 
+ -- 1.3.6.1.4.1.4976.6.1.2.3 --  ::= { cmdExecutionObjs 3 }
+
+-- **************************
+--
+-- CMD-Execution Output 
+--
+-- **************************
+
+cmdExecutionOutputTable OBJECT-TYPE
+        SYNTAX SEQUENCE OF CmdExecutionOutputEntry
+        MAX-ACCESS not-accessible
+        STATUS current
+        DESCRIPTION
+                "The list of command outputs"
+ -- 1.3.6.1.4.1.4976.6.1.2.3.1 --  ::= { cmdExecutionOutput 1 }
+
+
+cmdExecutionOutputEntry OBJECT-TYPE
+        SYNTAX CmdExecutionOutputEntry
+        MAX-ACCESS not-accessible
+        STATUS current
+        DESCRIPTION
+                "An entry of the output list."
+        INDEX {
+                cmdExecutionCmdIndex,
+                cmdExecutionOutputLineNumber }
+ -- 1.3.6.1.4.1.4976.6.1.2.3.1.1 --  ::= { cmdExecutionOutputTable 1 }
+
+
+CmdExecutionOutputEntry ::= SEQUENCE {
+        cmdExecutionOutputLineNumber Integer32,
+        cmdExecutionOutputLine       DisplayString }
+
+
+cmdExecutionOutputLineNumber OBJECT-TYPE
+        SYNTAX Integer32 (0..999)
+        MAX-ACCESS not-accessible
+        STATUS current
+        DESCRIPTION
+                "The line number of the output entry."
+ -- 1.3.6.1.4.1.4976.6.1.2.3.1.1.1 --  ::= { cmdExecutionOutputEntry 1 }
+
+
+cmdExecutionOutputLine OBJECT-TYPE
+        SYNTAX DisplayString
+        MAX-ACCESS read-only
+        STATUS current
+        DESCRIPTION
+                "A line of command output."
+ -- 1.3.6.1.4.1.4976.6.1.2.3.1.1.2 --  ::= { cmdExecutionOutputEntry 2 }
+
+
+cmdExecutionEvents OBJECT IDENTIFIER 
+ -- 1.3.6.1.4.1.4976.6.1.3 --  ::= { cmdExecutionModule 3 }
+
+END

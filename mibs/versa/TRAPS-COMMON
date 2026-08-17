@@ -1,0 +1,251 @@
+--
+-- @Description: Common MIB for all SNMP Traps
+-- @Date       : 2014-07-15
+--
+
+TRAPS-COMMON DEFINITIONS ::= BEGIN
+
+IMPORTS
+    MODULE-IDENTITY, OBJECT-TYPE, Integer32
+        FROM SNMPv2-SMI
+    TruthValue, DateAndTime
+        FROM SNMPv2-TC
+    SnmpAdminString
+        FROM SNMP-FRAMEWORK-MIB
+    IANAItuEventType, IANAItuProbableCause
+        FROM IANA-ITU-ALARM-TC-MIB
+    notifications
+        FROM VERSA-MIB;
+
+
+versaTrapsCommon MODULE-IDENTITY
+    LAST-UPDATED "201407100000Z"
+    ORGANIZATION "Versa Networks"
+    CONTACT-INFO "
+        2953 Bunker Hill Lane, Suite 210
+        Santa Clara, CA - 95035 (USA)
+        Email: support@versa-networks.com"
+    DESCRIPTION  "Versa Networks' Enterprise MIB for common TRAP objects"
+    REVISION     "201407100000Z"
+    DESCRIPTION  "Initial version."
+    ::= { notifications 3 }
+
+trapObjects  OBJECT IDENTIFIER ::= { versaTrapsCommon 1}
+
+alarmIndex OBJECT-TYPE
+    SYNTAX       Integer32
+    MAX-ACCESS   not-accessible
+    STATUS       current
+    DESCRIPTION
+        "A unique value, greater than zero, for each alarm.  The value
+        for each alarm must remain constant at least from one
+        re-initialization of the entity to the next
+        re-initialization."
+    ::= { trapObjects 1 }
+
+alarmType OBJECT-TYPE
+    SYNTAX       SnmpAdminString
+    MAX-ACCESS   accessible-for-notify
+    STATUS       current
+    DESCRIPTION
+        "This provides an identification of the alarm type. Together
+         with tfAlarmSpecificProblem, this is a unique identification
+         of the alarm. Different managed object types and instances
+         can share alarm types, but if the same managed object reports
+         the same alarm type, it is to be considered as the same alarm
+         state. The alarm type is a simplification of the different
+         X.733 and 3GPP alarm IRP alarm correlation mechanisms based
+         on EventType, ProbableCause, SpecificProblem and
+         NotificationId."
+    ::= { trapObjects 2 }
+
+alarmDevice OBJECT-TYPE
+    SYNTAX       SnmpAdminString
+    MAX-ACCESS   accessible-for-notify
+    STATUS       current
+    DESCRIPTION
+        "The name of the managed device.  May also be the system
+         itself for self-management alarms.  Note that this object is
+         not fine-grained enough to pinpoint the alarming
+         resource. The alarm object within the device is the exact
+         alarming resource."
+    ::= { trapObjects 3 }
+
+alarmObject OBJECT-TYPE
+    SYNTAX       OCTET STRING(SIZE(0..255))
+    MAX-ACCESS   accessible-for-notify
+    STATUS       current
+    DESCRIPTION
+        "Name of alarm object within a device based on YANG
+         naming. Note that the granularity must be good enough to
+         guarantee unique alarm states and relevant resource
+         identification to the operator."
+    ::= { trapObjects 4 }
+
+alarmObjectOID OBJECT-TYPE
+    SYNTAX       OBJECT IDENTIFIER
+    MAX-ACCESS   accessible-for-notify
+    STATUS       current
+    DESCRIPTION
+        "Name of alarm object based on SNMP naming. Note that the
+        granularity must be good enough to guarantee unique alarm
+        states and relevant resource identification to the operator."
+    ::= { trapObjects 5 }
+
+alarmSpecificProblem OBJECT-TYPE
+    SYNTAX       OCTET STRING (SIZE (0..255))
+    MAX-ACCESS   accessible-for-notify
+    STATUS       current
+    DESCRIPTION
+        "This object is used when the 'tfAlarmType' object cannot
+         uniquely identify the alarm type.  Normally, this is not the
+         case, and this leaf is the empty string."
+    ::= { trapObjects 6 }
+
+alarmClass OBJECT-TYPE
+    SYNTAX  INTEGER {
+                new (0),
+                changed (1),
+                cleared (2)
+            }
+    MAX-ACCESS   accessible-for-notify
+    STATUS       current
+    DESCRIPTION
+        "The severity of the alarm as defined by X.733.  Note that
+         this may not be the original severity since the alarm may
+         have changed severity. For cleared alarms, this is the last
+         severity that is not equal to cleared."
+    REFERENCE
+        "ITU Recommendation X.733, 'Information Technology - Open Systems
+         Interconnection - System Management: Alarm Reporting Function',
+         1992"
+    ::= { trapObjects 7 }
+
+alarmEventType OBJECT-TYPE
+    SYNTAX       IANAItuEventType
+    MAX-ACCESS   accessible-for-notify
+    STATUS       current
+    DESCRIPTION
+        "The event type as defined in X.733/X.736."
+    REFERENCE
+        "ITU Recommendation X.733, 'Information Technology - Open Systems
+         Interconnection - System Management: Alarm Reporting Function',
+         1992"
+    ::= { trapObjects 8 }
+
+alarmProbableCause OBJECT-TYPE
+    SYNTAX       IANAItuProbableCause
+    MAX-ACCESS   accessible-for-notify
+    STATUS       current
+    DESCRIPTION
+        "The probable cause as defined in X.733/X.736."
+    REFERENCE
+        "ITU Recommendation X.733, 'Information Technology - Open Systems
+         Interconnection - System Management: Alarm Reporting Function',
+         1992"
+    ::= { trapObjects 9 }
+
+alarmOrigTime OBJECT-TYPE
+    SYNTAX       DateAndTime -- Time for alarm raise
+    MAX-ACCESS   accessible-for-notify
+    STATUS       current
+    DESCRIPTION
+        "Time for alarm raise"
+    ::= { trapObjects 10 }
+
+alarmTime OBJECT-TYPE
+    SYNTAX       DateAndTime
+    MAX-ACCESS   accessible-for-notify
+    STATUS       current
+    DESCRIPTION
+        "A time stamp of the alarm state change event.  Note that this
+         variable represents the last change of the alarm state, like
+         changed severity or additional text. If the alarm has not
+         changed state this variable represents the alarm raise time
+         and will be the same as tfAlarmOrigTime.
+
+         NOTE: All fields of the DateAndTime MUST be filled out,
+         including the hours and minutes from UTC. As such, the value
+         should be 11 octets long."
+    REFERENCE
+        "ITU Recommendation X.733, 'Information Technology - Open Systems
+         Interconnection - System Management: Alarm Reporting Function',
+         1992"
+    ::= { trapObjects 11 }
+
+alarmSeverity OBJECT-TYPE
+    SYNTAX  INTEGER {
+                cleared (1),
+                indeterminate (2),
+                minor (3),
+                warning (4),
+                major (5),
+                critical (6)
+            }
+    MAX-ACCESS   accessible-for-notify
+    STATUS       current
+    DESCRIPTION
+        "The severity of the alarm as defined by X.733.  Note that
+         this may not be the original severity since the alarm may
+         have changed severity. For cleared alarms, this is the last
+         severity that is not equal to cleared."
+    REFERENCE
+        "ITU Recommendation X.733, 'Information Technology - Open Systems
+         Interconnection - System Management: Alarm Reporting Function',
+         1992"
+    ::= { trapObjects 12 }
+
+alarmHasClear OBJECT-TYPE
+    SYNTAX       TruthValue
+    MAX-ACCESS   accessible-for-notify
+    STATUS       current
+    DESCRIPTION
+        "Indicates if the alarm is cleared or not."
+    ::= { trapObjects 13 }
+
+alarmText OBJECT-TYPE
+    SYNTAX       OCTET STRING(SIZE(0..1024))
+    MAX-ACCESS   accessible-for-notify
+    STATUS       current
+    DESCRIPTION
+        "A user friendly text describing the alarm.
+        Intended for human consumption."
+    REFERENCE
+        "ITU Recommendation X.733, 'Information Technology - Open Systems
+         Interconnection - System Management: Alarm Reporting Function',
+         1992"
+    ::= { trapObjects 14 }
+
+tenantName OBJECT-TYPE
+    SYNTAX      OCTET STRING(SIZE(1..63))
+    MAX-ACCESS  accessible-for-notify
+    STATUS      current
+    DESCRIPTION "Tenant name"
+        ::= { trapObjects 15 }
+
+thresholdStatus OBJECT-TYPE
+    SYNTAX      INTEGER {
+                    set(1),    -- threshold set
+                    clear(2)   -- threshold clear
+                }
+    MAX-ACCESS  accessible-for-notify
+    STATUS      current
+    DESCRIPTION "Status set/clear"
+        ::= { trapObjects 16 }
+
+currentUtilization OBJECT-TYPE
+    SYNTAX       INTEGER
+    MAX-ACCESS   accessible-for-notify
+    STATUS       current
+    DESCRIPTION  "Current utilization in percentage"
+        ::= { trapObjects 17 }
+
+alarmKey OBJECT-TYPE
+    SYNTAX       OCTET STRING (SIZE (0..255))
+    MAX-ACCESS   accessible-for-notify
+    STATUS       current
+    DESCRIPTION
+        "This object can be used as a key to uniquely identify an alarm"
+    ::= { trapObjects 18 }
+
+END
