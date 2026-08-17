@@ -21,15 +21,18 @@ jobs:
             GH_TOKEN: ${{ github.token }}
             GH_REPO: ${{ github.repository }}
         steps:
+            - name: Checkout
+              uses: actions/checkout@v4
+
             - name: Download the current tarball
               run: |
-                  curl -fsSL -o current.tar.gz \
+                  curl -fsSL -o "$RUNNER_TEMP/current.tar.gz" \
                       https://www.observium.org/observium-community-latest.tar.gz
-                  echo "sha=$(sha256sum current.tar.gz | cut -d' ' -f1)" >> "$GITHUB_ENV"
+                  echo "sha=$(sha256sum "$RUNNER_TEMP/current.tar.gz" | cut -d' ' -f1)" >> "$GITHUB_ENV"
 
             - name: Read the CE version
               run: |
-                  version=$(tar -xzOf current.tar.gz observium/includes/definitions/version.inc.php 2>/dev/null \
+                  version=$(tar -xzOf "$RUNNER_TEMP/current.tar.gz" observium/includes/definitions/version.inc.php 2>/dev/null \
                       | sed -n "s/^define('OBSERVIUM_VERSION',[[:space:]]*'\([^']*\)').*/\1/p")
                   # a layout change upstream must not cost us the build itself
                   [ -n "$version" ] || version="unknown-$(date -u +%Y%m%d)"
@@ -39,11 +42,35 @@ jobs:
               run: |
                   previous=$(gh release list --limit 1 --json tagName --jq '.[0].tagName // empty')
                   if [ -n "$previous" ]; then
-                      gh release download "$previous" --pattern "*.sha256" --dir previous || true
-                      if [ "$(cut -d' ' -f1 previous/*.sha256 2>/dev/null)" = "$sha" ]; then
+                      gh release download "$previous" --pattern "*.sha256" --dir "$RUNNER_TEMP/previous" || true
+                      if [ "$(cut -d' ' -f1 "$RUNNER_TEMP/previous"/*.sha256 2>/dev/null)" = "$sha" ]; then
                           echo "unchanged=1" >> "$GITHUB_ENV"
                           echo "Unchanged since $previous, nothing to archive."
                       fi
+                  fi
+
+            - name: Unpack the build into the tree
+              if: env.unchanged != '1'
+              run: |
+                  tar -xzf "$RUNNER_TEMP/current.tar.gz" -C "$RUNNER_TEMP"
+                  # keep our own files; logs and rrd ship empty
+                  rsync -a --delete-after \
+                      --exclude .git \
+                      --exclude .github \
+                      --exclude README.md \
+                      --exclude LICENSE \
+                      --exclude logs \
+                      --exclude rrd \
+                      "$RUNNER_TEMP/observium/" .
+
+                  git config user.name "github-actions[bot]"
+                  git config user.email "github-actions[bot]@users.noreply.github.com"
+                  git add -A
+                  if git diff --cached --quiet; then
+                      echo "Tree already matches this build."
+                  else
+                      git commit -q -m "Update to Observium CE $version"
+                      git push
                   fi
 
             - name: Publish the release
@@ -56,12 +83,13 @@ jobs:
                   fi
 
                   name="observium-community-$version.tar.gz"
-                  mv current.tar.gz "$name"
-                  sha256sum "$name" > "$name.sha256"
+                  mv "$RUNNER_TEMP/current.tar.gz" "$RUNNER_TEMP/$name"
+                  (cd "$RUNNER_TEMP" && sha256sum "$name" > "$name.sha256")
 
                   printf 'Tarball as published by observium.org on %s.\n\nsha256 `%s`\n' \
-                      "$(date -u +%Y-%m-%d)" "$sha" > notes.md
+                      "$(date -u +%Y-%m-%d)" "$sha" > "$RUNNER_TEMP/notes.md"
 
-                  gh release create "$tag" "$name" "$name.sha256" \
+                  gh release create "$tag" \
+                      "$RUNNER_TEMP/$name" "$RUNNER_TEMP/$name.sha256" \
                       --title "Observium CE $version" \
-                      --notes-file notes.md
+                      --notes-file "$RUNNER_TEMP/notes.md"
