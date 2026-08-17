@@ -1,0 +1,67 @@
+name: archive
+
+on:
+    schedule:
+        # Observium publishes one tarball and overwrites it in place, so a
+        # weekly check is what keeps a build from disappearing unnoticed.
+        - cron: "40 4 * * 1"
+    workflow_dispatch:
+
+permissions:
+    contents: write
+
+concurrency:
+    group: archive
+    cancel-in-progress: false
+
+jobs:
+    archive:
+        runs-on: ubuntu-latest
+        env:
+            GH_TOKEN: ${{ github.token }}
+            GH_REPO: ${{ github.repository }}
+        steps:
+            - name: Download the current tarball
+              run: |
+                  curl -fsSL -o current.tar.gz \
+                      https://www.observium.org/observium-community-latest.tar.gz
+                  echo "sha=$(sha256sum current.tar.gz | cut -d' ' -f1)" >> "$GITHUB_ENV"
+
+            - name: Read the CE version
+              run: |
+                  version=$(tar -xzOf current.tar.gz observium/includes/definitions/version.inc.php 2>/dev/null \
+                      | sed -n "s/^define('OBSERVIUM_VERSION',[[:space:]]*'\([^']*\)').*/\1/p")
+                  # a layout change upstream must not cost us the build itself
+                  [ -n "$version" ] || version="unknown-$(date -u +%Y%m%d)"
+                  echo "version=$version" >> "$GITHUB_ENV"
+
+            - name: Compare against the last archived tarball
+              run: |
+                  previous=$(gh release list --limit 1 --json tagName --jq '.[0].tagName // empty')
+                  if [ -n "$previous" ]; then
+                      gh release download "$previous" --pattern "*.sha256" --dir previous || true
+                      if [ "$(cut -d' ' -f1 previous/*.sha256 2>/dev/null)" = "$sha" ]; then
+                          echo "unchanged=1" >> "$GITHUB_ENV"
+                          echo "Unchanged since $previous, nothing to archive."
+                      fi
+                  fi
+
+            - name: Publish the release
+              if: env.unchanged != '1'
+              run: |
+                  tag="v$version"
+                  # same version number, different bytes: keep both
+                  if gh release view "$tag" >/dev/null 2>&1; then
+                      tag="$tag-$(date -u +%Y%m%d)"
+                  fi
+
+                  name="observium-community-$version.tar.gz"
+                  mv current.tar.gz "$name"
+                  sha256sum "$name" > "$name.sha256"
+
+                  printf 'Tarball as published by observium.org on %s.\n\nsha256 `%s`\n' \
+                      "$(date -u +%Y-%m-%d)" "$sha" > notes.md
+
+                  gh release create "$tag" "$name" "$name.sha256" \
+                      --title "Observium CE $version" \
+                      --notes-file notes.md
