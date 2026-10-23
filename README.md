@@ -7,7 +7,7 @@ Archive of [Observium Community Edition](https://www.observium.org/). Not
 affiliated with or endorsed by Observium Limited.
 
 Observium ships CE as a single `observium-community-latest.tar.gz` that is
-overwritten in place. Once a new build lands the previous one is gone — there
+overwritten in place. Once a new build lands the previous one is gone; there
 is no release page and no version history to fall back on.
 
 This repository keeps both halves of that history. The tree holds the current
@@ -17,7 +17,7 @@ upstream weekly, compares the tarball against the last archived one and does
 nothing unless the bytes changed.
 
 The code is archived exactly as Observium published it. Nothing is patched or
-stubbed, which is the point of an archive — if a build behaves oddly, that is
+stubbed, which is the point of an archive: if a build behaves oddly, that is
 how it shipped.
 
 ## Grabbing a single file
@@ -45,7 +45,7 @@ instead of replacing the first.
 [docker-observium](https://github.com/mews-se/docker-observium) builds its
 image straight from observium.org, which is fine until that URL moves or the
 site is down on a build day. This archive is the fallback, and having the tree
-in git means two builds can be diffed — useful, since upstream develops out of
+in git means two builds can be diffed, which helps since upstream develops out of
 sight in a private repository.
 
 The MIT licence here covers the workflow and this README. The archived software
