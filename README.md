@@ -38,15 +38,16 @@ tar zxf observium-community-26.1.14545.tar.gz -C /opt
 Tags come from `OBSERVIUM_VERSION` in `includes/definitions/version.inc.php`,
 so `v26.1.14545` is the exact build Observium shipped. If a rebuild carries the
 same version number but different bytes, the second one gets a date suffix
-instead of replacing the first.
+instead of replacing the first. When the version cannot be read at all, the
+build is still archived, tagged `vunknown-YYYYMMDD`.
 
 ## Why
 
 [docker-observium](https://github.com/mews-se/docker-observium) builds its
 image straight from observium.org, which is fine until that URL moves or the
-site is down on a build day. This archive is the fallback, and having the tree
-in git means two builds can be diffed, which helps since upstream develops out of
-sight in a private repository.
+site is down on a build day. This archive is a manual fallback for that, and
+having the tree in git means two builds can be diffed, which helps since
+upstream develops out of sight in a private repository.
 
 The MIT licence here covers the workflow and this README. The archived software
 is Observium's, under the licence included with it.
